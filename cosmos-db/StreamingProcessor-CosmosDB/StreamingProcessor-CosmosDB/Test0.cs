@@ -12,6 +12,9 @@ namespace StreamingProcessor
 {
     public static class Test0
     {
+        /*
+         * Cosmos DB output using Azure Function binding
+         */
         [FunctionName("Test0")]
         public static async Task RunAsync([EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup="%ConsumerGroup%")]string[] eventHubMessages,
             [DocumentDB(databaseName: "%CosmosDBDatabaseName%",

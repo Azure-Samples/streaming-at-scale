@@ -12,6 +12,7 @@ EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list --name RootMan
 
 echo 'generating event hub sas token'
 EVENTHUB_SAS_TOKEN=`python3 ../_common/generate-event-hub-sas-token.py $EVENTHUB_NAMESPACE $EVENTHUB_NAME $EVENTHUB_KEY`
+echo ". SAS token: $EVENTHUB_SAS_TOKEN"
 
 echo 'create test clients'
 for CLIENT_ID in {1..4}
@@ -22,7 +23,7 @@ do
     --image christianbladescb/locustio --ports 8089 --ip-address public --dns-name-label $LOCUST_DNS_NAME-$CLIENT_ID \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
     --command-line "/usr/bin/locust --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
-    -e EVENTHUB_SAS_TOKEN=$EVENTHUB_SAS_TOKEN EVENTHUB_NAMESPACE=$EVENTHUB_NAMESPACE EVENTHUB_NAME=$EVENTHUB_NAME \
+    -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 4 --memory 8 \
     -o tsv >> log.txt
 

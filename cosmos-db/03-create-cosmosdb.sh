@@ -14,7 +14,7 @@ echo 'creating cosmosdb collection'
 echo ". name: $COSMOSDB_COLLECTION_NAME"
 az cosmosdb collection create -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME \
 -d $COSMOSDB_DATABASE_NAME --collection-name $COSMOSDB_COLLECTION_NAME \
---partition-key-path "/eventData/conversation/id" --throughput 20000 \
+--partition-key-path "/eventData/eventId" --throughput 20000 \
 --indexing-policy '{"indexingMode": "none"}' \
 -o tsv >> log.txt
 

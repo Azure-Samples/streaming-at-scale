@@ -1,12 +1,10 @@
 from locust import HttpLocust, TaskSet, task
 import os
-import gevent
 import random
 import requests
 import datetime, time
 import uuid
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+import random
 
 class DeviceSimulator(TaskSet):
     headers = {
@@ -19,8 +17,8 @@ class DeviceSimulator(TaskSet):
     def on_start(self):
         pass   
 
-    @task(20)
-    def send(self):
+    @task
+    def sendData(self):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
@@ -28,24 +26,13 @@ class DeviceSimulator(TaskSet):
             'eventId': eventId,
             'type': 'VALUE_READ',
             'deviceId': '78902df4-7b5d-43a3-b017-f8fbfb86a2f0',
-            'createdAt': createdAt
+            'createdAt': createdAt,
+            'data': {
+                'temperature': random.uniform(10,100)
+            }
         }
 
-        with self.client.post(self.endpoint,
-                        json=json,
-                        verify=False,
-                        headers=self.headers,
-                        catch_response=True) as response:
-
-            if response.status_code == 201:                
-                response.success()
-            else:
-                print(response.status_code)
-                response.failure("Error sending message to EventHub")
-
-    @task(5)
-    def stop(self):
-        self.interrupt()
+        self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
 
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
