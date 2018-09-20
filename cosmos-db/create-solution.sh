@@ -17,6 +17,23 @@ echo
 echo "Streaming at Scale with CosmosDB"
 echo "================================"
 echo
+echo "checking prerequisistes..."
+HAS_AZ=`which az`
+HAS_PY3=`which python3`
+
+if [ -z HAS_AZ ]; then
+    echo "AZ CLI not found"
+    echo "please install it as described here:"
+    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    exit 1
+fi
+
+if [ -z HAS_PY3 ]; then
+    echo "python3 not found"
+    echo "please install it as it is needed by the script"
+    exit 1
+fi
+
 echo "deployment started..."
 echo
 
