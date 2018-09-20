@@ -13,15 +13,15 @@ export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
 
 # remove log.txt if exists
-rm log.txt -f
+rm -f log.txt
 
 echo
 echo "Streaming at Scale with CosmosDB"
 echo "================================"
 echo
 echo "checking prerequisistes..."
-HAS_AZ=`which az`
-HAS_PY3=`which python3`
+HAS_AZ=`command -v az`
+HAS_PY3=`command -v python3`
 
 if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
