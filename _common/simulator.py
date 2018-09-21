@@ -26,12 +26,11 @@ class DeviceSimulator(TaskSet):
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
         deviceIndex = random.randint(0, 999)
-        print("device #:{0}".format(deviceIndex))
 
         json={
             'eventId': eventId,
             'type': 'TEMP',
-            'deviceId': 'contoso://device/' + self.locust.tempDevice[deviceIndex],
+            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
             'data': random.uniform(10,100)        
         }
@@ -43,13 +42,12 @@ class DeviceSimulator(TaskSet):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
-        deviceIndex = random.randint(0, 999)
-        print("device #:{0}".format(deviceIndex))
+        deviceIndex = random.randint(0, 999) + 1000
 
         json={
             'eventId': eventId,
             'type': 'CO2',
-            'deviceId': 'contoso://device/' + self.locust.co2Device[deviceIndex],
+            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
             'value': random.uniform(300,400)            
         }
@@ -59,9 +57,4 @@ class DeviceSimulator(TaskSet):
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
     min_wait = 500
-    max_wait = 1000
-    tempDevice = []
-    co2Device = []
-    for d in range(1, 1000):
-        tempDevice.append(str(uuid.uuid4()))
-        co2Device.append(str(uuid.uuid4()))
+    max_wait = 1000    

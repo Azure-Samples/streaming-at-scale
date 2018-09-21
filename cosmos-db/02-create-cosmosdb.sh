@@ -22,7 +22,7 @@ COLLECTION_EXISTS=`az cosmosdb collection exists -g $RESOURCE_GROUP -n $COSMOSDB
 if [ $COLLECTION_EXISTS == "false" ]; then
     az cosmosdb collection create -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME \
     -d $COSMOSDB_DATABASE_NAME --collection-name $COSMOSDB_COLLECTION_NAME \
-    --partition-key-path "/eventData/eventId" --throughput 20000 \
-    --indexing-policy '{"indexingMode": "none"}' \
+    --partition-key-path "/eventData/deviceId" --throughput 20000 \
+    --indexing-policy @index-policy.json \
     -o tsv >> log.txt
 fi

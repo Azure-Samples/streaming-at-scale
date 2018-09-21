@@ -77,7 +77,7 @@ echo "***** [D] setting up DATABASE"
     export COSMOSDB_DATABASE_NAME="streaming"
     export COSMOSDB_COLLECTION_NAME="rawdata"
 
-    RUN=`echo $STEPS | grep P -o`
+    RUN=`echo $STEPS | grep D -o`
     if [ ! -z $RUN ]; then
         ./02-create-cosmosdb.sh
     fi
