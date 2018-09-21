@@ -37,4 +37,4 @@ class DeviceSimulator(TaskSet):
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
     min_wait = 500
-    max_wait = 2500
+    max_wait = 1500
