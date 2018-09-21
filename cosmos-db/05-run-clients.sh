@@ -26,7 +26,7 @@ EVENTHUB_SAS_TOKEN=`python3 ../_common/generate-event-hub-sas-token.py $EVENTHUB
 echo ". SAS token: $EVENTHUB_SAS_TOKEN"
 
 echo 'create test clients'
-for CLIENT_ID in {1..4}
+for CLIENT_ID in {1..2}
 do
     echo "creating client $CLIENT_ID..."
 
