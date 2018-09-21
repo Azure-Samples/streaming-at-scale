@@ -21,6 +21,16 @@
                     "precision": -1
                 }
             ]
+        },
+        {
+            "path": "/eventData/createdAt/?",
+            "indexes": [
+                {
+                    "kind": "Range",
+                    "dataType": "String",
+                    "precision": -1
+                }
+            ]
         }
     ],
     "excludedPaths": [
