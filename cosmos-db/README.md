@@ -1,4 +1,4 @@
-# Streaming at Scale with Azure SQL
+# Streaming at Scale with Cosmos DB
 
 This sample uses Cosmos DB as database to store JSON data
 
@@ -22,7 +22,6 @@ and also make sure you have the subscription you want to use selected
 if you want to select a specific subscription use the following command
 
     az account set --subscription <subscription_name>
-
 
 once you have selected the subscription you want to use just execute the following command
 
