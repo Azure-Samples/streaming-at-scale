@@ -6,6 +6,9 @@ import datetime, time
 import uuid
 import random
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 class DeviceSimulator(TaskSet):
     headers = {
         'Content-Type': 'application/atom+xml;type=noretry;charset=utf-8 ',
@@ -18,18 +21,37 @@ class DeviceSimulator(TaskSet):
         pass   
 
     @task
-    def sendData(self):
+    def sendTemperature(self):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
+        deviceIndex = random.randint(0, 999)
+        print("device #:{0}".format(deviceIndex))
+
         json={
             'eventId': eventId,
-            'type': 'VALUE_READ',
-            'deviceId': '78902df4-7b5d-43a3-b017-f8fbfb86a2f0',
+            'type': 'TEMP',
+            'deviceId': 'contoso://device/' + self.locust.tempDevice[deviceIndex],
             'createdAt': createdAt,
-            'data': {
-                'temperature': random.uniform(10,100)
-            }
+            'data': random.uniform(10,100)        
+        }
+
+        self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
+
+    @task
+    def sendCO2(self):
+        eventId = str(uuid.uuid4())
+        createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
+
+        deviceIndex = random.randint(0, 999)
+        print("device #:{0}".format(deviceIndex))
+
+        json={
+            'eventId': eventId,
+            'type': 'CO2',
+            'deviceId': 'contoso://device/' + self.locust.co2Device[deviceIndex],
+            'createdAt': createdAt,
+            'value': random.uniform(300,400)            
         }
 
         self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
@@ -37,4 +59,9 @@ class DeviceSimulator(TaskSet):
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
     min_wait = 500
-    max_wait = 1500
+    max_wait = 1000
+    tempDevice = []
+    co2Device = []
+    for d in range(1, 1000):
+        tempDevice.append(str(uuid.uuid4()))
+        co2Device.append(str(uuid.uuid4()))
