@@ -30,7 +30,7 @@ for CLIENT_ID in {1..4}
 do
     echo "creating client $CLIENT_ID..."
 
-    az container delete -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
+    az container delete -g $RESOURCE_GROUP -n locust-$CLIENT_ID -y \
     -o tsv >> log.txt
 
     az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \

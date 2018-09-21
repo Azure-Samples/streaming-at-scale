@@ -58,7 +58,7 @@ echo "***** [C] setting up common resources"
     fi
 echo 
 
-echo "***** [I] vsetting up INGESTION"
+echo "***** [I] setting up INGESTION"
     
     export EVENTHUB_NAMESPACE=$PREFIX"ingest"
     export EVENTHUB_PARTITIONS=32
