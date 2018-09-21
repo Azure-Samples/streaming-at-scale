@@ -46,7 +46,7 @@ do
     LOCUST_IP=$($CMD)
     echo "starting client $CLIENT_ID..."
     echo ". endpoint: http://$LOCUST_IP:8089"
-    sleep 10
+    sleep 15
     curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=400" -F "hatch_rate=10"
     echo 'done'
 done
