@@ -27,9 +27,8 @@ The goal of this repo is to showcase all the possibile common architectural solu
 ## Available solutions
 At present time the available solutions is
 
-[cosmos-db](cosmos-db)
-Implement a Kappa architecture using 
-- EventHubs (Ingest)
+[Cosmos DB Sample:](cosmos-db) Implement a Kappa architecture using:
+- EventHubs (Ingest / Immutable Log)
 - AzureFunctions (Stream Process)
 - Cosmos DB (Serve)
 
