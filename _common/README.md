@@ -1,1 +1,1 @@
-Scripts used in both samples
+Common scripts and resources used to setup end to end streaming solution at scale
