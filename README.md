@@ -1,9 +1,6 @@
 # Streaming at Scale
 Sample end-to-end solutions to implement streaming at scale scenarios using Azure
 
-## Notes
-This branch containes the scripts and demo prepared for Ignite 2018 session demos
-
 ## About the repo
 The sample shows how to setup an end-to-end solution to implement a streaming at scale scenario using a choice of different Azure technologies. There are *many* possible way to implement such solution in Azure, following [Kappa](https://milinda.pathirage.org/kappa-architecture.com/) or [Lambda](http://lambda-architecture.net/) architetures, a variation of them, or even custom ones. Each architectural soution can also be implemented with different technologies, each one with its own pros and cons. 
 
