@@ -32,7 +32,7 @@ class DeviceSimulator(TaskSet):
             'type': 'TEMP',
             'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
-            'data': random.uniform(10,100)        
+            'value': random.uniform(10,100)        
         }
 
         self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
