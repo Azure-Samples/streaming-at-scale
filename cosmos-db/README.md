@@ -32,9 +32,9 @@ then `solution_name` value will be used to create a resource group that will con
 [Storage Naming Conventions and Limits](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#storage)
 
 **Note**
-To make sure that name collisions will be unlikely use a random string:
+To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    echo `openssl rand 5 -base64 | cut -c1-7 | tr '[:upper:]' '[:lower:]' | tr -cd '[[:alnum:]]._-'`
+    ./generate-solution-name.sh
 
 ## Created resources
 
@@ -47,6 +47,19 @@ The script will create the followin resources:
 * **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
 The Azure Function is created using .Net Framework 4.6.1, so at the moment it can be compiled only on a Window OS. 
+
+## Solution customization
+
+If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+
+    export EVENTHUB_PARTITIONS=4
+    export EVENTHUB_CAPACITY=10
+    export PROC_FUNCTION_WORKERS=4
+    export COSMOSDB_RU=20000
+    export TEST_CLIENTS=2
+
+The above settings has been choosen to sustain a 1000 msg/sec stream.
+
 
 ## Monitor performances
 
