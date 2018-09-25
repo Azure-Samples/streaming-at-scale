@@ -15,7 +15,7 @@ echo 'getting storage key'
 AZURE_STORAGE_KEY=`az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP --query '[0].value' -o tsv` 
 
 echo 'create test clients'
-for CLIENT_ID in {1..2}
+for CLIENT_ID in {1..4}
 do
     echo "creating client $CLIENT_ID..."
 

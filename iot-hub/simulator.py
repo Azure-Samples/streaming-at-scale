@@ -22,7 +22,7 @@ class DeviceSimulator(TaskSet):
     @task
     def sendTemperature(self):
         
-        deviceId = 'device-{0}'.format(random.randint(1, 3))
+        deviceId = 'SimulatedFridge-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
         endpoint = "/devices/"+ deviceId +"/messages/events?api-version=2018-04-01"
 
         eventId = str(uuid.uuid4())
@@ -33,25 +33,27 @@ class DeviceSimulator(TaskSet):
             'type': 'TEMP',
             'deviceId': deviceId,
             'createdAt': createdAt,
-            'data': random.uniform(10,100)        
+            'deviceType': 'Fridge',
+            'temperature': random.uniform(20, 32)       
         }
 
         self.client.post(endpoint, json=json, verify=False, headers=self.headers)
 
     @task
-    def sendCO2(self):
+    def sendState(self):
 
-        deviceId = 'device-{0}'.format(random.randint(1, 3))
+        deviceId = 'SimulatedLightBulb-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
         endpoint = "/devices/"+ deviceId +"/messages/events?api-version=2018-04-01"
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
         json={
             'eventId': eventId,
-            'type': 'CO2',
+            'type': 'STATE',
             'deviceId': deviceId,
             'createdAt': createdAt,
-            'value': random.uniform(300,400)            
+            'deviceType': 'LightBulb',
+            'state': random.choice(['on', 'off'])       
         }
 
         self.client.post(endpoint, json=json, verify=False, headers=self.headers)

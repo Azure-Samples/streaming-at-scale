@@ -44,6 +44,9 @@ if [ -z HAS_PY3 ]; then
     exit 1
 fi
 
+echo "Install azure-cli-iot-ext"
+az extension add --name azure-cli-iot-ext
+
 echo "deployment started..."
 echo
 
@@ -60,20 +63,12 @@ echo
 
 echo "***** [I] setting up INGESTION"
     
-    export IOTHUB_NAME="locustTestHub"
-
-    export IOTHUB_SAS_TOKEN="SharedAccessSignature sr=locustTestHub.azure-devices.net&sig=hVysytCMNhjfNNy2xmaNsjdRX72DQ0QNG9z8BbGFi2g%3D&se=1569352097&skn=iothubowner"
-
-    # TODO : Replace below with IoT Hub creation
-    # export IOTHUB_NAME="locustTestHub"
-    # export EVENTHUB_NAMESPACE=$PREFIX"ingest"
-    # export EVENTHUB_PARTITIONS=32
-    # export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
-    # export EVENTHUB_CG="cosmos"
+    export IOTHUB_NAME=""
+    export IOTHUB_SAS_TOKEN=""
 
     # RUN=`echo $STEPS | grep I -o`
     # if [ ! -z $RUN ]; then
-    #     ./01-create-event-hub.sh
+    #     ./01-create-iot-hub.sh
     # fi
 echo
 
