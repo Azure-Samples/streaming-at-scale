@@ -7,7 +7,7 @@
       "path": "%EventHubName%",
       "consumerGroup": "%ConsumerGroup%",
       "connection": "EventHubsConnectionString",
-      "name": "eventHubMessages"
+      "name": "eventHubData"
     }
   ],
   "disabled": true,

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json.Linq;
+using Microsoft.ServiceBus.Messaging;
+using System.Text;
 
 namespace StreamingProcessor
 {
@@ -16,8 +18,7 @@ namespace StreamingProcessor
          * Cosmos DB output without using binding
          */
         [FunctionName("Test1")]
-        public static async Task RunAsync([EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup="%ConsumerGroup%")]string[] eventHubMessages,
-            TraceWriter log)
+        public static async Task RunAsync([EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup="%ConsumerGroup%")]EventData[] eventHubData, TraceWriter log)
         {
             var client = await CosmosDBClient.GetClient();            
 
@@ -27,13 +28,16 @@ namespace StreamingProcessor
 
             double totalRUbyBatch = 0;
 
-            foreach (var message in eventHubMessages)
+            foreach (var data in eventHubData)
             {
                 try
                 {
+                    string message = Encoding.UTF8.GetString(data.GetBytes());
+
                     var documentPayload = new
                     {
                         eventData = JObject.Parse(message),
+                        enqueuedAt = data.EnqueuedTimeUtc,
                         storedAt = DateTime.UtcNow
                     };
                         
@@ -48,9 +52,12 @@ namespace StreamingProcessor
 
             sw.Stop();
 
-            string logMessage = $"{eventHubMessages.Length} messages were sent to db in {sw.ElapsedMilliseconds} msec";            
-            if (eventHubMessages.Length > 0)
-                logMessage += Environment.NewLine + $"Total RU Used: {totalRUbyBatch}. RU per document: {totalRUbyBatch/eventHubMessages.Length}";
+            string logMessage = $"T: {eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
+            if (eventHubData.Length > 0)
+            {
+                logMessage += Environment.NewLine + $"AVG: {sw.ElapsedMilliseconds / eventHubData.Length} msec";
+                logMessage += Environment.NewLine + $"RU: {totalRUbyBatch}. AVG RU: {totalRUbyBatch / eventHubData.Length}";                
+            }
 
             log.Info(logMessage);
         }
