@@ -48,7 +48,7 @@ class DeviceSimulator(TaskSet):
     @task
     def sendState(self):
 
-        deviceId = 'SimulatedLightBulb-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
+        deviceId = 'SimulatedLightBulbs-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
         endpoint = "/devices/"+ deviceId +"/messages/events?api-version=2018-04-01"
 
         eventId = str(uuid.uuid4())
