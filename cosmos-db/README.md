@@ -65,7 +65,7 @@ The above settings has been choosen to sustain a 1000 msg/sec stream.
 
 In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching"
 
-### Azure Functions
+## Azure Functions
 The deployed Azure Function solution contains two functions
 
 * Test0
@@ -73,7 +73,7 @@ The deployed Azure Function solution contains two functions
 
 The first one uses Cosmos DB binding for Azure Function, while the second one uses the SDK. Only one solution will be activated during deployment. By default the activated one is "Test1"
 
-### Exceptions
+## Exceptions
 
 Just after starting the Azure Function, if you immediately go to the Application Insight blade on the Azure Portal, you may see the followin exception:
 
