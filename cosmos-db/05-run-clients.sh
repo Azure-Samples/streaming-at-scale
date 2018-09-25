@@ -26,7 +26,8 @@ EVENTHUB_SAS_TOKEN=`python3 ../_common/generate-event-hub-sas-token.py $EVENTHUB
 echo ". SAS token: $EVENTHUB_SAS_TOKEN"
 
 echo 'create test clients'
-for CLIENT_ID in {1..2}
+echo '. count: $TEST_CLIENTS'
+for CLIENT_ID in {1..$TEST_CLIENTS}
 do
     echo "creating client $CLIENT_ID..."
 
@@ -47,7 +48,7 @@ do
     echo "starting client $CLIENT_ID..."
     echo ". endpoint: http://$LOCUST_IP:8089"
     sleep 15
-    curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=400" -F "hatch_rate=10"
+    curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=500" -F "hatch_rate=10"
     echo 'done'
 done
 

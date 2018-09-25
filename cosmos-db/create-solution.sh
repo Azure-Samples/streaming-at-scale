@@ -9,6 +9,9 @@ fi
 export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
+export EVENTHUB_PARTITIONS=4
+export EVENTHUB_CAPACITY=10
+export TEST_CLIENTS=2
 
 export STEPS=$2
 
@@ -60,8 +63,7 @@ echo
 
 echo "***** [I] setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"ingest"
-    export EVENTHUB_PARTITIONS=32
+    export EVENTHUB_NAMESPACE=$PREFIX"ingest"    
     export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="cosmos"
 
