@@ -63,7 +63,7 @@ echo
 
 echo "***** [I] setting up INGESTION"
     
-    export IOTHUB_NAME=""
+    export IOTHUB_NAME=$PREFIX'locusthub'
     export IOTHUB_SAS_TOKEN=""
 
     # RUN=`echo $STEPS | grep I -o`

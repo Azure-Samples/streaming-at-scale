@@ -23,13 +23,11 @@ if you want to select a specific subscription use the following command
 
     az account set --subscription <subscription_name>
 
-you would need a pre-created IoT Hub
+If you have a pre-created IoT Hub and devices,
 
-    Replace lines 63 and 65 of the create-solution.sh file with IoT Hub details
+    Replace lines 66 and 67 of the create-solution.sh file with IoT Hub details
 
-run below az cli to register devices on this IoT Hub where id is integer between 1-3
-
-    az iot hub device-identity create --device-id device-[id] --hub-name [hub name]
+Else, you can uncomment lines 69 through 72 to have the script create IoT Hub and devices for you
 
 once you have selected the subscription you want to use just execute the following command
 

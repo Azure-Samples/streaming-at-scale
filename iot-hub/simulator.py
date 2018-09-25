@@ -10,11 +10,6 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class DeviceSimulator(TaskSet):
-    headers = {
-        'Content-Type': 'application/json;charset=utf-8 ',
-        'Authorization': os.environ['IOTHUB_SAS_TOKEN'],
-        'Host': os.environ['IOTHUB_NAME'] + '.azure-devices.net'
-    }
 
     def on_start(self):
         pass   
@@ -28,6 +23,17 @@ class DeviceSimulator(TaskSet):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
+        headers = {
+            'Content-Type': 'application/json;charset=utf-8 ',
+            'Authorization': os.environ['IOTHUB_SAS_TOKEN'],
+            'Host': os.environ['IOTHUB_NAME'] + '.azure-devices.net',
+            'iothub-app-messageType': 'Telemetry',
+            'iothub-app-correlationId': eventId,
+            'iothub-app-parentCorrelationId': str(uuid.uuid4()),
+            'iothub-app-createdDateTime': createdAt,
+            'iothub-app-deviceId': deviceId
+        }
+
         json={
             'eventId': eventId,
             'type': 'TEMP',
@@ -37,15 +43,27 @@ class DeviceSimulator(TaskSet):
             'temperature': random.uniform(20, 32)       
         }
 
-        self.client.post(endpoint, json=json, verify=False, headers=self.headers)
+        self.client.post(endpoint, json=json, verify=False, headers=headers)
 
     @task
     def sendState(self):
 
         deviceId = 'SimulatedLightBulb-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
         endpoint = "/devices/"+ deviceId +"/messages/events?api-version=2018-04-01"
+
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
+
+        headers = {
+            'Content-Type': 'application/json;charset=utf-8 ',
+            'Authorization': os.environ['IOTHUB_SAS_TOKEN'],
+            'Host': os.environ['IOTHUB_NAME'] + '.azure-devices.net',
+            'iothub-app-messageType': 'Telemetry',
+            'iothub-app-correlationId': eventId,
+            'iothub-app-parentCorrelationId': str(uuid.uuid4()),
+            'iothub-app-createdDateTime': createdAt,
+            'iothub-app-deviceId': deviceId
+        }
 
         json={
             'eventId': eventId,
@@ -56,7 +74,7 @@ class DeviceSimulator(TaskSet):
             'state': random.choice(['on', 'off'])       
         }
 
-        self.client.post(endpoint, json=json, verify=False, headers=self.headers)
+        self.client.post(endpoint, json=json, verify=False, headers=headers)
 
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
