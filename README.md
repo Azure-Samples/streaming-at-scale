@@ -34,6 +34,19 @@ At present time the available solutions is
 
 ## Roadmap
 
-Work in progress...
+The following technologies are planned to be used in the end-to-end sample solution
+
+### Ingestion
+- IoT Hub (Work in Progress)
+- EventHub Kafka
+
+### Stream Processing
+- Databricks Spark
+- HDInsight Apache Storm
+
+### Serving Layer
+- Azure SQL
+- Azure DW
+
 
 
