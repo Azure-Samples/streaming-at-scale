@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -z $1 ]; then
     echo "usage: $0 <deployment-name> <steps>"
     echo "eg: $0 test1"    
@@ -10,7 +12,7 @@ export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
 
-export EVENTHUB_PARTITIONS=4
+export EVENTHUB_PARTITIONS=16
 export EVENTHUB_CAPACITY=10
 export PROC_FUNCTION_WORKERS=4
 export COSMOSDB_RU=20000

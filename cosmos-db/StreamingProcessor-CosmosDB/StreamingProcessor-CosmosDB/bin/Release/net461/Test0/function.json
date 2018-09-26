@@ -10,7 +10,7 @@
       "name": "eventHubData"
     }
   ],
-  "disabled": false,
+  "disabled": true,
   "scriptFile": "../bin/StreamingProcessor.dll",
   "entryPoint": "StreamingProcessor.Test0.RunAsync"
 }
