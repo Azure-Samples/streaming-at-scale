@@ -27,7 +27,7 @@ echo ". SAS token: $EVENTHUB_SAS_TOKEN"
 
 echo 'create test clients'
 echo '. count: $TEST_CLIENTS'
-for CLIENT_ID in {1..$TEST_CLIENTS}
+for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
 do
     echo "creating client $CLIENT_ID..."
 
