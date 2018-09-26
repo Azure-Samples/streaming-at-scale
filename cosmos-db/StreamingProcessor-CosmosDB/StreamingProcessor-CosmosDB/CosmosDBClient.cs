@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System.Threading;
 
 namespace StreamingProcessor
 {
     public class CosmosDBClient
     {
         private static CosmosDBClient _instance = null;
+        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
         private readonly DocumentClient _client = null;
         private readonly Uri _collectionLink = null;
@@ -51,9 +53,16 @@ namespace StreamingProcessor
 
         public static async Task<CosmosDBClient> GetClient()
         {
-            if (_instance == null)
+            await semaphoreSlim.WaitAsync();
+            try
             {
-                _instance = await CreateInstance();
+                if (_instance == null)
+                {
+                    _instance = await CreateInstance();
+                }
+            } finally
+            {
+                semaphoreSlim.Release();
             }
 
             return _instance;

@@ -22,12 +22,11 @@ namespace StreamingProcessor
         {
             var client = await CosmosDBClient.GetClient();            
 
-            DateTime startedAt = DateTime.UtcNow;
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
             double totalRUbyBatch = 0;
-
+            int positionInBatch = 1;
             foreach (var data in eventHubData)
             {
                 try
@@ -38,11 +37,14 @@ namespace StreamingProcessor
                     {
                         eventData = JObject.Parse(message),
                         enqueuedAt = data.EnqueuedTimeUtc,
-                        storedAt = DateTime.UtcNow
+                        storedAt = DateTime.UtcNow,
+                        positionInBatch
                     };
                         
                     var document = await client.CreateDocumentAsync(documentPayload);
                     totalRUbyBatch += document.RequestCharge;
+
+                    positionInBatch += 1;
                 }
                 catch (Exception ex)
                 {

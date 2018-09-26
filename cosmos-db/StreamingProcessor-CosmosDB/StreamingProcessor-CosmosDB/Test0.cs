@@ -23,7 +23,6 @@ namespace StreamingProcessor
             [DocumentDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<string> cosmosMessage,
         TraceWriter log)
         {
-            DateTime startedAt = DateTime.UtcNow;
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
