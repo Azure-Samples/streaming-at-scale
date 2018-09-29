@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 using System.Text;
+using System.Collections.Generic;
 
 namespace StreamingProcessor
 {
@@ -23,6 +24,8 @@ namespace StreamingProcessor
             [DocumentDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<string> cosmosMessage,
         TraceWriter log)
         {
+            var tasks = new List<Task>();
+
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
@@ -37,10 +40,10 @@ namespace StreamingProcessor
                         eventData = JObject.Parse(message),
                         enqueuedAt = data.EnqueuedTimeUtc,
                         storedAt = DateTime.UtcNow
-                    };                    
+                    };
 
-                    
-                    await cosmosMessage.AddAsync(JsonConvert.SerializeObject(document));
+
+                    tasks.Add(cosmosMessage.AddAsync(JsonConvert.SerializeObject(document)));
                 }
                 catch (Exception ex)
                 {
@@ -48,9 +51,17 @@ namespace StreamingProcessor
                 }
             }
 
+            await Task.WhenAll(tasks);
+
             sw.Stop();
 
-            log.Info($"{eventHubData.Length} messages were sent to db in {sw.ElapsedMilliseconds} msec");
+            string logMessage = $"T: {eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
+            if (eventHubData.Length > 0)
+            {
+                logMessage += Environment.NewLine + $"AVG: {(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
+            }
+
+            log.Info(logMessage);
         }
     }
 }

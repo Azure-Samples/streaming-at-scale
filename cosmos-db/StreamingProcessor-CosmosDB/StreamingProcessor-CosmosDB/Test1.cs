@@ -9,6 +9,7 @@ using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json.Linq;
 using Microsoft.ServiceBus.Messaging;
 using System.Text;
+using System.Collections.Generic;
 
 namespace StreamingProcessor
 {
@@ -20,7 +21,9 @@ namespace StreamingProcessor
         [FunctionName("Test1")]
         public static async Task RunAsync([EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup="%ConsumerGroup%")]EventData[] eventHubData, TraceWriter log)
         {
-            var client = await CosmosDBClient.GetClient();            
+            var client = await CosmosDBClient.GetClient();
+
+            var tasks = new List<Task<ResourceResponse<Document>>>();
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -40,17 +43,23 @@ namespace StreamingProcessor
                         storedAt = DateTime.UtcNow,
                         positionInBatch
                     };
-                        
-                    var document = await client.CreateDocumentAsync(documentPayload);
-                    totalRUbyBatch += document.RequestCharge;
+
+                    tasks.Add(client.CreateDocumentAsync(documentPayload));
 
                     positionInBatch += 1;
                 }
                 catch (Exception ex)
                 {
                     log.Error($"{ex} - {ex.Message}");
-                }                    
-            }                    
+                }
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (var t in tasks)
+            {
+                totalRUbyBatch += t.GetAwaiter().GetResult().RequestCharge;
+            }
 
             sw.Stop();
 
