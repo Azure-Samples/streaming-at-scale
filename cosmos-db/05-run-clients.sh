@@ -41,13 +41,16 @@ do
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 4 --memory 8 \
     -o tsv >> log.txt
+done
+
+for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
+do
+    echo "starting client $CLIENT_ID..."
 
     QRY="[?name=='locust-$CLIENT_ID'].[ipAddress.ip]"
     CMD="az container list -g $RESOURCE_GROUP --query $QRY -o tsv"
     LOCUST_IP=$($CMD)
-    echo "starting client $CLIENT_ID..."
     echo ". endpoint: http://$LOCUST_IP:8089"
-    sleep 15
     curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=500" -F "hatch_rate=10"
     echo 'done'
 done
