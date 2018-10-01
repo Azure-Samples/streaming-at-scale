@@ -42,7 +42,6 @@ namespace StreamingProcessor
                         storedAt = DateTime.UtcNow
                     };
 
-
                     tasks.Add(cosmosMessage.AddAsync(JsonConvert.SerializeObject(document)));
                 }
                 catch (Exception ex)
