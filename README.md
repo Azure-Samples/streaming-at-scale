@@ -42,6 +42,7 @@ The following technologies are planned to be used in the end-to-end sample solut
 
 ### Stream Processing
 - Databricks Spark
+- Azure Stream Analytics
 - HDInsight Apache Storm
 
 ### Serving Layer
