@@ -1,0 +1,113 @@
+{
+	"name": "azure",
+	"config": {
+		"type": "file",
+		"connection": "wasbs://CONTAINER@STORAGE_ACCOUNT_NAME.blob.core.windows.net",
+		"config": {
+			"fs.azure.account.key.STORAGE_ACCOUNT_NAME.blob.core.windows.net": "AUTHENTICATION_KEY"
+		},
+		"workspaces": {
+			"root": {
+				"location": "/",
+				"writable": false,
+				"defaultInputFormat": null,
+				"allowAccessOutsideWorkspace": false
+			}
+		},
+		"formats": {
+			"psv": {
+				"type": "text",
+				"extensions": [
+					"tbl"
+				],
+				"delimiter": "|"
+			},
+			"tsv": {
+				"type": "text",
+				"extensions": [
+					"tsv"
+				],
+				"delimiter": "\t"
+			},
+			"httpd": {
+				"type": "httpd",
+				"logFormat": "%h %t \"%r\" %>s %b \"%{Referer}i\""
+			},
+			"parquet": {
+				"type": "parquet"
+			},
+			"json": {
+				"type": "json",
+				"extensions": [
+					"json"
+				]
+			},
+			"pcap": {
+				"type": "pcap"
+			},
+			"avro": {
+				"type": "avro"
+			},
+			"sequencefile": {
+				"type": "sequencefile",
+				"extensions": [
+					"seq"
+				]
+			},
+			"csv": {
+				"type": "text",
+				"extensions": [
+					"csv"
+				],
+				"delimiter": ",",
+				"skipFirstLine": false,
+				"extractHeader": true
+			},
+			"image": {
+				"type": "image",
+				"extensions": [
+					"jpg",
+					"jpeg",
+					"jpe",
+					"tif",
+					"tiff",
+					"dng",
+					"psd",
+					"png",
+					"bmp",
+					"gif",
+					"ico",
+					"pcx",
+					"wav",
+					"wave",
+					"avi",
+					"webp",
+					"mov",
+					"mp4",
+					"m4a",
+					"m4p",
+					"m4b",
+					"m4r",
+					"m4v",
+					"3gp",
+					"3g2",
+					"eps",
+					"epsf",
+					"epsi",
+					"ai",
+					"arw",
+					"crw",
+					"cr2",
+					"nef",
+					"orf",
+					"raf",
+					"rw2",
+					"rwl",
+					"srw",
+					"x3f"
+				]
+			}
+		},
+		"enabled": true
+	}
+}

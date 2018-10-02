@@ -56,16 +56,11 @@ namespace StreamingProcessor
             await semaphoreSlim.WaitAsync();
             try
             {
-                if (_instance == null)
-                {
-                    _instance = await CreateInstance();
-                }
+                return _instance ?? (_instance = await CreateInstance());
             } finally
             {
                 semaphoreSlim.Release();
             }
-
-            return _instance;
         }
 
         public async Task<ResourceResponse<Document>> CreateDocumentAsync(object payload)
