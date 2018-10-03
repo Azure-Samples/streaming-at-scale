@@ -121,17 +121,12 @@ echo "***** [D] Running Apache Drill"
         curl -X POST -H "Content-Type: application/json" -d "$ADS" http://localhost:8047/storage/azure.json                
         
         echo "done"
-        echo "here's some query you may want to test with Apache Drill"
-        echo "show databases;"
-        echo "show files from azure;"
-        echo "select t.B./`deviceId/`, t.B.`type`, t.B.`value` from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_35_1.avro` limit 10) as t;"
-        echo "select t.B./`deviceId/`, t.B.`type`, AVG(t.B.`value`) as `value` from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_35_1.avro` limit 10) as t group by t.B.`deviceId`, t.B.`type`;"
-        echo "select t.B./`deviceId/`, t.B.`type`, AVG(t.B.`value`) as `value`, COUNT(t.B.deviceId) as ctn from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_*.avro`) as t group by t.B.`deviceId`, t.B.`type` order by ctn limit 10;"
-        
+        echo "==> look in ./drill folder for sample queries"
+
         echo "Apache Drill can be access via Web UI:"
-        echo "http://localhost:8047"
+        echo "==> http://localhost:8047"
         echo "or by console:"
-        echo "docker attach drill"
+        echo "==> docker attach drill"
     fi
 
 echo "***** done"
