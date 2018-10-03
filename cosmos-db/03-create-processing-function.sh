@@ -5,7 +5,7 @@ PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 echo 'creating app service plan'
 echo ". name: $PLAN_NAME"
 az appservice plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
---number-of-workers $PROC_FUNCTION_WORKERS --sku P1 --location $LOCATION \
+--number-of-workers $PROC_FUNCTION_WORKERS --sku P2v2 --location $LOCATION \
 -o tsv >> log.txt
 
 echo 'creating function app'
