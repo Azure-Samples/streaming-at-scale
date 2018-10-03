@@ -32,7 +32,7 @@ export TEST_CLIENTS=2
 export STEPS=$2
 
 if [ -z $STEPS ]; then  
-    export STEPS="CITH"    
+    export STEPS="CITD"    
 fi
 
 # remove log.txt if exists
@@ -98,35 +98,39 @@ echo "***** [T] starting up TEST clients"
     fi
 echo
 
-echo "***** [H] Generating HDFS Azure Blob Storage connection info"
+echo "***** [D] Running Apache Drill"
 
-    RUN=`echo $STEPS | grep H -o`
+    RUN=`echo $STEPS | grep D -o`
     if [ ! -z $RUN ]; then
+        echo "getting storage key"
         export AUTHKEY=`az storage account keys list -g $RESOURCE_GROUP -n $AZURE_STORAGE_ACCOUNT -o tsv --query "[0].value"`
 
-        echo
-        echo "Put the following connection string in your Apache Drill Azure Storge Data Source ""connection"" configuration"
-        echo "(file is in ./drill/azure-data-source.json)"
-        echo "wasbs://eventhubs@$AZURE_STORAGE_ACCOUNT.blob.core.windows.net"
-        
-        echo
-        echo "Put the following key-value pair into the ""config"" section of your Apache Drill Azure Storge Data Source"
-        echo "(file is in ./drill/azure-data-source.json)"
-        echo "\"fs.azure.account.key.$AZURE_STORAGE_ACCOUNT.blob.core.windows.net\": \"$AUTHKEY\""
-
-        echo
-        echo "You can now run Apache Drill"
+        echo "the following configuration will be injected into Apache Drill"        
+        echo "{"
+        echo "\"connection\": \"wasbs://eventhubs@$AZURE_STORAGE_ACCOUNT.blob.core.windows.net\""
+        echo "\"config\": { \"fs.azure.account.key.$AZURE_STORAGE_ACCOUNT.blob.core.windows.net\": \"$AUTHKEY\" }"
+        echo "}"
         ADST=$(cat ./drill/azure-data-source.json)
         ADS=`echo "$ADST" | sed 's/CONTAINER/eventhub/g' | sed "s/STORAGE_ACCOUNT_NAME/$AZURE_STORAGE_ACCOUNT/g" | sed "s|AUTHENTICATION_KEY|$AUTHKEY|g"`
+        
+        echo "running Apache Drill using Docker"
         docker run -it --rm -d --name drill -p 8047:8047 -t yorek/apache-drill-azure-blob /bin/bash
         sleep 20
-        curl -X POST -H "Content-Type: application/json" -d "$ADS" http://localhost:8047/storage/azure.json                
-        echo
 
-        echo "select t.B.`deviceId`, t.B.`type`, t.B.`value` from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_35_1.avro` limit 10) as t;"
-        echo "select t.B.`deviceId`, t.B.`type`, AVG(t.B.`value`) as `value` from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_35_1.avro` limit 10) as t group by t.B.`deviceId`, t.B.`type`;"
-        echo " select t.B.`deviceId`, t.B.`type`, AVG(t.B.`value`) as `value`, COUNT(t.B.deviceId) as ctn from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_*.avro`) as t group by t.B.`deviceId`, t.B.`type` order by ctn limit 10;"
+        echo "injecting data store configuration"
+        curl -X POST -H "Content-Type: application/json" -d "$ADS" http://localhost:8047/storage/azure.json                
+        
+        echo "done"
+        echo "here's some query you may want to test with Apache Drill"
+        echo "show databases;"
+        echo "show files from azure;"
+        echo "select t.B./`deviceId/`, t.B.`type`, t.B.`value` from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_35_1.avro` limit 10) as t;"
+        echo "select t.B./`deviceId/`, t.B.`type`, AVG(t.B.`value`) as `value` from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_35_1.avro` limit 10) as t group by t.B.`deviceId`, t.B.`type`;"
+        echo "select t.B./`deviceId/`, t.B.`type`, AVG(t.B.`value`) as `value`, COUNT(t.B.deviceId) as ctn from (select convert_from(Body, 'JSON') as B from azure.`dmehct1ingest/dmehct1ingest-16/2018_10_02_23_01_*.avro`) as t group by t.B.`deviceId`, t.B.`type` order by ctn limit 10;"
+        
+        echo "Apache Drill can be access via Web UI:"
         echo "http://localhost:8047"
+        echo "or by console:"
         echo "docker attach drill"
     fi
 
