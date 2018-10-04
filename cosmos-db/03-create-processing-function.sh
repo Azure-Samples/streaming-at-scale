@@ -5,7 +5,7 @@ PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 echo 'creating app service plan'
 echo ". name: $PLAN_NAME"
 az appservice plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
---number-of-workers $PROC_FUNCTION_WORKERS --sku P2v2 --location $LOCATION \
+--number-of-workers $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
 -o tsv >> log.txt
 
 echo 'creating function app'
@@ -26,11 +26,10 @@ do
         sed -i -e 's/"disabled": false/"disabled": true/g' ./Test$TEST_ID/function.json
     fi    
 done
-# enable only the function specified in host.json
-ACTIVE_TEST=`grep "functions" host.json | awk '{ print $3 }' | sed 's/"//g'`
+ACTIVE_TEST=$PROC_FUNCTION
 echo " .enabling function: $ACTIVE_TEST"
 sed -i -e 's/"disabled": true/"disabled": false/g' ./$ACTIVE_TEST/function.json
-zip -r $CURDIR/$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME . 
+zip -r $CURDIR/$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME . >> log.txt
 cd $CURDIR
 
 echo 'configuring function app deployment source'
