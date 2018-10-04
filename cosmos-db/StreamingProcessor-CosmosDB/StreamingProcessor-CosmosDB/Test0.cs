@@ -54,10 +54,10 @@ namespace StreamingProcessor
 
             sw.Stop();
 
-            string logMessage = $"T: {eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
+            string logMessage = $"T:{eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
             if (eventHubData.Length > 0)
             {
-                logMessage += Environment.NewLine + $"AVG: {(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
+                logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
             }
 
             log.Info(logMessage);

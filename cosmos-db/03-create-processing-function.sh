@@ -30,7 +30,7 @@ done
 ACTIVE_TEST=`grep "functions" host.json | awk '{ print $3 }' | sed 's/"//g'`
 echo " .enabling function: $ACTIVE_TEST"
 sed -i -e 's/"disabled": true/"disabled": false/g' ./$ACTIVE_TEST/function.json
-zip -r $CURDIR/$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME . 
+zip -r $CURDIR/$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME . >> log.txt
 cd $CURDIR
 
 echo 'configuring function app deployment source'
