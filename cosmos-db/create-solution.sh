@@ -53,6 +53,13 @@ echo
 echo "steps to be executed: $STEPS"
 echo
 
+echo "configuration: "
+echo "EventHubs  => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo "Function   => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
+echo "CosmosDB   => RU: $COSMOSDB_RU"
+echo "Locusts    => $TEST_CLIENTS"
+echo
+
 echo "checking prerequisistes..."
 HAS_AZ=`command -v az`
 HAS_PY3=`command -v python3`
