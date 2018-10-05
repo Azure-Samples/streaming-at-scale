@@ -17,19 +17,21 @@ az functionapp create -g $RESOURCE_GROUP -n $PROC_FUNCTION_APP_NAME \
 
 echo 'creating zip file'
 CURDIR=$PWD
-rm $PROC_PACKAGE_PATH
-cd $PROC_PACKAGE_FOLDER/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET/bin/Release/net461/
-for TEST_ID in {0..9}
-do
-    if [ -f ./Test$TEST_ID/function.json ]; then
-        # disable all functions
-        sed -i -e 's/"disabled": false/"disabled": true/g' ./Test$TEST_ID/function.json
-    fi    
-done
 ACTIVE_TEST=$PROC_FUNCTION
-echo " .enabling function: $ACTIVE_TEST"
-sed -i -e 's/"disabled": true/"disabled": false/g' ./$ACTIVE_TEST/function.json
-zip -r $CURDIR/$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME . >> log.txt
+ZIPFOLDER="$PROC_PACKAGE_FOLDER/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET-$ACTIVE_TEST/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET/bin/Release/net461/"
+echo " .zipped folder: $ZIPFOLDER"
+rm $PROC_PACKAGE_PATH
+cd $ZIPFOLDER
+# for TEST_ID in {0..9}
+# do
+#     if [ -f ./Test$TEST_ID/function.json ]; then
+#         # disable all functions
+#         sed -i -e 's/"disabled": false/"disabled": true/g' ./Test$TEST_ID/function.json
+#     fi    
+# done
+# echo " .enabling function: $ACTIVE_TEST"
+# sed -i -e 's/"disabled": true/"disabled": false/g' ./$ACTIVE_TEST/function.json
+zip -r $CURDIR/$PROC_PACKAGE_PATH . >> log.txt
 cd $CURDIR
 
 echo 'configuring function app deployment source'
