@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "EventHubsConnectionString": "Endpoint=sb://dmk3log.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=ietFyE/NFiYDvoBkaWAyPXI+BV27N5Jy5lTBG5zCEWA=",
+    "EventHubName": "dmk3log-32",
+    "ConsumerGroup": "cosmos",
+    "CosmosDBDatabaseName": "streaming",
+    "CosmosDBCollectionName": "rawdata",
+    "CosmosDBConnectionString": "AccountEndpoint=https://dmk3cosmosdb.documents.azure.com:443/;AccountKey=7DEns5HN02aatYSokpBqSeyoMqTZ34jD7ViWFKcoaK2bVMjxsw7k29OqRioZy0crWEUGn40j8X0Mobrx9Dglcg==;"
+  }
+}

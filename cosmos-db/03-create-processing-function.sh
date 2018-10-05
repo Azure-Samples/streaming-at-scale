@@ -5,7 +5,7 @@ PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 echo 'creating app service plan'
 echo ". name: $PLAN_NAME"
 az appservice plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
---number-of-workers $PROC_FUNCTION_WORKERS --sku P2v2 --location $LOCATION \
+--number-of-workers $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
 -o tsv >> log.txt
 
 echo 'creating function app'
@@ -17,7 +17,11 @@ az functionapp create -g $RESOURCE_GROUP -n $PROC_FUNCTION_APP_NAME \
 
 echo 'creating zip file'
 CURDIR=$PWD
+ACTIVE_TEST=$PROC_FUNCTION
+ZIPFOLDER="$PROC_PACKAGE_FOLDER/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET-$ACTIVE_TEST/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET/bin/Release/net461/"
+echo " .zipped folder: $ZIPFOLDER"
 rm $PROC_PACKAGE_PATH
+<<<<<<< HEAD
 cd $PROC_PACKAGE_FOLDER/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET/bin/Release/net461/
 for TEST_ID in {0..9}
 do
@@ -31,6 +35,10 @@ ACTIVE_TEST=`grep "functions" host.json | awk '{ print $3 }' | sed 's/"//g'`
 echo " .enabling function: $ACTIVE_TEST"
 sed -i -e 's/"disabled": true/"disabled": false/g' ./$ACTIVE_TEST/function.json
 zip -r $CURDIR/$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME . >> log.txt
+=======
+cd $ZIPFOLDER
+zip -r $CURDIR/$PROC_PACKAGE_PATH . >> log.txt
+>>>>>>> 313fd50960d7597ab2410d0835baf5091af3a26e
 cd $CURDIR
 
 echo 'configuring function app deployment source'

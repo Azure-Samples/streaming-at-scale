@@ -1,0 +1,8 @@
+{
+  "functions": [ "Test0" ],
+  "eventHub": {
+    "maxBatchSize": 64,
+    "prefetchCount": 256,
+    "batchCheckpointFrequency": 1
+  }
+}
