@@ -54,11 +54,7 @@ namespace StreamingProcessor
 
             sw.Stop();
 
-<<<<<<< HEAD:cosmos-db/StreamingProcessor-CosmosDB/StreamingProcessor-CosmosDB/Test0.cs
-            string logMessage = $"T:{eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
-=======
             string logMessage = $"[Test0] T:{eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
->>>>>>> 313fd50960d7597ab2410d0835baf5091af3a26e:cosmos-db/StreamingProcessor-CosmosDB-Test0/StreamingProcessor-CosmosDB/Test0.cs
             if (eventHubData.Length > 0)
             {
                 logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";

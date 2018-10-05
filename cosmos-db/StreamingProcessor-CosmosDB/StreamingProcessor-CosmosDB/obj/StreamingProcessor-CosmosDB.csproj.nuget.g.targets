@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)microsoft.net.sdk.functions\1.0.14\build\netstandard1.0\Microsoft.NET.Sdk.Functions.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.net.sdk.functions\1.0.14\build\netstandard1.0\Microsoft.NET.Sdk.Functions.targets')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.azure.documentdb\1.13.2\build\Microsoft.Azure.DocumentDB.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.azure.documentdb\1.13.2\build\Microsoft.Azure.DocumentDB.targets')" />
+  </ImportGroup>
+</Project>

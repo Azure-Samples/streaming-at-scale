@@ -1,8 +1,4 @@
 {
-<<<<<<< HEAD:cosmos-db/StreamingProcessor-CosmosDB/StreamingProcessor-CosmosDB/bin/Release/net461/host.json
-  "functions": [ "Test0" ],
-=======
->>>>>>> 313fd50960d7597ab2410d0835baf5091af3a26e:cosmos-db/StreamingProcessor-CosmosDB-Test0/StreamingProcessor-CosmosDB/host.json
   "eventHub": {
     "maxBatchSize": 64,
     "prefetchCount": 256,
