@@ -41,9 +41,15 @@ The following technologies are planned to be used in the end-to-end sample solut
 - EventHub Kafka
 
 ### Stream Processing
-- Databricks Spark
+- Databricks Spark Structured Streaming
 - Azure Stream Analytics
 - HDInsight Apache Storm
+
+### Batch Processing
+- EventHubs Capture
+- Databricks Spark
+- HDInsight
+- Open Source solutions (like Apache Drill)
 
 ### Serving Layer
 - Azure SQL
