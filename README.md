@@ -32,6 +32,12 @@ At present time the available solutions is
 - AzureFunctions (Stream Process)
 - Cosmos DB (Serve)
 
+[EventHubs Capture:](event-hubs-capture) Implement an Near-Real Time Operational Analytics architecture using:
+- EventHubs (Ingest)
+- EventHubs Capture (Store)
+- Azure Blob Store (Data Lake)
+- Apache Drill (Query/Serve)
+
 ## Roadmap
 
 The following technologies are planned to be used in the end-to-end sample solution
