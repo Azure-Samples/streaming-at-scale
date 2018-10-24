@@ -1,2 +1,4 @@
 log.txt
 *.pyc
+.DS_Store
+*.json-e

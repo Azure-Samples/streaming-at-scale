@@ -27,14 +27,43 @@ The goal of this repo is to showcase all the possibile common architectural solu
 ## Available solutions
 At present time the available solutions is
 
-[cosmos-db](cosmos-db)
-Implement a Kappa architecture using 
-- EventHubs (Ingest)
+[Cosmos DB Sample](cosmos-db) 
+
+Implement a Kappa architecture using:
+- EventHubs (Ingest / Immutable Log)
 - AzureFunctions (Stream Process)
 - Cosmos DB (Serve)
 
+[EventHubs Capture Sample](event-hubs-capture) 
+
+Implement an Near-Real Time Operational Analytics architecture using:
+- EventHubs (Ingest)
+- EventHubs Capture (Store)
+- Azure Blob Store (Data Lake)
+- Apache Drill (Query/Serve)
+
 ## Roadmap
 
-Work in progress...
+The following technologies are planned to be used in the end-to-end sample solution
+
+### Ingestion
+- IoT Hub (Work in Progress)
+- EventHub Kafka
+
+### Stream Processing
+- Databricks Spark Structured Streaming
+- Azure Stream Analytics
+- HDInsight Apache Storm
+
+### Batch Processing
+- EventHubs Capture
+- Databricks Spark
+- HDInsight
+- Open Source solutions (like Apache Drill)
+
+### Serving Layer
+- Azure SQL
+- Azure DW
+
 
 

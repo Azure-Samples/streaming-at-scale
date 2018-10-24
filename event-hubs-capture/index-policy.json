@@ -1,0 +1,41 @@
+{
+    "indexingMode": "consistent",
+    "automatic": true,
+    "includedPaths": [
+        {
+            "path": "/eventData/type/?",
+            "indexes": [
+                {
+                    "kind": "Range",
+                    "dataType": "String",
+                    "precision": -1
+                }
+            ]
+        },
+        {
+            "path": "/eventData/deviceId/?",
+            "indexes": [
+                {
+                    "kind": "Range",
+                    "dataType": "String",
+                    "precision": -1
+                }
+            ]
+        },
+        {
+            "path": "/eventData/createdAt/?",
+            "indexes": [
+                {
+                    "kind": "Range",
+                    "dataType": "String",
+                    "precision": -1
+                }
+            ]
+        }
+    ],
+    "excludedPaths": [
+        {
+            "path": "/*"
+        }
+    ]
+}

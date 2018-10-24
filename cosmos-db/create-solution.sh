@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#set -e
+
 if [ -z $1 ]; then
     echo "usage: $0 <deployment-name> <steps>"
     echo "eg: $0 test1"    
@@ -9,6 +11,33 @@ fi
 export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
+
+# 10000 messages/sec
+# export EVENTHUB_PARTITIONS=12
+# export EVENTHUB_CAPACITY=12
+# export PROC_FUNCTION=Test1
+# export PROC_FUNCTION_SKU=P2v2
+# export PROC_FUNCTION_WORKERS=12
+# export COSMOSDB_RU=80000
+# export TEST_CLIENTS=10
+
+# 5500 messages/sec
+# export EVENTHUB_PARTITIONS=8
+# export EVENTHUB_CAPACITY=8
+# export PROC_FUNCTION=Test1
+# export PROC_FUNCTION_SKU=P1v2
+# export PROC_FUNCTION_WORKERS=8
+# export COSMOSDB_RU=40000
+# export TEST_CLIENTS=10
+
+# 1000 messages/sec
+export EVENTHUB_PARTITIONS=2
+export EVENTHUB_CAPACITY=2
+export PROC_FUNCTION=Test1
+export PROC_FUNCTION_SKU=P2v2
+export PROC_FUNCTION_WORKERS=2
+export COSMOSDB_RU=20000
+export TEST_CLIENTS=2
 
 export STEPS=$2
 
@@ -25,6 +54,13 @@ echo "================================"
 echo
 
 echo "steps to be executed: $STEPS"
+echo
+
+echo "configuration: "
+echo "EventHubs  => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo "Function   => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
+echo "CosmosDB   => RU: $COSMOSDB_RU"
+echo "Locusts    => $TEST_CLIENTS"
 echo
 
 echo "checking prerequisistes..."
@@ -60,8 +96,7 @@ echo
 
 echo "***** [I] setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"ingest"
-    export EVENTHUB_PARTITIONS=32
+    export EVENTHUB_NAMESPACE=$PREFIX"ingest"    
     export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="cosmos"
 

@@ -1,0 +1,71 @@
+Metrics:
+Incoming Messages (Preview)
+Outgoing Messages (Preview)
+
+***************************
+
+TEST 0
+======
+
+EH: 8 partitions
+AZ: Test0, 8 workers, sku=P1, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=150K msg/min
+Notes: -
+
+EH: 8 partitions
+AZ: Test0, 8 workers, sku=P1v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=300K msg/min
+Notes: -
+
+EH: 8 partitions
+AZ: Test0, 8 workers, sku=P2v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=420K msg/min
+Notes: CosmosDB throttling requests
+
+EH: 16 partitions
+AZ: Test0, 8 workers, sku=P1, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=150K msg/min
+Notes: -
+
+EH: 16 partitions
+AZ: Test0, 8 workers, sku=P1v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=345K msg/min
+Notes: -
+
+EH: 16 partitions
+AZ: Test0, 8 workers, sku=P2v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=420K msg/min
+Notes: CosmosDB throttling requests
+
+TEST 1
+======
+
+EH: 8 partitions
+AZ: Test1, 8 workers, sku=P1, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=250K msg/min
+Notes: -
+
+EH: 8 partitions
+AZ: Test1, 8 workers, sku=P1v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=420K msg/min
+Notes: CosmosDB throttling requests
+
+EH: 8 partitions
+AZ: Test1, 8 workers, sku=P2v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=???K msg/min
+Notes: Not tested since previous test case was already being throttled
+
+EH: 16 partitions
+AZ: Test1, 8 workers, sku=P1, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=275K msg/min
+Notes: -
+
+EH: 16 partitions
+AZ: Test1, 8 workers, sku=P1v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=417K msg/min
+Notes: CosmosDB throttling requests
+
+EH: 16 partitions
+AZ: Test1, 8 workers, sku=P2v2, batchSize=64, prefetch=256
+Throughput: In=325K msg/min, Out=???K msg/min
+Notes: Not tested since previous test case was already being throttled

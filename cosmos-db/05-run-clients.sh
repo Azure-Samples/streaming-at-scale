@@ -26,7 +26,8 @@ EVENTHUB_SAS_TOKEN=`python3 ../_common/generate-event-hub-sas-token.py $EVENTHUB
 echo ". SAS token: $EVENTHUB_SAS_TOKEN"
 
 echo 'create test clients'
-for CLIENT_ID in {1..2}
+echo ". count: $TEST_CLIENTS"
+for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
 do
     echo "creating client $CLIENT_ID..."
 
@@ -40,14 +41,17 @@ do
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 4 --memory 8 \
     -o tsv >> log.txt
+done
+
+for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
+do
+    echo "starting client $CLIENT_ID..."
 
     QRY="[?name=='locust-$CLIENT_ID'].[ipAddress.ip]"
     CMD="az container list -g $RESOURCE_GROUP --query $QRY -o tsv"
     LOCUST_IP=$($CMD)
-    echo "starting client $CLIENT_ID..."
     echo ". endpoint: http://$LOCUST_IP:8089"
-    sleep 15
-    curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=400" -F "hatch_rate=10"
+    curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=500" -F "hatch_rate=10"
     echo 'done'
 done
 
