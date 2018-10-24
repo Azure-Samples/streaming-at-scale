@@ -14,8 +14,11 @@ az storage file upload -s locust --source simulator.py \
 echo 'getting storage key'
 AZURE_STORAGE_KEY=`az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP --query '[0].value' -o tsv` 
 
+echo 'getting SAS token for IoT Hub'
+IOTHUB_SAS_TOKEN=`az iot hub generate-sas-token -n $IOTHUB_NAME --duration 36000 -o tsv`
+
 echo 'create test clients'
-for CLIENT_ID in {1..4}
+for CLIENT_ID in {1..2}
 do
     echo "creating client $CLIENT_ID..."
 

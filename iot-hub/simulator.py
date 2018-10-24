@@ -17,7 +17,7 @@ class DeviceSimulator(TaskSet):
     @task
     def sendTemperature(self):
         
-        deviceId = 'SimulatedFridge-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
+        deviceId = 'SimulatedFridge-{0}'.format(str(random.randint(1, 5)).rjust(4, "0"))
         endpoint = "/devices/"+ deviceId +"/messages/events?api-version=2018-04-01"
 
         eventId = str(uuid.uuid4())
@@ -40,7 +40,7 @@ class DeviceSimulator(TaskSet):
             'deviceId': deviceId,
             'createdAt': createdAt,
             'deviceType': 'Fridge',
-            'temperature': random.uniform(20, 32)       
+            'temperature': random.randint(32, 53)       
         }
 
         self.client.post(endpoint, json=json, verify=False, headers=headers)
@@ -48,7 +48,7 @@ class DeviceSimulator(TaskSet):
     @task
     def sendState(self):
 
-        deviceId = 'SimulatedLightBulbs-{0}'.format(str(random.randint(1, 100)).rjust(4, "0"))
+        deviceId = 'SimulatedLightBulbs-{0}'.format(str(random.randint(1, 5)).rjust(4, "0"))
         endpoint = "/devices/"+ deviceId +"/messages/events?api-version=2018-04-01"
 
         eventId = str(uuid.uuid4())

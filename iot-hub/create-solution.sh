@@ -64,7 +64,7 @@ echo
 echo "***** [I] setting up INGESTION"
     
     export IOTHUB_NAME=$PREFIX'locusthub'
-    export IOTHUB_SAS_TOKEN=""
+    # export IOTHUB_SAS_TOKEN="SharedAccessSignature sr=rjiotplocusthub.azure-devices.net&sig=pyFawsHK3aCwHRqEoKh25yRXak2bvTsSx2x%2FD4CYbks%3D&se=1537883420&skn=iothubowner"
 
     # RUN=`echo $STEPS | grep I -o`
     # if [ ! -z $RUN ]; then
