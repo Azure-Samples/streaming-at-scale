@@ -7,7 +7,6 @@ The provided scripts will an end-to-end solution complete with load test client.
 ## Running the Scripts
 
 Please note that the scripts have been tested on Windows 10 WSL/Ubuntu and macOS X, so make sure to use one of these two environment to run the scripts.
-A PowerShell script is also in the works.
 
 ## Setup Solution
 
