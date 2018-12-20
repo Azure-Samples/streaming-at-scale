@@ -39,21 +39,22 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 The script will create the followin resources:
 
-* **Azure Container Instances** to host [Locust]() Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+* **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
 * **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clientss
 * **Azure Function**: to process data incoming from Event Hubs as a stream
 * **Application Insight**: to monitor Azure Function performances
 * **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
-The Azure Function is created using .Net Framework 4.6.1, so at the moment it can be compiled only on a Window OS. 
+The Azure Function is created using .Net Core 2.1, so it can be compiled on any supported platform. I only tested compilation on Windows 10, though.
 
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
-    export EVENTHUB_PARTITIONS=4
-    export EVENTHUB_CAPACITY=10
-    export PROC_FUNCTION_WORKERS=4
+    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_CAPACITY=2
+    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
     export TEST_CLIENTS=2
 
@@ -78,7 +79,7 @@ Just after starting the Azure Function, if you immediately go to the Application
 
     New receiver with higher epoch of '3' is created hence current receiver with epoch '2' is getting disconnected. If you are recreating the receiver, make sure a higher epoch is used.
 
-You can safely ignore it since it happens just during startup time when EventProcessor are created. After couple of seconds the no more exception like that one will be thrown. No messages will be lost while these exceptions are fired.
+You can safely ignore it since it happens just during startup time when EventProcessors are created. After couple of seconds the no more exception like that one will be thrown. No messages will be lost while these exceptions are fired.
 
 ## Query Data
 
