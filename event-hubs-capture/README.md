@@ -86,3 +86,9 @@ You can thenb query Avro file contents:
         (
             select convert_from(Body, 'JSON') as B from azure.`folder/subfolder/desired-avro-file.avro` limit 10
         ) as t;"
+
+## Using Apache Drill on Azure
+
+As you may notice querying Avro files from your local machine may take a while. This is due to the fact that Apache Drill needs to pull all the data from Azure Blob Storage and store it temporarly on your machine. A better option is to run Apache Drill on Azure so all data movement will happen in the cloud:
+
+https://github.com/yorek/apache-drill-azure-blob 
