@@ -111,7 +111,7 @@ echo "***** [D] Running Apache Drill"
         echo "\"config\": { \"fs.azure.account.key.$AZURE_STORAGE_ACCOUNT.blob.core.windows.net\": \"$AUTHKEY\" }"
         echo "}"
         ADST=$(cat ./drill/azure-data-source.json)
-        ADS=`echo "$ADST" | sed 's/CONTAINER/eventhub/g' | sed "s/STORAGE_ACCOUNT_NAME/$AZURE_STORAGE_ACCOUNT/g" | sed "s|AUTHENTICATION_KEY|$AUTHKEY|g"`
+        ADS=`echo "$ADST" | sed 's/CONTAINER/eventhubs/g' | sed "s/STORAGE_ACCOUNT_NAME/$AZURE_STORAGE_ACCOUNT/g" | sed "s|AUTHENTICATION_KEY|$AUTHKEY|g"`
         
         echo "running Apache Drill using Docker"
         docker run -it --rm -d --name drill -p 8047:8047 -t yorek/apache-drill-azure-blob /bin/bash
