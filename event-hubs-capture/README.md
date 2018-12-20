@@ -1,13 +1,12 @@
-# Streaming at Scale with Cosmos DB
+# Streaming at Scale with Event Hubs Capture
 
-This sample uses Cosmos DB as database to store JSON data
+This sample uses Event Hubs Capture and Apache Drill to ingest data and make it available to be queried.
 
 The provided scripts will an end-to-end solution complete with load test client.
 
 ## Running the Scripts
 
 Please note that the scripts have been tested on Windows 10 WSL/Ubuntu and macOS X, so make sure to use one of these two environment to run the scripts.
-A PowerShell script is also in the works.
 
 ## Setup Solution
 
@@ -38,51 +37,52 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 ## Created resources
 
-The script will create the followin resources:
+The script will create the followin resources on Azure:
 
-* **Azure Container Instances** to host [Locust]() Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+* **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
 * **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clientss
-* **Azure Function**: to process data incoming from Event Hubs as a stream
-* **Application Insight**: to monitor Azure Function performances
-* **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
-The Azure Function is created using .Net Framework 4.6.1, so at the moment it can be compiled only on a Window OS. 
+the script also tried to run a Docker container. Docker is therefore needed.
+
+https://www.docker.com/get-started
+
+If you're on Windows 10 and using WSL to run shell script, remember to configure Docker in WSL so that it can talk with the Docker installed on the host:
+
+https://davidburela.wordpress.com/2018/06/27/running-docker-on-wsl-windows-subsystem-for-linux/
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, Event Hubs capacity and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
-    export EVENTHUB_PARTITIONS=4
-    export EVENTHUB_CAPACITY=10
-    export PROC_FUNCTION_WORKERS=4
-    export COSMOSDB_RU=20000
+    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_CAPACITY=2
     export TEST_CLIENTS=2
 
 The above settings has been choosen to sustain a 1000 msg/sec stream.
 
-
-## Monitor performances
-
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching"
-
-## Azure Functions
-The deployed Azure Function solution contains two functions
-
-* Test0
-* Test1
-
-The first one uses Cosmos DB binding for Azure Function, while the second one uses the SDK. Only one solution will be activated during deployment. By default the activated one is "Test1"
-
-## Exceptions
-
-Just after starting the Azure Function, if you immediately go to the Application Insight blade on the Azure Portal, you may see the followin exception:
-
-    New receiver with higher epoch of '3' is created hence current receiver with epoch '2' is getting disconnected. If you are recreating the receiver, make sure a higher epoch is used.
-
-You can safely ignore it since it happens just during startup time when EventProcessor are created. After couple of seconds the no more exception like that one will be thrown. No messages will be lost while these exceptions are fired.
-
 ## Query Data
 
-Data is available in the created Cosmos DB database. You can query it from the portal, for example:
+Data sent to the created Event Hub will be stored automatically in Azure Blob Storage. The script will also download and execute on the local machine the Apache Drill Docker image and it will automatically configure it to use the aformentioned Azure Blob Storage.
 
-    SELECT * FROM c WHERE c.eventData.type = 'CO2'
+Once the container is ready you can connect to Apache Drill via local console on web portal and then execute a SQL query to extract data from created Avro files:
+
+List what sources are available. The `azure` source is the one automatically configured by the executed script.
+
+    show databases;
+
+You can see a list of files and folders available in the `azure` source:
+
+    show files from azure;
+
+    show files from azure.`folder/subfolder/desired-avro-file.avro`;
+
+You can thenb query Avro file contents:
+
+    select 
+        t.B.`deviceId`, 
+        t.B.`type`, 
+        t.B.`value` 
+    from 
+        (
+            select convert_from(Body, 'JSON') as B from azure.`folder/subfolder/desired-avro-file.avro` limit 10
+        ) as t;"
