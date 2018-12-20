@@ -1,15 +1,16 @@
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.Documents;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Azure.WebJobs.ServiceBus;
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.ServiceBus.Messaging;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Microsoft.Azure.EventHubs;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents;
+using Newtonsoft.Json;
 
 namespace StreamingProcessor
 {
@@ -20,9 +21,9 @@ namespace StreamingProcessor
          */
         [FunctionName("Test0")]
         public static async Task RunAsync(
-            [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup="%ConsumerGroup%")] EventData[] eventHubData,
-            [DocumentDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<string> cosmosMessage,
-        TraceWriter log)
+            [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup = "%ConsumerGroup%")] EventData[] eventHubData,
+            [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<string> cosmosMessage,
+            ILogger log)
         {
             var tasks = new List<Task>();
 
@@ -33,12 +34,12 @@ namespace StreamingProcessor
             {
                 try
                 {
-                    string message = Encoding.UTF8.GetString(data.GetBytes());
+                    string message = Encoding.UTF8.GetString(data.Body.Array);
 
                     var document = new
                     {
                         eventData = JObject.Parse(message),
-                        enqueuedAt = data.EnqueuedTimeUtc,
+                        enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
                         storedAt = DateTime.UtcNow
                     };
 
@@ -46,7 +47,7 @@ namespace StreamingProcessor
                 }
                 catch (Exception ex)
                 {
-                    log.Error($"{ex} - {ex.Message}");
+                    log.LogError($"{ex} - {ex.Message}");
                 }
             }
 
@@ -60,7 +61,8 @@ namespace StreamingProcessor
                 logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
             }
 
-            log.Info(logMessage);
+            log.LogInformation(logMessage);
         }
     }
+
 }

@@ -1,13 +1,14 @@
 {
   "IsEncrypted": false,
   "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
-    "EventHubsConnectionString": "Endpoint=sb://dmk3log.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=ietFyE/NFiYDvoBkaWAyPXI+BV27N5Jy5lTBG5zCEWA=",
-    "EventHubName": "dmk3log-32",
+    "EventHubsConnectionString": "Endpoint=sb://dmsstestingest.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=npm3+0kXM5ggvgHOD+Ryrxd1Pa9Pd0ykW9ysSNO5xjU=",
+    "EventHubName": "dmsstestingest-2",
     "ConsumerGroup": "cosmos",
     "CosmosDBDatabaseName": "streaming",
     "CosmosDBCollectionName": "rawdata",
-    "CosmosDBConnectionString": "AccountEndpoint=https://dmk3cosmosdb.documents.azure.com:443/;AccountKey=7DEns5HN02aatYSokpBqSeyoMqTZ34jD7ViWFKcoaK2bVMjxsw7k29OqRioZy0crWEUGn40j8X0Mobrx9Dglcg==;"
+    "CosmosDBConnectionString": "AccountEndpoint=https://dmsstestcosmosdb.documents.azure.com:443/;AccountKey=KZVqw2Zyf2BMD3FH4RAcczXiVXdiFImvEoFeRhPquEIfW3CDf2AB0KElQZNFlB4iIJxo7IYgJACeHJv4ciNGvw==;"
   }
 }
