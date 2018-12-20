@@ -17,7 +17,7 @@ az eventhubs eventhub create -n $EVENTHUB_NAME -g $RESOURCE_GROUP \
 --enable-capture true --capture-interval 300 --capture-size-limit 314572800 \
 --archive-name-format '{Namespace}/{EventHub}/{Year}_{Month}_{Day}_{Hour}_{Minute}_{Second}_{PartitionId}' \
 --blob-container eventhubs \
---destination-name 'drill' \
+--destination-name 'EventHubArchive.AzureBlockBlob' \
 --storage-account $AZURE_STORAGE_ACCOUNT \
 -o tsv >> log.txt
 
