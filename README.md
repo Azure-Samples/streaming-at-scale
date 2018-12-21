@@ -17,7 +17,7 @@ Here's also a list of scenarios where a Streaming solution fits nicely
 - [Big Data](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/big-data)
 - Near-Real Time Operational Analytics
 
-A good document the describes the Stream *Technologies* available on AZure is the followin one:
+A good document the describes the Stream *Technologies* available on Azure is the following one:
 
 [Choosing a stream processing technology in Azure](https://docs.microsoft.com/en-us/azure/architecture/data-guide/technology-choices/stream-processing)
 
