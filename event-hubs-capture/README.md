@@ -40,7 +40,7 @@ To make sure that name collisions will be unlikely, you should use a random stri
 The script will create the followin resources on Azure:
 
 * **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
-* **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clientss
+* **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 
 the script also tried to run a Docker container. Docker is therefore needed.
 
@@ -76,7 +76,7 @@ You can see a list of files and folders available in the `azure` source:
 
     show files from azure.`folder/subfolder/desired-avro-file.avro`;
 
-You can thenb query Avro file contents:
+You can then query Avro file contents:
 
     select 
         t.B.`deviceId`, 
