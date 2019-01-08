@@ -32,6 +32,9 @@ az functionapp deployment source config-zip \
 --name $PROC_FUNCTION_APP_NAME  --src $PROC_PACKAGE_PATH \
 -o tsv >> log.txt
 
+echo 'removing local zip file'
+rm -f $PROC_PACKAGE_PATH
+
 echo 'getting shared access key'
 EVENTHUB_CS=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv`
 
