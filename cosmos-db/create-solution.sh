@@ -1,12 +1,20 @@
 #!/bin/bash
 
-#set -e
+set -e
 
 if [ -z $1 ]; then
     echo "usage: $0 <deployment-name> <steps>"
     echo "eg: $0 test1"    
     exit 1
 fi
+
+on_error() {
+    set +e
+    echo "There was an error, execution halted" >&2
+    exit 1
+}
+
+trap on_error ERR
 
 export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
@@ -64,9 +72,8 @@ echo "Locusts    => $TEST_CLIENTS"
 echo
 
 echo "checking prerequisistes..."
-HAS_AZ=`command -v az`
-HAS_PY3=`command -v python3`
 
+HAS_AZ=`command -v az`
 if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
@@ -74,8 +81,23 @@ if [ -z HAS_AZ ]; then
     exit 1
 fi
 
+HAS_PY3=`command -v python3`
 if [ -z HAS_PY3 ]; then
     echo "python3 not found"
+    echo "please install it as it is needed by the script"
+    exit 1
+fi
+
+HAS_ZIP=`command -v zip`
+if [ -z HAS_ZIP ]; then
+    echo "zip not found"
+    echo "please install it as it is needed by the script"
+    exit 1
+fi
+
+HAS_DOTNET=`command -v dotnet`
+if [ -z HAS_DOTNET ]; then
+    echo "dotnet not found"
     echo "please install it as it is needed by the script"
     exit 1
 fi
@@ -123,7 +145,7 @@ echo "***** [P] setting up PROCESSING"
     export PROC_FUNCTION_APP_NAME=$PREFIX"process"
     export PROC_FUNCTION_NAME=StreamingProcessor
     export PROC_PACKAGE_FOLDER=.
-    export PROC_PACKAGE_TARGET=CosmosDB
+    export PROC_PACKAGE_TARGET=CosmosDB    
     export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
     export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
 
