@@ -2,7 +2,9 @@
 
 This sample uses Cosmos DB as database to store JSON data
 
-The provided scripts will an end-to-end solution complete with load test client.
+The provided scripts will an end-to-end solution complete with load test client. A detailed discussion on the scenario and the technical details is available here:
+
+[Serverless Streaming At Scale with Cosmos DB](https://medium.com/@mauridb/serverless-streaming-at-scale-with-cosmos-db-e0e26cacd27d)
 
 ## Running the Scripts
 
