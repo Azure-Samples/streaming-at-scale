@@ -1,4 +1,4 @@
-# Streaming at Scale with Cosmos DB
+# Streaming at Scale with Azure Event Hubs, Functions and Cosmos DB
 
 This sample uses Cosmos DB as database to store JSON data
 

@@ -57,8 +57,8 @@ fi
 rm -f log.txt
 
 echo
-echo "Streaming at Scale with CosmosDB"
-echo "================================"
+echo "Streaming at Scale: EventHubs + Functions + CosmosDB "
+echo "======================================================"
 echo
 
 echo "steps to be executed: $STEPS"

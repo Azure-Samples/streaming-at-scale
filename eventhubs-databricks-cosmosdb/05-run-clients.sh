@@ -1,9 +1,5 @@
 #!/bin/bash
 
-echo 'stopping processing function'
-az functionapp stop --name $PROC_FUNCTION_APP_NAME --resource-group $RESOURCE_GROUP \
--o tsv >> log.txt
-
 echo 'configuring storage account for test clients'
 echo ". name: $AZURE_STORAGE_ACCOUNT"
 
@@ -54,7 +50,3 @@ do
     curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=500" -F "hatch_rate=10"
     echo 'done'
 done
-
-echo 'starting processing function'
-az functionapp start -g $RESOURCE_GROUP -n $PROC_FUNCTION_APP_NAME \
--o tsv >> log.txt

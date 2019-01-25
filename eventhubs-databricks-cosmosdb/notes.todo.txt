@@ -1,0 +1,13 @@
+this should be done in python, in order to leverage AAD auth
+
+databricks secrets create-scope --scope "MAIN" --initial-manage-principal "users"
+  
+databricks secrets put --scope MAIN --key EH_CONNSTR --string-value "Endpoint=sb://dmtest001ingest.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=o744GdfD+lkzhH9tJynO4/F+peVG18LbEj9YfuFKTmM="
+databricks secrets put --scope MAIN --key EH_NAME --string-value "dmtest001ingest-2"
+databricks secrets put --scope MAIN --key COSMOSDB_URI --string-value "https://dmtest001cosmosdb.documents.azure.com:443/"
+databricks secrets put --scope MAIN --key COSMOSDB_KEY --string-value "EAyezjMGJgu7D7t2WGLDYmFO7tRQxIABrVT9YYz79BtmpSEGzvCe1JSz2laJvluwllN2Mk5JQIQ5kWuhc1IvVA=="
+  
+databricks libraries install --cluster-id 0117-233326-hug874 --maven-coordinates com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.8
+databricks libraries install --cluster-id 0110-002708-whelk432 --maven-coordinates com.microsoft.azure:azure-cosmosdb-spark_2.3.0_2.11:1.3.3
+  
+databricks workspace import -l SCALA -o ./databricks/notebooks/streaming-cosmosdb.scala /Shared/streaming-cosmosdb.scala
