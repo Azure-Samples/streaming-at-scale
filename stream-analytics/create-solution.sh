@@ -28,17 +28,18 @@ export LOCATION=eastus
 # export TEST_CLIENTS=10
 
 # 5500 messages/sec
-export EVENTHUB_PARTITIONS=8
-export EVENTHUB_CAPACITY=8
-export PROC_STREAMING_UNITS=48
-export COSMOSDB_RU=40000
-export TEST_CLIENTS=10
+# export EVENTHUB_PARTITIONS=8
+# export EVENTHUB_CAPACITY=8
+# export PROC_STREAMING_UNITS=48
+# export COSMOSDB_RU=40000
+# export TEST_CLIENTS=10
 
 # 1000 messages/sec
 export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=2
+export PROC_JOB_NAME=streamingjob
 export PROC_STREAMING_UNITS=6
-export COSMOSDB_RU=10000
+export COSMOSDB_RU=20000
 export TEST_CLIENTS=2
 
 export STEPS=$2
@@ -75,27 +76,6 @@ if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_PY3=`command -v python3`
-if [ -z HAS_PY3 ]; then
-    echo "python3 not found"
-    echo "please install it as it is needed by the script"
-    exit 1
-fi
-
-HAS_ZIP=`command -v zip`
-if [ -z HAS_ZIP ]; then
-    echo "zip not found"
-    echo "please install it as it is needed by the script"
-    exit 1
-fi
-
-HAS_DOTNET=`command -v dotnet`
-if [ -z HAS_DOTNET ]; then
-    echo "dotnet not found"
-    echo "please install it as it is needed by the script"
     exit 1
 fi
 

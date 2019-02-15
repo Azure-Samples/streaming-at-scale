@@ -12,7 +12,19 @@ az group deployment create \
   --name $PROC_JOB_NAME \
   --resource-group $RESOURCE_GROUP \
   --template-file streamanalyticsjob.json \
-  --parameters streamingJobName=$PROC_JOB_NAME eventHubNamespace=$EVENTHUB_NAMESPACE eventHubKey=$EVENTHUB_KEY eventHubName=$EVENTHUB_NAME eventHubConsumerGroupName=$EVENTHUB_CG streamingUnits=$PROC_STREAMING_UNITS cosmosdbAccountId=$COSMOSDB_SERVER_NAME cosmosdbAccountKey=$COSMOSDB_MASTER_KEY cosmosdbDatabase=$COSMOSDB_DATABASE_NAME cosmosdbCollectionName=$COSMOSDB_COLLECTION_NAME cosmosdbPartitionKey=deviceId cosmosdbDocumentId='' \
+  --parameters \
+    streamingJobName=$PROC_JOB_NAME \
+    eventHubNamespace=$EVENTHUB_NAMESPACE \
+    eventHubKey=$EVENTHUB_KEY \
+    eventHubName=$EVENTHUB_NAME \
+    eventHubConsumerGroupName=$EVENTHUB_CG \
+    streamingUnits=$PROC_STREAMING_UNITS \
+    cosmosdbAccountId=$COSMOSDB_SERVER_NAME \
+    cosmosdbAccountKey=$COSMOSDB_MASTER_KEY \
+    cosmosdbDatabase=$COSMOSDB_DATABASE_NAME \
+    cosmosdbCollectionName=$COSMOSDB_COLLECTION_NAME \
+    cosmosdbPartitionKey=deviceId \
+    cosmosdbDocumentId='' \
   -o tsv >> log.txt
 
 echo 'done creating stream analytics job, check log.txt for any errors'
