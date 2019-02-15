@@ -1,0 +1,123 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "streamingJobName": {
+            "type": "string",
+            "defaultValue": "streamingjob"
+        },
+        "eventHubNamespace": {
+            "type": "string"
+        },
+        "eventHubKey": {
+            "type": "securestring"
+        },
+        "eventHubName": {
+            "type": "string"
+        },
+        "eventHubConsumerGroupName": {
+            "type": "string"
+        },
+        "streamingUnits": {
+            "type": "int",
+            "defaultValue": 3
+        },
+        "cosmosdbAccountId": {
+            "type": "string"
+        },
+        "cosmosdbAccountKey": {
+            "type": "securestring"
+        },
+        "cosmosdbDatabase": {
+            "type": "string",
+            "defaultValue": "streaming"
+        },
+        "cosmosdbCollectionName": {
+            "type": "string",
+            "defaultValue": "rawdata"
+        },
+        "cosmosdbPartitionKey": {
+            "type": "string",
+            "defaultValue": "deviceId"
+        },
+        "cosmosdbDocumentId": {
+            "type": "string",
+            "defaultValue": "id"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-01-preview",
+            "name": "[parameters('streamingJobName')]",
+            "location": "[resourceGroup().location]",
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "identity": {
+                "type": "systemAssigned"
+            },
+            "properties": {
+                "sku": {
+                    "name": "standard"
+                },
+                "eventsOutOfOrderPolicy": "drop",
+                "eventsOutOfOrderMaxDelayInSeconds": 10,
+                "compatibilityLevel": "1.1",
+                "outputStartMode" : "JobStartTime",  
+                "inputs": [
+                    {
+                        "name": "inputEventHub",
+                        "properties": {
+                            "type": "stream",
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.ServiceBus/EventHub",
+                                "properties": {
+                                    "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
+                                    "eventHubName": "[parameters('eventHubName')]",
+                                    "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "transformation": {
+                    "name": "ProcessSampleData",
+                    "properties": {
+                        "streamingUnits": "[int(parameters('streamingUnits'))]",
+                        "query": "select * from inputEventHub partition by deviceId"
+                    }
+                },
+                "outputs": [
+                    {
+                        "name": "output",
+                        "properties": {
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.Storage/DocumentDB",
+                                "properties": {
+                                    "accountId": "[parameters('cosmosdbAccountId')]",
+                                    "accountKey": "[parameters('cosmosdbAccountKey')]",
+                                    "database": "[parameters('cosmosdbDatabase')]",
+                                    "collectionNamePattern": "[parameters('cosmosdbCollectionName')]",
+                                    "partitionKey": "[parameters('cosmosdbPartitionKey')]",
+                                    "documentId": "[parameters('cosmosdbDocumentId')]"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
