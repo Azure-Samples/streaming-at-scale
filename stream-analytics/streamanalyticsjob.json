@@ -61,7 +61,7 @@
                 "eventsOutOfOrderPolicy": "drop",
                 "eventsOutOfOrderMaxDelayInSeconds": 10,
                 "compatibilityLevel": "1.1",
-                "outputStartMode" : "JobStartTime",  
+                "outputStartMode": "JobStartTime",
                 "inputs": [
                     {
                         "name": "inputEventHub",
@@ -90,7 +90,7 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "select * from inputEventHub partition by deviceId"
+                        "query": "select * from inputEventHub partition by partitionid"
                     }
                 },
                 "outputs": [
