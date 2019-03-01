@@ -23,10 +23,9 @@ echo ". SAS token: $EVENTHUB_SAS_TOKEN"
 
 echo 'create test clients'
 echo ". count: $TEST_CLIENTS"
-for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
-do
-    echo "creating client $CLIENT_ID..."
 
+create_locust() {
+    CLIENT_ID=$1
     az container delete -g $RESOURCE_GROUP -n locust-$CLIENT_ID -y \
     -o tsv >> log.txt
 
@@ -37,7 +36,16 @@ do
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 4 --memory 8 \
     -o tsv >> log.txt
+}
+
+for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
+do
+    echo "creating client $CLIENT_ID..."
+    create_locust $CLIENT_ID &
 done
+
+echo "waiting for clients to be created..."
+wait
 
 for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
 do
