@@ -1,10 +1,8 @@
-# Streaming at Scale with Azure Event Hubs, Functions and Cosmos DB
+# Streaming at Scale with Stream Analytics
 
-This sample uses Cosmos DB as database to store JSON data
+This sample uses Stream Analytics to process streaming data from EventHub and uses Cosmos DB as a sink to store JSON data
 
-The provided scripts will an end-to-end solution complete with load test client. A detailed discussion on the scenario and the technical details is available here:
-
-[Serverless Streaming At Scale with Cosmos DB](https://medium.com/@mauridb/serverless-streaming-at-scale-with-cosmos-db-e0e26cacd27d)
+The provided scripts will an end-to-end solution complete with load test client.  
 
 ## Running the Scripts
 
@@ -51,8 +49,7 @@ The script will create the following resources:
 
 * **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
 * **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-* **Azure Function**: to process data incoming from Event Hubs as a stream
-* **Application Insight**: to monitor Azure Function performances
+* **Stream Analytics**: to process analytics on streaming data
 * **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
 The Azure Function is created using .Net Core 2.1, so it can be compiled on any supported platform. I only tested compilation on Windows 10, though.
@@ -63,34 +60,24 @@ If you want to change some setting of the solution, like number of load test cli
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION_SKU=P2v2
-    export PROC_FUNCTION_WORKERS=2
-    export COSMOSDB_RU=20000
+    export PROC_STREAMING_UNITS=6
+    export COSMOSDB_RU=10000
     export TEST_CLIENTS=2
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 
-
 ## Monitor performances
 
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching"
+Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" metrics . 
+You can also use Event Hub "Metrics" pane.
 
-## Azure Functions
+## Stream Analytics
 
-The deployed Azure Function solution contains two functions
-
-* Test0
-* Test1
-
-The first one uses Cosmos DB binding for Azure Function, while the second one uses the SDK. Only one solution will be activated during deployment. By default the activated one is "Test1"
+TBD. The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added soon.
 
 ## Exceptions
 
-Just after starting the Azure Function, if you immediately go to the Application Insight blade on the Azure Portal, you may see the following exception:
-
-    New receiver with higher epoch of '3' is created hence current receiver with epoch '2' is getting disconnected. If you are recreating the receiver, make sure a higher epoch is used.
-
-You can safely ignore it since it happens just during startup time when EventProcessors are created. After couple of seconds the no more exception like that one will be thrown. No messages will be lost while these exceptions are fired.
+NA
 
 ## Query Data
 
