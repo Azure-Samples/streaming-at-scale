@@ -32,7 +32,19 @@ class DeviceSimulator(TaskSet):
             'type': 'TEMP',
             'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
-            'value': random.uniform(10,100)        
+            'value': random.uniform(10,100),
+            'complexData': {            
+                'moreData0': random.uniform(10,100), 
+                'moreData1': random.uniform(10,100),
+                'moreData2': random.uniform(10,100),
+                'moreData3': random.uniform(10,100),
+                'moreData4': random.uniform(10,100),
+                'moreData5': random.uniform(10,100),
+                'moreData6': random.uniform(10,100),
+                'moreData7': random.uniform(10,100),
+                'moreData8': random.uniform(10,100),            
+                'moreData9': random.uniform(10,100)                        
+            }
         }
 
         self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
@@ -49,7 +61,19 @@ class DeviceSimulator(TaskSet):
             'type': 'CO2',
             'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
-            'value': random.uniform(300,400)            
+            'value': random.uniform(10,100),            
+            'complexData': {            
+                'moreData0': random.uniform(10,100), 
+                'moreData1': random.uniform(10,100),
+                'moreData2': random.uniform(10,100),
+                'moreData3': random.uniform(10,100),
+                'moreData4': random.uniform(10,100),
+                'moreData5': random.uniform(10,100),
+                'moreData6': random.uniform(10,100),
+                'moreData7': random.uniform(10,100),
+                'moreData8': random.uniform(10,100),            
+                'moreData9': random.uniform(10,100)                        
+            }
         }
 
         self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
