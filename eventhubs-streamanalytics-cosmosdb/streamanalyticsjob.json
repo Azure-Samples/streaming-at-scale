@@ -90,7 +90,7 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "select *, UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime from inputEventHub partition by partitionid"
+                        "query": "select *, UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime from inputEventHub partition by PartitionId"
                     }
                 },
                 "functions": [{
