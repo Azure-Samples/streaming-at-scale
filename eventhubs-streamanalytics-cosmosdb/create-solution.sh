@@ -11,10 +11,11 @@ fi
 on_error() {
     set +e
     echo "There was an error, execution halted" >&2
+    echo "Error at line $1"
     exit 1
 }
 
-trap on_error ERR
+trap 'on_error $LINENO' ERR
 
 export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
@@ -24,7 +25,7 @@ export LOCATION=eastus
 export EVENTHUB_PARTITIONS=12
 export EVENTHUB_CAPACITY=12
 export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=24
+export PROC_STREAMING_UNITS=72
 export COSMOSDB_RU=80000
 export TEST_CLIENTS=20
 
@@ -88,7 +89,7 @@ echo "***** [C] setting up common resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
-    RUN=`echo $STEPS | grep C -o`    
+    RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z $RUN ]; then
         ../_common/01-create-resource-group.sh
         ../_common/02-create-storage-account.sh
@@ -101,7 +102,7 @@ echo "***** [I] setting up INGESTION"
     export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="cosmos"
 
-    RUN=`echo $STEPS | grep I -o`
+    RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z $RUN ]; then
         ./01-create-event-hub.sh
     fi
@@ -113,7 +114,7 @@ echo "***** [D] setting up DATABASE"
     export COSMOSDB_DATABASE_NAME="streaming"
     export COSMOSDB_COLLECTION_NAME="rawdata"
 
-    RUN=`echo $STEPS | grep D -o`
+    RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z $RUN ]; then
         ./02-create-cosmosdb.sh
     fi
@@ -122,7 +123,7 @@ echo
 echo "***** [P] setting up PROCESSING"
 
     export PROC_JOB_NAME=$PREFIX"streamingjob"
-    RUN=`echo $STEPS | grep P -o`
+    RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
         ./03-create-stream-analytics.sh
     fi
@@ -132,7 +133,7 @@ echo "***** [T] starting up TEST clients"
 
     export LOCUST_DNS_NAME=$PREFIX"locust"
 
-    RUN=`echo $STEPS | grep T -o`
+    RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z $RUN ]; then
         ./04-run-clients.sh
     fi
