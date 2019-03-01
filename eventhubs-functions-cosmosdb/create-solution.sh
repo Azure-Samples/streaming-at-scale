@@ -23,16 +23,16 @@ export LOCATION=eastus
 # 10000 messages/sec
 # export EVENTHUB_PARTITIONS=12
 # export EVENTHUB_CAPACITY=12
-# export PROC_FUNCTION=Test1
+# export PROC_FUNCTION=Test0
 # export PROC_FUNCTION_SKU=P2v2
 # export PROC_FUNCTION_WORKERS=12
 # export COSMOSDB_RU=80000
-# export TEST_CLIENTS=10
+# export TEST_CLIENTS=20
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
 # export EVENTHUB_CAPACITY=8
-# export PROC_FUNCTION=Test1
+# export PROC_FUNCTION=Test0
 # export PROC_FUNCTION_SKU=P1v2
 # export PROC_FUNCTION_WORKERS=8
 # export COSMOSDB_RU=40000
