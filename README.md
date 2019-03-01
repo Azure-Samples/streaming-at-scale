@@ -58,7 +58,7 @@ Implement a stream processing architecture using:
 - AzureFunctions (Stream Process)
 - Cosmos DB (Serve)
 
-[EventHubs Capture Sample](event-hubs-capture) 
+[EventHubs Capture Sample](eventhubs-capture) 
 
 Implement stream processing architecture using:
 - EventHubs (Ingest)
@@ -66,7 +66,7 @@ Implement stream processing architecture using:
 - Azure Blob Store (Data Lake)
 - Apache Drill (Query/Serve)
 
-[Stream Analytics Sample](stream-analytics)
+[Stream Analytics Sample](eventhubs-streamanalytics-cosmosdb)
 
 Implement a stream processing architecture using:
 - EventHubs (Ingest / Immutable Log)
