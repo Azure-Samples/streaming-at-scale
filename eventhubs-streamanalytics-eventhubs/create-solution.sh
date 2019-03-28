@@ -63,7 +63,7 @@ fi
 rm -f log.txt
 
 echo
-echo "Streaming at Scale with Stream Analytics and CosmosDB"
+echo "Streaming at Scale with Stream Analytics and Event Hubs"
 echo "================================"
 echo
 
@@ -73,7 +73,6 @@ echo
 echo "configuration: "
 echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "CosmosDB        => RU: $COSMOSDB_RU"
 echo "Locusts         => $TEST_CLIENTS"
 echo
 
