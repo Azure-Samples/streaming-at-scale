@@ -1,6 +1,8 @@
-# Streaming at Scale with Azure Event Hubs, Stream Analytics and Cosmos DB
+# Streaming at Scale with Azure Event Hubs and Stream Analytics
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses Cosmos DB as a sink to store JSON data
+This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data
+
+This is the most performance way to analyze and stream data out of Stream Analytics.
 
 The provided scripts will an end-to-end solution complete with load test client.  
 
@@ -53,7 +55,7 @@ The script will create the following resources:
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, event hubs TU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
