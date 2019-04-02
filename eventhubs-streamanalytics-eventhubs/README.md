@@ -59,23 +59,18 @@ If you want to change some setting of the solution, like number of load test cli
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_STREAMING_UNITS=6
+    export PROC_STREAMING_UNITS=3
     export TEST_CLIENTS=2
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 
 ## Monitor performances
 
-Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" metrics . 
-You can also use Event Hub "Metrics" pane.
+Please use Metrics pane in Stream Analytics , see "Input/Output Events" for throughput and "Watermark Delay" metric to see if the job is keeping up with the input rate.  You can also use Event Hub "Metrics" pane to see if there are any "Throttled Requests" and adjust the Threshold Units accordingly.
 
 ## Stream Analytics
 
-TBD. The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added soon.
-
-## Exceptions
-
-NA
+The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added in a .
 
 ## Query Data
 
