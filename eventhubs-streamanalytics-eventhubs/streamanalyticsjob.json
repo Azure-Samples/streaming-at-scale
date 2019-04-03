@@ -43,8 +43,8 @@
                 "sku": {
                     "name": "standard"
                 },
-                "eventsOutOfOrderPolicy": "drop",
-                "eventsOutOfOrderMaxDelayInSeconds": 10,
+                "eventsOutOfOrderPolicy": "adjust",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
                 "compatibilityLevel": "1.2",
                 "outputStartMode": "JobStartTime",
                 "inputs": [

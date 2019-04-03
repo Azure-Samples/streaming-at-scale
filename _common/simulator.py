@@ -25,12 +25,13 @@ class DeviceSimulator(TaskSet):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
-        deviceIndex = random.randint(0, 999)
+        deviceIndex = random.randint(0, 9)
 
+		#'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
         json={
             'eventId': eventId,
             'type': 'TEMP',
-            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
+            'deviceId': deviceIndex,
             'createdAt': createdAt,
             'value': random.uniform(10,100),
             'complexData': {            
@@ -54,12 +55,14 @@ class DeviceSimulator(TaskSet):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
-        deviceIndex = random.randint(0, 999) + 1000
+        #deviceIndex = random.randint(0, 999) + 1000
+		#'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
+        deviceIndex = random.randint(0, 9)
 
         json={
             'eventId': eventId,
             'type': 'CO2',
-            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
+            'deviceId': deviceIndex,
             'createdAt': createdAt,
             'value': random.uniform(10,100),            
             'complexData': {            
