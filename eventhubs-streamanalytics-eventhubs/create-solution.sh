@@ -30,25 +30,25 @@ export LOCATION=eastus
 
 
 # 10000 messages/sec
-#export EVENTHUB_PARTITIONS=12
-#export EVENTHUB_CAPACITY=10
-#export PROC_JOB_NAME=streamingjob
-#export PROC_STREAMING_UNITS=12
-#export TEST_CLIENTS=20
-
-# 5500 messages/sec
-export EVENTHUB_PARTITIONS=2
+export EVENTHUB_PARTITIONS=12
 export EVENTHUB_CAPACITY=10
 export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=6
-export TEST_CLIENTS=12
+export PROC_STREAMING_UNITS=12
+export TEST_CLIENTS=20
+
+# 5500 messages/sec
+# export EVENTHUB_PARTITIONS=6
+# export EVENTHUB_CAPACITY=6
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=6
+# export TEST_CLIENTS=10
 
 # 1000 messages/sec
-#export EVENTHUB_PARTITIONS=2
-#export EVENTHUB_CAPACITY=20
-#export PROC_JOB_NAME=streamingjob
-#export PROC_STREAMING_UNITS=6
-#export TEST_CLIENTS=2
+# export EVENTHUB_PARTITIONS=2
+# export EVENTHUB_CAPACITY=2
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=3
+# export TEST_CLIENTS=2
 
 export STEPS=$2
 if [ -z $PROC_STREAMING_UNITS ]; then  
