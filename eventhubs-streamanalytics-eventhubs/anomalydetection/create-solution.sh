@@ -63,7 +63,7 @@ fi
 rm -f log.txt
 
 echo
-echo "Streaming at Scale with Stream Analytics and Event Hubs"
+echo "Streaming at Scale with Stream Analytics and Event Hubs with Anomaly Detection scenario"
 echo "================================"
 echo
 
