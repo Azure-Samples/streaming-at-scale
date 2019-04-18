@@ -55,7 +55,7 @@ fi
 rm -f log.txt
 
 echo
-echo "Streaming at Scale with Stream Analytics and Event Hubs"
+echo "Streaming at Scale with Stream Analytics and Event Hubs with Anomaly Detection scenario"
 echo "================================"
 echo
 
@@ -87,8 +87,8 @@ echo "***** [C] setting up common resources"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z $RUN ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+        ../../_common/01-create-resource-group.sh
+        ../../_common/02-create-storage-account.sh
     fi
 echo 
 
