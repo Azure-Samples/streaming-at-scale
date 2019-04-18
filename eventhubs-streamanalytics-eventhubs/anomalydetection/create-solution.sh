@@ -21,6 +21,13 @@ export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
 
+# 1100 messages/sec
+# export EVENTHUB_PARTITIONS=2
+# export EVENTHUB_CAPACITY=2
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=6
+# export TEST_CLIENTS=2
+
 # 2200 messages/sec
 export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=4
