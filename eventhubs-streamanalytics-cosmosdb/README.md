@@ -52,8 +52,6 @@ The script will create the following resources:
 * **Stream Analytics**: to process analytics on streaming data
 * **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
-The Azure Function is created using .Net Core 2.1, so it can be compiled on any supported platform. I only tested compilation on Windows 10, though.
-
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
@@ -65,22 +63,41 @@ If you want to change some setting of the solution, like number of load test cli
     export TEST_CLIENTS=2
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
+Likewise, below settings has been chosen to sustain at least 10,000 msg/sec stream. 
+Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
+
+    export EVENTHUB_PARTITIONS=16
+    export EVENTHUB_CAPACITY=12
+    export PROC_STREAMING_UNITS=48
+    export COSMOSDB_RU=80000
+    export TEST_CLIENTS=20
 
 ## Monitor performances
 
-Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" metrics . 
-You can also use Event Hub "Metrics" pane.
+Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" and "Backlogged Input Events" metrics.
+The default metrics are aggregated per minute, here is a sample metrics snapshot showing 10K Events/Sec (600K+ Events/minute).
+Ensure that "Watermark delay" metric stays in single digit seconds latency.
+
+ASA metrics showing 10K events/sec:
+
+![ASA metrics](.\01-stream-analytics-metrics.png "Azure Stream Analytics 10K events/sec metrics")
+
+You can also use Event Hub "Metrics" pane and ensure there "Throttled Requests" don't slow down your pipeline.
+
+However, In Cosmos DB throttling is expected especially at higher throughput scenarios. 
+As long as ASA metric "Watermark delay" is not consistently increasing, your processing is not falling behind, throttling in Cosmos DB is okay.
+
+![Cosmos DB metrics](.\02-cosmosdb-metrics.png "Cosmos DB collection metrics")
+
 
 ## Stream Analytics
 
-TBD. The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added soon.
+Note that the solution configurations have been verified with compatibility level 1.2 . 
 
-## Exceptions
-
-NA
+The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added as separate solutions.
 
 ## Query Data
 
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
 
-    SELECT * FROM c WHERE c.eventData.type = 'CO2'
+    `SELECT * FROM c WHERE c.eventData.type = 'CO2'`

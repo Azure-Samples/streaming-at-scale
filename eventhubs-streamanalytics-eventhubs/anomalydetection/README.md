@@ -1,6 +1,6 @@
 # Streaming at Scale with Azure Event Hubs and Stream Analytics
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data
+This sample uses Stream Analytics to perform anomaly detection on streaming data from EventHub and uses another Event Hub as a sink to store JSON data
 
 This is the most performance way to analyze and stream data out of Stream Analytics.
 
@@ -58,11 +58,13 @@ The script will create the following resources:
 If you want to change some setting of the solution, like number of load test clients, event hubs TU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
-    export EVENTHUB_CAPACITY=2
-    export PROC_STREAMING_UNITS=3
-    export TEST_CLIENTS=2
+    export EVENTHUB_CAPACITY=4
+    export PROC_STREAMING_UNITS=6
+    export TEST_CLIENTS=4
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings has been chosen to sustain a 2200 msg/sec stream.
+
+You can also change the anomaly detection function to AnomalyDetection_ChangePoint by editing the query in streamanalyticsjob.json.
 
 ## Monitor performances
 
@@ -70,7 +72,7 @@ Please use Metrics pane in Stream Analytics , see "Input/Output Events" for thro
 
 ## Stream Analytics
 
-The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added in a .
+The deployed Stream Analytics solution performs spike and dip detection using the built-in AnomalyDetection_SpikeAndDip function.
 
 ## Query Data
 

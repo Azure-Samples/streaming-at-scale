@@ -19,31 +19,40 @@ trap 'on_error $LINENO' ERR
 
 export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
-export LOCATION=eastus
+export LOCATION=westus
 
 # 10000 messages/sec
+<<<<<<< HEAD
 export EVENTHUB_PARTITIONS=12
 export EVENTHUB_CAPACITY=12
 export PROC_JOB_NAME=streamingjob
 export PROC_STREAMING_UNITS=72
 export COSMOSDB_RU=100000
 export TEST_CLIENTS=20
+=======
+# export EVENTHUB_PARTITIONS=16
+# export EVENTHUB_CAPACITY=12
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=48
+# export COSMOSDB_RU=80000
+# export TEST_CLIENTS=20
+>>>>>>> master
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
-# export EVENTHUB_CAPACITY=8
+# export EVENTHUB_CAPACITY=6
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=36
-# export COSMOSDB_RU=60000
+# export PROC_STREAMING_UNITS=24
+# export COSMOSDB_RU=40000
 # export TEST_CLIENTS=10
 
 # 1000 messages/sec
-# export EVENTHUB_PARTITIONS=2
-# export EVENTHUB_CAPACITY=2
-# export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=6
-# export COSMOSDB_RU=20000
-# export TEST_CLIENTS=2
+export EVENTHUB_PARTITIONS=2
+export EVENTHUB_CAPACITY=2
+export PROC_JOB_NAME=streamingjob
+export PROC_STREAMING_UNITS=6
+export COSMOSDB_RU=10000
+export TEST_CLIENTS=2
 
 export STEPS=$2
 if [ -z $PROC_STREAMING_UNITS ]; then  
