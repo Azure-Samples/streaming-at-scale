@@ -74,7 +74,7 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "create table  [inputEventHub]\r\n(\r\n    eventId nvarchar(max),\r\n    [type] nvarchar(max),\r\n\tdeviceId nvarchar(max),\r\n\tcreatedAt datetime,\r\n\t[value] float,\r\n\tcomplexData record,\r\n\tEventProcessedUtcTime datetime,\r\n\tEventEnqueuedUtcTime datetime,\r\n\tPartitionId bigint\r\n)\r\nselect \r\n    eventId, \r\n    [type],\r\n    deviceId,\r\n    createdAt,\r\n    [value],\r\n    complexData,\r\n    EventProcessedUtcTime,\r\n    EventEnqueuedUtcTime,\r\n    cast(UDF.GetCurrentDateTime('') as datetime) AS ASAProcessedUtcTime,\r\n    PartitionId\r\ninto\r\n    [AzureSQL]\r\nfrom \r\n    [inputEventHub] partition by PartitionId\r\n"
+                        "query": "create table  [inputEventHub]\r\n(\r\n    eventId nvarchar(max),\r\n    [type] nvarchar(max),\r\n\tdeviceId nvarchar(max),\r\n\tcreatedAt datetime,\r\n\t[value] float,\r\n\tcomplexData record,\r\n\tEventProcessedUtcTime datetime,\r\n\tEventEnqueuedUtcTime datetime,\r\n\tPartitionId bigint\r\n)\r\nselect \r\n    eventId, \r\n    [type],\r\n    deviceId,\r\n    createdAt,\r\n    [value],\r\n    UDF.RecordToJson(complexData) as complexData,\r\n    EventProcessedUtcTime,\r\n    EventEnqueuedUtcTime,\r\n    cast(UDF.GetCurrentDateTime('') as datetime) AS ASAProcessedUtcTime,\r\n    PartitionId\r\ninto\r\n    [AzureSQL]\r\nfrom \r\n    [inputEventHub] partition by PartitionId\r\n"
                     }
                 },
                 "functions": [
@@ -99,8 +99,31 @@
                                         "script": "// Sample UDF which returns current timestamp.\nfunction main(s) {\n    return new Date().toISOString();\n}"
                                     }
                                 }
-                            },
-                            "etag": "cc766b0b-3746-4c3b-bb8e-d9366a6c352f"
+                            }                            
+                        }
+                    },
+                    {
+                        "name": "RecordToJSON",
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
+                        "properties": {
+                            "type": "Scalar",
+                            "properties": {
+                                "inputs": [
+                                    {
+                                        "dataType": "record",
+                                        "isConfigurationParameter": null
+                                    }
+                                ],
+                                "output": {
+                                    "dataType": "nvarchar(max)"
+                                },
+                                "binding": {
+                                    "type": "Microsoft.StreamAnalytics/JavascriptUdf",
+                                    "properties": {
+                                        "script": "// Convert record to JSON.\nfunction main(record) {\n    return JSON.stringify(record);\n}"                                        
+                                    }
+                                }
+                            }
                         }
                     }
                 ],

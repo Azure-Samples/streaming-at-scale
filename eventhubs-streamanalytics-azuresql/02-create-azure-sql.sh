@@ -24,7 +24,7 @@ echo ". database: $SQL_DATABASE_NAME"
 az group deployment create \
     --name "$RESOURCE_GROUP-AzureSQL" \
     --resource-group "$RESOURCE_GROUP" \
-    --template-file "azure-sql.json" \
+    --template-file "arm/azure-sql.json" \
     --parameters \
         ServerName=$SQL_SERVER_NAME \
         DatabaseName=$SQL_DATABASE_NAME \
