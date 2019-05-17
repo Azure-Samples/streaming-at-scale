@@ -1,15 +1,15 @@
 #!/bin/bash
 
-echo 'configuring storage account for test clients'
-echo ". name: $AZURE_STORAGE_ACCOUNT"
+echo "retrieving storage connection string"
+AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP -o tsv)
 
 echo 'creating file share'
-az storage share create -n locust \
--o tsv >> log.txt
+az storage share create -n locust --connection-string $AZURE_STORAGE_CONNECTION_STRING \
+    -o tsv >> log.txt
 
 echo 'uploading simulator scripts'
-az storage file upload -s locust --source ../_common/simulator.py \
--o tsv >> log.txt
+az storage file upload -s locust --source ../_common/simulator.py --connection-string $AZURE_STORAGE_CONNECTION_STRING \
+    -o tsv >> log.txt
 
 echo 'getting storage key'
 AZURE_STORAGE_KEY=`az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP --query '[0].value' -o tsv` 
