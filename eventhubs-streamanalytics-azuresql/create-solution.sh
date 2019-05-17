@@ -22,12 +22,12 @@ export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
 
 # 10000 messages/sec
-export EVENTHUB_PARTITIONS=12
-export EVENTHUB_CAPACITY=12
-export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=72
-export COSMOSDB_RU=120000
-export TEST_CLIENTS=20
+# export EVENTHUB_PARTITIONS=12
+# export EVENTHUB_CAPACITY=12
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=72
+# export COSMOSDB_RU=120000
+# export TEST_CLIENTS=20
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
@@ -38,12 +38,12 @@ export TEST_CLIENTS=20
 # export TEST_CLIENTS=10
 
 # 1000 messages/sec
-# export EVENTHUB_PARTITIONS=2
-# export EVENTHUB_CAPACITY=2
-# export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=6
-# export COSMOSDB_RU=20000
-# export TEST_CLIENTS=2
+export EVENTHUB_PARTITIONS=2
+export EVENTHUB_CAPACITY=2
+export PROC_JOB_NAME=streamingjob
+export PROC_STREAMING_UNITS=6
+export SQL_SKU=P1
+export TEST_CLIENTS=2
 
 export STEPS=$2
 if [ -z $PROC_STREAMING_UNITS ]; then  
@@ -68,7 +68,7 @@ echo
 echo "configuration: "
 echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "CosmosDB        => RU: $COSMOSDB_RU"
+echo "Azure SQL       => SKU: $SQL_SKU"
 echo "Locusts         => $TEST_CLIENTS"
 echo
 
@@ -105,9 +105,9 @@ echo
 
 echo "***** [I] setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"ingest"    
-    export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_CG="cosmos"
+    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
+    export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
+    export EVENTHUB_CG="azuresql"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z $RUN ]; then
@@ -117,13 +117,12 @@ echo
 
 echo "***** [D] setting up DATABASE"
 
-    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
-    export COSMOSDB_DATABASE_NAME="streaming"
-    export COSMOSDB_COLLECTION_NAME="rawdata"
+    export SQL_SERVER_NAME=$PREFIX"sql" 
+    export SQL_DATABASE_NAME="streaming"    
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z $RUN ]; then
-        ./02-create-cosmosdb.sh
+        ./02-create-azure-sql.sh
     fi
 echo
 

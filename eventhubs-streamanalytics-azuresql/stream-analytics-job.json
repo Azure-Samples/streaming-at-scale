@@ -22,27 +22,11 @@
             "type": "int",
             "defaultValue": 3
         },
-        "cosmosdbAccountId": {
+        "azureSQLServer": {
             "type": "string"
         },
-        "cosmosdbAccountKey": {
+        "azureSQLDatabase": {
             "type": "securestring"
-        },
-        "cosmosdbDatabase": {
-            "type": "string",
-            "defaultValue": "streaming"
-        },
-        "cosmosdbCollectionName": {
-            "type": "string",
-            "defaultValue": "rawdata"
-        },
-        "cosmosdbPartitionKey": {
-            "type": "string",
-            "defaultValue": "deviceId"
-        },
-        "cosmosdbDocumentId": {
-            "type": "string",
-            "defaultValue": "id"
         }
     },
     "resources": [
@@ -90,55 +74,61 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "select *, UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime from inputEventHub partition by PartitionId"
+                        "query": "create table  [inputEventHub]\r\n(\r\n    eventId nvarchar(max),\r\n    [type] nvarchar(max),\r\n\tdeviceId nvarchar(max),\r\n\tcreatedAt datetime,\r\n\t[value] float,\r\n\tcomplexData record,\r\n\tEventProcessedUtcTime datetime,\r\n\tEventEnqueuedUtcTime datetime,\r\n\tPartitionId bigint\r\n)\r\nselect \r\n    eventId, \r\n    [type],\r\n    deviceId,\r\n    createdAt,\r\n    [value],\r\n    complexData,\r\n    EventProcessedUtcTime,\r\n    EventEnqueuedUtcTime,\r\n    cast(UDF.GetCurrentDateTime('') as datetime) AS ASAProcessedUtcTime,\r\n    PartitionId\r\ninto\r\n    [AzureSQL]\r\nfrom \r\n    [inputEventHub] partition by PartitionId\r\n"
                     }
                 },
-                "functions": [{
-                    "name": "GetCurrentDateTime",
-                    "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
-                    "properties": {
-                        "type": "Scalar",
-                        "properties": {
-                            "inputs": [{
-                                "dataType": "any",
-                                "isConfigurationParameter": null
-                            }],
-                            "output": {
-                                "dataType": "any"
-                            },
-                            "binding": {
-                                "type": "Microsoft.StreamAnalytics/JavascriptUdf",
-                                "properties": {
-                                    "script": "// Sample UDF which returns current timestamp.\nfunction main(s) {\n    return new Date().toISOString();\n}"
-                                }
-                            }
-                        },
-                        "etag": "cc766b0b-3746-4c3b-bb8e-d9366a6c352f"
-                    }
-                }],
-                "outputs": [
+                "functions": [
                     {
-                        "name": "output",
+                        "name": "GetCurrentDateTime",
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
                         "properties": {
-                            "serialization": {
-                                "type": "JSON",
-                                "properties": {
-                                    "encoding": "UTF8"
+                            "type": "Scalar",
+                            "properties": {
+                                "inputs": [
+                                    {
+                                        "dataType": "any",
+                                        "isConfigurationParameter": null
+                                    }
+                                ],
+                                "output": {
+                                    "dataType": "any"
+                                },
+                                "binding": {
+                                    "type": "Microsoft.StreamAnalytics/JavascriptUdf",
+                                    "properties": {
+                                        "script": "// Sample UDF which returns current timestamp.\nfunction main(s) {\n    return new Date().toISOString();\n}"
+                                    }
                                 }
                             },
-                            "datasource": {
-                                "type": "Microsoft.Storage/DocumentDB",
-                                "properties": {
-                                    "accountId": "[parameters('cosmosdbAccountId')]",
-                                    "accountKey": "[parameters('cosmosdbAccountKey')]",
-                                    "database": "[parameters('cosmosdbDatabase')]",
-                                    "collectionNamePattern": "[parameters('cosmosdbCollectionName')]",
-                                    "partitionKey": "[parameters('cosmosdbPartitionKey')]",
-                                    "documentId": "[parameters('cosmosdbDocumentId')]"
-                                }
-                            }
+                            "etag": "cc766b0b-3746-4c3b-bb8e-d9366a6c352f"
                         }
                     }
+                ],
+                "outputs": [
+                    {
+                        "name": "AzureSQL",
+                        "properties": {
+                          "serialization": {
+                            "type": "Json",
+                            "properties": {
+                              "encoding": "UTF8",
+                              "format": "LineSeparated"
+                            }
+                          },
+                          "datasource": {
+                            "type": "Microsoft.Sql/Server/Database",
+                            "properties": {
+                              "server": "[parameters('azureSQLServer')]",
+                              "database": "[parameters('azureSQLDatabase')]",
+                              "user": "serveradmin",
+                              "table": "rawdata",
+                              "password": "Strong_Passw0rd!",
+                              "maxWriterCount": 0,
+                              "maxBatchCount": 10000
+                            }
+                          }
+                        }
+                      }
                 ]
             }
         }
