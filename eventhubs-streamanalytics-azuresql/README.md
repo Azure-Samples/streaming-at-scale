@@ -1,4 +1,4 @@
-# Streaming at Scale with Azure Event Hubs, Stream Analytics and Cosmos DB
+# Streaming at Scale with Azure Event Hubs, Stream Analytics and Azure SQL
 
 This sample uses Stream Analytics to process streaming data from EventHub and uses Azure SQL as a sink to store processed data
 
