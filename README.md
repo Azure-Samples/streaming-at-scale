@@ -73,14 +73,14 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Cosmos DB (Serve)
 
-[Event Hubs + Stream Analytics + Cosmos DB](eventhubs-functions-azuresql)
+[Event Hubs + Stream Analytics + Azure SQL](eventhubs-functions-azuresql)
 
 Implement a stream processing architecture using:
 - Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Azure SQL (Serve)
 
-[Event Hubs + Stream Analytics + Cosmos DB](eventhubs-functions-eventhubs)
+[Event Hubs + Stream Analytics + Event Hubs](eventhubs-functions-eventhubs)
 
 Implement a stream processing architecture using:
 - Event Hubs (Ingest / Immutable Log)
