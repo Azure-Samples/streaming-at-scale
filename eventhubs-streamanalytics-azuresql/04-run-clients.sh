@@ -71,20 +71,9 @@ done
 echo "waiting for clients to be created..."
 wait
 
+echo "starting locust swarm..."
 declare USER_COUNT=$((500*$TEST_CLIENTS))
 declare HATCH_RATE=$((10*$TEST_CLIENTS))
 curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
-
-# for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
-# do
-#     echo "starting client $CLIENT_ID..."
-
-#     QRY="[?name=='locust-$CLIENT_ID'].[ipAddress.ip]"
-#     CMD="az container list -g $RESOURCE_GROUP --query $QRY -o tsv"
-#     LOCUST_IP=$($CMD)
-#     echo ". endpoint: http://$LOCUST_IP:8089"
-#     curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=500" -F "hatch_rate=10"
-#     echo 'done'
-# done
 
 echo 'done'
