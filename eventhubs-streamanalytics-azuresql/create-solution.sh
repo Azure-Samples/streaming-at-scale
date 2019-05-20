@@ -38,7 +38,7 @@ export LOCATION=eastus
 # export TEST_CLIENTS=10
 
 # 1000 messages/sec
-export EVENTHUB_PARTITIONS=8
+export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=2
 export PROC_JOB_NAME=streamingjob
 export PROC_STREAMING_UNITS=6
