@@ -18,6 +18,7 @@ az group deployment create \
         streamingUnits=$PROC_STREAMING_UNITS \
         azureSQLServer=$SQL_SERVER_NAME \
         azureSQLDatabase=$SQL_DATABASE_NAME \
+        azureSQLTable=$SQL_TABLE_NAME \
     --verbose \
     -o tsv >> log.txt
 

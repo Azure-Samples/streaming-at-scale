@@ -27,6 +27,9 @@
         },
         "azureSQLDatabase": {
             "type": "securestring"
+        },
+        "azureSQLTable": {
+            "type": "string"
         }
     },
     "resources": [
@@ -143,8 +146,8 @@
                             "properties": {
                               "server": "[parameters('azureSQLServer')]",
                               "database": "[parameters('azureSQLDatabase')]",
-                              "user": "serveradmin",
-                              "table": "rawdata",
+                              "table": "[parameters('azureSQLTable')]",
+                              "user": "serveradmin",                              
                               "password": "Strong_Passw0rd!",
                               "maxWriterCount": 0,
                               "maxBatchCount": 10000

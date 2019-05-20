@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 if [ -z $1 ]; then
     echo "usage: $0 <deployment-name> <steps>"
@@ -38,43 +38,26 @@ export LOCATION=eastus
 # export TEST_CLIENTS=10
 
 # 1000 messages/sec
-export EVENTHUB_PARTITIONS=2
+export EVENTHUB_PARTITIONS=8
 export EVENTHUB_CAPACITY=2
 export PROC_JOB_NAME=streamingjob
 export PROC_STREAMING_UNITS=6
-export SQL_SKU=P1
+export SQL_SKU=S3
+export SQL_TABLE_KIND="rowstore" # or "columnstore"
 export TEST_CLIENTS=2
 
-export STEPS=$2
-if [ -z $PROC_STREAMING_UNITS ]; then  
-    let "PROC_STREAMING_UNITS=EVENTHUB_PARTITIONS * 6"
-fi
-
-if [ -z $STEPS ]; then  
-    export STEPS="CIDPT"    
+# Use provided steps or default to CIDPT
+export STEPS="CIDPT"
+if [ ! -z ${2+x} ]; then
+    export STEPS=$2
 fi
 
 # remove log.txt if exists
 rm -f log.txt
 
-echo
-echo "Streaming at Scale with Stream Analytics and CosmosDB"
-echo "================================"
-echo
-
-echo "steps to be executed: $STEPS"
-echo
-
-echo "configuration: "
-echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "Azure SQL       => SKU: $SQL_SKU"
-echo "Locusts         => $TEST_CLIENTS"
-echo
-
 echo "Checking prerequisites..."
 
-HAS_AZ=`command -v az`
+HAS_AZ=$(command -v az)
 if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
@@ -82,17 +65,47 @@ if [ -z HAS_AZ ]; then
     exit 1
 fi
 
-HAS_PY3=`command -v python3`
+HAS_PY3=$(command -v python3)
 if [ -z HAS_PY3 ]; then
     echo "python3 not found"
     echo "please install it as it is needed by the script"
     exit 1
 fi
 
-echo "deployment started..."
+declare TABLE_SUFFIX=""
+case $SQL_TABLE_KIND in
+    rowstore)
+        TABLE_SUFFIX=""
+        ;;
+    columnstore)
+        TABLE_SUFFIX="_cs"
+        ;;
+    *)
+        echo "SQL_TABLE_KIND must be set to 'rowstore' or 'columnstore'"
+        echo "please install it as it is needed by the script"
+        exit 1
+        ;;
+esac
+
+echo
+echo "Streaming at Scale with Stream Analytics and AzureSQL"
+echo "====================================================="
 echo
 
-echo "***** [C] setting up common resources"
+echo "Steps to be executed: $STEPS"
+echo
+
+echo "Configuration:"
+echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
+echo "Azure SQL       => SKU: $SQL_SKU, TABLE_TYPE: $SQL_TABLE_KIND"
+echo "Locusts         => $TEST_CLIENTS"
+echo
+
+echo "Deployment started..."
+echo
+
+echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
@@ -103,7 +116,7 @@ echo "***** [C] setting up common resources"
     fi
 echo 
 
-echo "***** [I] setting up INGESTION"
+echo "***** [I] Setting up INGESTION"
     
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
@@ -115,7 +128,7 @@ echo "***** [I] setting up INGESTION"
     fi
 echo
 
-echo "***** [D] setting up DATABASE"
+echo "***** [D] Setting up DATABASE"
 
     export SQL_SERVER_NAME=$PREFIX"sql" 
     export SQL_DATABASE_NAME="streaming"    
@@ -126,16 +139,18 @@ echo "***** [D] setting up DATABASE"
     fi
 echo
 
-echo "***** [P] setting up PROCESSING"
+echo "***** [P] Setting up PROCESSING"
 
     export PROC_JOB_NAME=$PREFIX"streamingjob"
+    export SQL_TABLE_NAME="rawdata$TABLE_SUFFIX"
+
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
         ./03-create-stream-analytics.sh
     fi
 echo
 
-echo "***** [T] starting up TEST clients"
+echo "***** [T] Starting up TEST clients"
 
     export LOCUST_DNS_NAME=$PREFIX"locust"
 
@@ -145,4 +160,4 @@ echo "***** [T] starting up TEST clients"
     fi
 echo
 
-echo "***** done"
+echo "***** Done"
