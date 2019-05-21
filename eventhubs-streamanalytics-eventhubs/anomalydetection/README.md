@@ -1,6 +1,8 @@
-# Streaming at Scale with Azure Event Hubs, Stream Analytics and Azure SQL
+# Streaming at Scale with Azure Event Hubs and Stream Analytics
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses Azure SQL as a sink to store processed data
+This sample uses Stream Analytics to perform anomaly detection on streaming data from EventHub and uses another Event Hub as a sink to store JSON data
+
+This is the most performance way to analyze and stream data out of Stream Analytics.
 
 The provided scripts will an end-to-end solution complete with load test client.  
 
@@ -12,6 +14,9 @@ The following tools/languages are also needed:
 
 - [AZ CLI](https://dotnet.microsoft.com/download/linux-package-manager/ubuntu16-04/sdk-current)
 - [Python 3](http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/)
+- [Dotnet Core](https://dotnet.microsoft.com/download/linux-package-manager/ubuntu16-04/sdk-current)
+- [Zip](https://askubuntu.com/questions/660846/how-to-zip-and-unzip-a-directory-and-its-files-in-linux)
+
 
 ## Setup Solution
 
@@ -44,40 +49,31 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
-- **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-- **Stream Analytics**: to process analytics on streaming data
-- **Azure SQL** Server and Database: to store and serve processed data
+* **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+* **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
+* **Stream Analytics**: to process analytics on streaming data
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, event hubs TU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
-    export EVENTHUB_CAPACITY=2
+    export EVENTHUB_CAPACITY=4
     export PROC_STREAMING_UNITS=6
-    export SQL_SKU=P1
-    export TEST_CLIENTS=2
+    export TEST_CLIENTS=4
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings has been chosen to sustain a 2200 msg/sec stream.
+
+You can also change the anomaly detection function to AnomalyDetection_ChangePoint by editing the query in streamanalyticsjob.json.
 
 ## Monitor performances
 
-Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" metrics. 
-You can also use Event Hub "Metrics" pane.
+Please use Metrics pane in Stream Analytics , see "Input/Output Events" for throughput and "Watermark Delay" metric to see if the job is keeping up with the input rate.  You can also use Event Hub "Metrics" pane to see if there are any "Throttled Requests" and adjust the Threshold Units accordingly.
 
 ## Stream Analytics
 
-TBD
-
-## Azure SQL
-
-TBD
-
-## Exceptions
-
-NA
+The deployed Stream Analytics solution performs spike and dip detection using the built-in AnomalyDetection_SpikeAndDip function.
 
 ## Query Data
 
-TDB
+Data is available in the created Event Hub output. 

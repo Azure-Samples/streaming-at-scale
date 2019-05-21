@@ -19,44 +19,32 @@ trap 'on_error $LINENO' ERR
 
 export PREFIX=$1
 export RESOURCE_GROUP=$PREFIX
-export LOCATION=westus
+export LOCATION=eastus
 
-# 10000 messages/sec
-<<<<<<< HEAD
-export EVENTHUB_PARTITIONS=12
-export EVENTHUB_CAPACITY=12
-export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=72
-export COSMOSDB_RU=100000
-export TEST_CLIENTS=20
-=======
-# export EVENTHUB_PARTITIONS=16
-# export EVENTHUB_CAPACITY=12
+# 11000 messages/sec
+# export EVENTHUB_PARTITIONS=10
+# export EVENTHUB_CAPACITY=20
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=48
-# export COSMOSDB_RU=80000
+# export PROC_STREAMING_UNITS=30
 # export TEST_CLIENTS=20
->>>>>>> master
 
-# 5500 messages/sec
-# export EVENTHUB_PARTITIONS=8
-# export EVENTHUB_CAPACITY=6
-# export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=24
-# export COSMOSDB_RU=40000
-# export TEST_CLIENTS=10
-
-# 1000 messages/sec
+# 2200 messages/sec
 export EVENTHUB_PARTITIONS=2
-export EVENTHUB_CAPACITY=2
+export EVENTHUB_CAPACITY=4
 export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=3
-export COSMOSDB_RU=10000
-export TEST_CLIENTS=2
+export PROC_STREAMING_UNITS=6
+export TEST_CLIENTS=4
+
+# 1100 messages/sec
+# export EVENTHUB_PARTITIONS=2
+# export EVENTHUB_CAPACITY=2
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=6
+# export TEST_CLIENTS=2
 
 export STEPS=$2
 if [ -z $PROC_STREAMING_UNITS ]; then  
-    let "PROC_STREAMING_UNITS=EVENTHUB_PARTITIONS * 6"
+    let "PROC_STREAMING_UNITS=EVENTHUB_PARTITIONS"
 fi
 
 if [ -z $STEPS ]; then  
@@ -67,7 +55,7 @@ fi
 rm -f log.txt
 
 echo
-echo "Streaming at Scale with Stream Analytics and CosmosDB"
+echo "Streaming at Scale with Stream Analytics and Event Hubs with Anomaly Detection scenario"
 echo "================================"
 echo
 
@@ -77,7 +65,6 @@ echo
 echo "configuration: "
 echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "CosmosDB        => RU: $COSMOSDB_RU"
 echo "Locusts         => $TEST_CLIENTS"
 echo
 
@@ -91,13 +78,6 @@ if [ -z HAS_AZ ]; then
     exit 1
 fi
 
-HAS_PY3=`command -v python3`
-if [ -z HAS_PY3 ]; then
-    echo "python3 not found"
-    echo "please install it as it is needed by the script"
-    exit 1
-fi
-
 echo "deployment started..."
 echo
 
@@ -107,32 +87,21 @@ echo "***** [C] setting up common resources"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z $RUN ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+        ../../_common/01-create-resource-group.sh
+        ../../_common/02-create-storage-account.sh
     fi
 echo 
 
-echo "***** [I] setting up INGESTION"
+echo "***** [I] setting up INGESTION AND EGRESS EVENT HUBS"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"ingest"    
+    export EVENTHUB_NAMESPACE=$PREFIX"ingest"
     export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_CG="cosmos"
+    export EVENTHUB_NAME_OUT=$PREFIX"out-"$EVENTHUB_PARTITIONS
+    export EVENTHUB_CG="asa"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z $RUN ]; then
         ./01-create-event-hub.sh
-    fi
-echo
-
-echo "***** [D] setting up DATABASE"
-
-    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
-    export COSMOSDB_DATABASE_NAME="streaming"
-    export COSMOSDB_COLLECTION_NAME="rawdata"
-
-    RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
-        ./02-create-cosmosdb.sh
     fi
 echo
 
@@ -141,7 +110,7 @@ echo "***** [P] setting up PROCESSING"
     export PROC_JOB_NAME=$PREFIX"streamingjob"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
-        ./03-create-stream-analytics.sh
+        ./02-create-stream-analytics.sh
     fi
 echo
 
@@ -151,7 +120,7 @@ echo "***** [T] starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z $RUN ]; then
-        ./04-run-clients.sh
+        ./03-run-clients.sh
     fi
 echo
 

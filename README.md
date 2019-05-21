@@ -49,30 +49,43 @@ Some samples may have more specific needs. In that case the required software wi
 
 ## Available solutions
 
-At present time the available solutions is
+At present time the available solutions are
 
-[Cosmos DB Sample](cosmos-db)
-
-Implement a stream processing architecture using:
-- EventHubs (Ingest / Immutable Log)
-- AzureFunctions (Stream Process)
-- Cosmos DB (Serve)
-
-[EventHubs Capture Sample](eventhubs-capture) 
+[Event Hubs Capture Sample](eventhubs-capture)
 
 Implement stream processing architecture using:
-- EventHubs (Ingest)
-- EventHubs Capture (Store)
+- Event Hubs (Ingest)
+- Event Hubs Capture (Store)
 - Azure Blob Store (Data Lake)
 - Apache Drill (Query/Serve)
 
-[Stream Analytics Sample](eventhubs-streamanalytics-cosmosdb)
+[Event Hubs + Azure Functions + Cosmos DB](eventhubs-functions-cosmosdb)
 
 Implement a stream processing architecture using:
-- EventHubs (Ingest / Immutable Log)
+- Event Hubs (Ingest / Immutable Log)
+- Azure Functions (Stream Process)
+- Cosmos DB (Serve)
+
+[Event Hubs + Stream Analytics + Cosmos DB](eventhubs-streamanalytics-cosmosdb)
+
+Implement a stream processing architecture using:
+- Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Cosmos DB (Serve)
 
+[Event Hubs + Stream Analytics + Azure SQL](eventhubs-streamanalytics-azuresql)
+
+Implement a stream processing architecture using:
+- Event Hubs (Ingest / Immutable Log)
+- Stream Analytics (Stream Process)
+- Azure SQL (Serve)
+
+[Event Hubs + Stream Analytics + Event Hubs](eventhubs-streamanalytics-eventhubs)
+
+Implement a stream processing architecture using:
+- Event Hubs (Ingest / Immutable Log)
+- Stream Analytics (Stream Process)
+- Event Hubs (Serve)
 
 ## Roadmap
 
@@ -80,14 +93,12 @@ The following technologies are planned to be used in the end-to-end sample solut
 
 ### Ingestion
 
-- IoT Hub (Work in Progress)
+- IoT Hub 
 - EventHub Kafka
 
 ### Stream Processing
 
 - Databricks Spark Structured Streaming
-- Azure Stream Analytics
-- Azure Functions
 - Azure Data Explorer
 
 ### Batch Processing
@@ -100,6 +111,4 @@ The following technologies are planned to be used in the end-to-end sample solut
 ### Serving Layer
 
 - Azure Data Explorer
-- Cosmos DB
-- Azure SQL
 - Azure DW
