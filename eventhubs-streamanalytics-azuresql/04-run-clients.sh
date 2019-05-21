@@ -74,6 +74,8 @@ wait
 echo "starting locust swarm..."
 declare USER_COUNT=$((500*$TEST_CLIENTS))
 declare HATCH_RATE=$((10*$TEST_CLIENTS))
-curl http://$LOCUST_IP:8089/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
+echo " . users: $USER_COUNT"
+echo " . hatch rate: $HATCH_RATE"
+curl http://$MASTER_IP:8089/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
 
 echo 'done'

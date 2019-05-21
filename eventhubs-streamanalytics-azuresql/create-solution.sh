@@ -25,16 +25,18 @@ export LOCATION=eastus
 # export EVENTHUB_PARTITIONS=12
 # export EVENTHUB_CAPACITY=12
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=72
-# export COSMOSDB_RU=120000
+# export PROC_STREAMING_UNITS=12
+# export SQL_SKU=S9
+# export SQL_TABLE_KIND="rowstore" # or "columnstore"
 # export TEST_CLIENTS=20
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
 # export EVENTHUB_CAPACITY=8
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=36
-# export SQL_SKU=P1
+# export PROC_STREAMING_UNITS=6
+# export SQL_SKU=S7
+# export SQL_TABLE_KIND="rowstore" # or "columnstore"
 # export TEST_CLIENTS=10
 
 # 1000 messages/sec
