@@ -9,4 +9,4 @@ WORKDIR /locust
 
 EXPOSE 8089 5557 5558
 
-ENTRYPOINT ["/usr/bin/locust"]
+ENTRYPOINT ["locust"]
