@@ -32,7 +32,7 @@ create_master_locust() {
     az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
     --image christianbladescb/locustio --ports 8089 5557 5558 --ip-address public --dns-name-label $LOCUST_DNS_NAME-$CLIENT_ID \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
-    --command-line "/usr/bin/locust --master --expect-slaves=$1 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
+    --command-line "locust --master --expect-slaves=$1 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 1 --memory 2 \
     -o tsv >> log.txt
@@ -51,7 +51,7 @@ create_client_locust() {
     az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
     --image christianbladescb/locustio --ports 8089 5557 5558 \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
-    --command-line "/usr/bin/locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
+    --command-line "locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 1 --memory 2 \
     -o tsv >> log.txt
