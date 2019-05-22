@@ -76,3 +76,5 @@ echo " . hatch rate: $HATCH_RATE"
 curl http://$MASTER_IP:8089/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
 
 echo 'done'
+echo "locust monitor available at: http://$MASTER_IP:8089"
+
