@@ -21,6 +21,15 @@ BLOB_SAS="?$(az storage container generate-sas --connection-string $AZURE_STORAG
 echo "deploying azure sql"
 echo ". server: $SQL_SERVER_NAME"
 echo ". database: $SQL_DATABASE_NAME"
+
+SERVER_EXIST=$( az sql server list -g $RESOURCE_GROUP -o tsv --query "[].name" | grep $SQL_SERVER_NAME)
+if [ -z ${SERVER_EXIST+x} ]; then
+    DB_EXISTS-$(az sql db list -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -o tsv --query "[].name" | grep streaming)
+    if [ -z ${DB_EXISTS+x} ]; then
+        az sql db delete -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -n $SQL_DATABASE_NAME
+    fi
+fi
+
 az group deployment create \
     --name "$RESOURCE_GROUP-AzureSQL" \
     --resource-group "$RESOURCE_GROUP" \
