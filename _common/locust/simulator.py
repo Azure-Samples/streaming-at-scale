@@ -6,19 +6,24 @@ import datetime, time
 import uuid
 import random
 
+EVENT_HUB = {
+    'namespace': os.environ['EVENTHUB_NAMESPACE'],
+    'name': os.environ['EVENTHUB_NAME'],
+    'key': os.environ['EVENTHUB_KEY'],
+    'token': os.environ['EVENTHUB_SAS_TOKEN']
+}
+
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class DeviceSimulator(TaskSet):
     headers = {
         'Content-Type': 'application/atom+xml;type=noretry;charset=utf-8 ',
-        'Authorization': os.environ['EVENTHUB_SAS_TOKEN'],
-        'Host': os.environ['EVENTHUB_NAMESPACE'] + '.servicebus.windows.net'
+        'Authorization': EVENT_HUB['token'],
+        'Host': EVENT_HUB['namespace'] + '.servicebus.windows.net'
     }
-    endpoint = "/" + os.environ['EVENTHUB_NAME'] + "/messages?timeout=60&api-version=2014-01"
 
-    def on_start(self):
-        pass   
+    endpoint = "/" + EVENT_HUB['name'] + "/messages?timeout=60&api-version=2014-01"
 
     @task
     def sendTemperature(self):
@@ -81,4 +86,4 @@ class DeviceSimulator(TaskSet):
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
     min_wait = 500
-    max_wait = 1000    
+    max_wait = 1000 

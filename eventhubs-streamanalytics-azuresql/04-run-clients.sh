@@ -8,7 +8,7 @@ az storage share create -n locust --connection-string $AZURE_STORAGE_CONNECTION_
     -o tsv >> log.txt
 
 echo 'uploading simulator scripts'
-az storage file upload -s locust --source ../_common/simulator.py --connection-string $AZURE_STORAGE_CONNECTION_STRING \
+az storage file upload -s locust --source ../_common/locust/simulator.py --connection-string $AZURE_STORAGE_CONNECTION_STRING \
     -o tsv >> log.txt
 
 echo 'getting storage key'
@@ -32,9 +32,9 @@ create_master_locust() {
     az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
     --image christianbladescb/locustio --ports 8089 5557 5558 --ip-address public --dns-name-label $LOCUST_DNS_NAME-$CLIENT_ID \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
-    --command-line "/usr/bin/locust --master --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
-    -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
-    --cpu 4 --memory 8 \
+    --command-line "/usr/bin/locust --master --expect-slaves=$1 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
+    -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
+    --cpu 2 --memory 4 \
     -o tsv >> log.txt
 
     QRY="[?name=='locust-$CLIENT_ID'].[ipAddress.ip]"
@@ -52,13 +52,13 @@ create_client_locust() {
     --image christianbladescb/locustio --ports 8089 5557 5558 \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
     --command-line "/usr/bin/locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
-    -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
+    -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
     --cpu 4 --memory 8 \
     -o tsv >> log.txt
 }
 
 echo "creating master locust..."
-declare MASTER_IP=$(create_master_locust)
+declare MASTER_IP=$(create_master_locust $TEST_CLIENTS)
 echo ". endpoint: http://$MASTER_IP:8089"
 
 echo "creating client locusts..."
