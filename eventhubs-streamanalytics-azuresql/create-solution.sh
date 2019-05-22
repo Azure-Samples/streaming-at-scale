@@ -100,7 +100,7 @@ echo
 echo "Configuration:"
 echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "Azure SQL       => SKU: $SQL_SKU, TABLE_TYPE: $SQL_TABLE_KIND"
+echo "Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo "Locusts         => $TEST_CLIENTS"
 echo
 
