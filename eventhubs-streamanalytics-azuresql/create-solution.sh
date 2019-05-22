@@ -22,31 +22,31 @@ export RESOURCE_GROUP=$PREFIX
 export LOCATION=eastus
 
 # 10000 messages/sec
-# export EVENTHUB_PARTITIONS=12
-# export EVENTHUB_CAPACITY=12
-# export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=12
-# export SQL_SKU=S9
-# export SQL_TABLE_KIND="rowstore" # or "columnstore"
-# export TEST_CLIENTS=20
+export EVENTHUB_PARTITIONS=12
+export EVENTHUB_CAPACITY=12
+export PROC_JOB_NAME=streamingjob
+export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
+export SQL_SKU=S9
+export SQL_TABLE_KIND="columnstore" # or "columnstore"
+export TEST_CLIENTS=30
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
 # export EVENTHUB_CAPACITY=8
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=6
+# export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
 # export SQL_SKU=S7
 # export SQL_TABLE_KIND="rowstore" # or "columnstore"
-# export TEST_CLIENTS=10
+# export TEST_CLIENTS=16
 
 # 1000 messages/sec
-export EVENTHUB_PARTITIONS=2
-export EVENTHUB_CAPACITY=2
-export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=3
-export SQL_SKU=S3
-export SQL_TABLE_KIND="rowstore" # or "columnstore"
-export TEST_CLIENTS=2
+# export EVENTHUB_PARTITIONS=2
+# export EVENTHUB_CAPACITY=2
+# export PROC_JOB_NAME=streamingjob
+# export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
+# export SQL_SKU=S3
+# export SQL_TABLE_KIND="rowstore" # or "columnstore"
+# export TEST_CLIENTS=3
 
 # Use provided steps or default to CIDPT
 export STEPS="CIDPT"
