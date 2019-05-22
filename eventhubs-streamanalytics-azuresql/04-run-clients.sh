@@ -34,7 +34,7 @@ create_master_locust() {
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
     --command-line "/usr/bin/locust --master --expect-slaves=$1 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
-    --cpu 2 --memory 4 \
+    --cpu 1 --memory 2 \
     -o tsv >> log.txt
 
     QRY="[?name=='locust-$CLIENT_ID'].[ipAddress.ip]"
@@ -53,7 +53,7 @@ create_client_locust() {
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
     --command-line "/usr/bin/locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
     -e EVENTHUB_SAS_TOKEN="$EVENTHUB_SAS_TOKEN" EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
-    --cpu 4 --memory 8 \
+    --cpu 1 --memory 2 \
     -o tsv >> log.txt
 }
 
@@ -70,6 +70,7 @@ done
 
 echo "waiting for clients to be created..."
 wait
+sleep 10
 
 echo "starting locust swarm..."
 declare USER_COUNT=$((500*$TEST_CLIENTS))
