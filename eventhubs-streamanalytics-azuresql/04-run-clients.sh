@@ -82,6 +82,7 @@ for s in {1..10}
 do
     RPS=$(curl -s -X GET http://$MASTER_IP:8089/stats/requests | jq ".stats[0].current_rps")
     echo "locust is sending $RPS messages/sec"
+    sleep 1
 done
 echo 'monitoring done'
 
