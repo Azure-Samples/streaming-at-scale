@@ -127,7 +127,9 @@ The solution allows you to test both row-store and column-store options. The dep
 - `rawdata`
 - `rawdata_cs`
 
-The `rawdata_cs` table is then one using a clustered column-store index. Both tables also have a non-clustred primary key on the eventId column. Set the `SQL_TABLE_KIND` variable to `rowstore` or `columnstore` to run the solution against the table you are interested in testing.
+The `rawdata_cs` table is then one using a clustered column-store index. Both tables also have a non-clustered primary key on the eventId column. Set the `SQL_TABLE_KIND` variable to `rowstore` or `columnstore` to run the solution against the table you are interested in testing.
+
+Be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from S7 to P6 is needed. The Premium level provides much more IOs which is needed to allow backup to happen without impacting performances.
 
 ## Additional References
 
@@ -140,5 +142,5 @@ The `rawdata_cs` table is then one using a clustered column-store index. Both ta
 To remove all the created resource, you can just delete the related resource group
 
 ```bash
-az group delete -n <resource-group-name> 
+az group delete -n <resource-group-name>
 ```
