@@ -76,5 +76,13 @@ echo " . hatch rate: $HATCH_RATE"
 curl http://$MASTER_IP:8089/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
 
 echo 'done'
-echo "locust monitor available at: http://$MASTER_IP:8089"
+echo 'starting to monitor locusts for 10 seconds... '
+sleep 5
+for s in {1..10} 
+do
+    RPS=$(curl -s -X GET http://$MASTER_IP:8089/stats/requests | jq ".stats[0].current_rps")
+    echo "locust is sending $RPS messages/sec"
+done
+echo 'monitoring done'
 
+echo "locust monitor available at: http://$MASTER_IP:8089"
