@@ -4,21 +4,40 @@ import random
 import requests
 import datetime, time
 import uuid
-import random
+import sys    
+import urllib
+from urllib.parse import quote, quote_plus
+import hmac
+import hashlib
+import base64
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+def get_auth_token(eh_namespace, eh_name, eh_key):
+    uri = quote_plus("https://{0}.servicebus.windows.net/{1}".format(eh_namespace, eh_name))
+    eh_key = eh_key.encode('utf-8')
+    expiry = str(int(time.time() + 60 * 60 * 24 * 31))
+    string_to_sign = (uri + '\n' + expiry).encode('utf-8')
+    signed_hmac_sha256 = hmac.HMAC(eh_key, string_to_sign, hashlib.sha256)
+    signature = quote(base64.b64encode(signed_hmac_sha256.digest()))
+    return 'SharedAccessSignature sr={0}&sig={1}&se={2}&skn={3}'.format(uri, signature, expiry, "RootManageSharedAccessKey")
+
+EVENT_HUB = {
+    'namespace': os.environ['EVENTHUB_NAMESPACE'],
+    'name': os.environ['EVENTHUB_NAME'],
+    'key': os.environ['EVENTHUB_KEY'],
+    'token': get_auth_token(os.environ['EVENTHUB_NAMESPACE'], os.environ['EVENTHUB_NAME'], os.environ['EVENTHUB_KEY'])
+}
+
 class DeviceSimulator(TaskSet):
     headers = {
         'Content-Type': 'application/atom+xml;type=noretry;charset=utf-8 ',
-        'Authorization': os.environ['EVENTHUB_SAS_TOKEN'],
-        'Host': os.environ['EVENTHUB_NAMESPACE'] + '.servicebus.windows.net'
+        'Authorization': EVENT_HUB['token'],
+        'Host': EVENT_HUB['namespace'] + '.servicebus.windows.net'
     }
-    endpoint = "/" + os.environ['EVENTHUB_NAME'] + "/messages?timeout=60&api-version=2014-01"
 
-    def on_start(self):
-        pass   
+    endpoint = "/" + EVENT_HUB['name'] + "/messages?timeout=60&api-version=2014-01"
 
     @task
     def sendTemperature(self):
@@ -80,5 +99,5 @@ class DeviceSimulator(TaskSet):
 
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
-    min_wait = 500
-    max_wait = 1000    
+    min_wait = 250
+    max_wait = 500

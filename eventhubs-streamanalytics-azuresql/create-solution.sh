@@ -25,26 +25,28 @@ export LOCATION=eastus
 # export EVENTHUB_PARTITIONS=12
 # export EVENTHUB_CAPACITY=12
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=72
-# export COSMOSDB_RU=120000
-# export TEST_CLIENTS=20
+# export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
+# export SQL_SKU=P6
+# export SQL_TABLE_KIND="rowstore" # or "columnstore"
+# export TEST_CLIENTS=30
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
 # export EVENTHUB_CAPACITY=8
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=36
-# export SQL_SKU=P1
-# export TEST_CLIENTS=10
+# export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
+# export SQL_SKU=S7
+# export SQL_TABLE_KIND="rowstore" # or "columnstore"
+# export TEST_CLIENTS=16
 
 # 1000 messages/sec
-export EVENTHUB_PARTITIONS=8
+export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=2
 export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=6
+export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
 export SQL_SKU=S3
 export SQL_TABLE_KIND="rowstore" # or "columnstore"
-export TEST_CLIENTS=2
+export TEST_CLIENTS=3
 
 # Use provided steps or default to CIDPT
 export STEPS="CIDPT"
@@ -98,7 +100,7 @@ echo
 echo "Configuration:"
 echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "Azure SQL       => SKU: $SQL_SKU, TABLE_TYPE: $SQL_TABLE_KIND"
+echo "Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo "Locusts         => $TEST_CLIENTS"
 echo
 
