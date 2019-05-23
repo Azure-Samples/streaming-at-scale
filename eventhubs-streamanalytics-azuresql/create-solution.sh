@@ -26,7 +26,7 @@ export LOCATION=eastus
 # export EVENTHUB_CAPACITY=12
 # export PROC_JOB_NAME=streamingjob
 # export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
-# export SQL_SKU=S9
+# export SQL_SKU=P6
 # export SQL_TABLE_KIND="rowstore" # or "columnstore"
 # export TEST_CLIENTS=30
 
