@@ -22,14 +22,20 @@ echo "deploying azure sql"
 echo ". server: $SQL_SERVER_NAME"
 echo ". database: $SQL_DATABASE_NAME"
 
-SERVER_EXIST=$( az sql server list -g $RESOURCE_GROUP -o tsv --query "[].name" | grep $SQL_SERVER_NAME)
-if [ -z ${SERVER_EXIST+x} ]; then
-    DB_EXISTS-$(az sql db list -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -o tsv --query "[].name" | grep streaming)
-    if [ -z ${DB_EXISTS+x} ]; then
-        az sql db delete -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -n $SQL_DATABASE_NAME
+SERVER_EXIST=$(az sql server list -g $RESOURCE_GROUP -o tsv --query "[].name" | grep $SQL_SERVER_NAME)
+if [ "${SERVER_EXIST}" == "$SQL_SERVER_NAME" ]; then
+    echo "server already exits: $SERVER_EXIST"
+    echo "checking if database already exists too"
+    DB_EXISTS=$(az sql db list -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -o tsv --query "[].name" | grep $SQL_DATABASE_NAME)
+    if [ "${DB_EXISTS}" == "$SQL_DATABASE_NAME" ]; then
+        echo "database already exits: $SQL_DATABASE_NAME"
+        echo "deleting existing database"
+        az sql db delete -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -n $SQL_DATABASE_NAME -y \
+        -o tsv >> log.txt
     fi
 fi
 
+echo "deploying arm template"
 az group deployment create \
     --name "$RESOURCE_GROUP-AzureSQL" \
     --resource-group "$RESOURCE_GROUP" \
