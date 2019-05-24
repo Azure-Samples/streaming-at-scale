@@ -45,7 +45,7 @@ then `solution_name` value will be used to create a resource group that will con
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./generate-solution-name.sh
+    ../_common/generate-solution-name.sh
 
 ## Created resources
 
