@@ -22,21 +22,12 @@ export RESOURCE_GROUP=$PREFIX
 export LOCATION=westus
 
 # 10000 messages/sec
-<<<<<<< HEAD
-export EVENTHUB_PARTITIONS=12
-export EVENTHUB_CAPACITY=12
-export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=72
-export COSMOSDB_RU=100000
-export TEST_CLIENTS=20
-=======
-# export EVENTHUB_PARTITIONS=16
+# export EVENTHUB_PARTITIONS=12
 # export EVENTHUB_CAPACITY=12
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=48
-# export COSMOSDB_RU=80000
+# export PROC_STREAMING_UNITS=72
+# export COSMOSDB_RU=100000
 # export TEST_CLIENTS=20
->>>>>>> master
 
 # 5500 messages/sec
 # export EVENTHUB_PARTITIONS=8
@@ -54,17 +45,24 @@ export PROC_STREAMING_UNITS=6
 export COSMOSDB_RU=10000
 export TEST_CLIENTS=2
 
-export STEPS=$2
-if [ -z $PROC_STREAMING_UNITS ]; then  
-    let "PROC_STREAMING_UNITS=EVENTHUB_PARTITIONS * 6"
-fi
-
-if [ -z $STEPS ]; then  
-    export STEPS="CIDPT"    
+# Use provided steps or default to CIDPT
+export STEPS="CIDPT"
+if [ ! -z ${2+x} ]; then
+    export STEPS=$2
 fi
 
 # remove log.txt if exists
 rm -f log.txt
+
+echo "Checking prerequisites..."
+
+HAS_AZ=$(command -v az)
+if [ -z HAS_AZ ]; then
+    echo "AZ CLI not found"
+    echo "please install it as described here:"
+    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    exit 1
+fi
 
 echo
 echo "Streaming at Scale with Stream Analytics and CosmosDB"
@@ -81,27 +79,10 @@ echo "CosmosDB        => RU: $COSMOSDB_RU"
 echo "Locusts         => $TEST_CLIENTS"
 echo
 
-echo "Checking prerequisites..."
-
-HAS_AZ=`command -v az`
-if [ -z HAS_AZ ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_PY3=`command -v python3`
-if [ -z HAS_PY3 ]; then
-    echo "python3 not found"
-    echo "please install it as it is needed by the script"
-    exit 1
-fi
-
 echo "deployment started..."
 echo
 
-echo "***** [C] setting up common resources"
+echo "***** [C] setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
@@ -114,8 +95,8 @@ echo
 
 echo "***** [I] setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"ingest"    
-    export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
+    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
+    export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="cosmos"
 
     RUN=`echo $STEPS | grep I -o || true`

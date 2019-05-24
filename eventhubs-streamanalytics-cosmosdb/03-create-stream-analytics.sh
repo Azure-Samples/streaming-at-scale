@@ -11,7 +11,7 @@ echo ". name: $PROC_JOB_NAME"
 az group deployment create \
   --name $PROC_JOB_NAME \
   --resource-group $RESOURCE_GROUP \
-  --template-file streamanalyticsjob.json \
+  --template-file arm/stream-analytics-job.json \
   --parameters \
     streamingJobName=$PROC_JOB_NAME \
     eventHubNamespace=$EVENTHUB_NAMESPACE \
