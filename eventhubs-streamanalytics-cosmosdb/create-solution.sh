@@ -42,7 +42,7 @@ export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=2
 export PROC_JOB_NAME=streamingjob
 export PROC_STREAMING_UNITS=6
-export COSMOSDB_RU=10000
+export COSMOSDB_RU=20000
 export TEST_CLIENTS=3
 
 # Use provided steps or default to CIDPT
