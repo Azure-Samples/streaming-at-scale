@@ -114,7 +114,9 @@ Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermar
 
 [New metric in Azure Stream Analytics tracks latency of your streaming pipeline](https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/)
 
-You can also use Event Hub "Metrics" pane.
+You can also use Event Hub "Metrics" pane:
+
+[Understand Stream Analytics job monitoring and how to monitor queries](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-monitoring)
 
 ## Stream Analytics
 
