@@ -71,18 +71,18 @@ sleep 10
 echo "starting locust swarm..."
 declare USER_COUNT=$((250*$TEST_CLIENTS))
 declare HATCH_RATE=$((10*$TEST_CLIENTS))
-echo " . users: $USER_COUNT"
-echo " . hatch rate: $HATCH_RATE"
+echo ". users: $USER_COUNT"
+echo ". hatch rate: $HATCH_RATE"
 curl http://$MASTER_IP:8089/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
 
 echo 'done'
-echo 'starting to monitor locusts for 10 seconds... '
+echo 'starting to monitor locusts for 20 seconds... '
 sleep 5
 for s in {1..10} 
 do
     RPS=$(curl -s -X GET http://$MASTER_IP:8089/stats/requests | jq ".stats[0].current_rps")
     echo "locust is sending $RPS messages/sec"
-    sleep 1
+    sleep 2
 done
 echo 'monitoring done'
 
