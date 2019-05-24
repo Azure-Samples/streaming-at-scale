@@ -26,16 +26,16 @@ export LOCATION=eastus
 # export EVENTHUB_CAPACITY=12
 # export PROC_JOB_NAME=streamingjob
 # export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
-# export SQL_SKU=P6
+# export SQL_SKU=P4
 # export SQL_TABLE_KIND="rowstore" # or "columnstore"
 # export TEST_CLIENTS=30
 
 # 5500 messages/sec
-# export EVENTHUB_PARTITIONS=8
-# export EVENTHUB_CAPACITY=8
+# export EVENTHUB_PARTITIONS=6
+# export EVENTHUB_CAPACITY=6
 # export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
-# export SQL_SKU=S7
+# export PROC_STREAMING_UNITS=12 # must be 1, 3, 6 or a multiple or 6
+# export SQL_SKU=P2
 # export SQL_TABLE_KIND="rowstore" # or "columnstore"
 # export TEST_CLIENTS=16
 
