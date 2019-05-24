@@ -67,13 +67,6 @@ if [ -z HAS_AZ ]; then
     exit 1
 fi
 
-HAS_PY3=$(command -v python3)
-if [ -z HAS_PY3 ]; then
-    echo "python3 not found"
-    echo "please install it as it is needed by the script"
-    exit 1
-fi
-
 declare TABLE_SUFFIX=""
 case $SQL_TABLE_KIND in
     rowstore)
