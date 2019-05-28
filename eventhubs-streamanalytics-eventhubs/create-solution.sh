@@ -62,7 +62,7 @@ if [[ -z "$TESTTYPE" ]]; then
 fi
 
 if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPT"
+	export STEPS="CIPT"
 fi
 
 # 10000 messages/sec
@@ -70,7 +70,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=10
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=12
+    export PROC_STREAMING_UNITS=24
     export TEST_CLIENTS=30
 fi
 
