@@ -70,7 +70,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=10
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24
+    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
     export TEST_CLIENTS=30
 fi
 
@@ -79,7 +79,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=6
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=6
+    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
     export TEST_CLIENTS=16
 fi
 
@@ -88,7 +88,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=3
+    export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
     export TEST_CLIENTS=3
 fi
 
@@ -108,6 +108,16 @@ HAS_AZ=$(command -v az)
 if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
+    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    exit 1
+fi
+
+HAS_JQ=$(command -v jq)
+if [ -z HAS_JQ ]; then
+    echo "jq not found"
+    echo "please install it using your package manager, for example, on Uuntu:"
+    echo "  sudo apt install jq"
+    echo "or as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
     exit 1
 fi

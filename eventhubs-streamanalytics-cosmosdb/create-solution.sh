@@ -93,7 +93,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=6
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3
+    export TEST_CLIENTS=3 # must be 1, 3, 6 or a multiple or 6
 fi
 
 # last checks and variables setup
@@ -112,6 +112,16 @@ HAS_AZ=$(command -v az)
 if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
+    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    exit 1
+fi
+
+HAS_JQ=$(command -v jq)
+if [ -z HAS_JQ ]; then
+    echo "jq not found"
+    echo "please install it using your package manager, for example, on Uuntu:"
+    echo "  sudo apt install jq"
+    echo "or as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
     exit 1
 fi
