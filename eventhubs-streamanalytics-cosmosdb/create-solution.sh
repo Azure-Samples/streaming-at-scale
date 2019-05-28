@@ -1,12 +1,6 @@
 #!/bin/bash
 
-set -e
-
-if [ -z $1 ]; then
-    echo "usage: $0 <deployment-name> <steps>"
-    echo "eg: $0 test1"    
-    exit 1
-fi
+set -euo pipefail
 
 on_error() {
     set +e
@@ -17,44 +11,102 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
-export PREFIX=$1
-export RESOURCE_GROUP=$PREFIX
-export LOCATION=westus
+usage() { 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
+    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
+    echo "    Possibile values:" 1>&2; 
+    echo "      C=COMMON" 1>&2; 
+    echo "      I=INGESTION" 1>&2; 
+    echo "      D=DATABASE" 1>&2; 
+    echo "      P=PROCESSING" 1>&2; 
+    echo "      T=TEST clients" 1>&2; 
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-l: where to create the resources. Default=eastus"
+    exit 1; 
+}
+
+export PREFIX=''
+export LOCATION=''
+export TESTTYPE=''
+export STEPS=''
+
+# Initialize parameters specified from command line
+while getopts ":d:s:t:l:" arg; do
+	case "${arg}" in
+		d)
+			PREFIX=${OPTARG}
+			;;
+		s)
+			STEPS=${OPTARG}
+			;;
+		t)
+			TESTTYPE=${OPTARG}
+			;;
+		l)
+			LOCATION=${OPTARG}
+			;;
+		esac
+done
+shift $((OPTIND-1))
+
+if [[ -z "$PREFIX" ]]; then
+	echo "Enter a name for this deployment."
+	usage
+fi
+
+if [[ -z "$LOCATION" ]]; then
+	export LOCATION="eastus"
+fi
+
+if [[ -z "$TESTTYPE" ]]; then
+	export TESTTYPE="1"
+fi
+
+if [[ -z "$STEPS" ]]; then
+	export STEPS="CIDPT"
+fi
 
 # 10000 messages/sec
-# export EVENTHUB_PARTITIONS=12
-# export EVENTHUB_CAPACITY=12
-# export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
-# export COSMOSDB_RU=100000
-# export TEST_CLIENTS=30
+if [ "$TESTTYPE" == "10" ]; then
+    export EVENTHUB_PARTITIONS=12
+    export EVENTHUB_CAPACITY=12
+    export PROC_JOB_NAME=streamingjob
+    export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
+    export COSMOSDB_RU=100000
+    export TEST_CLIENTS=30
+fi
 
 # 5500 messages/sec
-# export EVENTHUB_PARTITIONS=6
-# export EVENTHUB_CAPACITY=6
-# export PROC_JOB_NAME=streamingjob
-# export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
-# export COSMOSDB_RU=60000
-# export TEST_CLIENTS=16
+if [ "$TESTTYPE" == "5" ]; then
+    export EVENTHUB_PARTITIONS=6
+    export EVENTHUB_CAPACITY=6
+    export PROC_JOB_NAME=streamingjob
+    export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
+    export COSMOSDB_RU=60000
+    export TEST_CLIENTS=16
+fi
 
 # 1000 messages/sec
-export EVENTHUB_PARTITIONS=2
-export EVENTHUB_CAPACITY=2
-export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=6
-export COSMOSDB_RU=20000
-export TEST_CLIENTS=3
-
-# Use provided steps or default to CIDPT
-export STEPS="CIDPT"
-if [ ! -z ${2+x} ]; then
-    export STEPS=$2
+if [ "$TESTTYPE" == "1" ]; then
+    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_CAPACITY=2
+    export PROC_JOB_NAME=streamingjob
+    export PROC_STREAMING_UNITS=6
+    export COSMOSDB_RU=20000
+    export TEST_CLIENTS=3
 fi
+
+# last checks and variables setup
+if [ -z ${TEST_CLIENTS+x} ]; then
+    usage
+fi
+
+export RESOURCE_GROUP=$PREFIX
 
 # remove log.txt if exists
 rm -f log.txt
 
-echo "Checking prerequisites..."
+echo "Checking pre-requisites..."
 
 HAS_AZ=$(command -v az)
 if [ -z HAS_AZ ]; then
@@ -66,23 +118,25 @@ fi
 
 echo
 echo "Streaming at Scale with Stream Analytics and CosmosDB"
-echo "================================"
+echo "====================================================="
 echo
 
-echo "steps to be executed: $STEPS"
+echo "Steps to be executed: $STEPS"
 echo
 
-echo "configuration: "
-echo "EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo "StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo "CosmosDB        => RU: $COSMOSDB_RU"
-echo "Locusts         => $TEST_CLIENTS"
+echo "Configuration: "
+echo ". Resource Group  => $RESOURCE_GROUP"
+echo ". Region          => $LOCATION"
+echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo ". StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
+echo ". CosmosDB        => RU: $COSMOSDB_RU"
+echo ". Locusts         => $TEST_CLIENTS"
 echo
 
-echo "deployment started..."
+echo "Deployment started..."
 echo
 
-echo "***** [C] setting up COMMON resources"
+echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
@@ -93,7 +147,7 @@ echo "***** [C] setting up COMMON resources"
     fi
 echo 
 
-echo "***** [I] setting up INGESTION"
+echo "***** [I] Setting up INGESTION"
     
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
@@ -105,7 +159,7 @@ echo "***** [I] setting up INGESTION"
     fi
 echo
 
-echo "***** [D] setting up DATABASE"
+echo "***** [D] Setting up DATABASE"
 
     export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
     export COSMOSDB_DATABASE_NAME="streaming"
@@ -117,7 +171,7 @@ echo "***** [D] setting up DATABASE"
     fi
 echo
 
-echo "***** [P] setting up PROCESSING"
+echo "***** [P] Setting up PROCESSING"
 
     export PROC_JOB_NAME=$PREFIX"streamingjob"
     RUN=`echo $STEPS | grep P -o || true`
@@ -126,7 +180,7 @@ echo "***** [P] setting up PROCESSING"
     fi
 echo
 
-echo "***** [T] starting up TEST clients"
+echo "***** [T] Starting up TEST clients"
 
     export LOCUST_DNS_NAME=$PREFIX"locust"
 
@@ -136,4 +190,5 @@ echo "***** [T] starting up TEST clients"
     fi
 echo
 
-echo "***** done"
+echo "***** Done"
+
