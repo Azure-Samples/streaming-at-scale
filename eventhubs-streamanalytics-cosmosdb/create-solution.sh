@@ -91,9 +91,9 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=6
+    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3 # must be 1, 3, 6 or a multiple or 6
+    export TEST_CLIENTS=3 
 fi
 
 # last checks and variables setup
@@ -119,10 +119,10 @@ fi
 HAS_JQ=$(command -v jq)
 if [ -z HAS_JQ ]; then
     echo "jq not found"
-    echo "please install it using your package manager, for example, on Uuntu:"
+    echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
     echo "or as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    echo "  https://stedolan.github.io/jq/download/"
     exit 1
 fi
 

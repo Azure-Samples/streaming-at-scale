@@ -118,7 +118,7 @@ if [ -z HAS_JQ ]; then
     echo "please install it using your package manager, for example, on Uuntu:"
     echo "  sudo apt install jq"
     echo "or as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    echo "  https://stedolan.github.io/jq/download/"
     exit 1
 fi
 
