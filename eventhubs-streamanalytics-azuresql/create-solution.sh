@@ -109,7 +109,7 @@ export RESOURCE_GROUP=$PREFIX
 # remove log.txt if exists
 rm -f log.txt
 
-echo "Checking prerequisites..."
+echo "Checking pre-requisites..."
 
 HAS_AZ=$(command -v az)
 if [ -z HAS_AZ ]; then
@@ -122,10 +122,10 @@ fi
 HAS_JQ=$(command -v jq)
 if [ -z HAS_JQ ]; then
     echo "jq not found"
-    echo "please install it using your package manager, for example, on Uuntu:"
+    echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
     echo "or as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
+    echo "  https://stedolan.github.io/jq/download/"
     exit 1
 fi
 
