@@ -74,7 +74,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=12
     export COSMOSDB_RU=80000
-    export TEST_CLIENTS=20
+    export TEST_CLIENTS=30
 fi
 
 # 5500 messages/sec
@@ -85,7 +85,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION_SKU=P1v2
     export PROC_FUNCTION_WORKERS=8
     export COSMOSDB_RU=40000
-    export TEST_CLIENTS=10
+    export TEST_CLIENTS=16
 fi
 
 # 1000 messages/sec
@@ -96,7 +96,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=2
+    export TEST_CLIENTS=3
 fi
 
 # last checks and variables setup
@@ -169,8 +169,8 @@ echo "***** [C] setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
-    RUN=`echo $STEPS | grep C -o`    
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep C -o || true`    
+    if [ ! -z "$RUN" ]; then
         ../_common/01-create-resource-group.sh
         ../_common/02-create-storage-account.sh
     fi
@@ -182,8 +182,8 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="cosmos"
 
-    RUN=`echo $STEPS | grep I -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep I -o || true`
+    if [ ! -z "$RUN" ]; then
         ./01-create-event-hub.sh
     fi
 echo
@@ -194,8 +194,8 @@ echo "***** [D] Setting up DATABASE"
     export COSMOSDB_DATABASE_NAME="streaming"
     export COSMOSDB_COLLECTION_NAME="rawdata"
 
-    RUN=`echo $STEPS | grep D -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep D -o || true`
+    if [ ! -z "$RUN" ]; then
         ./02-create-cosmosdb.sh
     fi
 echo
@@ -209,8 +209,8 @@ echo "***** [P] Setting up PROCESSING"
     export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
     export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
 
-    RUN=`echo $STEPS | grep P -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep P -o || true`
+    if [ ! -z "$RUN" ]; then
         ./03-create-processing-function.sh
         ./04-configure-processing-function-cosmosdb.sh
     fi
@@ -220,8 +220,8 @@ echo "***** [T] Starting up TEST clients"
 
     export LOCUST_DNS_NAME=$PREFIX"locust"
 
-    RUN=`echo $STEPS | grep T -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep T -o || true`
+    if [ ! -z "$RUN" ]; then
         ./05-run-clients.sh
     fi
 echo
