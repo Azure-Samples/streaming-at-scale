@@ -229,7 +229,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         ./03-create-processing-function.sh
-        ./04-configure-processing-function-cosmosdb.sh
+        ./04-configure-processing-function-azuresql.sh
     fi
 echo
 
