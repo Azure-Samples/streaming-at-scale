@@ -3,9 +3,11 @@
 echo 'creating eventhubs namespace'
 echo ". name: $EVENTHUB_NAMESPACE"
 echo ". capacity: $EVENTHUB_CAPACITY"
+echo ". auto-inflate: false"
 
 az eventhubs namespace create -n $EVENTHUB_NAMESPACE -g $RESOURCE_GROUP \
     --sku Standard --location $LOCATION --capacity $EVENTHUB_CAPACITY \
+    --enable-auto-inflate false \
     -o tsv >> log.txt
 
 echo 'creating eventhub instance'

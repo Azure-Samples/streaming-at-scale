@@ -79,7 +79,7 @@
           ],
           "properties": {
             "collation": "SQL_Latin1_General_CP1_CI_AS",
-            "maxSizeBytes": "10737418240"
+            "maxSizeBytes": "107374182400"
           },
           "sku": {
             "name": "[parameters('SKU')]"
