@@ -38,14 +38,20 @@ namespace StreamingProcessor
                 {
                     string message = Encoding.UTF8.GetString(data.Body.Array);
 
-                    var document = new
+                    var procedureParams = new
                     {
-                        eventData = JObject.Parse(message),
-                        enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
-                        storedAt = DateTime.UtcNow
+                        @eventId = message["eventId"],
+                        @complexData = message["complexData"].ToString(),
+                        @value = decimal.Parse(message["value"]),
+                        @deviceId = message["deviceId"],
+                        @type = message["type"],
+                        @createdAt = message["createdAt"],
+                        @enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
+                        @processedAt = DateTime.UtcNow,
+                        @partitionId = int.Parse(data.SystemProperties.PartitionKey)
                     };
 
-                    tasks.Add(_conn.ExecuteAsync("stp_WriteData", new { @data = document }, commandType: CommandType.StoredProcedure));
+                    tasks.Add(_conn.ExecuteAsync("stp_WriteData", procedureParams, commandType: CommandType.StoredProcedure));
 
                 }
                 catch (Exception ex)
