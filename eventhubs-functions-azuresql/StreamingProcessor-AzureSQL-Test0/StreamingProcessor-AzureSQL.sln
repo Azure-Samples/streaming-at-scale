@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProcessor-CosmosDB", "StreamingProcessor-CosmosDB\StreamingProcessor-CosmosDB.csproj", "{5215F452-43B7-49E0-92A3-98ED8E38488B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProcessor-AzureSQL", "StreamingProcessor-AzureSQL\StreamingProcessor-AzureSQL.csproj", "{5215F452-43B7-49E0-92A3-98ED8E38488B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

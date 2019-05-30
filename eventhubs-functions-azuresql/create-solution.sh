@@ -73,7 +73,8 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=12
-    export COSMOSDB_RU=80000
+    export SQL_SKU=P4
+    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=30
 fi
 
@@ -84,7 +85,8 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P1v2
     export PROC_FUNCTION_WORKERS=8
-    export COSMOSDB_RU=40000
+    export SQL_SKU=P2
+    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=16
 fi
 
@@ -95,7 +97,8 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
-    export COSMOSDB_RU=20000
+    export SQL_SKU=S3
+    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3
 fi
 
@@ -145,9 +148,24 @@ if [ -z HAS_DOTNET ]; then
     exit 1
 fi
 
+declare TABLE_SUFFIX=""
+case $SQL_TABLE_KIND in
+    rowstore)
+        TABLE_SUFFIX=""
+        ;;
+    columnstore)
+        TABLE_SUFFIX="_cs"
+        ;;
+    *)
+        echo "SQL_TABLE_KIND must be set to 'rowstore' or 'columnstore'"
+        echo "please install it as it is needed by the script"
+        exit 1
+        ;;
+esac
+
 echo
-echo "Streaming at Scale with Azure Functions and CosmosDB"
-echo "===================================================="
+echo "Streaming at Scale with Azure Functions and Azure SQL"
+echo "====================================================="
 echo
 
 echo "Steps to be executed: $STEPS"
@@ -158,7 +176,7 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
-echo ". CosmosDB        => RU: $COSMOSDB_RU"
+echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
@@ -190,13 +208,12 @@ echo
 
 echo "***** [D] Setting up DATABASE"
 
-    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
-    export COSMOSDB_DATABASE_NAME="streaming"
-    export COSMOSDB_COLLECTION_NAME="rawdata"
+    export SQL_SERVER_NAME=$PREFIX"sql" 
+    export SQL_DATABASE_NAME="streaming"    
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z "$RUN" ]; then
-        ./02-create-cosmosdb.sh
+    if [ ! -z $RUN ]; then
+        ./02-create-azure-sql.sh
     fi
 echo
 
@@ -205,7 +222,7 @@ echo "***** [P] Setting up PROCESSING"
     export PROC_FUNCTION_APP_NAME=$PREFIX"process"
     export PROC_FUNCTION_NAME=StreamingProcessor
     export PROC_PACKAGE_FOLDER=.
-    export PROC_PACKAGE_TARGET=CosmosDB    
+    export PROC_PACKAGE_TARGET=AzureSQL    
     export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
     export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
 

@@ -3,26 +3,28 @@ using Microsoft.Azure.WebJobs.Host;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.EventHubs;
-using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Dapper;
 
 namespace StreamingProcessor
 {
     public static class Test0
     {
+        private static readonly SqlConnection _conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
+
         /*
-         * Cosmos DB output using Azure Function binding
+         * TDB
          */
         [FunctionName("Test0")]
         public static async Task RunAsync(
             [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup = "%ConsumerGroup%")] EventData[] eventHubData,
-            [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<string> cosmosMessage,
             ILogger log)
         {
             var tasks = new List<Task>();
@@ -43,7 +45,8 @@ namespace StreamingProcessor
                         storedAt = DateTime.UtcNow
                     };
 
-                    tasks.Add(cosmosMessage.AddAsync(JsonConvert.SerializeObject(document)));
+                    tasks.Add(_conn.ExecuteAsync("stp_WriteData", new { @data = document }, commandType: CommandType.StoredProcedure));
+
                 }
                 catch (Exception ex)
                 {
