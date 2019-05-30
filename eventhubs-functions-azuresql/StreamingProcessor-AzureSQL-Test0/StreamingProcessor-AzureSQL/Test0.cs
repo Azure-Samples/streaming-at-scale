@@ -17,7 +17,6 @@ namespace StreamingProcessor
 {
     public static class Test0
     {
-        private static readonly SqlConnection _conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
 
         /*
          * TDB
@@ -36,22 +35,25 @@ namespace StreamingProcessor
             {
                 try
                 {
+                    var _conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
+
                     string message = Encoding.UTF8.GetString(data.Body.Array);
+                    var json = JObject.Parse(message);
 
-                    var procedureParams = new
-                    {
-                        @eventId = message["eventId"],
-                        @complexData = message["complexData"].ToString(),
-                        @value = decimal.Parse(message["value"]),
-                        @deviceId = message["deviceId"],
-                        @type = message["type"],
-                        @createdAt = message["createdAt"],
-                        @enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
-                        @processedAt = DateTime.UtcNow,
-                        @partitionId = int.Parse(data.SystemProperties.PartitionKey)
-                    };
-
-                    tasks.Add(_conn.ExecuteAsync("stp_WriteData", procedureParams, commandType: CommandType.StoredProcedure));
+                    tasks.Add(_conn.ExecuteAsync("stp_WriteData", 
+                        new {
+                            @eventId = json["eventId"].ToString(),
+                            @complexData = json["complexData"].ToString(),
+                            @value = decimal.Parse(json["value"].ToString()),
+                            @deviceId = json["deviceId"].ToString(),
+                            @type = json["type"].ToString(),
+                            @createdAt = json["createdAt"].ToString(),
+                            @enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
+                            @processedAt = DateTime.UtcNow,
+                            @partitionId = Math.Abs(json["deviceId"].ToString().GetHashCode() % 16)
+                        }, 
+                        commandType: CommandType.StoredProcedure)
+                    );
 
                 }
                 catch (Exception ex)
