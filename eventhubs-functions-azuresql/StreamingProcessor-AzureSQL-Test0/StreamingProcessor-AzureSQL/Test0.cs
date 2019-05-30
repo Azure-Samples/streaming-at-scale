@@ -37,8 +37,8 @@ namespace StreamingProcessor
                 {
                     var _conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
 
-                    string message = Encoding.UTF8.GetString(data.Body.Array);
-                    var json = JObject.Parse(message);
+                    string message = Encoding.UTF8.GetString(data.Body.Array);                    
+                    var json = JsonConvert.DeserializeObject<JObject>(message, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None } );
 
                     tasks.Add(_conn.ExecuteAsync("stp_WriteData", 
                         new {
