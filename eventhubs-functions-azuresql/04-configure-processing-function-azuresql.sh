@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 echo 'adding app settings for connection strings'
 echo ". function: $PROC_FUNCTION_APP_NAME"
 
