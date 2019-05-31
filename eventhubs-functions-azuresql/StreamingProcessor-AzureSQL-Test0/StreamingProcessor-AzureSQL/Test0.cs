@@ -39,18 +39,18 @@ namespace StreamingProcessor
 
                     string message = Encoding.UTF8.GetString(data.Body.Array);                    
                     var json = JsonConvert.DeserializeObject<JObject>(message, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None } );
-
+                    var cd = JObject.Parse(json["complexData"].ToString());
                     tasks.Add(_conn.ExecuteAsync("stp_WriteData", 
                         new {
                             @eventId = json["eventId"].ToString(),
-                            @complexData = json["complexData"].ToString(),
+                            @complexData = cd.ToString(),
                             @value = decimal.Parse(json["value"].ToString()),
                             @deviceId = json["deviceId"].ToString(),
                             @type = json["type"].ToString(),
                             @createdAt = json["createdAt"].ToString(),
                             @enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
-                            @processedAt = DateTime.UtcNow,
-                            @partitionId = Math.Abs(json["deviceId"].ToString().GetHashCode() % 16)
+                            @processedAt = DateTime.UtcNow//,
+                            //@partitionId = Math.Abs(json["deviceId"].ToString().GetHashCode() % 16)
                         }, 
                         commandType: CommandType.StoredProcedure)
                     );
@@ -69,7 +69,7 @@ namespace StreamingProcessor
             string logMessage = $"[Test0] T:{eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
             if (eventHubData.Length > 0)
             {
-                logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
+                logMessage += $" - AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
             }
 
             log.LogInformation(logMessage);
