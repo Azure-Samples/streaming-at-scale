@@ -97,7 +97,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
-    export SQL_SKU=S3
+    export SQL_SKU=P1
     export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3
 fi

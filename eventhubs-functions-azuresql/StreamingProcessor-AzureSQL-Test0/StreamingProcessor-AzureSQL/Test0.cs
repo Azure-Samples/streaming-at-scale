@@ -39,7 +39,7 @@ namespace StreamingProcessor
 
                     string message = Encoding.UTF8.GetString(data.Body.Array);                    
                     var json = JsonConvert.DeserializeObject<JObject>(message, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None } );
-                    var cd = JObject.Parse(json["complexData"].ToString());
+                    var cd = JObject.Parse(json["complexData"].ToString());                    
                     tasks.Add(_conn.ExecuteAsync("stp_WriteData", 
                         new {
                             @eventId = json["eventId"].ToString(),
