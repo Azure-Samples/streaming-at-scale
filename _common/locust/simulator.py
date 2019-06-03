@@ -75,7 +75,7 @@ class DeviceSimulator(TaskSet):
                 'moreData19': random.uniform(10,100),
                 'moreData20': random.uniform(10,100),
                 'moreData21': random.uniform(10,100),
-                'moreData21': random.uniform(10,100)
+                'moreData22': random.uniform(10,100)
             }
         }
 
@@ -104,7 +104,20 @@ class DeviceSimulator(TaskSet):
                 'moreData6': random.uniform(10,100),
                 'moreData7': random.uniform(10,100),
                 'moreData8': random.uniform(10,100),            
-                'moreData9': random.uniform(10,100)                        
+                'moreData9': random.uniform(10,100),
+                'moreData10': random.uniform(10,100),
+                'moreData11': random.uniform(10,100),
+                'moreData12': random.uniform(10,100),
+                'moreData13': random.uniform(10,100),
+                'moreData14': random.uniform(10,100),
+                'moreData15': random.uniform(10,100),
+                'moreData16': random.uniform(10,100),
+                'moreData17': random.uniform(10,100),
+                'moreData18': random.uniform(10,100),
+                'moreData19': random.uniform(10,100),
+                'moreData20': random.uniform(10,100),
+                'moreData21': random.uniform(10,100),
+                'moreData22': random.uniform(10,100)
             }
         }
 
