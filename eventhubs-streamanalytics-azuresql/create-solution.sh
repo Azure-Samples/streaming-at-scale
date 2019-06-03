@@ -21,6 +21,7 @@ usage() {
     echo "      P=PROCESSING" 1>&2; 
     echo "      T=TEST clients" 1>&2; 
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-k: test rowstore or columnstore. Default=rowstore"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
 }
@@ -29,9 +30,10 @@ export PREFIX=''
 export LOCATION=''
 export TESTTYPE=''
 export STEPS=''
+export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:" arg; do
+while getopts ":d:s:t:l:k:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -44,6 +46,9 @@ while getopts ":d:s:t:l:" arg; do
 			;;
 		l)
 			LOCATION=${OPTARG}
+			;;
+        k)
+			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
 done
@@ -62,6 +67,10 @@ if [[ -z "$TESTTYPE" ]]; then
 	export TESTTYPE="1"
 fi
 
+if [[ -z "$SQL_TABLE_KIND" ]]; then
+	export SQL_TABLE_KIND="rowstore"
+fi
+
 if [[ -z "$STEPS" ]]; then
 	export STEPS="CIDPT"
 fi
@@ -71,9 +80,8 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P4
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
+    export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
+    export SQL_SKU=P6
     export TEST_CLIENTS=30
 fi
 
@@ -82,9 +90,8 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=6
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=12 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P2
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
+    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
+    export SQL_SKU=P4
     export TEST_CLIENTS=16
 fi
 
@@ -95,7 +102,6 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
     export SQL_SKU=S3
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3
 fi
 
@@ -138,9 +144,8 @@ case $SQL_TABLE_KIND in
         TABLE_SUFFIX="_cs"
         ;;
     *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore' or 'columnstore'"
-        echo "please install it as it is needed by the script"
-        exit 1
+        echo "'-k' param must be set to 'rowstore' or 'columnstore'"        
+        usage
         ;;
 esac
 
