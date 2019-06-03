@@ -80,7 +80,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
+    export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
     export SQL_SKU=P6
     export TEST_CLIENTS=30
 fi
@@ -90,7 +90,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=6
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=12 # must be 1, 3, 6 or a multiple or 6
+    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
     export SQL_SKU=P4
     export TEST_CLIENTS=16
 fi
