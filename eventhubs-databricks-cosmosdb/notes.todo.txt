@@ -1,4 +1,4 @@
-this should be done in python, in order to leverage AAD auth ?
+this should be done in python, in order to leverage AAD auth
 
 databricks secrets create-scope --scope "MAIN" --initial-manage-principal "users"
   
