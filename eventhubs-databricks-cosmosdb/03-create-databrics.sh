@@ -6,7 +6,7 @@ EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_G
 echo "getting cosmosdb master key"
 COSMOSDB_MASTER_KEY=`az cosmosdb list-keys -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv`
 
-echo 'creating stream analytics job'
+echo 'creating databricks workspace'
 echo ". name: $PROC_JOB_NAME"
 az group deployment create \
   --name $PROC_JOB_NAME \
