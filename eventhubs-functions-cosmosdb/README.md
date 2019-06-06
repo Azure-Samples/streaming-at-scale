@@ -34,11 +34,15 @@ if you want to select a specific subscription use the following command
 
 once you have selected the subscription you want to use just execute the following command
 
-    ./create-solution.sh <solution_name>
+    ./create-solution.sh -d <solution_name>
 
 then `solution_name` value will be used to create a resource group that will contain all resources created by the script. It will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generated a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `solution_name` is also used to create a storage account, which has several constraints on characters usage:
 
 [Storage Naming Conventions and Limits](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#storage)
+
+to have an overview of all the supported arguments just run
+
+    ./create-solution.sh
 
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
