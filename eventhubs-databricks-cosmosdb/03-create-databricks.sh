@@ -7,9 +7,9 @@ echo "getting cosmosdb master key"
 COSMOSDB_MASTER_KEY=`az cosmosdb list-keys -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv`
 
 echo 'creating databricks workspace'
-echo ". name: $PROC_JOB_NAME"
+echo ". name: $ADB_WORKSPACE"
 az group deployment create \
-  --name $PROC_JOB_NAME \
+  --name $ADB_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
   --template-file arm/databricks.arm.json \
   --parameters \
