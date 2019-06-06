@@ -29,6 +29,7 @@ val eventhubs = spark.readStream
 
 val schema = StructType(
   StructField("eventId", StringType) ::
+  StructField("complexData", StringType) ::
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
