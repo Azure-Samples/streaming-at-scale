@@ -186,6 +186,7 @@ echo
 echo "***** [P] Setting up PROCESSING"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
+    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
