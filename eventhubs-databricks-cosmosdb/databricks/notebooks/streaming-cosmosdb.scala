@@ -23,7 +23,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 val schema = StructType(
   StructField("eventId", StringType) ::
-  StructField("complexData", StringType) ::
+  StructField("complexData", StructType((1 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
@@ -55,4 +55,3 @@ val cosmosdb = jsons
   .outputMode("append")
   .options(cosmosDbConfig)
   .start()
-
