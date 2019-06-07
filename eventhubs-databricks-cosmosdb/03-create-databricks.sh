@@ -71,7 +71,7 @@ if ! databricks secrets list-scopes --output JSON | jq -e ".scopes[] | select (.
   databricks secrets create-scope --scope "MAIN" --initial-manage-principal "users"
 fi
 
-echo "getting cosmosdb master key"
+echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "cosmosdb-write-master-key" --string-value "$COSMOSDB_MASTER_KEY"
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 
