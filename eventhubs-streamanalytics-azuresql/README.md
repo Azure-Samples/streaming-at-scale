@@ -17,6 +17,7 @@ For example if you know you have to process 5000 messages per second, you can st
 Please note that the scripts have been tested on [Ubuntu 18 LTS](http://releases.ubuntu.com/18.04/), so make sure to use that environment to run the scripts. You can run it using Docker, WSL or a VM:
 
 - [Ubuntu Docker Image](https://hub.docker.com/_/ubuntu/)
+- [Windows 10 WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
 - [WSL Ubuntu 18.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab)
 - [Ubuntu 18.04 LTS Azure VM](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/Canonical.UbuntuServer1804LTS)
 
@@ -27,9 +28,15 @@ The following tools/languages are also needed:
 - [jq](https://stedolan.github.io/jq/)
   - Install: `sudo apt install jq`
 
+Azure Cloud Shell is also supported and already has all the required dependencies:
+
+[Azure Cloud Shell](https://shell.azure.com/)
+
+Just do a `git clone` of the repo and you'll be good to go.
+
 ## Setup Solution
 
-Make sure you are logged into your Azure account:
+Make sure you are logged into your Azure account (you are automatically logged it if you're using Azure Cloud Shell):
 
     az login
 
@@ -54,6 +61,7 @@ to have an overview of all the supported arguments just run
     ./create-solution.sh
 
 **Note**
+
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
     ../_common/generate-solution-name.sh
@@ -110,7 +118,8 @@ Streamed data simulates an IoT device sending the following JSON data:
         "moreData4": 54.412361539409427,
         "moreData5": 75.36416309399911,
         "moreData6": 71.53407865773488,
-        "moreData7": 45.34076957651598
+        "moreData7": 45.34076957651598,
+        [...]
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-1554",
@@ -140,9 +149,9 @@ The solution allows you to test both row-store and column-store options. The dep
 - `rawdata`
 - `rawdata_cs`
 
-The `rawdata_cs` table is then one using a clustered column-store index. Both tables also have a non-clustered primary key on the eventId column. Set the `SQL_TABLE_KIND` variable to `rowstore` or `columnstore` to run the solution against the table you are interested in testing.
+The `rawdata_cs` table is then one using a clustered column-store index. Both tables also have a non-clustered primary key on the eventId column. Use the `-k` option and set it to `rowstore` or `columnstore` to run the solution against the table you are interested in testing.
 
-Be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from S7 to P6 is needed. The Premium level provides much more IOs which is needed to allow backup to happen without impacting performances.
+Be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from P4 to P6 is needed. The Premium level provides much more I/Os which are needed to allow backup to happen without impacting performances.
 
 ## Additional References
 
