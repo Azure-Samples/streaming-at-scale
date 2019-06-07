@@ -90,7 +90,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=6
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
+    export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
     export SQL_SKU=P4
     export TEST_CLIENTS=16
 fi
