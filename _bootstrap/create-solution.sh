@@ -21,7 +21,6 @@ usage() {
     echo "      P=PROCESSING" 1>&2; 
     echo "      T=TEST clients" 1>&2; 
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-k: test rowstore or columnstore. Default=rowstore"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
 }
@@ -30,10 +29,9 @@ export PREFIX=''
 export LOCATION=''
 export TESTTYPE=''
 export STEPS=''
-export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:k:" arg; do
+while getopts ":d:s:t:l:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -46,9 +44,6 @@ while getopts ":d:s:t:l:k:" arg; do
 			;;
 		l)
 			LOCATION=${OPTARG}
-			;;
-        k)
-			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
 done
@@ -67,13 +62,12 @@ if [[ -z "$TESTTYPE" ]]; then
 	export TESTTYPE="1"
 fi
 
-if [[ -z "$SQL_TABLE_KIND" ]]; then
-	export SQL_TABLE_KIND="rowstore"
-fi
-
 if [[ -z "$STEPS" ]]; then
 	export STEPS="CIDPT"
 fi
+
+# ---- BEGIN: SET THE VALUES TO CORRECTLY HANDLE THE WORKLOAD
+# ---- HERE'S AN EXAMPLE USING COSMOSDB AND STREAM ANALYTICS
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
@@ -81,17 +75,17 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_CAPACITY=12
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P6
+    export COSMOSDB_RU=100000
     export TEST_CLIENTS=30
 fi
 
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export EVENTHUB_PARTITIONS=6
+    export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P4
+    export COSMOSDB_RU=60000
     export TEST_CLIENTS=16
 fi
 
@@ -100,10 +94,12 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=S3
-    export TEST_CLIENTS=3
+    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
+    export COSMOSDB_RU=20000
+    export TEST_CLIENTS=3 
 fi
+
+# ---- END: SET THE VALUES TO CORRECTLY HANDLE THE WORLOAD
 
 # last checks and variables setup
 if [ -z ${TEST_CLIENTS+x} ]; then
@@ -135,34 +131,20 @@ if [ -z HAS_JQ ]; then
     exit 1
 fi
 
-declare TABLE_SUFFIX=""
-case $SQL_TABLE_KIND in
-    rowstore)
-        TABLE_SUFFIX=""
-        ;;
-    columnstore)
-        TABLE_SUFFIX="_cs"
-        ;;
-    *)
-        echo "'-k' param must be set to 'rowstore' or 'columnstore'"        
-        usage
-        ;;
-esac
-
 echo
-echo "Streaming at Scale with Stream Analytics and AzureSQL"
+echo "Streaming at Scale with Stream Analytics and CosmosDB"
 echo "====================================================="
 echo
 
 echo "Steps to be executed: $STEPS"
 echo
 
-echo "Configuration:"
+echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
+echo ". CosmosDB        => RU: $COSMOSDB_RU"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
@@ -184,7 +166,7 @@ echo "***** [I] Setting up INGESTION"
     
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_CG="azuresql"
+    export EVENTHUB_CG="cosmos"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z $RUN ]; then
@@ -192,27 +174,31 @@ echo "***** [I] Setting up INGESTION"
     fi
 echo
 
+# ---- BEGIN: CALL THE SCRIPT TO SETUP USED DATABASE AND STREAM PROCESSOR
+# ---- HERE'S AN EXAMPLE USING COSMOSDB AND STREAM ANALYTICS
+
 echo "***** [D] Setting up DATABASE"
 
-    export SQL_SERVER_NAME=$PREFIX"sql" 
-    export SQL_DATABASE_NAME="streaming"    
+    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
+    export COSMOSDB_DATABASE_NAME="streaming"
+    export COSMOSDB_COLLECTION_NAME="rawdata"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z $RUN ]; then
-        ./02-create-azure-sql.sh
+        ./02-create-cosmosdb.sh
     fi
 echo
 
 echo "***** [P] Setting up PROCESSING"
 
     export PROC_JOB_NAME=$PREFIX"streamingjob"
-    export SQL_TABLE_NAME="rawdata$TABLE_SUFFIX"
-
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
         ./03-create-stream-analytics.sh
     fi
 echo
+
+# ---- END: CALL THE SCRIPT TO SETUP USED DATABASE AND STREAM PROCESSOR
 
 echo "***** [T] Starting up TEST clients"
 
@@ -225,3 +211,4 @@ echo "***** [T] Starting up TEST clients"
 echo
 
 echo "***** Done"
+
