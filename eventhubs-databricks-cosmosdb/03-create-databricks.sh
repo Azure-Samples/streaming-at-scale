@@ -31,7 +31,7 @@ databricks_token_secret_name="DATABRICKS-TOKEN"
 pat_token_secret=$(az keyvault secret list --vault-name $ADB_TOKEN_KEYVAULT --query "[?ends_with(id, '/$databricks_token_secret_name')].id" -o tsv)
 if [[ -z "$pat_token_secret" ]]; then
   echo 'PAT token secret not present. Creating dummy entry for user to fill in manually'
-  az keyvault secret set --vault-name $ADB_TOKEN_KEYVAULT -n "$databricks_token_secret_name" --file /dev/null -o tsv
+  az keyvault secret set --vault-name $ADB_TOKEN_KEYVAULT -n "$databricks_token_secret_name" --file /dev/null -o tsv >>log.txt
 fi
 
 echo 'checking PAT token presence in Key Vault'
