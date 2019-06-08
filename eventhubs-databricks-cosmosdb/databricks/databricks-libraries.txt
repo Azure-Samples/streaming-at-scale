@@ -1,2 +1,0 @@
-com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.12
-com.microsoft.azure:azure-cosmosdb-spark_2.4.0_2.11:1.4.0
