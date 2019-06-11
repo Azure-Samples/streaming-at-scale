@@ -15,8 +15,6 @@ val reader = spark.readStream
   .options(ehConf.toMap)
   .load()
 
-val messages = reader.select($"body" cast "string", $"enqueuedTime")
-
 // COMMAND ----------
 
 import org.apache.spark.sql.types._
@@ -29,9 +27,6 @@ val schema = StructType(
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
   StructField("createdAt", StringType) :: Nil)
-
-val messages_withSchema = messages
-      .select(from_json(col("body"), schema).alias("data"), $"enqueuedTime")
 
 // COMMAND ----------
 
@@ -46,7 +41,8 @@ val getCurrentTimeUDF = udf(() => getCurrentTime())
 
 // COMMAND ----------
 
-val dataToWrite = messages_withSchema
+val dataToWrite = reader
+  .select(from_json(decode($"body", "UTF-8"), schema).alias("data"), $"enqueuedTime")  
   .select("enqueuedTime", "data.*")
   .withColumn("createdAt", $"createdAt".cast(TimestampType))
   .withColumn("processedAt", getCurrentTimeUDF())
