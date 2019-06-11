@@ -44,7 +44,7 @@ az group deployment create \
         ServerName=$SQL_SERVER_NAME \
         DatabaseName=$SQL_DATABASE_NAME \
 	    AdminLogin="serveradmin" \
-	    AdminLoginPassword="Strong_Passw0rd!" \
+	    AdminLoginPassword=$SQL_ADMIN_PASS \
         DacPacPath=$BLOB_URL \
         DacPacContainerSAS=$BLOB_SAS \
         SKU=$SQL_SKU \

@@ -67,15 +67,15 @@ if [[ -z "$STEPS" ]]; then
 fi
 
 # ---- BEGIN: SET THE VALUES TO CORRECTLY HANDLE THE WORKLOAD
-# ---- HERE'S AN EXAMPLE USING COSMOSDB AND STREAM ANALYTICS
+# ---- HERE'S AN EXAMPLE USING AZURESQL AND DATABRICKS
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
-    export COSMOSDB_RU=100000
+    # TODO: add proper variables here for databricks 
+    export SQL_SKU=P4
+    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=30
 fi
 
@@ -83,9 +83,9 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
-    export COSMOSDB_RU=60000
+    # TODO: add proper variables here for databricks 
+    export SQL_SKU=P2
+    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=16
 fi
 
@@ -93,9 +93,9 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
-    export COSMOSDB_RU=20000
+    # TODO: add proper variables here for databricks 
+    export SQL_SKU=P1
+    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3 
 fi
 
@@ -131,8 +131,24 @@ if [ -z HAS_JQ ]; then
     exit 1
 fi
 
+declare TABLE_SUFFIX=""
+case $SQL_TABLE_KIND in
+    rowstore)
+        TABLE_SUFFIX=""
+        ;;
+    columnstore)
+        TABLE_SUFFIX="_cs"
+        ;;
+    *)
+        echo "SQL_TABLE_KIND must be set to 'rowstore' or 'columnstore'"
+        echo "please install it as it is needed by the script"
+        exit 1
+        ;;
+esac
+
+
 echo
-echo "Streaming at Scale with Stream Analytics and CosmosDB"
+echo "Streaming at Scale with Databricks and Azure SQL"
 echo "====================================================="
 echo
 
@@ -143,8 +159,8 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
-echo ". CosmosDB        => RU: $COSMOSDB_RU"
+echo ". Databrikcs      => TODO: PLEASE FIX ME!"
+echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
@@ -166,7 +182,7 @@ echo "***** [I] Setting up INGESTION"
     
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_CG="cosmos"
+    export EVENTHUB_CG="azuresql"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z $RUN ]; then
@@ -175,26 +191,28 @@ echo "***** [I] Setting up INGESTION"
 echo
 
 # ---- BEGIN: CALL THE SCRIPT TO SETUP USED DATABASE AND STREAM PROCESSOR
-# ---- HERE'S AN EXAMPLE USING COSMOSDB AND STREAM ANALYTICS
+# ---- HERE'S AN EXAMPLE USING AZURESQL AND DATABRICKS
 
 echo "***** [D] Setting up DATABASE"
 
-    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
-    export COSMOSDB_DATABASE_NAME="streaming"
-    export COSMOSDB_COLLECTION_NAME="rawdata"
+    export SQL_SERVER_NAME=$PREFIX"sql" 
+    export SQL_DATABASE_NAME="streaming"  
+    export SQL_ADMIN_PASS="Strong_Passw0rd!"  
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z $RUN ]; then
-        ./02-create-cosmosdb.sh
+        ./02-create-azure-sql.sh
     fi
 echo
 
 echo "***** [P] Setting up PROCESSING"
 
-    export PROC_JOB_NAME=$PREFIX"streamingjob"
+    export ADB_WORKSPACE=$PREFIX"databricks" 
+    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+    
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
-        ./03-create-stream-analytics.sh
+        ./03-create-databricks.sh
     fi
 echo
 
