@@ -43,7 +43,7 @@ create_master_locust() {
 }
 
 echo "creating master locust..."
-#declare MASTER_IP=$(create_master_locust $TEST_CLIENTS)
+declare MASTER_IP=$(create_master_locust $TEST_CLIENTS)
 echo ". endpoint: http://$MASTER_IP:8089"
 
 echo "creating client locusts..."
