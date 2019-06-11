@@ -62,8 +62,8 @@ EOM
 fi
 
 # Databricks CLI automatically picks up configuration from these two environment variables.
-DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"' <<<"$databricks_metainfo")
-DATABRICKS_TOKEN="$pat_token"
+export DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"' <<<"$databricks_metainfo")
+export DATABRICKS_TOKEN="$pat_token"
 
 echo 'checking Databricks secrets scope exists'
 if ! databricks secrets list-scopes --output JSON | jq -e ".scopes[] | select (.name == \"MAIN\")" >/dev/null; then
