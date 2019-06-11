@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
+set -euo pipefail
+
 echo "retrieving storage connection string"
 AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP -o tsv)
 
@@ -12,10 +15,10 @@ az storage file upload -s locust --source ../_common/locust/simulator.py --conne
     -o tsv >> log.txt
 
 echo 'getting storage key'
-AZURE_STORAGE_KEY=`az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP --query '[0].value' -o tsv` 
+export AZURE_STORAGE_KEY=`az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP --query '[0].value' -o tsv` 
 
 echo 'getting event hub key'
-EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list --name RootManageSharedAccessKey --namespace-name $EVENTHUB_NAMESPACE --resource-group $RESOURCE_GROUP --query 'primaryKey' -o tsv`
+export EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list --name RootManageSharedAccessKey --namespace-name $EVENTHUB_NAMESPACE --resource-group $RESOURCE_GROUP --query 'primaryKey' -o tsv`
 
 echo 'create test clients'
 echo ". count: $TEST_CLIENTS"
@@ -39,30 +42,13 @@ create_master_locust() {
     echo $LOCUST_IP
 }
 
-create_client_locust() {
-    CLIENT_ID=$1
-    az container delete -g $RESOURCE_GROUP -n locust-$CLIENT_ID -y \
-    -o tsv >> log.txt
-
-    az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
-    --image yorek/locustio --ports 8089 5557 5558 \
-    --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
-    --command-line "locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
-    -e EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" \
-    --cpu 1 --memory 1 \
-    -o tsv >> log.txt
-}
-
 echo "creating master locust..."
-declare MASTER_IP=$(create_master_locust $TEST_CLIENTS)
+#declare MASTER_IP=$(create_master_locust $TEST_CLIENTS)
 echo ". endpoint: http://$MASTER_IP:8089"
 
 echo "creating client locusts..."
-for CLIENT_ID in $(seq 1 $TEST_CLIENTS)
-do
-    echo "creating client $CLIENT_ID..."
-    create_client_locust $CLIENT_ID $MASTER_IP &
-done
+# Create clients in parallel. NB: exit code 255 immediately stops xargs.
+seq 1 $TEST_CLIENTS | xargs -P10 -n1 sh -c "./create-client-locust.sh '$MASTER_IP' \$0 || exit 255"
 
 echo "waiting for clients to be created..."
 wait
