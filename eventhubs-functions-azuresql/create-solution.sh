@@ -33,7 +33,7 @@ export STEPS=''
 export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:" arg; do
+while getopts ":d:s:t:l:k:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
