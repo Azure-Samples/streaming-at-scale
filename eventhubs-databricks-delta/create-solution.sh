@@ -13,7 +13,7 @@ trap 'on_error $LINENO' ERR
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIPT" 1>&2; 
+    echo "-s: specify which steps should be executed. Default=CIPTM" 1>&2; 
     echo "    Possibile values:" 1>&2; 
     echo "      C=COMMON" 1>&2; 
     echo "      I=INGESTION" 1>&2; 

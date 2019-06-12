@@ -79,11 +79,8 @@ cluster_def=$(
   cat <<JSON
 {
   "spark_version": "5.4.x-scala2.11",
-  "node_type_id": "Standard_DS3_v2",
-  "autoscale": {
-    "min_workers": 1,
-    "max_workers": 3
-  },
+  "node_type_id": "$DATABRICKS_NODETYPE",
+  "num_workers": $DATABRICKS_WORKERS,
   "spark_env_vars": {
     "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
   }
@@ -134,7 +131,8 @@ for notebook in databricks/notebooks/*.scala; do
         "cosmosdb-endpoint": "https://$COSMOSDB_SERVER_NAME.documents.azure.com:443",
         "cosmosdb-database": "$COSMOSDB_DATABASE_NAME",
         "cosmosdb-collection": "$COSMOSDB_COLLECTION_NAME",
-        "eventhub-consumergroup": "$EVENTHUB_CG"
+        "eventhub-consumergroup": "$EVENTHUB_CG",
+        "eventhub-maxEventsPerTrigger": "$DATABRICKS_MAXEVENTSPERTRIGGER"
       }
     }
   }
