@@ -140,7 +140,7 @@ if [ -z "$HAS_ZIP" ]; then
     exit 1
 fi
 
-HAS_DOTNET=`command -v dotnet`
+HAS_DOTNET=$(command -v dotnet)
 if [ -z "$HAS_DOTNET" ]; then
     echo "dotnet SDK not found"
     echo "please install it as it is needed by the script"
