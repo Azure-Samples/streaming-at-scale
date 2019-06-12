@@ -114,7 +114,7 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az)
+HAS_AZ=$(command -v az || true)
 if [ -z "$HAS_AZ" ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
@@ -122,7 +122,7 @@ if [ -z "$HAS_AZ" ]; then
     exit 1
 fi
 
-HAS_JQ=$(command -v jq)
+HAS_JQ=$(command -v jq || true)
 if [ -z "$HAS_JQ" ]; then
     echo "jq not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
@@ -132,7 +132,7 @@ if [ -z "$HAS_JQ" ]; then
     exit 1
 fi
 
-HAS_ZIP=$(command -v zip)
+HAS_ZIP=$(command -v zip || true)
 if [ -z "$HAS_ZIP" ]; then
     echo "zip not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
@@ -140,7 +140,7 @@ if [ -z "$HAS_ZIP" ]; then
     exit 1
 fi
 
-HAS_DOTNET=$(command -v dotnet)
+HAS_DOTNET=$(command -v dotnet || true)
 if [ -z "$HAS_DOTNET" ]; then
     echo "dotnet SDK not found"
     echo "please install it as it is needed by the script"
