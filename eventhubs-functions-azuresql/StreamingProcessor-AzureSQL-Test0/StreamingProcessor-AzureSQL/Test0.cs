@@ -31,16 +31,18 @@ namespace StreamingProcessor
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
+            var procedureName = Environment.GetEnvironmentVariable("AzureSQLProcedureName");
+
             foreach (var data in eventHubData)
             {
                 try
                 {
-                    var _conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
+                    var conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
 
                     string message = Encoding.UTF8.GetString(data.Body.Array);                    
                     var json = JsonConvert.DeserializeObject<JObject>(message, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None } );
                     var cd = JObject.Parse(json["complexData"].ToString());                    
-                    tasks.Add(_conn.ExecuteAsync("stp_WriteData", 
+                    tasks.Add(conn.ExecuteAsync(procedureName, 
                         new {
                             @eventId = json["eventId"].ToString(),
                             @complexData = cd.ToString(),

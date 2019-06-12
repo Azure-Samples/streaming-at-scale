@@ -11,3 +11,11 @@ az functionapp config appsettings set \
     -g $RESOURCE_GROUP \
     --settings AzureSQLConnectionString="$ACS" \
     -o tsv >> log.txt
+
+echo ". Stored Procedure: $SQL_PROCEDURE_NAME"
+
+az functionapp config appsettings set \
+    -n $PROC_FUNCTION_APP_NAME \
+    -g $RESOURCE_GROUP \
+    --settings AzureSQLProcedureName="$SQL_PROCEDURE_NAME" \
+    -o tsv >> log.txt
