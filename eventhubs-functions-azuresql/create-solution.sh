@@ -21,6 +21,7 @@ usage() {
     echo "      P=PROCESSING" 1>&2; 
     echo "      T=TEST clients" 1>&2; 
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-k: test rowstore or columnstore. Default=rowstore"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
 }
@@ -45,6 +46,9 @@ while getopts ":d:s:t:l:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
+        k)
+			SQL_TABLE_KIND=${OPTARG}
+			;;
 		esac
 done
 shift $((OPTIND-1))
@@ -62,6 +66,10 @@ if [[ -z "$TESTTYPE" ]]; then
 	export TESTTYPE="1"
 fi
 
+if [[ -z "$SQL_TABLE_KIND" ]]; then
+	export SQL_TABLE_KIND="rowstore"
+fi
+
 if [[ -z "$STEPS" ]]; then
 	export STEPS="CIDPT"
 fi
@@ -74,7 +82,6 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=12
     export SQL_SKU=P4
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=30
 fi
 
@@ -86,7 +93,6 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION_SKU=P1v2
     export PROC_FUNCTION_WORKERS=8
     export SQL_SKU=P2
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=16
 fi
 
@@ -98,7 +104,6 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export SQL_SKU=P1
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3
 fi
 
