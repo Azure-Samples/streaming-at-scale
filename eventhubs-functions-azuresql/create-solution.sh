@@ -115,7 +115,7 @@ rm -f log.txt
 echo "Checking pre-requisites..."
 
 HAS_AZ=$(command -v az)
-if [ -z HAS_AZ ]; then
+if [ -z "$HAS_AZ" ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
@@ -123,7 +123,7 @@ if [ -z HAS_AZ ]; then
 fi
 
 HAS_JQ=$(command -v jq)
-if [ -z HAS_JQ ]; then
+if [ -z "$HAS_JQ" ]; then
     echo "jq not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
@@ -133,7 +133,7 @@ if [ -z HAS_JQ ]; then
 fi
 
 HAS_ZIP=$(command -v zip)
-if [ -z HAS_ZIP ]; then
+if [ -z "$HAS_ZIP" ]; then
     echo "zip not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install zip"
@@ -141,7 +141,7 @@ if [ -z HAS_ZIP ]; then
 fi
 
 HAS_DOTNET=`command -v dotnet`
-if [ -z HAS_DOTNET ]; then
+if [ -z "$HAS_DOTNET" ]; then
     echo "dotnet SDK not found"
     echo "please install it as it is needed by the script"
     echo "https://dotnet.microsoft.com/download"
