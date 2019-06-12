@@ -30,6 +30,7 @@ export PREFIX=''
 export LOCATION=''
 export TESTTYPE=''
 export STEPS=''
+export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:" arg; do
