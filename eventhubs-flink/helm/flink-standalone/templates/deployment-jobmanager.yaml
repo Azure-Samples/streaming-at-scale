@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}-jobmanager
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        component: jobmanager
+    spec:
+      containers:
+      - name: jobmanager
+        image: {{ .Values.image }}:{{ .Values.imageTag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        args:
+        - /opt/flink/bin/standalone-job.sh
+        - start-foreground
+{{  range .Values.resources.jobmanager.args }}
+        - !!str {{ . }}
+{{ end }}
+        ports:
+        - containerPort: 6123
+          name: rpc
+        - containerPort: 6124
+          name: blob
+        - containerPort: 8081
+          name: ui
+        env:
+        - name: FLINK_CONF_DIR
+          value: /etc/flink
+        livenessProbe:
+          httpGet:
+            path: /overview
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: {{ .Values.resources.jobmanager.limits.cpu }}
+            memory: {{ .Values.resources.jobmanager.limits.memory }}
+          requests:
+            cpu: {{ .Values.resources.jobmanager.requests.cpu }}
+            memory: {{ .Values.resources.jobmanager.requests.memory }}
+        volumeMounts:
+        - name: {{ template "fullname" . }}-flink-config
+          mountPath: /etc/flink
+        - name: azurefileshare
+          mountPath: /mnt/fileshare
+      volumes:
+        - name: {{ template "fullname" . }}-flink-config
+          configMap:
+            name: {{ template "fullname" . }}-flink-config
+        - name: azurefileshare
+          azureFile:
+            secretName: {{ template "fullname" . }}-storage-secret
+            shareName: {{ .Values.fileshare.share }}
+            readOnly: false

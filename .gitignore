@@ -2,3 +2,7 @@ log.txt
 *.pyc
 .DS_Store
 *.json-e
+target/
+dependency-reduced-pom.xml
+.idea
+*.iml
