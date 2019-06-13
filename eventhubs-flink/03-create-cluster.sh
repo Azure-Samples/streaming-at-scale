@@ -21,7 +21,7 @@ az acr login --name $ACR_NAME
 echo 'creating AKS cluster'
 echo ". name: $AKS_CLUSTER"
 
-az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES --generate-ssh-keys -o tsv >> log.txt
+#az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES --generate-ssh-keys -o tsv >> log.txt
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
 # Get the id of the service principal configured for AKS
@@ -53,7 +53,7 @@ resources:
   jobmanager:
     args:
       - --parallelism
-      - $AKS_NODES
+      - $FLINK_PARALLELISM
       - --kafka.bootstrap.servers
       - "$EVENTHUB_NAMESPACE.servicebus.windows.net:9093"
       - --kafka.group.id
@@ -76,7 +76,7 @@ helm upgrade --install "$AKS_HELM_CHART" helm/flink-standalone \
   --set service.type=LoadBalancer \
   --set image=$ACR_NAME.azurecr.io/flinkjob \
   --set imageTag=latest \
-  --set flink.num_taskmanagers=$AKS_NODES \
+  --set flink.num_taskmanagers=$FLINK_PARALLELISM \
   --set fileshare.share=flinkshare \
   --set fileshare.accountname=$AZURE_STORAGE_ACCOUNT \
   --set fileshare.accountkey=$AZURE_STORAGE_KEY \
@@ -89,6 +89,7 @@ FLINK_JOBMAN_IP=
 while [ -z "$FLINK_JOBMAN_IP" ]; do
   echo -n "."
   FLINK_JOBMAN_IP=$(kubectl get services "$AKS_HELM_CHART-flink-standalone-jobmanager" -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+  sleep 5
 done
 echo
 echo "Flink Job manager UI: http://$FLINK_JOBMAN_IP:8081/"

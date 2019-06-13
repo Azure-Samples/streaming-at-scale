@@ -71,7 +71,8 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export TEST_CLIENTS=30
-    export AKS_NODES=2
+    export AKS_NODES=3
+    export FLINK_PARALLELISM=2
 fi
 
 # 5500 messages/sec
@@ -79,7 +80,8 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export TEST_CLIENTS=16
-    export AKS_NODES=2
+    export AKS_NODES=3
+    export FLINK_PARALLELISM=2
 fi
 
 # 1000 messages/sec
@@ -87,7 +89,8 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export TEST_CLIENTS=3 
-    export AKS_NODES=2
+    export AKS_NODES=3
+    export FLINK_PARALLELISM=2
 fi
 
 # last checks and variables setup
@@ -163,7 +166,7 @@ echo ". Subscription    => $AZ_SUBSCRIPTION_NAME"
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". AKS             => $AKS_NODES"
+echo ". Flink           => AKS nodes: $AKS_NODES, Parallelism: $FLINK_PARALLELISM"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
