@@ -10,6 +10,7 @@ from urllib.parse import quote, quote_plus
 import hmac
 import hashlib
 import base64
+import json
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -45,7 +46,7 @@ class DeviceSimulator(TaskSet):
 
         deviceIndex = random.randint(0, 999)
 
-        json={
+        jsonBody={
             'eventId': eventId,
             'type': payloadType,
             'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
@@ -79,9 +80,10 @@ class DeviceSimulator(TaskSet):
         }
 
         headers = dict(self.headers)
-        headers["BrokerProperties"] = { 'PartitionKey': str(deviceIndex) }
+        brokerProperties = { 'PartitionKey': str(deviceIndex) }
+        headers["BrokerProperties"] = json.dumps(brokerProperties)
 
-        self.client.post(self.endpoint, json=json, verify=False, headers=headers)
+        self.client.post(self.endpoint, json=jsonBody, verify=False, headers=headers)
 
     @task
     def sendTemperature(self):
