@@ -1,11 +1,11 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using System;
+using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Text;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.EventHubs;
@@ -17,16 +17,20 @@ namespace StreamingProcessor
 {
     public static class Test0
     {
-
-        /*
-         * TDB
-         */
         [FunctionName("Test0")]
         public static async Task RunAsync(
             [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup = "%ConsumerGroup%")] EventData[] eventHubData,
             ILogger log)
         {
-            var tasks = new List<Task>();
+            var payload = new DataTable("PayloadType");
+            payload.Columns.Add("eventId", typeof(string));
+            payload.Columns.Add("complexData", typeof(string));
+            payload.Columns.Add("value", typeof(decimal));
+            payload.Columns.Add("deviceId", typeof(string));
+            payload.Columns.Add("type", typeof(string));
+            payload.Columns.Add("createdAt", typeof(string));
+            payload.Columns.Add("enqueuedAt", typeof(DateTime));
+            payload.Columns.Add("processedAt", typeof(DateTime));
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -35,36 +39,30 @@ namespace StreamingProcessor
 
             foreach (var data in eventHubData)
             {
-                try
-                {
-                    var conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
+                string message = Encoding.UTF8.GetString(data.Body.Array);                    
+                var json = JsonConvert.DeserializeObject<JObject>(message, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None } );                
 
-                    string message = Encoding.UTF8.GetString(data.Body.Array);                    
-                    var json = JsonConvert.DeserializeObject<JObject>(message, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None } );
-                    var cd = JObject.Parse(json["complexData"].ToString());                    
-                    tasks.Add(conn.ExecuteAsync(procedureName, 
-                        new {
-                            @eventId = json["eventId"].ToString(),
-                            @complexData = cd.ToString(),
-                            @value = decimal.Parse(json["value"].ToString()),
-                            @deviceId = json["deviceId"].ToString(),
-                            @type = json["type"].ToString(),
-                            @createdAt = json["createdAt"].ToString(),
-                            @enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
-                            @processedAt = DateTime.UtcNow//,
-                            //@partitionId = Math.Abs(json["deviceId"].ToString().GetHashCode() % 16)
-                        }, 
-                        commandType: CommandType.StoredProcedure)
-                    );
-
-                }
-                catch (Exception ex)
-                {
-                    log.LogError($"{ex} - {ex.Message}");
-                }
+                payload.Rows.Add(
+                    json["eventId"].ToString(),
+                    JsonConvert.SerializeObject(JObject.Parse(json["complexData"].ToString()), Formatting.None),
+                    decimal.Parse(json["value"].ToString()),
+                    json["deviceId"].ToString(),
+                    json["type"].ToString(),
+                    json["createdAt"].ToString(),
+                    data.SystemProperties.EnqueuedTimeUtc,
+                    DateTime.UtcNow                        
+                );
             }
 
-            await Task.WhenAll(tasks);
+            try
+            {
+                var conn = new SqlConnection(Environment.GetEnvironmentVariable("AzureSQLConnectionString"));
+                await conn.ExecuteAsync(procedureName, new { @payload = payload.AsTableValuedParameter() }, commandType: CommandType.StoredProcedure);
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"{ex} - {ex.Message}");
+            }
 
             sw.Stop();
 
