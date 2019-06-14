@@ -30,6 +30,7 @@ create_master_locust() {
     -o tsv >> log.txt
 
     az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
+    --location $LOCATION \
     --image yorek/locustio --ports 8089 5557 5558 --ip-address public --dns-name-label $LOCUST_DNS_NAME-$CLIENT_ID \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
     --command-line "locust --master --expect-slaves=$1 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
@@ -49,6 +50,7 @@ create_client_locust() {
     -o tsv >> log.txt
 
     az container create -g $RESOURCE_GROUP -n locust-$CLIENT_ID \
+    --location $LOCATION \
     --image yorek/locustio --ports 8089 5557 5558 \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
     --command-line "locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
