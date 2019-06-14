@@ -21,7 +21,7 @@ az acr login --name $ACR_NAME
 echo 'creating AKS cluster'
 echo ". name: $AKS_CLUSTER"
 
-#az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES --generate-ssh-keys -o tsv >> log.txt
+az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES --generate-ssh-keys -o tsv >> log.txt
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
 # Get the id of the service principal configured for AKS
