@@ -39,8 +39,7 @@ class DeviceSimulator(TaskSet):
 
     endpoint = "/" + EVENT_HUB['name'] + "/messages?timeout=60&api-version=2014-01"
 
-    @task
-    def sendTemperature(self):
+    def __sendData(self, payloadType):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
@@ -48,7 +47,7 @@ class DeviceSimulator(TaskSet):
 
         json={
             'eventId': eventId,
-            'type': 'TEMP',
+            'type': payloadType,
             'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
             'value': random.uniform(10,100),
@@ -79,49 +78,18 @@ class DeviceSimulator(TaskSet):
             }
         }
 
-        self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
+        headers = dict(self.headers)
+        headers["BrokerProperties"] = { 'PartitionKey': str(deviceIndex) }
+
+        self.client.post(self.endpoint, json=json, verify=False, headers=headers)
+
+    @task
+    def sendTemperature(self):
+        self.__sendData("TEMP")
 
     @task
     def sendCO2(self):
-        eventId = str(uuid.uuid4())
-        createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
-
-        deviceIndex = random.randint(0, 999) + 1000
-
-        json={
-            'eventId': eventId,
-            'type': 'CO2',
-            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
-            'createdAt': createdAt,
-            'value': random.uniform(10,100),            
-            'complexData': {            
-                'moreData0': random.uniform(10,100), 
-                'moreData1': random.uniform(10,100),
-                'moreData2': random.uniform(10,100),
-                'moreData3': random.uniform(10,100),
-                'moreData4': random.uniform(10,100),
-                'moreData5': random.uniform(10,100),
-                'moreData6': random.uniform(10,100),
-                'moreData7': random.uniform(10,100),
-                'moreData8': random.uniform(10,100),            
-                'moreData9': random.uniform(10,100),
-                'moreData10': random.uniform(10,100),
-                'moreData11': random.uniform(10,100),
-                'moreData12': random.uniform(10,100),
-                'moreData13': random.uniform(10,100),
-                'moreData14': random.uniform(10,100),
-                'moreData15': random.uniform(10,100),
-                'moreData16': random.uniform(10,100),
-                'moreData17': random.uniform(10,100),
-                'moreData18': random.uniform(10,100),
-                'moreData19': random.uniform(10,100),
-                'moreData20': random.uniform(10,100),
-                'moreData21': random.uniform(10,100),
-                'moreData22': random.uniform(10,100)
-            }
-        }
-
-        self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
+        self.__sendData("CO2")
 
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator
