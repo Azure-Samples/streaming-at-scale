@@ -12,6 +12,7 @@ using Microsoft.Azure.EventHubs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Dapper;
+using Microsoft.Azure.EventHubs.Processor;
 
 namespace StreamingProcessor
 {
@@ -19,18 +20,20 @@ namespace StreamingProcessor
     {
         [FunctionName("Test0")]
         public static async Task RunAsync(
-            [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup = "%ConsumerGroup%")] EventData[] eventHubData,
+            [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup = "%ConsumerGroup%")] EventData[] eventHubData, 
+            PartitionContext partitionContext, 
             ILogger log)
         {
             var payload = new DataTable("PayloadType");
-            payload.Columns.Add("eventId", typeof(string));
-            payload.Columns.Add("complexData", typeof(string));
-            payload.Columns.Add("value", typeof(decimal));
-            payload.Columns.Add("deviceId", typeof(string));
-            payload.Columns.Add("type", typeof(string));
-            payload.Columns.Add("createdAt", typeof(string));
-            payload.Columns.Add("enqueuedAt", typeof(DateTime));
-            payload.Columns.Add("processedAt", typeof(DateTime));
+            payload.Columns.Add("EventId", typeof(string));
+            payload.Columns.Add("ComplexData", typeof(string));
+            payload.Columns.Add("Value", typeof(decimal));
+            payload.Columns.Add("DeviceId", typeof(string));
+            payload.Columns.Add("Type", typeof(string));
+            payload.Columns.Add("CreatedAt", typeof(string));
+            payload.Columns.Add("EnqueuedAt", typeof(DateTime));
+            payload.Columns.Add("ProcessedAt", typeof(DateTime));
+            payload.Columns.Add("PartitionId", typeof(int));
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -50,7 +53,8 @@ namespace StreamingProcessor
                     json["type"].ToString(),
                     json["createdAt"].ToString(),
                     data.SystemProperties.EnqueuedTimeUtc,
-                    DateTime.UtcNow                        
+                    DateTime.UtcNow,
+                    partitionContext.RuntimeInformation.PartitionId
                 );
             }
 

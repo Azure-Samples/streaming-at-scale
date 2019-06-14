@@ -82,7 +82,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=12
-    export SQL_SKU=P4
+    export SQL_SKU=P6
     export TEST_CLIENTS=30
 fi
 
@@ -93,7 +93,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P1v2
     export PROC_FUNCTION_WORKERS=8
-    export SQL_SKU=P2
+    export SQL_SKU=P4
     export TEST_CLIENTS=16
 fi
 
