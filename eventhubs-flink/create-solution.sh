@@ -66,6 +66,9 @@ if [[ -z "$STEPS" ]]; then
 	export STEPS="CIPTM"
 fi
 
+export AKS_VM_SIZE=Standard_D2s_v3
+export AKS_KUBERNETES_VERSION=1.12.8
+
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
@@ -166,7 +169,7 @@ echo ". Subscription    => $AZ_SUBSCRIPTION_NAME"
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". Flink           => AKS nodes: $AKS_NODES, Parallelism: $FLINK_PARALLELISM"
+echo ". Flink           => AKS nodes: $AKS_NODES x $AKS_VM_SIZE, Parallelism: $FLINK_PARALLELISM"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 

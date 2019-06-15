@@ -10,6 +10,12 @@ spec:
         app: {{ template "fullname" . }}
         component: jobmanager
     spec:
+      serviceAccountName: {{ template "fullname" . }}-service-port-patcher
+      initContainers:
+      - name: check-zookeeper-ready
+        image: docker.io/busybox:1.28
+        command: ['sh', '-c', 
+          'until echo stats | nc -w2 zookeeper 2181 | grep Mode: ; do echo waiting for zookeeper; sleep 2; done;']
       containers:
       - name: jobmanager
         image: {{ .Values.image }}:{{ .Values.imageTag }}
@@ -46,14 +52,17 @@ spec:
         volumeMounts:
         - name: {{ template "fullname" . }}-flink-config
           mountPath: /etc/flink
-        - name: azurefileshare
+        - name: flink-fileshare
           mountPath: /mnt/fileshare
+      - name: service-port-patcher
+        image: {{ .Values.resources.jobmanager.serviceportpatcher.image }}
+        args:
+        - {{ .Release.Namespace }}
+        - {{ template "fullname" . }}-jobmanager
       volumes:
         - name: {{ template "fullname" . }}-flink-config
           configMap:
             name: {{ template "fullname" . }}-flink-config
-        - name: azurefileshare
-          azureFile:
-            secretName: {{ template "fullname" . }}-storage-secret
-            shareName: {{ .Values.fileshare.share }}
-            readOnly: false
+        - name: flink-fileshare
+          persistentVolumeClaim:
+           claimName: {{ template "fullname" . }}-fileshare-pv-claim

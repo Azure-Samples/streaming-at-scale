@@ -21,7 +21,9 @@ az acr login --name $ACR_NAME
 echo 'creating AKS cluster'
 echo ". name: $AKS_CLUSTER"
 
-az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES --generate-ssh-keys -o tsv >> log.txt
+if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null 2>&1; then
+az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES -s $AKS_VM_SIZE -k $AKS_KUBERNETES_VERSION --generate-ssh-keys -o tsv >> log.txt
+fi
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
 # Get the id of the service principal configured for AKS
@@ -38,15 +40,22 @@ fi
 
 echo 'building image'
 mvn -f flink-kafka-consumer package
-docker build -t $ACR_NAME.azurecr.io/flinkjob:latest -f docker/Dockerfile . --build-arg job_jar=flink-kafka-consumer/target/flink-sample-kafka-job-0.0.1-SNAPSHOT.jar 
-docker push $ACR_NAME.azurecr.io/flinkjob:latest
+docker build -t $ACR_NAME.azurecr.io/flink-job:latest -f docker/flink-job/Dockerfile . --build-arg job_jar=flink-kafka-consumer/target/flink-sample-kafka-job-0.0.1-SNAPSHOT.jar 
+docker push $ACR_NAME.azurecr.io/flink-job:latest
+
+docker build -t $ACR_NAME.azurecr.io/flink-service-port-patcher:latest -f docker/flink-service-port-patcher/Dockerfile docker/flink-service-port-patcher
+docker push $ACR_NAME.azurecr.io/flink-service-port-patcher:latest
 
 echo 'deploying Helm'
-echo ". chart: $AKS_HELM_CHART"
 
 kubectl apply -f helm/helm-rbac.yaml
 helm init --service-account tiller --wait
 
+echo '. chart: zookeeper'
+helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+helm upgrade --install zookeeper incubator/zookeeper
+
+echo ". chart: $AKS_HELM_CHART"
 helm_config_tempfile=$(mktemp)
 cat > "$helm_config_tempfile" <<EOF
 resources:
@@ -71,18 +80,18 @@ resources:
 EOF
 
 #"helm upgrade --install" is the idempotent version of "helm install --name"
-#helm status "$AKS_HELM_CHART" -o json | jq .info.status.code) == 1|DEPLOYED
 helm upgrade --install "$AKS_HELM_CHART" helm/flink-standalone \
   --set service.type=LoadBalancer \
-  --set image=$ACR_NAME.azurecr.io/flinkjob \
+  --set image=$ACR_NAME.azurecr.io/flink-job \
   --set imageTag=latest \
+  --set resources.jobmanager.serviceportpatcher.image=$ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
   --set flink.num_taskmanagers=$FLINK_PARALLELISM \
   --set fileshare.share=flinkshare \
   --set fileshare.accountname=$AZURE_STORAGE_ACCOUNT \
   --set fileshare.accountkey=$AZURE_STORAGE_KEY \
   -f "$helm_config_tempfile"
 
-#rm $helm_config_tempfile
+rm $helm_config_tempfile
 
 echo 'Waiting for Flink Job Manager public IP to be assigned'
 FLINK_JOBMAN_IP=

@@ -9,11 +9,15 @@ resources:
     requests:
       cpu: 1000m
       memory: 1280Mi
+    serviceportpatcher:
+      image: MYREPO.azurecr.io/flink-service-port-patcher:latest
   taskmanager:
     limits:
       memory: 1280Mi
     requests:
       memory: 1280Mi
+  storage:
+    provisioner: kubernetes.io/azure-file
 
 flink:
   jobmanager_heap_mb: 1024
@@ -26,6 +30,11 @@ flink:
     state.backend: filesystem
     # Directory for storing checkpoints
     state.checkpoints.dir: file:///mnt/fileshare/flink/checkpoints
+    high-availability: zookeeper
+    high-availability.zookeeper.quorum: zookeeper:2181
+    high-availability.zookeeper.path.root: /flink
+    high-availability.cluster-id: /cluster_one # important: customize per cluster
+    high-availability.storageDir: file:///mnt/fileshare/flink/recovery
 
 service:
   type: ClusterIP

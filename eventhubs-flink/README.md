@@ -1,6 +1,6 @@
 # Streaming at Scale with Azure Event Hubs and Flink
 
-**Work in progress**.
+**Experimental work in progress**.
 
 The conventional way to run Flink is to setup a cluster and submit JAR jobs to it.
 Here we use a different approach that is better suited to the use of containers in a DevOps process.
@@ -14,4 +14,4 @@ Zalando](https://jobs.zalando.com/tech/blog/running-apache-flink-on-kubernetes).
 
 TODO:
 
-- Implement HA
+- Kafka Connection string containing password should be passed as a secret, not as an argument

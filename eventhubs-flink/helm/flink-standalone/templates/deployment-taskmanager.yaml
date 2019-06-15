@@ -10,6 +10,11 @@ spec:
         app: {{ template "fullname" . }}
         component: taskmanager
     spec:
+      initContainers:
+      - name: check-jobmanager-ready
+        image: docker.io/busybox:1.28
+        command: ['sh', '-c', 
+          'until wget -T2 -O- http://{{ template "fullname" . }}-jobmanager:8081/jobmanager/config ; do echo waiting for jobmanager; sleep 2; done;']
       containers:
       - name: taskmanager
         image: {{ .Values.image }}:{{ .Values.imageTag }}
@@ -36,14 +41,12 @@ spec:
         volumeMounts:
         - name: {{ template "fullname" . }}-flink-config
           mountPath: /etc/flink
-        - name: azurefileshare
+        - name: flink-fileshare
           mountPath: /mnt/fileshare
       volumes:
         - name: {{ template "fullname" . }}-flink-config
           configMap:
             name: {{ template "fullname" . }}-flink-config
-        - name: azurefileshare
-          azureFile:
-            secretName: {{ template "fullname" . }}-storage-secret
-            shareName: {{ .Values.fileshare.share }}
-            readOnly: false
+        - name: flink-fileshare
+          persistentVolumeClaim:
+           claimName: {{ template "fullname" . }}-fileshare-pv-claim
