@@ -11,7 +11,3 @@ This ensures immutable infrastructure, and allows scaling Task Managers independ
 The architecture is based on the blog post by Tobias Bahls on [Running Apache
 Flink on Kubernetes at
 Zalando](https://jobs.zalando.com/tech/blog/running-apache-flink-on-kubernetes).
-
-TODO:
-
-- Kafka Connection string containing password should be passed as a secret, not as an argument
