@@ -9,12 +9,14 @@ data:
     blob.server.port: 6124
     jobmanager.rpc.address: {{ template "fullname" . }}-jobmanager
     jobmanager.rpc.port: 6123
-    jobmanager.heap.mb: {{ .Values.flink.jobmanager_heap_mb }}
-    taskmanager.heap.mb: {{ .Values.flink.taskmanager_heap_mb }}
     taskmanager.numberOfTaskSlots: {{ .Values.flink.num_slots_per_taskmanager }}
-    {{- if .Values.flink.config }}
-{{ .Values.flink.config | indent 4 }}
-    {{- end }}
+    # important: customize per cluster
+    high-availability.cluster-id: cluster-{{ template "fullname" . }}
+    high-availability.zookeeper.quorum: {{ .Values.flink.zookeeper_address }}
+    {{- range $key, $val := .Values.flink.config }}
+    {{ $key }}: {{ $val }}
+    {{- end}}
+
   log4j-console.properties: |
     log4j.rootLogger=INFO, console, file
 

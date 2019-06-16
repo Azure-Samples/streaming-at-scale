@@ -14,8 +14,9 @@ spec:
       initContainers:
       - name: check-zookeeper-ready
         image: docker.io/busybox:1.28
+        # zookeeper_address can be in format "zookeeper:2181" or "zookeeper-0.zookeeper-headless:2181,zookeeper-1.zookeeper-headless:2181,..."
         command: ['sh', '-c', 
-          'until echo stats | nc -w2 zookeeper 2181 | grep Mode: ; do echo waiting for zookeeper; sleep 2; done;']
+          'IFS=,; while true; do echo waiting for zookeeper; for zk in "{{ .Values.flink.zookeeper_address }}"; do echo stats | nc -w2 $zk | grep Mode: && exit; done; sleep 1; done;']
       containers:
       - name: jobmanager
         image: {{ .Values.image }}:{{ .Values.imageTag }}
@@ -23,9 +24,9 @@ spec:
         args:
         - /opt/flink/bin/standalone-job.sh
         - start-foreground
-{{  range .Values.resources.jobmanager.args }}
+        {{-  range .Values.resources.jobmanager.args }}
         - !!str {{ . }}
-{{ end }}
+        {{- end }}
         ports:
         - containerPort: 6123
           name: rpc
@@ -36,6 +37,13 @@ spec:
         env:
         - name: FLINK_CONF_DIR
           value: /etc/flink
+        {{- range $key, $val := .Values.flink.secrets }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" $ }}-flink-secret
+              key: {{ $key }}
+        {{- end }} 
         livenessProbe:
           httpGet:
             path: /overview

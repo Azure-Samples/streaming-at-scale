@@ -6,12 +6,6 @@ set -euo pipefail
 echo 'getting EH primary connection string'
 EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
 
-echo 'getting storage key'
-AZURE_STORAGE_KEY=$(az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP --query '[0].value' -o tsv)
-
-echo 'creating share'
-az storage share create --account-name $AZURE_STORAGE_ACCOUNT -n "flinkshare" -o tsv >> log.txt
-
 echo 'creating ACR instance'
 echo ". name: $ACR_NAME"
 
@@ -48,7 +42,8 @@ docker push $ACR_NAME.azurecr.io/flink-service-port-patcher:latest
 
 echo 'deploying Helm'
 
-kubectl apply -f helm/helm-rbac.yaml
+kubectl apply -f k8s/helm-rbac.yaml
+kubectl apply -f k8s/azure-file-storage-class.yaml
 helm init --service-account tiller --wait
 
 echo '. chart: zookeeper'
@@ -74,7 +69,7 @@ resources:
       - --kafka.security.protocol
       - SASL_SSL
       - --kafka.sasl.jaas.config
-      - 'org.apache.kafka.common.security.plain.PlainLoginModule required username="\$ConnectionString" password="$EVENTHUB_CS";'
+      - '\$(KAFKA_CS)'
       - --kafka.topic
       - "$EVENTHUB_NAME"
 EOF
@@ -86,12 +81,11 @@ helm upgrade --install "$AKS_HELM_CHART" helm/flink-standalone \
   --set imageTag=latest \
   --set resources.jobmanager.serviceportpatcher.image=$ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
   --set flink.num_taskmanagers=$FLINK_PARALLELISM \
-  --set fileshare.share=flinkshare \
-  --set fileshare.accountname=$AZURE_STORAGE_ACCOUNT \
-  --set fileshare.accountkey=$AZURE_STORAGE_KEY \
+  --set persistence.storageClass=azure-file \
+  --set flink.secrets.KAFKA_CS="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS\";" \
   -f "$helm_config_tempfile"
 
-rm $helm_config_tempfile
+#rm $helm_config_tempfile
 
 echo 'Waiting for Flink Job Manager public IP to be assigned'
 FLINK_JOBMAN_IP=
@@ -105,6 +99,5 @@ echo "Flink Job manager UI: http://$FLINK_JOBMAN_IP:8081/"
 echo "- To list deployed pods, run:"
 echo "    kubectl get pods"
 echo "- To view message throughput per Task Manager, run:"
-echo "    kubectl logs --tail=10 --follow flink-flink-taskmanager-xxxxx-xxxxx"
-echo "  (using the name of one of the taskmanager pods from the 'get pods' command)"
-echo "  you should see lines similar to '1> 11157', with the task number and count of events ingested per second."
+echo "    k logs -l component=taskmanager"
+echo "  you should see lines similar to '1> [2019-06-16T07:25:13Z] 956 events/s, avg end-to-end latency 661 ms', with the task number and events ingested per second."

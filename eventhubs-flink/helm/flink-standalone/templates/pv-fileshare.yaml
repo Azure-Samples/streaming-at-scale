@@ -3,9 +3,15 @@ apiVersion: v1
 metadata:
   name: {{ template "fullname" . }}-fileshare-pv-claim
 spec:
-  storageClassName:  {{ template "fullname" . }}-fileshare-storage
+{{- if .Values.persistence.storageClass }}
+  {{- if (eq "-" .Values.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.storageClass }}"
+  {{- end }}
+{{- end }}
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: {{ .Values.persistence.size }}

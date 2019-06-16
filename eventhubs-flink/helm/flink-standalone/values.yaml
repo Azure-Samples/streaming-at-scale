@@ -16,24 +16,34 @@ resources:
       memory: 1280Mi
     requests:
       memory: 1280Mi
-  storage:
-    provisioner: kubernetes.io/azure-file
+
+persistence:
+  size: 5Gi
+  ## zookeeper data Persistent Volume Storage Class
+  # must support accessMode: ReadWriteMany
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (Disk on Azure, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  #  storageClass: "-"
 
 flink:
-  jobmanager_heap_mb: 1024
-  taskmanager_heap_mb: 1024
   num_taskmanagers: 1
   num_slots_per_taskmanager: 1
+  # can be in format "zookeeper:2181" or "zookeeper-0.zookeeper-headless:2181,zookeeper-1.zookeeper-headless:2181,..."
+  zookeeper_address: zookeeper:2181
 
-  ## Other config options for flink-conf.yaml
-  config: |
+  ## config options for flink-conf.yaml
+  config:
+    jobmanager.heap.mb: 1024
+    taskmanager.heap.mb: 1024
     state.backend: filesystem
     # Directory for storing checkpoints
     state.checkpoints.dir: file:///mnt/fileshare/flink/checkpoints
     high-availability: zookeeper
-    high-availability.zookeeper.quorum: zookeeper:2181
     high-availability.zookeeper.path.root: /flink
-    high-availability.cluster-id: /cluster_one # important: customize per cluster
     high-availability.storageDir: file:///mnt/fileshare/flink/recovery
 
 service:
