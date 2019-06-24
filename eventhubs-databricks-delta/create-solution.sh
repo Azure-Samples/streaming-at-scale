@@ -72,7 +72,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_CAPACITY=12
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=6
+    export DATABRICKS_WORKERS=12
     export DATABRICKS_MAXEVENTSPERTRIGGER=100000
 fi
 
@@ -92,7 +92,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_CAPACITY=2
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=6
+    export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
