@@ -71,7 +71,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export COSMOSDB_RU=100000
+    export COSMOSDB_RU=80000
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=6
@@ -82,7 +82,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export COSMOSDB_RU=60000
+    export COSMOSDB_RU=40000
     export TEST_CLIENTS=16
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=6
@@ -96,7 +96,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export COSMOSDB_RU=20000
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=6
+    export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
@@ -126,7 +126,17 @@ if [ -z "$HAS_JQ" ]; then
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
     echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
+    echo "https://stedolan.github.io/jq/download/"
+    exit 1
+fi
+
+HAS_PYTHON=$(command -v python || true)
+if [ -z "$HAS_PYTHON" ]; then
+    echo "python 2.7 not found"
+    echo "please install it using your package manager, for example, on Ubuntu:"
+    echo "  sudo apt install python"
+    echo "or as described here:"
+    echo "https://wiki.python.org/moin/BeginnersGuide/Download"
     exit 1
 fi
 
