@@ -33,7 +33,7 @@ if [ -z "$existing_role" ]; then
 fi
 
 echo 'building image'
-mvn -f flink-kafka-consumer package
+mvn -f flink-kafka-consumer clean package
 docker build -t $ACR_NAME.azurecr.io/flink-job:latest -f docker/flink-job/Dockerfile . --build-arg job_jar=flink-kafka-consumer/target/flink-sample-kafka-job-0.0.1-SNAPSHOT.jar 
 docker push $ACR_NAME.azurecr.io/flink-job:latest
 
@@ -75,7 +75,7 @@ resources:
 EOF
 
 #"helm upgrade --install" is the idempotent version of "helm install --name"
-helm upgrade --install "$AKS_HELM_CHART" helm/flink-standalone \
+helm upgrade --install --recreate-pods "$AKS_HELM_CHART" helm/flink-standalone \
   --set service.type=LoadBalancer \
   --set image=$ACR_NAME.azurecr.io/flink-job \
   --set imageTag=latest \
@@ -99,5 +99,5 @@ echo "Flink Job manager UI: http://$FLINK_JOBMAN_IP:8081/"
 echo "- To list deployed pods, run:"
 echo "    kubectl get pods"
 echo "- To view message throughput per Task Manager, run:"
-echo "    k logs -l component=taskmanager"
-echo "  you should see lines similar to '1> [2019-06-16T07:25:13Z] 956 events/s, avg end-to-end latency 661 ms', with the task number and events ingested per second."
+echo "    k logs -l component=taskmanager --tail=20"
+echo "  you should see lines similar to '1> [2019-06-16T07:25:13Z] 956 events/s, avg end-to-end latency 661 ms; 0 non-sequential events []', with the task number and events ingested per second."

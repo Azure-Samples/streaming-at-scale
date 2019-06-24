@@ -10,6 +10,7 @@ from urllib.parse import quote, quote_plus
 import hmac
 import hashlib
 import base64
+import json
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -39,18 +40,22 @@ class DeviceSimulator(TaskSet):
 
     endpoint = "/" + EVENT_HUB['name'] + "/messages?timeout=60&api-version=2014-01"
 
+    counter = 1
+
+    def on_start(self):
+        self.deviceId = str(uuid.uuid4())
+
     @task
     def sendTemperature(self):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
-        deviceIndex = random.randint(0, 999)
-
         json={
             'eventId': eventId,
             'type': 'TEMP',
-            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
+            'deviceId': self.deviceId,
             'createdAt': createdAt,
+            'eventNumber': self.counter,
             'value': random.uniform(10,100),
             'complexData': {            
                 'moreData0': random.uniform(10,100), 
@@ -78,21 +83,19 @@ class DeviceSimulator(TaskSet):
                 'moreData22': random.uniform(10,100)
             }
         }
-
-        self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
+        self.send(json)
 
     @task
     def sendCO2(self):
         eventId = str(uuid.uuid4())
         createdAt = str(datetime.datetime.utcnow().replace(microsecond=3).isoformat()) + "Z"
 
-        deviceIndex = random.randint(0, 999) + 1000
-
         json={
             'eventId': eventId,
             'type': 'CO2',
-            'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
+            'deviceId': self.deviceId,
             'createdAt': createdAt,
+            'eventNumber': self.counter,
             'value': random.uniform(10,100),            
             'complexData': {            
                 'moreData0': random.uniform(10,100), 
@@ -120,8 +123,14 @@ class DeviceSimulator(TaskSet):
                 'moreData22': random.uniform(10,100)
             }
         }
+        self.send(json)
 
-        self.client.post(self.endpoint, json=json, verify=False, headers=self.headers)
+    def send(self, jsonBody):
+        self.counter += 1
+        headers = self.headers
+        headers['BrokerProperties'] = json.dumps({"PartitionKey": self.deviceId})
+
+        self.client.post(self.endpoint, json=jsonBody, verify=False, headers=headers)
 
 class MyLocust(HttpLocust):
     task_set = DeviceSimulator

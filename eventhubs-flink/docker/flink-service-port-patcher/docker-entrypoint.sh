@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# setup handler
+trap 'exit 1' TERM
+
 old_rpc_port=""
 
 while [ 1 ]
@@ -8,7 +11,7 @@ while [ 1 ]
   rpc_port=""
   while [ -z "$rpc_port" ]; do
     rpc_port=$(curl -fs http://localhost:8081/jobmanager/config | jq -r '.[] | select (.key=="jobmanager.rpc.port").value')
-    sleep 1
+    sleep 1 & wait $!
   done
 
   if [ "$rpc_port" != "$old_rpc_port" ]; then
@@ -44,7 +47,5 @@ EOF
     rm "$patchfile"
 
   fi
-
-  sleep 1
 
 done
