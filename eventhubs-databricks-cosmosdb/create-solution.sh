@@ -74,7 +74,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export COSMOSDB_RU=80000
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=6
+    export DATABRICKS_WORKERS=12
     export DATABRICKS_MAXEVENTSPERTRIGGER=100000
 fi
 
