@@ -122,7 +122,7 @@ for notebook in databricks/notebooks/*.scala; do
           }
         }
     ],
-    "timeout_seconds": 1200,
+    "timeout_seconds": 3600,
     "notebook_task": {
       "notebook_path": "$notebook_path",
       "base_parameters": {
