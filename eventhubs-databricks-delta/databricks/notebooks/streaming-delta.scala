@@ -1,8 +1,5 @@
 // Databricks notebook source
-dbutils.widgets.text("cosmosdb-endpoint", "https://MYACCOUNT.documents.azure.com", "Cosmos DB endpoint")
-dbutils.widgets.text("cosmosdb-database", "streaming", "Cosmos DB database")
-dbutils.widgets.text("cosmosdb-collection", "rawdata", "Cosmos DB collection")
-dbutils.widgets.text("eventhub-consumergroup", "cosmos", "Event Hubs consumer group")
+dbutils.widgets.text("eventhub-consumergroup", "delta", "Event Hubs consumer group")
 dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
 
 // COMMAND ----------
@@ -36,24 +33,13 @@ val jsons = eventhubs
 
 // COMMAND ----------
 
-// Configure the connection to your collection in Cosmos DB.
-// Please refer to https://github.com/Azure/azure-cosmosdb-spark/wiki/Configuration-references
-// for the description of the available configurations.
-val cosmosDbConfig = Map(
-  "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
-  "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
-  "Database" -> dbutils.widgets.get("cosmosdb-database"),
-  "Collection" -> dbutils.widgets.get("cosmosdb-collection")
-)
+// You can also use a path instead of a table, see https://docs.azuredatabricks.net/delta/delta-streaming.html#append-mode
+jsons.writeStream
+  .outputMode("append")
+  .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
+  .format("delta")
+  .table("stream_scale_events")
 
 // COMMAND ----------
 
-import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
-
-val cosmosdb = jsons
-  .writeStream
-  .format(classOf[CosmosDBSinkProvider].getName)
-  .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
-  .outputMode("append")
-  .options(cosmosDbConfig)
-  .start()
+// MAGIC %sql select * from stream_scale_events limit 10

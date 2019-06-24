@@ -13,11 +13,10 @@ trap 'on_error $LINENO' ERR
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPTM" 1>&2; 
+    echo "-s: specify which steps should be executed. Default=CIPTM" 1>&2; 
     echo "    Possibile values:" 1>&2; 
     echo "      C=COMMON" 1>&2; 
     echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
     echo "      P=PROCESSING" 1>&2; 
     echo "      T=TEST clients" 1>&2; 
     echo "      M=METRICS reporting" 1>&2; 
@@ -64,14 +63,13 @@ if [[ -z "$TESTTYPE" ]]; then
 fi
 
 if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPTM"
+	export STEPS="CIPTM"
 fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export COSMOSDB_RU=80000
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=12
@@ -82,7 +80,6 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export COSMOSDB_RU=40000
     export TEST_CLIENTS=16
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=6
@@ -93,7 +90,6 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export COSMOSDB_RU=20000
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
@@ -126,17 +122,7 @@ if [ -z "$HAS_JQ" ]; then
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
     echo "or as described here:"
-    echo "https://stedolan.github.io/jq/download/"
-    exit 1
-fi
-
-HAS_PYTHON=$(command -v python || true)
-if [ -z "$HAS_PYTHON" ]; then
-    echo "python 2.7 not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install python"
-    echo "or as described here:"
-    echo "https://wiki.python.org/moin/BeginnersGuide/Download"
+    echo "  https://stedolan.github.io/jq/download/"
     exit 1
 fi
 
@@ -155,19 +141,19 @@ if [ -z "$AZ_SUBSCRIPTION_NAME" ]; then
 fi
 
 echo
-echo "Streaming at Scale with Azure Databricks and CosmosDB"
-echo "====================================================="
+echo "Streaming at Scale with Azure Databricks and Delta"
+echo "=================================================="
 echo
 
 echo "Steps to be executed: $STEPS"
 echo
 
 echo "Configuration: "
+echo ". Subscription    => $AZ_SUBSCRIPTION_NAME"
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
-echo ". CosmosDB        => RU: $COSMOSDB_RU"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
@@ -189,23 +175,11 @@ echo "***** [I] Setting up INGESTION"
     
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_CG="cosmos"
+    export EVENTHUB_CG="delta"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z $RUN ]; then
         ./01-create-event-hub.sh
-    fi
-echo
-
-echo "***** [D] Setting up DATABASE"
-
-    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
-    export COSMOSDB_DATABASE_NAME="streaming"
-    export COSMOSDB_COLLECTION_NAME="rawdata"
-
-    RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
-        ./02-create-cosmosdb.sh
     fi
 echo
 
