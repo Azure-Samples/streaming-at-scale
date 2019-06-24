@@ -7,7 +7,7 @@ echo 'getting EH primary connection string'
 EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
 
 echo "getting cosmosdb master key"
-COSMOSDB_MASTER_KEY=$(az cosmosdb list-keys -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv)
+COSMOSDB_MASTER_KEY=$(az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv)
 
 echo 'creating databricks workspace'
 echo ". name: $ADB_WORKSPACE"
@@ -48,17 +48,31 @@ if [[ -z "$pat_token" ]]; then
   ERROR: Missing PAT token in Key Vault (this is normal the first time you run this script).
 
   You need to manually create a Databricks PAT token and register it into the Key Vault as follows,
-    then rerun this script or pipeline.
+  then rerun this script or pipeline.
 
-  - Navigate to $databricks_login_url
-    create a PAT token and copy it to the clipboard.
-  - Navigate to $kv_secrets_url
-    click $databricks_token_secret_name
-    click + New version
+  - Navigate to:
+      $databricks_login_url
+    Create a PAT token and copy it to the clipboard:
+      https://docs.azuredatabricks.net/api/latest/authentication.html#generate-a-token
+  - Navigate to:
+      $kv_secrets_url
+    Click $databricks_token_secret_name
+    Click "+ New Version"
     As value, enter the PAT token you copied
-    click Create
+    Click Create
+  - The script will wait for the PAT to be copied into the Key Vault
+    If you stop the script, you can resume it running the following command:
+      ./create-solution.sh -d "$PREFIX" -t $TESTTYPE -s PT
+
 EOM
-  exit 1
+  
+  echo 'waiting for PAT (polling every 5 secs)...'
+  while true;  do
+    pat_token=$(az keyvault secret show --vault-name "$ADB_TOKEN_KEYVAULT" --name "$databricks_token_secret_name" --query value -o tsv | grep dapi || true)	
+    if [ ! -z "$pat_token" ]; then break; fi
+	  sleep 5
+  done
+  echo 'PAT detected'
 fi
 
 # Databricks CLI automatically picks up configuration from these two environment variables.
@@ -66,7 +80,8 @@ export DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"'
 export DATABRICKS_TOKEN="$pat_token"
 
 echo 'checking Databricks secrets scope exists'
-if ! databricks secrets list-scopes --output JSON | jq -e ".scopes[] | select (.name == \"MAIN\")" >/dev/null; then
+declare SECRETS_SCOPE=$(databricks secrets list-scopes --output JSON | jq -e ".scopes[]? | select (.name == \"MAIN\") | .name") &>/dev/null
+if [ -z "$SECRETS_SCOPE" ]; then
   echo 'creating Databricks secrets scope'
   databricks secrets create-scope --scope "MAIN" --initial-manage-principal "users"
 fi
@@ -88,20 +103,17 @@ cluster_def=$(
 JSON
 )
 
-echo 'Importing Spark library'
-
-#Cosmos DB must be imported as Uber JAR and not resolved through maven coordinates,
+echo 'importing Spark library'
+# Cosmos DB must be imported as Uber JAR and not resolved through maven coordinates,
 # see https://kb.databricks.com/data-sources/cosmosdb-connector-lib-conf.html
 cosmosdb_spark_jar=azure-cosmosdb-spark_2.4.0_2.11-1.4.0-uber.jar
 curl -O "http://central.maven.org/maven2/com/microsoft/azure/azure-cosmosdb-spark_2.4.0_2.11/1.4.0/$cosmosdb_spark_jar"
 databricks fs cp --overwrite "$cosmosdb_spark_jar" "dbfs:/mnt/streaming-at-scale/$cosmosdb_spark_jar"
 
-echo 'Importing Databricks notebooks'
-
+echo 'importing Databricks notebooks'
 databricks workspace import_dir databricks/notebooks /Shared/streaming-at-scale --overwrite
 
-echo 'Running Databricks notebooks' | tee -a log.txt
-
+echo 'running Databricks notebooks' | tee -a log.txt
 # It is recommended to run each streaming job on a dedicated cluster.
 for notebook in databricks/notebooks/*.scala; do
 
@@ -124,7 +136,7 @@ for notebook in databricks/notebooks/*.scala; do
           "jar": "dbfs:/mnt/streaming-at-scale/azure-cosmosdb-spark_2.4.0_2.11-1.4.0-uber.jar"
         }
     ],
-    "timeout_seconds": 1200,
+    "timeout_seconds": 3600,
     "notebook_task": {
       "notebook_path": "$notebook_path",
       "base_parameters": {
@@ -147,3 +159,6 @@ JSON
   databricks runs get --run-id "$run_id" | jq -r .run_page_url >>log.txt
 
 done # for each notebook
+
+echo 'removing downloaded .jar'
+rm $cosmosdb_spark_jar
