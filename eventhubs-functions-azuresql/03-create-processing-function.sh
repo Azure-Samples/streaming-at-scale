@@ -28,6 +28,10 @@ echo " .zipped folder: $ZIPFOLDER"
 rm -f $PROC_PACKAGE_PATH
 cd $ZIPFOLDER
 zip -r $CURDIR/$PROC_PACKAGE_PATH . >> log.txt
+cd $CURDIR/$FUNCTION_SRC_PATH
+echo 'cleaning up folder'
+rm -rf bin
+rm -rf obj
 cd $CURDIR
 
 echo 'configuring function app deployment source'

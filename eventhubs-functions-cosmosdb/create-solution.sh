@@ -1,79 +1,117 @@
 #!/bin/bash
 
-set -e
-
-if [ -z $1 ]; then
-    echo "usage: $0 <deployment-name> <steps>"
-    echo "eg: $0 test1"    
-    exit 1
-fi
+set -euo pipefail
 
 on_error() {
     set +e
     echo "There was an error, execution halted" >&2
+    echo "Error at line $1"
     exit 1
 }
 
-trap on_error ERR
+trap 'on_error $LINENO' ERR
 
-export PREFIX=$1
-export RESOURCE_GROUP=$PREFIX
-export LOCATION=eastus
+usage() { 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
+    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
+    echo "    Possibile values:" 1>&2; 
+    echo "      C=COMMON" 1>&2; 
+    echo "      I=INGESTION" 1>&2; 
+    echo "      D=DATABASE" 1>&2; 
+    echo "      P=PROCESSING" 1>&2; 
+    echo "      T=TEST clients" 1>&2; 
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-l: where to create the resources. Default=eastus"
+    exit 1; 
+}
+
+export PREFIX=''
+export LOCATION=''
+export TESTTYPE=''
+export STEPS=''
+
+# Initialize parameters specified from command line
+while getopts ":d:s:t:l:" arg; do
+	case "${arg}" in
+		d)
+			PREFIX=${OPTARG}
+			;;
+		s)
+			STEPS=${OPTARG}
+			;;
+		t)
+			TESTTYPE=${OPTARG}
+			;;
+		l)
+			LOCATION=${OPTARG}
+			;;
+		esac
+done
+shift $((OPTIND-1))
+
+if [[ -z "$PREFIX" ]]; then
+	echo "Enter a name for this deployment."
+	usage
+fi
+
+if [[ -z "$LOCATION" ]]; then
+	export LOCATION="eastus"
+fi
+
+if [[ -z "$TESTTYPE" ]]; then
+	export TESTTYPE="1"
+fi
+
+if [[ -z "$STEPS" ]]; then
+	export STEPS="CIDPT"
+fi
 
 # 10000 messages/sec
-# export EVENTHUB_PARTITIONS=12
-# export EVENTHUB_CAPACITY=12
-# export PROC_FUNCTION=Test0
-# export PROC_FUNCTION_SKU=P2v2
-# export PROC_FUNCTION_WORKERS=12
-# export COSMOSDB_RU=80000
-# export TEST_CLIENTS=20
+if [ "$TESTTYPE" == "10" ]; then
+    export EVENTHUB_PARTITIONS=12
+    export EVENTHUB_CAPACITY=12
+    export PROC_FUNCTION=Test0
+    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_WORKERS=12
+    export COSMOSDB_RU=80000
+    export TEST_CLIENTS=30
+fi
 
 # 5500 messages/sec
-# export EVENTHUB_PARTITIONS=8
-# export EVENTHUB_CAPACITY=8
-# export PROC_FUNCTION=Test0
-# export PROC_FUNCTION_SKU=P1v2
-# export PROC_FUNCTION_WORKERS=8
-# export COSMOSDB_RU=40000
-# export TEST_CLIENTS=10
+if [ "$TESTTYPE" == "5" ]; then
+    export EVENTHUB_PARTITIONS=8
+    export EVENTHUB_CAPACITY=8
+    export PROC_FUNCTION=Test0
+    export PROC_FUNCTION_SKU=P1v2
+    export PROC_FUNCTION_WORKERS=8
+    export COSMOSDB_RU=40000
+    export TEST_CLIENTS=16
+fi
 
 # 1000 messages/sec
-export EVENTHUB_PARTITIONS=2
-export EVENTHUB_CAPACITY=2
-export PROC_FUNCTION=Test0
-export PROC_FUNCTION_SKU=P2v2
-export PROC_FUNCTION_WORKERS=2
-export COSMOSDB_RU=20000
-export TEST_CLIENTS=2
-
-export STEPS=$2
-
-if [ -z $STEPS ]; then  
-    export STEPS="CIDPT"    
+if [ "$TESTTYPE" == "1" ]; then
+    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_CAPACITY=2
+    export PROC_FUNCTION=Test0
+    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_WORKERS=2
+    export COSMOSDB_RU=20000
+    export TEST_CLIENTS=3
 fi
+
+# last checks and variables setup
+if [ -z ${TEST_CLIENTS+x} ]; then
+    usage
+fi
+
+export RESOURCE_GROUP=$PREFIX
 
 # remove log.txt if exists
 rm -f log.txt
 
-echo
-echo "Streaming at Scale: EventHubs + Functions + CosmosDB "
-echo "======================================================"
-echo
+echo "Checking pre-requisites..."
 
-echo "steps to be executed: $STEPS"
-echo
-
-echo "configuration: "
-echo "EventHubs  => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo "Function   => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
-echo "CosmosDB   => RU: $COSMOSDB_RU"
-echo "Locusts    => $TEST_CLIENTS"
-echo
-
-echo "checking prerequisistes..."
-
-HAS_AZ=`command -v az`
+HAS_AZ=$(command -v az)
 if [ -z HAS_AZ ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
@@ -81,66 +119,88 @@ if [ -z HAS_AZ ]; then
     exit 1
 fi
 
-HAS_PY3=`command -v python3`
-if [ -z HAS_PY3 ]; then
-    echo "python3 not found"
-    echo "please install it as it is needed by the script"
+HAS_JQ=$(command -v jq)
+if [ -z HAS_JQ ]; then
+    echo "jq not found"
+    echo "please install it using your package manager, for example, on Ubuntu:"
+    echo "  sudo apt install jq"
+    echo "or as described here:"
+    echo "  https://stedolan.github.io/jq/download/"
     exit 1
 fi
 
-HAS_ZIP=`command -v zip`
+HAS_ZIP=$(command -v zip)
 if [ -z HAS_ZIP ]; then
     echo "zip not found"
-    echo "please install it as it is needed by the script"
+    echo "please install it using your package manager, for example, on Ubuntu:"
+    echo "  sudo apt install zip"
     exit 1
 fi
 
 HAS_DOTNET=`command -v dotnet`
 if [ -z HAS_DOTNET ]; then
-    echo "dotnet not found"
+    echo "dotnet SDK not found"
     echo "please install it as it is needed by the script"
+    echo "https://dotnet.microsoft.com/download"
     exit 1
 fi
 
-echo "deployment started..."
+echo
+echo "Streaming at Scale with Azure Functions and CosmosDB"
+echo "===================================================="
 echo
 
-echo "***** [C] setting up common resources"
+echo "Steps to be executed: $STEPS"
+echo
+
+echo "Configuration: "
+echo ". Resource Group  => $RESOURCE_GROUP"
+echo ". Region          => $LOCATION"
+echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
+echo ". CosmosDB        => RU: $COSMOSDB_RU"
+echo ". Locusts         => $TEST_CLIENTS"
+echo
+
+echo "Deployment started..."
+echo
+
+echo "***** [C] setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
-    RUN=`echo $STEPS | grep C -o`    
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep C -o || true`    
+    if [ ! -z "$RUN" ]; then
         ../_common/01-create-resource-group.sh
         ../_common/02-create-storage-account.sh
     fi
 echo 
 
-echo "***** [I] setting up INGESTION"
+echo "***** [I] Setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"ingest"    
-    export EVENTHUB_NAME=$PREFIX"ingest-"$EVENTHUB_PARTITIONS
+    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
+    export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="cosmos"
 
-    RUN=`echo $STEPS | grep I -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep I -o || true`
+    if [ ! -z "$RUN" ]; then
         ./01-create-event-hub.sh
     fi
 echo
 
-echo "***** [D] setting up DATABASE"
+echo "***** [D] Setting up DATABASE"
 
     export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
     export COSMOSDB_DATABASE_NAME="streaming"
     export COSMOSDB_COLLECTION_NAME="rawdata"
 
-    RUN=`echo $STEPS | grep D -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep D -o || true`
+    if [ ! -z "$RUN" ]; then
         ./02-create-cosmosdb.sh
     fi
 echo
 
-echo "***** [P] setting up PROCESSING"
+echo "***** [P] Setting up PROCESSING"
 
     export PROC_FUNCTION_APP_NAME=$PREFIX"process"
     export PROC_FUNCTION_NAME=StreamingProcessor
@@ -149,21 +209,21 @@ echo "***** [P] setting up PROCESSING"
     export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
     export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
 
-    RUN=`echo $STEPS | grep P -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep P -o || true`
+    if [ ! -z "$RUN" ]; then
         ./03-create-processing-function.sh
         ./04-configure-processing-function-cosmosdb.sh
     fi
 echo
 
-echo "***** [T] starting up TEST clients"
+echo "***** [T] Starting up TEST clients"
 
     export LOCUST_DNS_NAME=$PREFIX"locust"
 
-    RUN=`echo $STEPS | grep T -o`
-    if [ ! -z $RUN ]; then
+    RUN=`echo $STEPS | grep T -o || true`
+    if [ ! -z "$RUN" ]; then
         ./05-run-clients.sh
     fi
 echo
 
-echo "***** done"
+echo "***** Done"
