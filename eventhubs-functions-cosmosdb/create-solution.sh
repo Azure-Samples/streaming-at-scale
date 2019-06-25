@@ -12,16 +12,17 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
-    echo "      M=METRICS reporting" 1>&2; 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-f <function-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=CIDPT"
+    echo "    Possibile values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      D=DATABASE"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-f: function to test. Default=Test0"    
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
 }
@@ -30,9 +31,10 @@ export PREFIX=''
 export LOCATION=''
 export TESTTYPE=''
 export STEPS=''
+export PROC_FUNCTION=''
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:" arg; do
+while getopts ":d:s:t:l:f:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -45,6 +47,9 @@ while getopts ":d:s:t:l:" arg; do
 			;;
 		l)
 			LOCATION=${OPTARG}
+			;;
+        f)
+			PROC_FUNCTION=${OPTARG}
 			;;
 		esac
 done
@@ -63,6 +68,10 @@ if [[ -z "$TESTTYPE" ]]; then
 	export TESTTYPE="1"
 fi
 
+if [[ -z "$PROC_FUNCTION" ]]; then
+	export PROC_FUNCTION="Test0"
+fi
+
 if [[ -z "$STEPS" ]]; then
 	export STEPS="CIDPTM"
 fi
@@ -71,7 +80,6 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=20
     export EVENTHUB_CAPACITY=12
-    export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=20
     export COSMOSDB_RU=120000 # In order to use 120000 RU you need to open a ticket with Cosmos DB 
@@ -82,7 +90,6 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
-    export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=10
     export COSMOSDB_RU=60000
@@ -93,7 +100,6 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
@@ -101,9 +107,20 @@ if [ "$TESTTYPE" == "1" ]; then
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z "${TEST_CLIENTS+x}" ]; then
     usage
 fi
+
+case $PROC_FUNCTION in
+    Test0)
+        ;;
+    Test1)
+        ;;
+    *)
+        echo "PROC_FUNCTION (option '-f') must be set to 'Test0' or 'Test1'"
+        echo "Check documentation on GitHub"
+        usage
+esac
 
 export RESOURCE_GROUP=$PREFIX
 
