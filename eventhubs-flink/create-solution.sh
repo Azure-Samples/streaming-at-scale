@@ -66,7 +66,7 @@ if [[ -z "$STEPS" ]]; then
 	export STEPS="CIPTM"
 fi
 
-export AKS_VM_SIZE=Standard_D2s_v3
+export AKS_VM_SIZE=Standard_D4s_v3
 export AKS_KUBERNETES_VERSION=1.12.8
 
 # 10000 messages/sec
@@ -189,8 +189,9 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
+    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"
     export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
+    export EVENTHUB_NAME_OUT=$PREFIX"out-"$EVENTHUB_PARTITIONS
     export EVENTHUB_CG="flink"
 
     RUN=`echo $STEPS | grep I -o || true`
@@ -203,7 +204,6 @@ echo "***** [P] Setting up PROCESSING"
 
     export AKS_CLUSTER=$PREFIX"aks" 
     export ACR_NAME=$PREFIX"acr" 
-    export AKS_HELM_CHART="flink"
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then

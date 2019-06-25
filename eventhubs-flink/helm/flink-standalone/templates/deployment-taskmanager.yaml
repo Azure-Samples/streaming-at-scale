@@ -8,6 +8,7 @@ spec:
     metadata:
       labels:
         app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
         component: taskmanager
     spec:
       initContainers:
@@ -16,7 +17,7 @@ spec:
         command: ['sh', '-c', 
           'until wget -T2 -O- http://{{ template "fullname" . }}-jobmanager:8081/jobmanager/config ; do echo waiting for jobmanager; sleep 2; done;']
       containers:
-      - name: taskmanager
+      - name: flink
         image: {{ .Values.image }}:{{ .Values.imageTag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         args:
@@ -39,14 +40,14 @@ spec:
             cpu: {{ .Values.flink.num_slots_per_taskmanager }}
             memory: {{ .Values.resources.taskmanager.requests.memory }}
         volumeMounts:
-        - name: {{ template "fullname" . }}-flink-config
+        - name: {{ template "fullname" . }}-config
           mountPath: /etc/flink
         - name: flink-fileshare
           mountPath: /mnt/fileshare
       volumes:
-        - name: {{ template "fullname" . }}-flink-config
+        - name: {{ template "fullname" . }}-config
           configMap:
-            name: {{ template "fullname" . }}-flink-config
+            name: {{ template "fullname" . }}-config
         - name: flink-fileshare
           persistentVolumeClaim:
            claimName: {{ template "fullname" . }}-fileshare-pv-claim

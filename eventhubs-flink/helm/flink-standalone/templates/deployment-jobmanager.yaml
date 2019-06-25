@@ -8,6 +8,7 @@ spec:
     metadata:
       labels:
         app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
         component: jobmanager
     spec:
       serviceAccountName: {{ template "fullname" . }}-service-port-patcher
@@ -18,7 +19,7 @@ spec:
         command: ['sh', '-c', 
           'IFS=,; while true; do echo waiting for zookeeper; for zk in "{{ .Values.flink.zookeeper_address }}"; do echo stats | nc -w2 $zk | grep Mode: && exit; done; sleep 1; done;']
       containers:
-      - name: jobmanager
+      - name: flink
         image: {{ .Values.image }}:{{ .Values.imageTag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         args:
@@ -41,7 +42,7 @@ spec:
         - name: {{ $key }}
           valueFrom:
             secretKeyRef:
-              name: {{ template "fullname" $ }}-flink-secret
+              name: {{ template "fullname" $ }}-secret
               key: {{ $key }}
         {{- end }} 
         livenessProbe:
@@ -58,7 +59,7 @@ spec:
             cpu: {{ .Values.resources.jobmanager.requests.cpu }}
             memory: {{ .Values.resources.jobmanager.requests.memory }}
         volumeMounts:
-        - name: {{ template "fullname" . }}-flink-config
+        - name: {{ template "fullname" . }}-config
           mountPath: /etc/flink
         - name: flink-fileshare
           mountPath: /mnt/fileshare
@@ -68,9 +69,9 @@ spec:
         - {{ .Release.Namespace }}
         - {{ template "fullname" . }}-jobmanager
       volumes:
-        - name: {{ template "fullname" . }}-flink-config
+        - name: {{ template "fullname" . }}-config
           configMap:
-            name: {{ template "fullname" . }}-flink-config
+            name: {{ template "fullname" . }}-config
         - name: flink-fileshare
           persistentVolumeClaim:
            claimName: {{ template "fullname" . }}-fileshare-pv-claim
