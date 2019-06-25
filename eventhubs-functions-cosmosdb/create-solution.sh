@@ -69,12 +69,12 @@ fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export EVENTHUB_PARTITIONS=12
+    export EVENTHUB_PARTITIONS=20
     export EVENTHUB_CAPACITY=12
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
-    export PROC_FUNCTION_WORKERS=12
-    export COSMOSDB_RU=80000
+    export PROC_FUNCTION_WORKERS=20
+    export COSMOSDB_RU=120000
     export TEST_CLIENTS=30
 fi
 
@@ -85,7 +85,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=10
-    export COSMOSDB_RU=50000
+    export COSMOSDB_RU=60000
     export TEST_CLIENTS=16
 fi
 
