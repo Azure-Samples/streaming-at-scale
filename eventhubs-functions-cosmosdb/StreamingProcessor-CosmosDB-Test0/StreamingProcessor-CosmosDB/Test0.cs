@@ -53,12 +53,19 @@ namespace StreamingProcessor
 
             await Task.WhenAll(tasks);
 
+            double totalRUbyBatch = 0;
+            foreach (var t in tasks)
+            {
+                totalRUbyBatch += t.GetAwaiter().GetResult().RequestCharge;
+            }
+
             sw.Stop();
 
             string logMessage = $"[Test0] T:{eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
             if (eventHubData.Length > 0)
             {
                 logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
+                logMessage += Environment.NewLine + $"RU:{totalRUbyBatch}. AVG RU:{(totalRUbyBatch / eventHubData.Length):N3}";                
             }
 
             log.LogInformation(logMessage);
