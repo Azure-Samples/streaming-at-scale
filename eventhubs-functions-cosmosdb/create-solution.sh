@@ -74,7 +74,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=20
-    export COSMOSDB_RU=120000
+    export COSMOSDB_RU=120000 # In order to use 120000 RU you need to open a ticket with Cosmos DB 
     export TEST_CLIENTS=30
 fi
 
