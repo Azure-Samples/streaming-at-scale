@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 echo 'getting event hubs shared access key'
 EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryKey" -o tsv`
 
@@ -22,4 +24,3 @@ az group deployment create \
     --verbose \
     -o tsv >> log.txt
 
-echo 'done creating stream analytics job, check log.txt for any errors'

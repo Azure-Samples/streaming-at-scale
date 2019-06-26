@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 echo 'creating eventhubs namespace'
 echo ". name: $EVENTHUB_NAMESPACE"
 echo ". capacity: $EVENTHUB_CAPACITY"
