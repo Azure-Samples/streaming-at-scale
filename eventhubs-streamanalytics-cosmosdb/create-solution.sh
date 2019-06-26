@@ -12,14 +12,15 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=CIDPT"
+    echo "    Possibile values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      D=DATABASE"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
@@ -63,7 +64,7 @@ if [[ -z "$TESTTYPE" ]]; then
 fi
 
 if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPT"
+	export STEPS="CIDPTM"
 fi
 
 # 10000 messages/sec
@@ -197,6 +198,14 @@ echo "***** [T] Starting up TEST clients"
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z $RUN ]; then
         ./04-run-clients.sh
+    fi
+echo
+
+echo "***** [M] Starting METRICS reporting"
+
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z $RUN ]; then
+        ./05-report-throughput.sh
     fi
 echo
 
