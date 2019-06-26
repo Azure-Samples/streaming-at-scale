@@ -5,7 +5,7 @@ Get the Event Hub connection string created and displayed during the script exec
 From within the `eh-asa-perform` folder run:
 
 ```bash
-dotnet -- -c "<connection string>"
+dotnet run -- -c "<connection string>"
 ```
 
 The application will read from the output eventhub and will measure latency (difference from Enqueued and Processed time) for each batch of recevied messages.

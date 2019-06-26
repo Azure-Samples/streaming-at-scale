@@ -98,7 +98,7 @@ The above settings has been chosen to sustain a 1000 msg/sec stream.
 
 ## Monitor performances
 
-Please use Metrics pane in Stream Analytics, see "Input/Output Events" for throughput and "Watermark Delay" metric to see if the job is keeping up with the input rate.  You can also use Event Hub "Metrics" pane to see if there are any "Throttled Requests" and adjust the Threshold Units accordingly.
+Please use Metrics pane in Stream Analytics, see "Input/Output Events" for throughput and "Watermark Delay" metric to see if the job is keeping up with the input rate.  You can also use Event Hub "Metrics" pane to see if there are any "Throttled Requests" and adjust the Threshold Units accordingly. "Watermark Delay" is one of the key metric that will help you to understand if Stream Analytics is keeping up with the incoming data. If delay is constantly increasing, you need to take a look at the destination to see if it can keep up with the speed or check if you need to increase SU: https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/.
 
 ## Stream Analytics
 
@@ -107,11 +107,11 @@ The deployed Stream Analytics solution doesn't do any analytics or projection, b
 ```sql
 select 
     *, 
-    UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime 
+    UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime
 from 
     inputEventHub partition by PartitionId
 ```
 
 ## Query Data
 
-Data is available in the created Event Hub output. 
+Data is available in the created Event Hub output. You can use the tool available in `./tools/eh-asa-perfmon` to measure the performance in terms of latency between data received and data sent to the output.
