@@ -54,7 +54,7 @@ create_client_locust() {
         --image yorek/locustio --ports 8089 5557 5558 \
         --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY --azure-file-volume-share-name locust --azure-file-volume-mount-path /locust \
         --command-line "locust --slave --master-host=$2 --host https://$EVENTHUB_NAMESPACE.servicebus.windows.net -f simulator.py" \
-        -e EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" COMPLEX_DATA_COUNT="8" \
+        -e EVENTHUB_KEY="$EVENTHUB_KEY" EVENTHUB_NAMESPACE="$EVENTHUB_NAMESPACE" EVENTHUB_NAME="$EVENTHUB_NAME" COMPLEX_DATA_COUNT="23" \
         --cpu 1 --memory 1 \
         -o tsv >> log.txt
 }
