@@ -115,3 +115,11 @@ from
 ## Query Data
 
 Data is available in the created Event Hub output. You can use the tool available in `./tools/eh-asa-perfmon` to measure the performance in terms of latency between data received and data sent to the output.
+
+## Clean up
+
+To remove all the created resource, you can just delete the related resource group
+
+```bash
+az group delete -n <resource-group-name>
+```

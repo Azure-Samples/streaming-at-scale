@@ -152,4 +152,14 @@ You can safely ignore it since it happens just during startup time when EventPro
 
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
 
-    SELECT * FROM c WHERE c.eventData.type = 'CO2'
+```sql
+SELECT * FROM c WHERE c.eventData.type = 'CO2'
+```
+
+## Clean up
+
+To remove all the created resource, you can just delete the related resource group
+
+```bash
+az group delete -n <resource-group-name>
+```

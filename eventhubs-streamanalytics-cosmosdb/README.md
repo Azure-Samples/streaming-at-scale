@@ -137,3 +137,11 @@ Data is available in the created Cosmos DB database. You can query it from the p
 ```sql
     SELECT * FROM c WHERE c.eventData.type = 'CO2'
 ```
+
+## Clean up
+
+To remove all the created resource, you can just delete the related resource group
+
+```bash
+az group delete -n <resource-group-name>
+```
