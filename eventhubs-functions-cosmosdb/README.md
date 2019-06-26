@@ -83,7 +83,7 @@ Streamed data simulates an IoT device sending the following JSON data:
         [...]
     },
     "value": 49.02278128887753,
-    "deviceId": "contoso://device-id-1554",
+    "deviceId": "contoso://device-id-154",
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
@@ -123,11 +123,13 @@ As mentioned in the article [Serverless Streaming At Scale with Cosmos DB](https
 
 ## Cosmos DB
 
-As you'll notice when using funciont "Test1", Cosmos DB reports something around 8 RU used for each written document. This is due to the fact that 1Kb document is ingested, but Azure Functions add some additional data, making the document a little bit bigger than 1Kb.
+As you'll notice when using funciont "Test1", Cosmos DB reports something a bit more than 8 RU used for each written document. This is due to the fact that 1Kb document is ingested, but Azure Functions add some additional data, making the document a little bit bigger than 1Kb.
 
 Cosmos DB index policy has been set up in order to index only the meaninful properties to avoid to waste RU in properties that will never be searched for and thus indexing won't help in any way. Keeping the indexing enabled for all properties, would raise the RU usage, per document, to 19 (100% more!). On the other hand, removing indexing from all properties will bring down RU usage to 6.
 
 Both the decision were taken as they reflect common real-world scenarios; but if you want to play with document size, you can chance the setting `COMPLEX_DATA_COUNT` in the `run-clients.sh` script. That values sets how many `moreData` properties will be created in the generated sample document, and therefore how big the document will be.
+
+Having said that, you may be wondering why, for 5K msgs/sec, up to 60K RU are needed or why for 10K msgs/sec up to 120K RU are needed. If you do that math, in fact, for 5K msgs/sec, you can find that 5000 * 8.5 = 42500 RU should be needed for the 5K msgs/sec scenario. If you analyze how many partitions are created behind the scenes (you can do that via the "Metrics" pane in Cosmos DB Azure Portal page) you'll that some partitions are more used than others and they quickly hit the alloted RU capacity. Documents are generated with a random `deviceId` that goes from `001` to `999` using a uniform distribution. Depending on how Cosmos DB decided to group partition keys into partitions and how the document are generated, received and processed, one (or more than one) can be used more than others. So some room for movement is needed, and thus the need of having a bit more of allocated RU to make sure performance are never throttled.
 
 ## Exceptions
 
