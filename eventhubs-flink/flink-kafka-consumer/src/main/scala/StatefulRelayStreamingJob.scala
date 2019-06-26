@@ -1,6 +1,5 @@
 import java.util.Properties
 
-import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.formats.json.JsonNodeDeserializationSchema
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode
@@ -8,8 +7,6 @@ import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.apache.flink.util.Collector
 import org.slf4j.LoggerFactory
-
-import scala.collection.JavaConverters._
 
 /**
   * A Flink Streaming Job that computes summary statistics on incoming events.
@@ -53,7 +50,7 @@ object StatefulRelayStreamingJob {
       .keyBy(e => e.get("deviceId").textValue)
       // Apply a function on each pair of events (sliding window of 2 events)
       .countWindow(size = 2, slide = 1)
-      .apply((key, window, input, out: Collector[ObjectNode]) => {
+      .apply((_, _, input, out: Collector[ObjectNode]) => {
         val it = input.iterator
         if (it.hasNext) {
           var e1 = it.next()
