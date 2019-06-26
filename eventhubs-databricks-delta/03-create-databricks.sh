@@ -3,6 +3,18 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
+echo 'creating ADLS Gen2 storage account'
+echo ". name: $AZURE_STORAGE_ACCOUNT_GEN2"
+az group deployment create \
+  --name $ADB_WORKSPACE \
+  --resource-group $RESOURCE_GROUP \
+  --template-file arm/adlsgen2.arm.json \
+  --parameters \
+  storageAccountName=$AZURE_STORAGE_ACCOUNT_GEN2 \
+  -o tsv >>log.txt
+
+STORAGE_GEN2_KEY=$(az storage account keys list -n $AZURE_STORAGE_ACCOUNT_GEN2 -g $RESOURCE_GROUP --query '[?keyName==`key1`].value' -o tsv)
+
 echo 'getting EH primary connection string'
 EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
 
@@ -14,7 +26,6 @@ az group deployment create \
   --template-file arm/databricks.arm.json \
   --parameters \
   workspaceName=$ADB_WORKSPACE \
-  location=$LOCATION \
   tier=standard \
   -o tsv >>log.txt
 
@@ -85,6 +96,7 @@ fi
 
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
+databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$STORAGE_GEN2_KEY"
 
 cluster_def=$(
   cat <<JSON
@@ -127,7 +139,8 @@ for notebook in databricks/notebooks/*.scala; do
       "notebook_path": "$notebook_path",
       "base_parameters": {
         "eventhub-consumergroup": "$EVENTHUB_CG",
-        "eventhub-maxEventsPerTrigger": "$DATABRICKS_MAXEVENTSPERTRIGGER"
+        "eventhub-maxEventsPerTrigger": "$DATABRICKS_MAXEVENTSPERTRIGGER",
+        "storage-account": "$AZURE_STORAGE_ACCOUNT_GEN2"
       }
     }
   }

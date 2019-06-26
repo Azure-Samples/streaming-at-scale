@@ -163,9 +163,10 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
+    export AZURE_STORAGE_ACCOUNT_GEN2=$PREFIX"storagegen2"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         ../_common/01-create-resource-group.sh
         ../_common/02-create-storage-account.sh
     fi
@@ -178,7 +179,7 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CG="delta"
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         ./01-create-event-hub.sh
     fi
 echo
@@ -189,7 +190,7 @@ echo "***** [P] Setting up PROCESSING"
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
     
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         ./03-create-databricks.sh
     fi
 echo
@@ -197,7 +198,7 @@ echo
 echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         ./04-run-clients.sh
     fi
 echo
@@ -205,7 +206,7 @@ echo
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         ./05-report-throughput.sh
     fi
 echo

@@ -1,6 +1,17 @@
 // Databricks notebook source
 dbutils.widgets.text("eventhub-consumergroup", "delta", "Event Hubs consumer group")
 dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
+dbutils.widgets.text("storage-account", "ADLSGEN2ACCOUNTNAME", "ADLS Gen2 storage account name")
+
+// COMMAND ----------
+
+val gen2account = dbutils.widgets.get("storage-account")
+spark.conf.set(
+  s"fs.azure.account.key.$gen2account.dfs.core.windows.net",
+  dbutils.secrets.get(scope = "MAIN", key = "storage-account-key"))
+spark.conf.set("fs.azure.createRemoteFileSystemDuringInitialization", "true")
+dbutils.fs.ls(s"abfss://databricks@$gen2account.dfs.core.windows.net/")
+spark.conf.set("fs.azure.createRemoteFileSystemDuringInitialization", "false")
 
 // COMMAND ----------
 
@@ -38,6 +49,7 @@ jsons.writeStream
   .outputMode("append")
   .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
   .format("delta")
+  .option("location", s"abfss://databricks@$gen2account.dfs.core.windows.net/")
   .table("stream_scale_events")
 
 // COMMAND ----------
