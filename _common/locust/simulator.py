@@ -39,6 +39,8 @@ class DeviceSimulator(TaskSet):
     }
 
     endpoint = "/" + EVENT_HUB['name'] + "/messages?timeout=60&api-version=2014-01"
+    
+    ccd = int(os.environ.get('COMPLEX_DATA_COUNT') or "23")
 
     def __sendData(self, payloadType):
         eventId = str(uuid.uuid4())
@@ -52,32 +54,12 @@ class DeviceSimulator(TaskSet):
             'deviceId': 'contoso://device-id-{0}'.format(deviceIndex),
             'createdAt': createdAt,
             'value': random.uniform(10,100),
-            'complexData': {            
-                'moreData0': random.uniform(10,100), 
-                'moreData1': random.uniform(10,100),
-                'moreData2': random.uniform(10,100),
-                'moreData3': random.uniform(10,100),
-                'moreData4': random.uniform(10,100),
-                'moreData5': random.uniform(10,100),
-                'moreData6': random.uniform(10,100),
-                'moreData7': random.uniform(10,100),
-                'moreData8': random.uniform(10,100),            
-                'moreData9': random.uniform(10,100),
-                'moreData10': random.uniform(10,100),
-                'moreData11': random.uniform(10,100),
-                'moreData12': random.uniform(10,100),
-                'moreData13': random.uniform(10,100),
-                'moreData14': random.uniform(10,100),
-                'moreData15': random.uniform(10,100),
-                'moreData16': random.uniform(10,100),
-                'moreData17': random.uniform(10,100),
-                'moreData18': random.uniform(10,100),
-                'moreData19': random.uniform(10,100),
-                'moreData20': random.uniform(10,100),
-                'moreData21': random.uniform(10,100),
-                'moreData22': random.uniform(10,100)
+            'complexData': {                           
             }
         }
+
+        for cd in range(self.ccd):
+            jsonBody['complexData']["moreData{}".format(cd)] = random.uniform(10,100)
 
         headers = dict(self.headers)
         brokerProperties = { 'PartitionKey': str(deviceIndex) }
