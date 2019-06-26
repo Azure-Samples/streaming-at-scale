@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 echo "retrieving storage connection string"
 AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP -o tsv)
 
@@ -22,11 +24,11 @@ echo "deploying azure sql"
 echo ". server: $SQL_SERVER_NAME"
 echo ". database: $SQL_DATABASE_NAME"
 
-SERVER_EXIST=$(az sql server list -g $RESOURCE_GROUP -o tsv --query "[].name" | grep $SQL_SERVER_NAME)
+SERVER_EXIST=$(az sql server list -g $RESOURCE_GROUP -o tsv --query "[].name" | grep $SQL_SERVER_NAME || true)
 if [ "${SERVER_EXIST}" == "$SQL_SERVER_NAME" ]; then
     echo "server already exits: $SERVER_EXIST"
     echo "checking if database already exists too"
-    DB_EXISTS=$(az sql db list -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -o tsv --query "[].name" | grep $SQL_DATABASE_NAME)
+    DB_EXISTS=$(az sql db list -g $RESOURCE_GROUP -s $SQL_SERVER_NAME -o tsv --query "[].name" | grep $SQL_DATABASE_NAME || true)
     if [ "${DB_EXISTS}" == "$SQL_DATABASE_NAME" ]; then
         echo "database already exits: $SQL_DATABASE_NAME"
         echo "deleting existing database"
