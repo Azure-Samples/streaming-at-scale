@@ -1,6 +1,6 @@
 # Streaming at Scale with Azure Event Hubs and Stream Analytics
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data. This is the best way to analyze pure streaming performances of Stream Analytics; no aggregation is done and data is passed as fast as possibile from the input to the output. Data is augmented by adding additional fields.
+This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data. This is done to analyze pure streaming performances of Stream Analytics; no aggregation is done and data is passed as fast as possibile from the input to the output. Data is augmented by adding additional fields.
 
 The provided scripts will an end-to-end solution complete with load test client.  
 
@@ -102,7 +102,7 @@ Please use Metrics pane in Stream Analytics, see "Input/Output Events" for throu
 
 ## Stream Analytics
 
-The deployed Stream Analytics solution doesn't do any analytics or projection, but it just inject an additional field using a simple Javascript UDF:
+Note that the solution configurations have been verified with compatibility level 1.2. The deployed Stream Analytics solution doesn't do any analytics or projection, but it just inject an additional field using a simple Javascript UDF:
 
 ```sql
 select 
