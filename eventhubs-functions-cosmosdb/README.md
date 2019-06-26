@@ -6,6 +6,8 @@ The provided scripts will an end-to-end solution complete with load test client.
 
 [Serverless Streaming At Scale with Cosmos DB](https://medium.com/@mauridb/serverless-streaming-at-scale-with-cosmos-db-e0e26cacd27d)
 
+The sample has been updated from when the article (and also Cosmos DB is constantly improved) was written so the values you'll measure may be a little different than the one documented in the article. Still the concepts explanied are still valid and valuable.
+
 ## Running the Scripts
 
 Please note that the scripts have been tested on Windows 10 WSL/Ubuntu and macOS X, so make sure to use one of these two environment to run the scripts.
@@ -13,10 +15,9 @@ Please note that the scripts have been tested on Windows 10 WSL/Ubuntu and macOS
 The following tools/languages are also needed:
 
 - [AZ CLI](https://dotnet.microsoft.com/download/linux-package-manager/ubuntu16-04/sdk-current)
-- [Python 3](http://ubuntuhandbook.org/index.php/2017/07/install-python-3-6-1-in-ubuntu-16-04-lts/)
 - [Dotnet Core](https://dotnet.microsoft.com/download/linux-package-manager/ubuntu16-04/sdk-current)
 - [Zip](https://askubuntu.com/questions/660846/how-to-zip-and-unzip-a-directory-and-its-files-in-linux)
-
+- [jq](https://stedolan.github.io/jq/download/)
 
 ## Setup Solution
 
@@ -47,19 +48,46 @@ to have an overview of all the supported arguments just run
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./generate-solution-name.sh
+    ./common/generate-solution-name.sh
 
 ## Created resources
 
 The script will create the following resources:
 
-* **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
-* **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-* **Azure Function**: to process data incoming from Event Hubs as a stream
-* **Application Insight**: to monitor Azure Function performances
-* **Cosmos DB** Server, Database and Collection: to store and serve processed data
+- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+- **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
+- **Azure Function**: to process data incoming from Event Hubs as a stream
+- **Application Insight**: to monitor Azure Function performances
+- **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
 The Azure Function is created using .Net Core 2.1, so it can be compiled on any supported platform. I only tested compilation on Windows 10, though.
+
+## Streamed Data
+
+Streamed data simulates an IoT device sending the following JSON data:
+
+```json
+{
+    "eventId": "b81d241f-5187-40b0-ab2a-940faf9757c0",
+    "complexData": {
+        "moreData0": 57.739726013343247,
+        "moreData1": 52.230732688620829,
+        "moreData2": 57.497518587807189,
+        "moreData3": 81.32211656749469,
+        "moreData4": 54.412361539409427,
+        "moreData5": 75.36416309399911,
+        "moreData6": 71.53407865773488,
+        "moreData7": 45.34076957651598,
+        "moreData8": 51.3068118685458,
+        "moreData9": 44.44672606436184,
+        [...]
+    },
+    "value": 49.02278128887753,
+    "deviceId": "contoso://device-id-1554",
+    "type": "CO2",
+    "createdAt": "2019-05-16T17:16:40.000003Z"
+}
+```
 
 ## Solution customization
 
@@ -74,19 +102,32 @@ If you want to change some setting of the solution, like number of load test cli
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 
-
 ## Monitor performances
 
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching"
+In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
+
+Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working corretly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
+
+![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 
 ## Azure Functions
 
 The deployed Azure Function solution contains two functions
 
-* Test0
-* Test1
+- Test0
+- Test1
 
-The first one uses Cosmos DB binding for Azure Function, while the second one uses the SDK. Only one solution will be activated during deployment. By default the activated one is "Test1"
+The first one uses Cosmos DB binding for Azure Function, while the second one uses the SDK. Only one solution will be activated during deployment. By default the activated one is "Test0"
+
+As mentioned in the article [Serverless Streaming At Scale with Cosmos DB](https://medium.com/streaming-at-scale-in-azure/serverless-streaming-at-scale-with-cosmos-db-e0e26cacd27d) with Azure Functions 2.0 there is no performance difference between the two options. Usage of SDK is recommended only when you need to get more information out of Cosmos DB response, for example consumed RU, that you can't get using the native binding.
+
+## Cosmos DB
+
+As you'll notice when using funciont "Test1", Cosmos DB reports something around 8 RU used for each written document. This is due to the fact that 1Kb document is ingested, but Azure Functions add some additional data, making the document a little bit bigger than 1Kb.
+
+Cosmos DB index policy has been set up in order to index only the meaninful properties to avoid to waste RU in properties that will never be searched for and thus indexing won't help in any way. Keeping the indexing enabled for all properties, would raise the RU usage, per document, to 19 (100% more!). On the other hand, removing indexing from all properties will bring down RU usage to 6.
+
+Both the decision were taken as they reflect common real-world scenarios; but if you want to play with document size, you can chance the setting `COMPLEX_DATA_COUNT` in the `run-clients.sh` script. That values sets how many `moreData` properties will be created in the generated sample document, and therefore how big the document will be.
 
 ## Exceptions
 
