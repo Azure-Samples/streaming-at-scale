@@ -5,7 +5,7 @@
             "batchCheckpointFrequency": 1,
             "eventProcessorOptions": {
                 "maxBatchSize": 64,
-                "prefetchCount": 64
+                "prefetchCount": 256
             }
         }
     }
