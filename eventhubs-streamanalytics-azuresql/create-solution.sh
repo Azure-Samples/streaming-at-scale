@@ -12,7 +12,7 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=CIDPT"
     echo "    Possibile values:"
     echo "      C=COMMON"
