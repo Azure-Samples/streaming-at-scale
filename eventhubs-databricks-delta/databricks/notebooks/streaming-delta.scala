@@ -49,7 +49,7 @@ jsons.writeStream
   .outputMode("append")
   .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
   .format("delta")
-  .option("location", s"abfss://databricks@$gen2account.dfs.core.windows.net/")
+  .option("path", s"abfss://databricks@$gen2account.dfs.core.windows.net/stream_scale_events")
   .table("stream_scale_events")
 
 // COMMAND ----------
