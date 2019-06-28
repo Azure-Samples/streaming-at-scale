@@ -66,6 +66,7 @@ namespace StreamingProcessor
             }
             catch (Exception ex)
             {
+                // Retry and/or manage failure, for simplicity just logging the error now
                 log.LogError($"{ex} - {ex.Message}");
             }
 
