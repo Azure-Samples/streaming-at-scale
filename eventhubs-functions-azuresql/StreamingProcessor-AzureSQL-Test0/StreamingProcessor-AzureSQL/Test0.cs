@@ -24,7 +24,10 @@ namespace StreamingProcessor
             PartitionContext partitionContext, 
             ILogger log)
         {
-            var payload = new DataTable("PayloadType");
+            var procedureName = Environment.GetEnvironmentVariable("AzureSQLProcedureName");
+            var payloadName = "payloadType" + (procedureName.EndsWith("_mo") ? "_mo" : "");
+
+            var payload = new DataTable(payloadName);
             payload.Columns.Add("EventId", typeof(string));
             payload.Columns.Add("ComplexData", typeof(string));
             payload.Columns.Add("Value", typeof(decimal));
@@ -36,9 +39,7 @@ namespace StreamingProcessor
             payload.Columns.Add("PartitionId", typeof(int));
 
             Stopwatch sw = new Stopwatch();
-            sw.Start();
-
-            var procedureName = Environment.GetEnvironmentVariable("AzureSQLProcedureName");
+            sw.Start();            
 
             foreach (var data in eventHubData)
             {

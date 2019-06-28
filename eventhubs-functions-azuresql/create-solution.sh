@@ -22,7 +22,7 @@ usage() {
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-k: test rowstore or columnstore. Default=rowstore"
+    echo "-k: test rowstore, columnstore, rowstore-inmemory, columnstore-inmemory. Default=rowstore"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
 }
@@ -160,11 +160,17 @@ case $SQL_TABLE_KIND in
     rowstore)
         TABLE_SUFFIX=""
         ;;
+    rowstore-inmemory)
+        TABLE_SUFFIX="_mo"
+        ;;
     columnstore)
         TABLE_SUFFIX="_cs"
         ;;
+    columnstore-inmemory)
+        TABLE_SUFFIX="_cs_mo"
+        ;;
     *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore' or 'columnstore'"
+        echo "SQL_TABLE_KIND must be set to 'rowstore', 'rowstore-inmemory', 'columnstore' or 'columnstore-inmemory'"
         echo "please install it as it is needed by the script"
         exit 1
         ;;
