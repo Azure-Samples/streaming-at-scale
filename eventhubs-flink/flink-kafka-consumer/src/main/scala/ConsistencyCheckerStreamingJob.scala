@@ -128,7 +128,7 @@ object ConsistencyCheckerStreamingJob {
         cache.put(key, true)
       }
       else {
-        LOG.info(s"Removing duplicate event $value")
+        LOG.info(s"Removing duplicate event $event")
       }
     }
   }
