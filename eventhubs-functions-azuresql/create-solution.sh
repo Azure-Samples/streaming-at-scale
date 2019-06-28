@@ -12,14 +12,15 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=CIDPT"
+    echo "    Possibile values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      D=DATABASE"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
     echo "-k: test rowstore or columnstore. Default=rowstore"
     echo "-l: where to create the resources. Default=eastus"
@@ -72,7 +73,7 @@ if [[ -z "$SQL_TABLE_KIND" ]]; then
 fi
 
 if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPT"
+	export STEPS="CIDPTM"
 fi
 
 # 10000 messages/sec
@@ -91,7 +92,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=8
     export PROC_FUNCTION=Test0
-    export PROC_FUNCTION_SKU=P1v2
+    export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=8
     export SQL_SKU=P4
     export TEST_CLIENTS=16
@@ -247,6 +248,14 @@ echo "***** [T] Starting up TEST clients"
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
         ./05-run-clients.sh
+    fi
+echo
+
+echo "***** [M] Starting METRICS reporting"
+
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z $RUN ]; then
+        ./06-report-throughput.sh
     fi
 echo
 
