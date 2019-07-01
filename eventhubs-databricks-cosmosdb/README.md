@@ -18,7 +18,7 @@ The following tools/languages are also needed:
   - Install: `sudo apt install azure-cli`
 - [jq](https://stedolan.github.io/jq/download/)
   - Install: `sudo apt install jq`
-- [python]
+- [python](https://www.python.org/)
   - Install: `sudo apt install python python-pip`
 - [databricks-cli](https://github.com/databricks/databricks-cli)
   - Install: `pip install --upgrade databricks-cli`
@@ -118,7 +118,13 @@ TDB
 
 ## Cosmos DB
 
-TDB
+At present time the Cosmos DB Spark Connector *does not* suport `timestamp` data type. If you try to send to Cosmos DB a dataframe containing a timestamp, in fact, you'll get the followin error:
+
+```
+java.lang.ClassCastException: java.lang.Long cannot be cast to java.sql.Timestamp
+```
+
+As a workaround the `timestamp` columns are sent to Cosmos DB as Strings.
 
 ## Query Data
 

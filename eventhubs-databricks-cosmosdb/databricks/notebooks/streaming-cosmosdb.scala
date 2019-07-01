@@ -36,6 +36,11 @@ val jsons = eventhubs
 
 // COMMAND ----------
 
+val transformed = jsons
+  .withColumn("processedAt", current_timestamp.cast(StringType))
+
+// COMMAND ----------
+
 // Configure the connection to your collection in Cosmos DB.
 // Please refer to https://github.com/Azure/azure-cosmosdb-spark/wiki/Configuration-references
 // for the description of the available configurations.
@@ -50,7 +55,7 @@ val cosmosDbConfig = Map(
 
 import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
 
-val cosmosdb = jsons
+val cosmosdb = transformed
   .writeStream
   .format(classOf[CosmosDBSinkProvider].getName)
   .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
