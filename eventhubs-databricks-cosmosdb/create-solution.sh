@@ -69,12 +69,12 @@ fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export EVENTHUB_PARTITIONS=12
+    export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
     export COSMOSDB_RU=80000
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=12
+    export DATABRICKS_WORKERS=16
     export DATABRICKS_MAXEVENTSPERTRIGGER=100000
 fi
 
@@ -85,7 +85,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export COSMOSDB_RU=40000
     export TEST_CLIENTS=16
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=6
+    export DATABRICKS_WORKERS=8
     export DATABRICKS_MAXEVENTSPERTRIGGER=50000
 fi
 
