@@ -44,8 +44,13 @@ val jsons = eventhubs
 
 // COMMAND ----------
 
+val transformed = jsons
+  .withColumn("processedAt", current_timestamp)
+
+// COMMAND ----------
+
 // You can also use a path instead of a table, see https://docs.azuredatabricks.net/delta/delta-streaming.html#append-mode
-jsons.writeStream
+transformed.writeStream
   .outputMode("append")
   .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
   .format("delta")
