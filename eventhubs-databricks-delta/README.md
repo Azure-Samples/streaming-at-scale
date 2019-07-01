@@ -122,7 +122,24 @@ TDB
 
 ## Query Data
 
-TDB
+From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
+
+```scala
+val gen2account = "<created-adsl2-storage-account>"
+spark.conf.set(s"fs.azure.account.key.$gen2account.dfs.core.windows.net", "<created-adsl2-storage-key>")
+dbutils.fs.ls(s"abfss://databricks@$gen2account.dfs.core.windows.net/")
+```
+
+and the you can query the table using Spark SQL for example:
+
+```
+%sql
+SELECT * FROM delta.`abfss://databricks@<created-adsl2-storage-account>.dfs.core.windows.net/stream_scale_events` LIMIT 1000
+```
+
+More info here:
+
+[Delta Lake Quickstart - Read a Table](https://docs.azuredatabricks.net/delta/quick-start.html#read-a-table)
 
 ## Clean up
 
