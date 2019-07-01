@@ -24,8 +24,8 @@ echo 'creating Key Vault to store Databricks Personal Access Token (PAT)'
 az keyvault create -g $RESOURCE_GROUP -n $ADB_TOKEN_KEYVAULT -o tsv >>log.txt
 
 databricks_login_url=$(jq -r '"https://" + .location + ".azuredatabricks.net/aad/auth?has=&Workspace=" + .id + "&WorkspaceResourceGroupUri="+ .properties.managedResourceGroupId' <<<"$databricks_metainfo")
-echo 'Please manually create a Databricks PAT token and enter it here to be kept in Key Vault. '
-echo -n 'Navigate to $databricks_login_url, click the person icon in the top right corner, click User Settings, and create a PAT token. Paste your PAT token here and press Enter to continue: '
+echo "Please manually create a Databricks PAT token and enter it here to be kept in Key Vault. "
+echo -n "Navigate to $databricks_login_url, click the person icon in the top right corner, click User Settings, and create a PAT token. Paste your PAT token here and press Enter to continue: "
 read pat_token
 
 databricks_token_secret_name="DATABRICKS-TOKEN"
@@ -45,12 +45,11 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "azuresql-pass" --string-value "$SQL_ADMIN_PASS"
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 
-# TODO: MAKE CLUSTER DEFINITION CONFIGURABLE PER 1K, 5K, 10K MESSAGES
 cluster_def=$(
     cat <<JSON
 {
     "spark_version": "5.4.x-scala2.11",
-    "node_type_id": "Standard_DS3_v2",
+    "node_type_id": "$DB_VM",
     "num_workers": $EVENTHUB_PARTITIONS,
     "spark_env_vars": {
         "PYSPARK_PYTHON": "/databricks/python3/bin/python3"

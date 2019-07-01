@@ -30,22 +30,11 @@ val schema = StructType(
 
 // COMMAND ----------
 
-import java.time.Instant
-import java.sql.Timestamp
-
-def getCurrentTime (): Timestamp = {
-  return new Timestamp(Instant.now().toEpochMilli())
-}
-
-val getCurrentTimeUDF = udf(() => getCurrentTime())
-
-// COMMAND ----------
-
 val dataToWrite = reader
   .select(from_json(decode($"body", "UTF-8"), schema).alias("data"), $"enqueuedTime")  
   .select("enqueuedTime", "data.*")
   .withColumn("createdAt", $"createdAt".cast(TimestampType))
-  .withColumn("processedAt", getCurrentTimeUDF())
+  .withColumn("processedAt", current_timestamp())
 
 // COMMAND ----------
 

@@ -73,29 +73,29 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    # TODO: add proper variables here for databricks 
     export SQL_SKU=P4
     export SQL_TABLE_KIND="rowstore" # or "columnstore"
+    export DB_VM="Standard_DS3_v2"
     export TEST_CLIENTS=30
 fi
 
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export EVENTHUB_PARTITIONS=8
+    export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=6
-    # TODO: add proper variables here for databricks 
-    export SQL_SKU=P2
+    export SQL_SKU=P3
     export SQL_TABLE_KIND="rowstore" # or "columnstore"
+    export DB_VM="Standard_DS3_v2"
     export TEST_CLIENTS=16
 fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_PARTITIONS=3
     export EVENTHUB_CAPACITY=2
-    # TODO: add proper variables here for databricks 
-    export SQL_SKU=P1
+    export SQL_SKU=P2
     export SQL_TABLE_KIND="rowstore" # or "columnstore"
+    export DB_VM="Standard_DS3_v2"
     export TEST_CLIENTS=3 
 fi
 
@@ -159,7 +159,8 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". Databrikcs      => TODO: PLEASE FIX ME!"
+# For the best performance, Databricks workers should be the same number as Evenhubs partitions 
+echo ". Databrikcs      => SKU: $DB_VM, Workers: $EVENTHUB_PARTITIONS" 
 echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
@@ -195,7 +196,7 @@ echo
 
 echo "***** [D] Setting up DATABASE"
 
-    export SQL_SERVER_NAME=$PREFIX"sql" 
+    export SQL_SERVER_NAME=$PREFIX"sql"
     export SQL_DATABASE_NAME="streaming"  
     export SQL_ADMIN_PASS="Strong_Passw0rd!"  
 
