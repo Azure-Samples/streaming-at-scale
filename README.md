@@ -17,7 +17,7 @@ Here's also a list of scenarios where a Streaming solution fits nicely
 - [CQRS](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/cqrs)
 - [Microservices](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/microservices)
 - [Big Data](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/big-data)
-- Near-Real Time Operational Analytics
+- [Near-Real Time Operational Analytics](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/get-started-with-columnstore-for-real-time-operational-analytics?view=sql-server-2017)
 
 A good document the describes the Stream *Technologies* available on Azure is the following one:
 
@@ -27,86 +27,138 @@ The goal of this repository is to showcase all the possible common architectural
 
 ## Running the samples
 
-All samples uses AZ CLI and Bash scripts. Make sure you have AZ CLI installed:
+Please note that the scripts have been tested on [Ubuntu 18 LTS](http://releases.ubuntu.com/18.04/), so make sure to use that environment to run the scripts. You can run it using Docker, WSL or a VM:
 
-https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest 
+- [Ubuntu Docker Image](https://hub.docker.com/_/ubuntu/)
+- [Windows 10 WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+- [WSL Ubuntu 18.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab)
+- [Ubuntu 18.04 LTS Azure VM](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/Canonical.UbuntuServer1804LTS)
 
-If you're running on Windows, it is suggested to run script from WSL
+Just do a `git clone` of the repo and you'll be good to go.
 
-https://docs.microsoft.com/en-us/windows/wsl/install-win10
+Each sample may have additional requirements: they will be listed in the sample's README.
 
-although you can also run them from any Bash environment. Just keep in mind that script have been tested on Ubuntu on WSL and OS X only.
+## Streamed Data
 
-In order to clone the repository you'll also need Git:
+Streamed data simulates an IoT device sending the following JSON data:
 
-https://git-scm.com/downloads
-
-The Git For Windows version comes with a Bash too
-
-https://gitforwindows.org/
-
-Some samples may have more specific needs. In that case the required software will be mentioned in sample's readme.
+```json
+{
+    "eventId": "b81d241f-5187-40b0-ab2a-940faf9757c0",
+    "complexData": {
+        "moreData0": 57.739726013343247,
+        "moreData1": 52.230732688620829,
+        "moreData2": 57.497518587807189,
+        "moreData3": 81.32211656749469,
+        "moreData4": 54.412361539409427,
+        "moreData5": 75.36416309399911,
+        "moreData6": 71.53407865773488,
+        "moreData7": 45.34076957651598,
+        "moreData8": 51.3068118685458,
+        "moreData9": 44.44672606436184,
+        [...]
+    },
+    "value": 49.02278128887753,
+    "deviceId": "contoso://device-id-154",
+    "type": "CO2",
+    "createdAt": "2019-05-16T17:16:40.000003Z"
+}
+```
 
 ## Available solutions
 
 At present time the available solutions are
 
-[Event Hubs Capture Sample](eventhubs-capture)
+### [Event Hubs Capture Sample](eventhubs-capture)
 
 Implement stream processing architecture using:
+
 - Event Hubs (Ingest)
 - Event Hubs Capture (Store)
 - Azure Blob Store (Data Lake)
 - Apache Drill (Query/Serve)
 
-[Event Hubs + Azure Functions + Cosmos DB](eventhubs-functions-cosmosdb)
+### [Event Hubs + Azure Databricks + Azure SQL](eventhubs-databricks-azuresql)
 
 Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- Azure SQL (Serve)
+
+### [Event Hubs + Azure Databricks + Cosmos DB](eventhubs-databricks-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- Cosmos DB (Serve)
+
+### [Event Hubs + Azure Databricks + Delta](eventhubs-databricks-delta)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- [Delta Tables](https://delta.io/) (Serve)
+
+### [Event Hubs + Azure Functions + Azure SQL](eventhubs-functions-azuresql)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Azure Functions (Stream Process)
+- Azure SQL (Serve)
+
+### [Event Hubs + Azure Functions + Cosmos DB](eventhubs-functions-cosmosdb)
+
+Implement a stream processing architecture using:
+
 - Event Hubs (Ingest / Immutable Log)
 - Azure Functions (Stream Process)
 - Cosmos DB (Serve)
 
-[Event Hubs + Stream Analytics + Cosmos DB](eventhubs-streamanalytics-cosmosdb)
+### [Event Hubs + Stream Analytics + Cosmos DB](eventhubs-streamanalytics-cosmosdb)
 
 Implement a stream processing architecture using:
+
 - Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Cosmos DB (Serve)
 
-[Event Hubs + Stream Analytics + Azure SQL](eventhubs-streamanalytics-azuresql)
+### [Event Hubs + Stream Analytics + Azure SQL](eventhubs-streamanalytics-azuresql)
 
 Implement a stream processing architecture using:
+
 - Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Azure SQL (Serve)
 
-[Event Hubs + Stream Analytics + Event Hubs](eventhubs-streamanalytics-eventhubs)
+### [Event Hubs + Stream Analytics + Event Hubs](eventhubs-streamanalytics-eventhubs)
 
 Implement a stream processing architecture using:
+
 - Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
 
 ## Roadmap
 
-The following technologies are planned to be used in the end-to-end sample solution
+The following technologies could also be used in the end-to-end sample solution. If you want to contribute, feel free to do so, we'll be more than happy to get some help!
 
 ### Ingestion
 
-- IoT Hub 
+- IoT Hub
 - EventHub Kafka
 
 ### Stream Processing
 
-- Databricks Spark Structured Streaming
 - Azure Data Explorer
 
 ### Batch Processing
 
-- EventHubs Capture
 - Databricks Spark
 - Azure Data Explorer
-- Open Source solutions (like Apache Drill)
 
 ### Serving Layer
 
