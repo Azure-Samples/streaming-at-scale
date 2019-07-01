@@ -32,7 +32,7 @@ val schema = StructType(
   StructField("createdAt", StringType) :: Nil)
 val jsons = eventhubs
       .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
-      .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey") 
+      .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey", $"enqueuedTime".cast(StringType).as("enqueuedAt")) 
 
 // COMMAND ----------
 
