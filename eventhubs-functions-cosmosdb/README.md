@@ -1,3 +1,21 @@
+---
+topic: sample
+languages:
+  - azurecli
+  - csharp
+  - json
+  - sql
+products:
+  - azure
+  - azure-container-instances
+  - azure-cosmos-db
+  - azure-event-hubs
+  - azure-functions  
+  - azure-storage
+statusNotificationTargets:
+  - damauri@microsoft.com
+---
+
 # Streaming at Scale with Azure Event Hubs, Functions and Cosmos DB
 
 This sample uses Cosmos DB as database to store JSON data

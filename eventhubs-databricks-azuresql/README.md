@@ -1,3 +1,20 @@
+---
+topic: sample
+languages:
+  - azurecli
+  - json
+  - sql
+  - scala
+products:
+  - azure
+  - azure-container-instances
+  - azure-databricks
+  - azure-event-hubs
+  - azure-sql-database
+statusNotificationTargets:
+  - damauri@microsoft.com
+---
+
 # Streaming at Scale with Azure Event Hubs, Databricks and Azure SQL
 
 This sample uses Cosmos DB as database to store JSON data

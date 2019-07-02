@@ -1,3 +1,21 @@
+---
+topic: sample
+languages:
+  - azurecli
+  - csharp
+  - json
+  - sql
+products:
+  - azure
+  - azure-container-instances
+  - azure-event-hubs
+  - azure-functions  
+  - azure-sql-database
+  - azure-storage
+statusNotificationTargets:
+  - damauri@microsoft.com
+---
+
 # Streaming at Scale with Azure Event Hubs, Functions and Azure SQL
 
 This sample uses Azure SQL as database to store processed data. This is especially useful when you need to create a *Near-Real Time Operational Analytics*, where streaming data has to be ingested at scale and, at the same time, also queried to execute analytical queries. The ability to ingest data into a columnstore is vital to have expected query performances:

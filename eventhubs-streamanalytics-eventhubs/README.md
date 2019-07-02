@@ -1,3 +1,18 @@
+---
+topic: sample
+languages:
+  - azurecli
+  - json
+  - sql
+products:
+  - azure
+  - azure-container-instances
+  - azure-event-hubs
+  - azure-stream-analytics  
+statusNotificationTargets:
+  - damauri@microsoft.com
+---
+
 # Streaming at Scale with Azure Event Hubs and Stream Analytics
 
 This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data. This is done to analyze pure streaming performances of Stream Analytics; no aggregation is done and data is passed as fast as possibile from the input to the output. Data is augmented by adding additional fields.
