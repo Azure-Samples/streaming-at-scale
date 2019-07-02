@@ -1,3 +1,19 @@
+---
+topic: sample
+languages:
+  - azurecli
+  - json
+  - sql
+products:
+  - azure
+  - azure-container-instances
+  - azure-event-hubs
+  - azure-sql-database
+  - azure-stream-analytics
+statusNotificationTargets:
+  - damauri@microsoft.com
+---
+
 # Streaming at Scale with Azure Event Hubs, Stream Analytics and Azure SQL
 
 This sample uses Stream Analytics to process streaming data from EventHub and uses Azure SQL as a sink to store processed data. This is especially useful when you need to create a *Near-Real Time Operational Analytics*, where streaming data has to be ingested at scale and, at the same time, also queried to execute analytical queries. The ability to ingest data into a columnstore is vital to have expected query performances:
@@ -75,6 +91,33 @@ The script will create the following resources:
 - **Stream Analytics** to process analytics on streaming data
 - **Azure SQL** Server and Database: to store and serve processed data
 
+## Streamed Data
+
+Streamed data simulates an IoT device sending the following JSON data:
+
+```json
+{
+    "eventId": "b81d241f-5187-40b0-ab2a-940faf9757c0",
+    "complexData": {
+        "moreData0": 57.739726013343247,
+        "moreData1": 52.230732688620829,
+        "moreData2": 57.497518587807189,
+        "moreData3": 81.32211656749469,
+        "moreData4": 54.412361539409427,
+        "moreData5": 75.36416309399911,
+        "moreData6": 71.53407865773488,
+        "moreData7": 45.34076957651598,
+        "moreData8": 51.3068118685458,
+        "moreData9": 44.44672606436184,
+        [...]
+    },
+    "value": 49.02278128887753,
+    "deviceId": "contoso://device-id-154",
+    "type": "CO2",
+    "createdAt": "2019-05-16T17:16:40.000003Z"
+}
+```
+
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Azure SQL SKU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
@@ -99,34 +142,7 @@ In the `create-solution.sh` script values to test
 - 5500 msgs/sec
 - 10000 msgs/sec
 
-are already set, just uncomment what you what to test, and then run the script.
-
-## Streamed Data
-
-Streamed data simulates an IoT device sending the following JSON data:
-
-```json
-{
-    "eventId": "b81d241f-5187-40b0-ab2a-940faf9757c0",
-    "complexData": {
-        "moreData8": 51.3068118685458,
-        "moreData9": 44.44672606436184,
-        "moreData0": 57.739726013343247,
-        "moreData1": 52.230732688620829,
-        "moreData2": 57.497518587807189,
-        "moreData3": 81.32211656749469,
-        "moreData4": 54.412361539409427,
-        "moreData5": 75.36416309399911,
-        "moreData6": 71.53407865773488,
-        "moreData7": 45.34076957651598,
-        [...]
-    },
-    "value": 49.02278128887753,
-    "deviceId": "contoso://device-id-1554",
-    "type": "CO2",
-    "createdAt": "2019-05-16T17:16:40.000003Z"
-}
-```
+are already set, use the parameter `-t`, and then run the script.
 
 ## Monitor performances
 
@@ -140,7 +156,7 @@ You can also use Event Hub "Metrics" pane:
 
 ## Stream Analytics
 
-At present time Azure Stream Analytics cannot send `record` data types to Azure SQL, as documented here: [Type mapping when writing to structured data stores](https://docs.microsoft.com/en-us/stream-analytics-query/data-types-azure-stream-analytics?toc=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fazure%2Fstream-analytics%2FTOC.json&bc=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fazure%2Fbread%2Ftoc.json#type-mapping-when-writing-to-structured-data-stores)
+At present time Azure Stream Analytics cannot send `record` data types to Azure SQL, as documented here: [Type mapping when writing to structured data stores](https://docs.microsoft.com/en-us/stream-analytics-query/data-types-azure-stream-analytics?toc=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fazure%2Fstream-analytics%2FTOC.json&bc=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fazure%2Fbread%2Ftoc.json#type-mapping-when-writing-to-structured-data-stores). For this reason an UDF function has been created in order to convert a `record` into a `string`. This allows JSON data to be stored into Azure SQL
 
 ## Azure SQL
 

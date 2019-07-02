@@ -1,25 +1,19 @@
-import org.apache.spark.sql._
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.functions._
-import org.apache.spark.eventhubs.{ ConnectionStringBuilder, EventHubsConf, EventPosition }
-import com.microsoft.azure.cosmosdb.spark._
-import com.microsoft.azure.cosmosdb.spark.schema._
-import com.microsoft.azure.cosmosdb.spark.config.Config
-import com.microsoft.azure.cosmosdb.spark.streaming._
+// Databricks notebook source
+dbutils.widgets.text("cosmosdb-endpoint", "https://MYACCOUNT.documents.azure.com", "Cosmos DB endpoint")
+dbutils.widgets.text("cosmosdb-database", "streaming", "Cosmos DB database")
+dbutils.widgets.text("cosmosdb-collection", "rawdata", "Cosmos DB collection")
+dbutils.widgets.text("eventhub-consumergroup", "cosmos", "Event Hubs consumer group")
+dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
 
 // COMMAND ----------
 
-dbutils.fs.rm("/checkpoints/cosmosdb", true)
+import org.apache.spark.eventhubs.{ EventHubsConf, EventPosition }
 
-// COMMAND ----------
+val eventHubsConf = EventHubsConf(dbutils.secrets.get(scope = "MAIN", key = "event-hubs-read-connection-string"))
+  .setStartingPosition(EventPosition.fromStartOfStream)
+  .setConsumerGroup(dbutils.widgets.get("eventhub-consumergroup"))
+  .setMaxEventsPerTrigger(dbutils.widgets.get("eventhub-maxEventsPerTrigger").toLong)
 
-val connectionString = ConnectionStringBuilder(dbutils.secrets.get("MAIN", "EH_CONNSTR"))
-  .setEventHubName(dbutils.secrets.get("MAIN", "EH_NAME"))
-  .build
-
-val eventHubsConf = EventHubsConf(connectionString)
-  //.setStartingPosition(EventPosition.fromStartOfStream)
-  
 val eventhubs = spark.readStream
   .format("eventhubs")
   .options(eventHubsConf.toMap)
@@ -27,29 +21,44 @@ val eventhubs = spark.readStream
 
 // COMMAND ----------
 
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions._
 val schema = StructType(
   StructField("eventId", StringType) ::
+  StructField("complexData", StructType((1 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
   StructField("createdAt", StringType) :: Nil)
+val jsons = eventhubs
+      .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
+      .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey", $"enqueuedTime".cast(StringType).as("enqueuedAt")) 
 
 // COMMAND ----------
 
-val df = eventhubs.select(from_json($"body".cast("string"), schema).as("eventData"), $"*")
+val transformed = jsons
+  .withColumn("processedAt", current_timestamp.cast(StringType))
 
 // COMMAND ----------
 
-var df2 = df.select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey") 
-
-// COMMAND ----------
-
-val configMap = Map(
-  "Endpoint" -> dbutils.secrets.get("MAIN", "COSMOSDB_URI"),
-  "Masterkey" -> dbutils.secrets.get("MAIN", "COSMOSDB_KEY"),
-  "Database" -> "streaming",
-  "Collection" -> "rawdata",
-  "checkpointLocation" -> "/checkpoints/cosmosdb"
+// Configure the connection to your collection in Cosmos DB.
+// Please refer to https://github.com/Azure/azure-cosmosdb-spark/wiki/Configuration-references
+// for the description of the available configurations.
+val cosmosDbConfig = Map(
+  "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
+  "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
+  "Database" -> dbutils.widgets.get("cosmosdb-database"),
+  "Collection" -> dbutils.widgets.get("cosmosdb-collection")
 )
 
-val cosmosdb = df2.writeStream.format(classOf[CosmosDBSinkProvider].getName).outputMode("append").options(configMap).start()
+// COMMAND ----------
+
+import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
+
+val cosmosdb = transformed
+  .writeStream
+  .format(classOf[CosmosDBSinkProvider].getName)
+  .option("checkpointLocation", "dbfs:/checkpoints/streaming-delta")
+  .outputMode("append")
+  .options(cosmosDbConfig)
+  .start()

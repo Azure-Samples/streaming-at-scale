@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 echo 'creating cosmosdb account'
 echo ". name: $COSMOSDB_SERVER_NAME"
 SERVER_EXISTS=`az cosmosdb check-name-exists -n $COSMOSDB_SERVER_NAME -o tsv`
