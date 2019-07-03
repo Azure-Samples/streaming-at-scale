@@ -166,6 +166,7 @@ Accordingly, in the standard solution we defined 2 worker nodes and DATABRICKS_M
 
 Data is stored in a Delta Lake Spark table in the created Azure Databricks workspace, backed by Azure Data Lake Storage Gen2. You can query the table by logging  into the Databricks workspace, creating a cluster, and creating a notebook to query the data.
 From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
+From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
 
 ```scala
 val gen2account = "<created-adsl2-storage-account>"
@@ -177,7 +178,7 @@ and the you can query the table using Spark SQL for example:
 
 ```
 %sql
-SELECT * FROM stream_scale_events LIMIT 10
+SELECT * FROM delta.`abfss://databricks@<created-adsl2-storage-account>.dfs.core.windows.net/stream_scale_events` LIMIT 100
 ```
 
 More info here:
