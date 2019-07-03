@@ -93,13 +93,13 @@ fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
     export SQL_SKU=P2
     export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=2
+    export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 

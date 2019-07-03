@@ -47,7 +47,7 @@ import java.util.UUID.randomUUID
 
 val WriteToSQLQuery  = dataToWrite.writeStream.foreach(new ForeachWriter[Row] {
   var connection:java.sql.Connection = _
-  var statement:java.sql.Statement = _
+  var statement:java.sql.PreparedStatement = _
   
   val jdbcUsername = "serveradmin"
   val jdbcPassword = dbutils.secrets.get(scope = "MAIN", key = "azuresql-pass")
@@ -62,29 +62,34 @@ val WriteToSQLQuery  = dataToWrite.writeStream.foreach(new ForeachWriter[Row] {
   def open(partitionId: Long, version: Long):Boolean = {
     Class.forName(driver)
     connection = DriverManager.getConnection(jdbc_url, jdbcUsername, jdbcPassword)
-    statement = connection.createStatement
-    batchId = quote(randomUUID().toString)
+    statement = connection.prepareStatement("INSERT INTO " + tableName + " ([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [EnqueuedAt], [ProcessedAt], [StoredAt], [PartitionId]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATETIME(), ?)")
+    batchId = randomUUID().toString
     true
   }
   
-  def quote(value: Any): String = {
-    "'" + value.toString + "'"
-  }
-
   def process(value: Row): Unit = {    
-    val eventId = quote(value(0))
-    val complexData = quote(value(1))
-    val value1 = quote(value(2))
-    val type1 = quote(value(3))
-    val deviceId = quote(value(4))
-    val createdAt = quote(value(5))    
-    val enqueuedAt = quote(value(10))        
-    val processedAt = quote(value(11))
-    val storedAt = "SYSDATETIME()"
+    val eventId = value(0).toString
+    val complexData = value(1).toString
+    val value1 = value(2).toString
+    val type1 = value(3).toString
+    val deviceId = value(4).toString
+    val createdAt = value(5).toString
+    val enqueuedAt = value(10).toString
+    val processedAt = value(11).toString
     val partitionId = value(9).toString.toInt % 16
 
-    val valueStr = List(batchId, eventId, type1, deviceId, createdAt, value1, complexData, enqueuedAt, processedAt, storedAt, partitionId).mkString(",")
-    statement.addBatch("INSERT INTO " + tableName + " ([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [EnqueuedAt], [ProcessedAt], [StoredAt], [PartitionId]) VALUES (" + valueStr + ")")   
+    statement.setString(1, batchId)
+    statement.setString(2, eventId)
+    statement.setString(3, type1)
+    statement.setString(4, deviceId)    
+    statement.setString(5, createdAt)
+    statement.setString(6, value1)
+    statement.setString(7, complexData)
+    statement.setString(8, enqueuedAt)
+    statement.setString(9, processedAt)
+    statement.setInt(10, partitionId)
+    
+    statement.addBatch 
   }
 
   def close(errorOrNull: Throwable): Unit = {
