@@ -12,14 +12,15 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=CIDPTM"
+    echo "    Possibile values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      D=DATABASE"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
@@ -63,11 +64,8 @@ if [[ -z "$TESTTYPE" ]]; then
 fi
 
 if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPT"
+	export STEPS="CIDPTM"
 fi
-
-# ---- BEGIN: SET THE VALUES TO CORRECTLY HANDLE THE WORKLOAD
-# ---- HERE'S AN EXAMPLE USING AZURESQL AND DATABRICKS
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
@@ -91,15 +89,16 @@ fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export EVENTHUB_PARTITIONS=3
+    export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export SQL_SKU=P2
     export SQL_TABLE_KIND="rowstore" # or "columnstore"
-    export DB_VM="Standard_DS3_v2"
     export TEST_CLIENTS=3 
-fi
+    export DATABRICKS_NODETYPE=Standard_DS3_v2
+    export DATABRICKS_WORKERS=2
+    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
-# ---- END: SET THE VALUES TO CORRECTLY HANDLE THE WORLOAD
+fi
 
 # last checks and variables setup
 if [ -z ${TEST_CLIENTS+x} ]; then
@@ -113,21 +112,45 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az)
-if [ -z HAS_AZ ]; then
+HAS_AZ=$(command -v az || true)
+if [ -z "$HAS_AZ" ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
     exit 1
 fi
 
-HAS_JQ=$(command -v jq)
-if [ -z HAS_JQ ]; then
+HAS_JQ=$(command -v jq || true)
+if [ -z "$HAS_JQ" ]; then
     echo "jq not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
     echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
+    echo "https://stedolan.github.io/jq/download/"
+    exit 1
+fi
+
+HAS_PYTHON=$(command -v python || true)
+if [ -z "$HAS_PYTHON" ]; then
+    echo "python 2.7 not found"
+    echo "please install it using your package manager, for example, on Ubuntu:"
+    echo "  sudo apt install python"
+    echo "or as described here:"
+    echo "https://wiki.python.org/moin/BeginnersGuide/Download"
+    exit 1
+fi
+
+HAS_DATABRICKSCLI=$(command -v databricks || true)
+if [ -z "$HAS_DATABRICKSCLI" ]; then
+    echo "databricks-cli not found"
+    echo "please install it as described here:"
+    echo "https://github.com/databricks/databricks-cli"
+    exit 1
+fi
+
+AZ_SUBSCRIPTION_NAME=$(az account show --query name -o tsv || true)
+if [ -z "$AZ_SUBSCRIPTION_NAME" ]; then
+    #az account show already shows error message "Please run 'az login' to setup account."
     exit 1
 fi
 
@@ -146,10 +169,9 @@ case $SQL_TABLE_KIND in
         ;;
 esac
 
-
 echo
 echo "Streaming at Scale with Databricks and Azure SQL"
-echo "====================================================="
+echo "================================================"
 echo
 
 echo "Steps to be executed: $STEPS"
@@ -159,8 +181,7 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-# For the best performance, Databricks workers should be the same number as Evenhubs partitions 
-echo ". Databrikcs      => SKU: $DB_VM, Workers: $EVENTHUB_PARTITIONS" 
+echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
 echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
@@ -191,9 +212,6 @@ echo "***** [I] Setting up INGESTION"
     fi
 echo
 
-# ---- BEGIN: CALL THE SCRIPT TO SETUP USED DATABASE AND STREAM PROCESSOR
-# ---- HERE'S AN EXAMPLE USING AZURESQL AND DATABRICKS
-
 echo "***** [D] Setting up DATABASE"
 
     export SQL_SERVER_NAME=$PREFIX"sql"
@@ -217,8 +235,6 @@ echo "***** [P] Setting up PROCESSING"
     fi
 echo
 
-# ---- END: CALL THE SCRIPT TO SETUP USED DATABASE AND STREAM PROCESSOR
-
 echo "***** [T] Starting up TEST clients"
 
     export LOCUST_DNS_NAME=$PREFIX"locust"
@@ -226,6 +242,14 @@ echo "***** [T] Starting up TEST clients"
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z $RUN ]; then
         ./04-run-clients.sh
+    fi
+echo
+
+echo "***** [M] Starting METRICS reporting"
+
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z $RUN ]; then
+        ./05-report-throughput.sh
     fi
 echo
 
