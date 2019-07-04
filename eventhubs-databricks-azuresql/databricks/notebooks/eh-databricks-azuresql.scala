@@ -51,7 +51,7 @@ import java.util.UUID.randomUUID
 import com.microsoft.azure.sqldb.spark.bulkcopy.BulkCopyMetadata
 import com.microsoft.azure.sqldb.spark.config.Config
 import com.microsoft.azure.sqldb.spark.connect._
-import java.util.UUID.randomUUID
+import org.apache.spark.sql._
 
 val generateUUID = udf(() => randomUUID().toString)
 
