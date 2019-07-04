@@ -70,8 +70,11 @@ val WriteToSQLQuery  = dataToWrite.writeStream.foreachBatch((batchDF: DataFrame,
   ))   
   
   // Make sure BatchID and StoredAt are evaluated at batch level
-  val newDf = batchDF.withColumn("BatchId", lit(randomUUID().toString)).withColumn("StoredAt", current_timestamp()) 
-  
+  val newDf = batchDF
+    .withColumn("BatchId", lit(randomUUID().toString))
+    .withColumn("StoredAt", current_timestamp())
+    .withColumn("PartitionId", lit((batchId % 16).toInt)) 
+
   var bulkCopyMetadata = new BulkCopyMetadata
   bulkCopyMetadata.addColumnMetadata(1, "BatchId", java.sql.Types.NVARCHAR, 128, 0)
   bulkCopyMetadata.addColumnMetadata(2, "EventId", java.sql.Types.NVARCHAR, 128, 0)
