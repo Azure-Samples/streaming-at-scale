@@ -125,11 +125,13 @@ Performance will be monitored and displayed on the console for 30 minutes also. 
 
 ## Azure Databricks
 
-TDB
+4 Partition needed
 
 ## Azure SQL
 
-TDB
+TVP cannot be used
+Optionally use DELAYED DURABILITY to lower I/O resource usage and increase performances
+no MO usage at the moment
 
 ## Query Data
 

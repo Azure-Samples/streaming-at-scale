@@ -32,74 +32,62 @@ val schema = StructType(
 
 // COMMAND ----------
 
+import java.util.UUID.randomUUID
+
+val generateUUID = udf(() => randomUUID().toString)
+
 val dataToWrite = reader
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey".cast(IntegerType), $"enqueuedTime".as("enqueuedAt")) 
   .withColumn("createdAt", $"createdAt".cast(TimestampType))
   .withColumn("processedAt", current_timestamp())
+  .withColumn("StoredAt", current_timestamp()) 
+  .withColumn("BatchId", lit(randomUUID().toString))
+  .select($"BatchId", $"eventId".as("EventId"), $"Type", $"DeviceId", $"CreatedAt", $"Value", $"ComplexData", $"EnqueuedAt", $"ProcessedAt", $"StoredAt", $"PartitionKey".as("PartitionId"))
 
 // COMMAND ----------
 
-import java.util.Properties
-import java.sql.DriverManager
-import org.apache.spark.sql._
+import java.util.UUID.randomUUID
+import com.microsoft.azure.sqldb.spark.bulkcopy.BulkCopyMetadata
+import com.microsoft.azure.sqldb.spark.config.Config
+import com.microsoft.azure.sqldb.spark.connect._
 import java.util.UUID.randomUUID
 
-val WriteToSQLQuery  = dataToWrite.writeStream.foreach(new ForeachWriter[Row] {
-  var connection:java.sql.Connection = _
-  var statement:java.sql.PreparedStatement = _
-  
-  val jdbcUsername = "serveradmin"
-  val jdbcPassword = dbutils.secrets.get(scope = "MAIN", key = "azuresql-pass")
-  val jdbcServername = dbutils.widgets.get("azuresql-servername")
-  val jdbcPort = 1433
-  val jdbcDatabase = "streaming"
-  val tableName = "dbo.rawdata"
-  val driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-  val jdbc_url = s"jdbc:sqlserver://${jdbcServername}.database.windows.net:${jdbcPort};database=${jdbcDatabase};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;"
-  var batchId = ""
-  
-  def open(partitionId: Long, version: Long):Boolean = {
-    Class.forName(driver)
-    connection = DriverManager.getConnection(jdbc_url, jdbcUsername, jdbcPassword)
-    statement = connection.prepareStatement("INSERT INTO " + tableName + " ([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [EnqueuedAt], [ProcessedAt], [StoredAt], [PartitionId]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATETIME(), ?)")
-    batchId = randomUUID().toString
-    true
-  }
-  
-  def process(value: Row): Unit = {    
-    val eventId = value(0).toString
-    val complexData = value(1).toString
-    val value1 = value(2).toString
-    val type1 = value(3).toString
-    val deviceId = value(4).toString
-    val createdAt = value(5).toString
-    val enqueuedAt = value(10).toString
-    val processedAt = value(11).toString
-    val partitionId = value(9).toString.toInt % 16
+val generateUUID = udf(() => randomUUID().toString)
 
-    statement.setString(1, batchId)
-    statement.setString(2, eventId)
-    statement.setString(3, type1)
-    statement.setString(4, deviceId)    
-    statement.setString(5, createdAt)
-    statement.setString(6, value1)
-    statement.setString(7, complexData)
-    statement.setString(8, enqueuedAt)
-    statement.setString(9, processedAt)
-    statement.setInt(10, partitionId)
-    
-    statement.addBatch 
-  }
-
-  def close(errorOrNull: Throwable): Unit = {
-    statement.executeBatch
-    connection.close
-  }
+val WriteToSQLQuery  = dataToWrite.writeStream.foreachBatch((batchDF: DataFrame, batchId: Long) => {
+  val serverName:String = dbutils.widgets.get("azuresql-servername")
+  
+  val bulkCopyConfig = Config(Map(
+    "url"               -> s"$serverName.database.windows.net",
+    "user"              -> "serveradmin",
+    "password"          -> dbutils.secrets.get(scope = "MAIN", key = "azuresql-pass"),
+    "databaseName"      -> "streaming",
+    "dbTable"           -> "dbo.rawdata",
+    "bulkCopyBatchSize" -> "2500",
+    "bulkCopyTableLock" -> "true",
+    "bulkCopyTimeout"   -> "600"
+  ))   
+  
+  // Make sure BatchID and StoredAt are evaluated at batch level
+  val newDf = batchDF.withColumn("BatchId", lit(randomUUID().toString)).withColumn("StoredAt", current_timestamp()) 
+  
+  var bulkCopyMetadata = new BulkCopyMetadata
+  bulkCopyMetadata.addColumnMetadata(1, "BatchId", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(2, "EventId", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(3, "Type", java.sql.Types.NVARCHAR, 10, 0)
+  bulkCopyMetadata.addColumnMetadata(4, "DeviceId", java.sql.Types.NVARCHAR, 100, 0)
+  bulkCopyMetadata.addColumnMetadata(5, "CreatedAt", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(6, "Value", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(7, "ComplexData", java.sql.Types.NVARCHAR, -1, 0)
+  bulkCopyMetadata.addColumnMetadata(8, "EnqueuedAt", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(9, "ProcessedAt", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(10, "StoredAt", java.sql.Types.NVARCHAR, 128, 0)
+  bulkCopyMetadata.addColumnMetadata(11, "PartitionId", java.sql.Types.INTEGER, 128, 0)  
+  
+  newDf.bulkCopyToSqlDB(bulkCopyConfig, bulkCopyMetadata)  
 })
 
 var streamingQuery = WriteToSQLQuery.start()
-
-// COMMAND ----------
 
 

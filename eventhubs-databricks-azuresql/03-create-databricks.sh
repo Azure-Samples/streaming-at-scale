@@ -121,6 +121,11 @@ for notebook in databricks/notebooks/*.scala; do
           "maven": {
             "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.12"
           }
+        },
+        {
+          "maven": {
+            "coordinates": "com.microsoft.azure:azure-sqldb-spark:1.0.2"
+          }
         }       
     ],
     "timeout_seconds": 3600,
