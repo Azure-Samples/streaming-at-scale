@@ -123,15 +123,16 @@ Performance will be monitored and displayed on the console for 30 minutes also. 
 
 ![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 
-## Azure Databricks
-
-4 Partition needed
-
 ## Azure SQL
 
+using the same database as functions
 TVP cannot be used
-Optionally use DELAYED DURABILITY to lower I/O resource usage and increase performances
-no MO usage at the moment
+BULK INSERT, PER PARTITION LOAD minimze locking. 
+
+## Azure Databricks
+
+forEachBatch works on all the DataFrame partition, so BatchId % 16 is used to spread data in all the 16 partitions
+forEach works differently and consumes data only from on partition
 
 ## Query Data
 
