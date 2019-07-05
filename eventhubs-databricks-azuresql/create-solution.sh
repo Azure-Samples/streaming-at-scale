@@ -12,7 +12,7 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=CIDPTM"
     echo "    Possibile values:"
     echo "      C=COMMON"
@@ -22,6 +22,7 @@ usage() {
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-k: test rowstore, columnstore. Default=rowstore"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
 }
@@ -30,9 +31,10 @@ export PREFIX=''
 export LOCATION=''
 export TESTTYPE=''
 export STEPS=''
+export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:" arg; do
+while getopts ":d:s:t:l:k:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -45,6 +47,9 @@ while getopts ":d:s:t:l:" arg; do
 			;;
 		l)
 			LOCATION=${OPTARG}
+			;;
+        k)
+			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
 done
@@ -63,6 +68,10 @@ if [[ -z "$TESTTYPE" ]]; then
 	export TESTTYPE="1"
 fi
 
+if [[ -z "$SQL_TABLE_KIND" ]]; then
+	export SQL_TABLE_KIND="rowstore"
+fi
+
 if [[ -z "$STEPS" ]]; then
 	export STEPS="CIDPTM"
 fi
@@ -72,7 +81,6 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
     export SQL_SKU=P6
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
@@ -84,7 +92,6 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export SQL_SKU=P4
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=16 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=8
@@ -96,7 +103,6 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
     export SQL_SKU=P2
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
@@ -166,7 +172,7 @@ case $SQL_TABLE_KIND in
         TABLE_SUFFIX="_cs"
         ;;
     *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore' or 'columnstore'"
+        echo "SQL_TABLE_KIND must be set to 'rowstore', 'rowstore-inmemory', 'columnstore' or 'columnstore-inmemory'"
         echo "please install it as it is needed by the script"
         exit 1
         ;;
