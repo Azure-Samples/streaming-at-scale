@@ -166,11 +166,13 @@ Bulk insert logic has been already implemented in the Azure SQL Spark Connector 
 
 `forEachBatch` works on all the DataFrame partitions, so `BatchId % 16` is used to spread data in all the 16 partitions available in Azure SQL.
 
+One interesting aspect to notice is that the number of EventHubs partition is different and higher that the number of allocated Throughput Units (TU). For example, with 5000 msgs/sec 6 TU are used, but 10 partitions are needed. The 6 TU are more than enough to sustain 5000 msgs/sec (as each 1 TU supports 1 Mb and 1000 msgs/sec), but in order to process data fast enough, Databricks needs to have 10 workers to be able to deal with the incoming messages. In order to make sure each worker reads from a partition without interfering with another worker, a worker should be created for each Event Hub partition.
+
 ## Query Data
 
-Usage of [sp_whoisactive](http://whoisactive.com/) is recommended to see what's going on in Azure SQL. All tables have the followinh schema:
+Usage of [sp_whoisactive](http://whoisactive.com/) is recommended to see what's going on in Azure SQL. All tables have the following schema:
 
-
+![RawData Table Schema](../_doc/_images/databricks-azuresql-table.png)
 
 ## Clean up
 
