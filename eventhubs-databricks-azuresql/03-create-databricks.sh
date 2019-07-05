@@ -134,7 +134,8 @@ for notebook in databricks/notebooks/*.scala; do
       "base_parameters": {
         "eventhub-consumergroup": "$EVENTHUB_CG",
         "eventhub-maxEventsPerTrigger": "$DATABRICKS_MAXEVENTSPERTRIGGER",
-        "azuresql-servername": "$SQL_SERVER_NAME"
+        "azuresql-servername": "$SQL_SERVER_NAME",
+        "azuresql-tablename": "$SQL_TABLE_NAME"
       }
     }
   }

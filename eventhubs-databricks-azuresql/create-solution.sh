@@ -89,12 +89,12 @@ fi
 
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export EVENTHUB_PARTITIONS=8
+    export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
     export SQL_SKU=P4
     export TEST_CLIENTS=16 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=8
+    export DATABRICKS_WORKERS=10
     export DATABRICKS_MAXEVENTSPERTRIGGER=35000
 fi
 
@@ -226,6 +226,7 @@ echo "***** [D] Setting up DATABASE"
     export SQL_SERVER_NAME=$PREFIX"sql"
     export SQL_DATABASE_NAME="streaming"  
     export SQL_ADMIN_PASS="Strong_Passw0rd!"  
+    export SQL_TABLE_NAME="rawdata$TABLE_SUFFIX"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z $RUN ]; then

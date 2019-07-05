@@ -1,6 +1,7 @@
 // Databricks notebook source
 dbutils.widgets.text("eventhub-consumergroup", "azuresql")
 dbutils.widgets.text("azuresql-servername", "servername")
+dbutils.widgets.text("azuresql-tablename", "tablename")
 dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
 
 // COMMAND ----------
@@ -57,13 +58,14 @@ val generateUUID = udf(() => randomUUID().toString)
 
 val WriteToSQLQuery  = dataToWrite.writeStream.foreachBatch((batchDF: DataFrame, batchId: Long) => {
   val serverName:String = dbutils.widgets.get("azuresql-servername")
-  
+  val tableName:String = dbutils.widgets.get("azuresql-tablename")
+
   val bulkCopyConfig = Config(Map(
     "url"               -> s"$serverName.database.windows.net",
     "user"              -> "serveradmin",
     "password"          -> dbutils.secrets.get(scope = "MAIN", key = "azuresql-pass"),
     "databaseName"      -> "streaming",
-    "dbTable"           -> "dbo.rawdata",
+    "dbTable"           -> s"dbo.$tableName",
     "bulkCopyBatchSize" -> "2500",
     "bulkCopyTableLock" -> "true",
     "bulkCopyTimeout"   -> "600"
