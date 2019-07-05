@@ -55,20 +55,7 @@
               "startIpAddress": "0.0.0.0",
               "endIpAddress": "0.0.0.0"
             }
-          },      
-          {
-            "name": "AllowAll",
-            "type": "firewallrules",
-            "apiVersion": "2014-04-01-preview",
-            "location": "[parameters('Location')]",
-            "dependsOn": [
-              "[resourceId('Microsoft.Sql/servers', parameters('ServerName'))]"
-            ],
-            "properties": {
-              "startIpAddress": "0.0.0.0",
-              "endIpAddress": "255.255.255.255"
-            }
-          },       
+          },               
           {
             "name": "[parameters('DatabaseName')]",
             "type": "databases",
