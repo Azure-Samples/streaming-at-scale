@@ -115,7 +115,6 @@ If you want to change some setting of the solution, like number of load test cli
     export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
     export SQL_SKU=P2
-    export SQL_TABLE_KIND="rowstore" # or "columnstore"
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
@@ -169,7 +168,9 @@ Bulk insert logic has been already implemented in the Azure SQL Spark Connector 
 
 ## Query Data
 
-Usage of [sp_whoisactive](http://whoisactive.com/) is recommended to see what's going on in Azure SQL.
+Usage of [sp_whoisactive](http://whoisactive.com/) is recommended to see what's going on in Azure SQL. All tables have the followinh schema:
+
+
 
 ## Clean up
 
