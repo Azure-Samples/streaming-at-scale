@@ -248,8 +248,6 @@ echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
-
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z $RUN ]; then
         source ../simulator/run-event-generator.sh

@@ -42,9 +42,9 @@ echo "steps to be executed: $STEPS"
 echo
 
 echo "checking prerequisistes..."
-HAS_AZ=`command -v az`
+HAS_AZ=$(command -v az || true)
 
-if [ -z HAS_AZ ]; then
+if [ -z "$HAS_AZ" ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
@@ -59,7 +59,7 @@ echo "***** [C] setting up common resources"
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
@@ -72,17 +72,15 @@ echo "***** [I] setting up INGESTION"
     export EVENTHUB_CAPTURE=True
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
 echo "***** [T] starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
-
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../simulator/run-event-generator.sh
     fi
 echo
@@ -90,7 +88,7 @@ echo
 echo "***** [D] Running Apache Drill"
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         echo "getting storage key"
         export AUTHKEY=`az storage account keys list -g $RESOURCE_GROUP -n $AZURE_STORAGE_ACCOUNT -o tsv --query "[0].value"`
 
