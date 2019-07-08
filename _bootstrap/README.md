@@ -20,7 +20,7 @@ if you're planning to create an end-to-end solution using Kafka as the ingestion
 
 Copy the content of this `_bootstrap` folder into the folder you just created.
 
-## Folder content
+## Script content
 
 ### create-solution.sh
 
@@ -54,6 +54,7 @@ once you have created your file, make sure you rename it so that it will be clea
 ### source ../components/azure-functions/configure-processing-function-cosmosdb.sh
 
 `create-processing-function.sh`: this script creates an Azure Function for stream processing, again you can use another component instead, such as Databricks, or provide your own script.
+
 `configure-processing-function-cosmosdb.sh`: this script configures the Azure Function for output to Cosmos DB, here too you can change to another variant, e.g. to output to Azure SQL.
 
 You can take a look at the following script to understand how you can create your:
@@ -103,7 +104,7 @@ Each locust generates up to 340 msgs/sec. Each generated message is close to 1KB
 }
 ```
 
-and it will send data to the specified Event Hub. If you need to send data to something different, then you will need to create a new locustfile in [../simulator/simulator.py]([../simulator/simulator.py) and also make sure it is uploaded to the shared file folder (check the code in the script).
+and it will send data to the specified Event Hub. If you need to send data to something different, then you will need to create a new locustfile in [../simulator/simulator.py](../simulator/simulator.py) and also make sure it is uploaded to the shared file folder (check the code in the script).
 
 ### source ../components/azure-event-hubs/report-throughput.sh
 
