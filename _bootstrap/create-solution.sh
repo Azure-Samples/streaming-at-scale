@@ -193,10 +193,17 @@ echo
 
 echo "***** [P] Setting up PROCESSING"
 
-    export PROC_JOB_NAME=$PREFIX"streamingjob"
+    export PROC_FUNCTION_APP_NAME=$PREFIX"process"
+    export PROC_FUNCTION_NAME=StreamingProcessor
+    export PROC_PACKAGE_FOLDER=.
+    export PROC_PACKAGE_TARGET=CosmosDB    
+    export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
+    export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
+
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        source ./create-stream-analytics.sh
+        source ../components/azure-functions/create-processing-function.sh
+        source ../components/azure-functions/configure-processing-function-cosmosdb.sh
     fi
 echo
 

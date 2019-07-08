@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
