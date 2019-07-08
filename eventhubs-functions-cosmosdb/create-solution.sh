@@ -189,7 +189,7 @@ echo "***** [C] setting up COMMON resources"
 
     RUN=`echo $STEPS | grep C -o || true`    
     if [ ! -z "$RUN" ]; then
-        source ../components/resource-group/create-resource-group.sh
+        source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
@@ -202,7 +202,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/event-hubs/create-event-hub.sh
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -248,7 +248,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z $RUN ]; then
-        source ../components/event-hubs/report-throughput.sh
+        source ../components/azure-event-hubs/report-throughput.sh
     fi
 echo
 
