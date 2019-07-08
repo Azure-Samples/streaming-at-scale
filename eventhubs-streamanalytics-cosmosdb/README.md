@@ -151,7 +151,7 @@ from
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
 
 ```sql
-    SELECT * FROM c WHERE c.eventData.type = 'CO2'
+    SELECT * FROM c WHERE c.type = 'CO2'
 ```
 
 ## Clean up

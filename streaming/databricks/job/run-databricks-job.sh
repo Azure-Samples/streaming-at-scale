@@ -11,8 +11,8 @@ job_jq_command="$2"
 cluster_jq_command="$(cat <<JQ
   .name = "Streaming at scale job $notebook_name"
   | .notebook_task.notebook_path = "/Shared/streaming-at-scale/$notebook_name"
-  | .node_type_id = "$DATABRICKS_NODETYPE"
-  | .num_workers = $DATABRICKS_WORKERS
+  | .new_cluster.node_type_id = "$DATABRICKS_NODETYPE"
+  | .new_cluster.num_workers = $DATABRICKS_WORKERS
 JQ
 )"
 
