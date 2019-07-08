@@ -176,8 +176,8 @@ echo "***** [C] Setting up COMMON resources"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+        source ../components/resource-group/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
@@ -189,7 +189,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        ./01-create-event-hub.sh
+        source ../components/event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -197,10 +197,12 @@ echo "***** [D] Setting up DATABASE"
 
     export SQL_SERVER_NAME=$PREFIX"sql" 
     export SQL_DATABASE_NAME="streaming"    
+    export SQL_ADMIN_PASS="Strong_Passw0rd!"  
+    export BACPAC_FILE="streaming-streamanalytics.bacpac"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
-        ./02-create-azure-sql.sh
+        source ../components/azure-sql-database/create-sql-database.sh
     fi
 echo
 
@@ -211,7 +213,7 @@ echo "***** [P] Setting up PROCESSING"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        ./03-create-stream-analytics.sh
+        source ./create-stream-analytics.sh
     fi
 echo
 
@@ -221,7 +223,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        ./04-run-clients.sh
+        source ../simulator/run-event-generator.sh
     fi
 echo
 
@@ -229,7 +231,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        ./05-report-throughput.sh
+        source ../components/event-hubs/report-throughput.sh
     fi
 echo
 

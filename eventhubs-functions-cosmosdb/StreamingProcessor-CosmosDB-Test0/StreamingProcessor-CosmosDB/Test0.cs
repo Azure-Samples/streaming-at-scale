@@ -36,12 +36,9 @@ namespace StreamingProcessor
                 {
                     string message = Encoding.UTF8.GetString(data.Body.Array);
 
-                    var document = new
-                    {
-                        eventData = JObject.Parse(message),
-                        enqueuedAt = data.SystemProperties.EnqueuedTimeUtc,
-                        storedAt = DateTime.UtcNow
-                    };
+                    var document = JObject.Parse(message);
+                    document["enqueuedAt"] = data.SystemProperties.EnqueuedTimeUtc;
+                    document["storedAt"] = DateTime.UtcNow;
 
                     tasks.Add(cosmosMessage.AddAsync(JsonConvert.SerializeObject(document)));
                 }
