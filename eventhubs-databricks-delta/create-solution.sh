@@ -73,7 +73,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=12
-    export DATABRICKS_MAXEVENTSPERTRIGGER=100000
+    export DATABRICKS_MAXEVENTSPERTRIGGER=70000
 fi
 
 # 5500 messages/sec
@@ -83,7 +83,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export TEST_CLIENTS=16
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=6
-    export DATABRICKS_MAXEVENTSPERTRIGGER=50000
+    export DATABRICKS_MAXEVENTSPERTRIGGER=35000
 fi
 
 # 1000 messages/sec
@@ -93,7 +93,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
-    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
+    export DATABRICKS_MAXEVENTSPERTRIGGER=7000
 fi
 
 # last checks and variables setup

@@ -111,29 +111,68 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
-TDB
-  
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+```bash
+    export EVENTHUB_PARTITIONS=4
+    export EVENTHUB_CAPACITY=2
+    export SQL_SKU=P2
+    export TEST_CLIENTS=3 
+    export DATABRICKS_NODETYPE=Standard_DS3_v2
+    export DATABRICKS_WORKERS=4
+    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
+```
+
+The above settings has been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
 ## Monitor performances
-
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
 
 Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working corretly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
 
 ![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 
-## Azure Databricks
-
-TDB
-
 ## Azure SQL
 
-TDB
+The solution allows you to test both row-store and column-store options. The deployed database has four tables
+
+- `rawdata`
+- `rawdata_cs`
+- `rawdata_cs_mo`
+- `rawdata_mo`
+
+The suffix indicates which kind of storage is used for the table:
+
+- No suffix: classic row-store table
+- `cs`: column-store via clustered columnstore index
+- `mo`: memory-optimized table
+- `cs_mo`: memory-optimized clustered columnstore
+
+Use the `-k` option and set it to `rowstore` or `columnstore`. At present time the sample doesn't support using Memory-Optimized tables yet.
+
+Be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from P4 to P6 is needed. The Premium level provides much more I/Os which are needed to allow backup to happen without impacting performances.
+
+If you want to connect to Azure SQL to query data and/or check resources usages, here's the login and password:
+
+```
+User ID = serveradmin
+Password = Strong_Passw0rd!
+```
+
+## Azure Databricks
+
+Table Valued Parameters could not be used as the [`SQLServerDataTable` class](https://docs.microsoft.com/en-us/sql/connect/jdbc/using-table-valued-parameters?view=sql-server-2017#passing-a-table-valued-parameter-as-a-sqlserverdatatable-object) is not serializable and thus not usable with the `forEach` sink. The [`forEachBatch` sink](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#foreachbatch) has been used instead, and therefore BULK INSERT has been choosed as the best solution to quickly load data into Azure SQL.
+
+Bulk insert logic has been already implemented in the Azure SQL Spark Connector library, which is used in the `forEachBatch` function to perform the Bulk Load:
+
+[Spark connector for Azure SQL Databases and SQL Server](https://github.com/Azure/azure-sqldb-spark)
+
+`forEachBatch` works on all the DataFrame partitions, so `BatchId % 16` is used to spread data in all the 16 partitions available in Azure SQL.
+
+One interesting aspect to notice is that the number of EventHubs partition is different and higher that the number of allocated Throughput Units (TU). For example, with 5000 msgs/sec 6 TU are used, but 10 partitions are needed. The 6 TU are more than enough to sustain 5000 msgs/sec (as each 1 TU supports 1 Mb and 1000 msgs/sec), but in order to process data fast enough, Databricks needs to have 10 workers to be able to deal with the incoming messages. In order to make sure each worker reads from a partition without interfering with another worker, a worker should be created for each Event Hub partition.
 
 ## Query Data
 
-TDB
+Usage of [sp_whoisactive](http://whoisactive.com/) is recommended to see what's going on in Azure SQL. All tables have the following schema:
+
+![RawData Table Schema](../_doc/_images/databricks-azuresql-table.png)
 
 ## Clean up
 

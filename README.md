@@ -160,6 +160,10 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
 
+## Note
+
+Performance and Services change quickly in the cloud, so please keep in mind that all values used in the samples were tested at them moment of writing. If you find any discrepancies with what you observe when running the scripts, please create an issue and report it and/or create a PR to update the documentation and the sample. Thanks!
+
 ## Roadmap
 
 The following technologies could also be used in the end-to-end sample solution. If you want to contribute, feel free to do so, we'll be more than happy to get some help!

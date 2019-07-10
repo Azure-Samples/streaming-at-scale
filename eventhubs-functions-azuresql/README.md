@@ -188,6 +188,7 @@ select * from
     delete c output deleted.* from cte c
 ) d
 ```
+
 A more detailed discussion of this tecnique along with source code is available here:
 
 [Azure SQL Database: Ingesting 1.4 million sustained rows per second with In-Memory OLTP & Columnstore Index](https://techcommunity.microsoft.com/t5/Azure-SQL-Database/Azure-SQL-Database-Ingesting-1-4-million-sustained-rows-per/ba-p/386162)

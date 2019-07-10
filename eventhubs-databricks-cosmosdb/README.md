@@ -131,10 +131,6 @@ Performance will be monitored and displayed on the console for 30 minutes also. 
 
 ## Azure Databricks
 
-TDB
-
-## Cosmos DB
-
 At present time the Cosmos DB Spark Connector *does not* suport `timestamp` data type. If you try to send to Cosmos DB a dataframe containing a timestamp, in fact, you'll get the followin error:
 
 ```
@@ -142,6 +138,16 @@ java.lang.ClassCastException: java.lang.Long cannot be cast to java.sql.Timestam
 ```
 
 As a workaround the `timestamp` columns are sent to Cosmos DB as Strings.
+
+## Cosmos DB
+
+When scaling up you may have noticed that you need more RU that would you could expect. Assuming that Cosmos DB consume 7 RU per write, to stream 5000 msgs/sec you can expect to use up to 35000 RU. Instead the sample is using 50000. There are three main reasons that explain what that is happening:
+
+1. indexing
+2. document size
+3. physical data distribution
+
+Look at the details of the [Azure Functions sample](../eventhubs-functions-cosmosdb#cosmos-db) to see a detailed description of mentioned concepts.
 
 ## Query Data
 

@@ -78,11 +78,11 @@ fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export EVENTHUB_PARTITIONS=12
+    export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
-    export PROC_FUNCTION_WORKERS=12
+    export PROC_FUNCTION_WORKERS=16
     export SQL_SKU=P6
     export TEST_CLIENTS=30
 fi
@@ -90,7 +90,7 @@ fi
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
-    export EVENTHUB_CAPACITY=8
+    export EVENTHUB_CAPACITY=6
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=8

@@ -12,15 +12,15 @@ on_error() {
 trap 'on_error $LINENO' ERR
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPTM" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
-    echo "      M=METRICS reporting" 1>&2; 
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=CIDPTM"
+    echo "    Possibile values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      D=DATABASE"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
     echo "-l: where to create the resources. Default=eastus"
     exit 1; 
@@ -71,7 +71,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
-    export COSMOSDB_RU=80000
+    export COSMOSDB_RU=100000
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
@@ -82,7 +82,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export COSMOSDB_RU=40000
+    export COSMOSDB_RU=50000
     export TEST_CLIENTS=16
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=8

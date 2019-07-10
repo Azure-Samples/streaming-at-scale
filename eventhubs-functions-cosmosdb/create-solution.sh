@@ -82,7 +82,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_CAPACITY=12
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=20
-    export COSMOSDB_RU=120000 # In order to use 120000 RU you need to open a ticket with Cosmos DB 
+    export COSMOSDB_RU=100000 
     export TEST_CLIENTS=30
 fi
 
@@ -92,7 +92,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_CAPACITY=6
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=10
-    export COSMOSDB_RU=60000
+    export COSMOSDB_RU=50000
     export TEST_CLIENTS=16
 fi
 

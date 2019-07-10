@@ -15,11 +15,11 @@ statusNotificationTargets:
   - damauri@microsoft.com
 ---
 
-# Streaming at Scale with Azure Event Hubs, Databricks and Delta Table
+# Streaming at Scale with Azure Event Hubs, Databricks and Delta Lake
 
-This sample uses Cosmos DB as database to store JSON data
+This sample uses Azure Databricks to process and store data into [Delta Lake](https://docs.azuredatabricks.net/delta/index.html) storage.
 
-The provided scripts will an end-to-end solution complete with load test client.
+The provided scripts will deploy an end-to-end solution complete with load test client.
 
 ## Running the Scripts
 
@@ -37,7 +37,7 @@ The following tools/languages are also needed:
   - Install: `sudo apt install jq`
 - [python]
   - Install: `sudo apt install python python-pip`
-- [databricks-cli](https://github.com/databricks/databricks-cli)
+- [databricks-cli](https://docs.azuredatabricks.net/user-guide/dev-tools/databricks-cli.html#install-the-cli)
   - Install: `pip install --upgrade databricks-cli`
 
 ## Setup Solution
@@ -77,8 +77,7 @@ The script will create the following resources:
 
 - **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-- **Azure Databricks**: to process data incoming from Event Hubs as a stream. Workspace, Job and related cluster will be created
-- **Azure Databricks Delta Table**: to store and serve processed data
+- **Azure Databricks**: to process data incoming from Event Hubs as a stream, and store it using Delta Lake. An Azure databricks Workspace and Job will be created, and the job will be run for 30 minutes on a transient cluster.
 
 ## Streamed Data
 
@@ -109,36 +108,64 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, Databricks workers and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3 
+    export TEST_CLIENTS=3
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
-    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
+    export DATABRICKS_MAXEVENTSPERTRIGGER=7000
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings has been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
-## Monitor performances
+## Monitor performance
 
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
+Performance will be monitored and displayed on the console for 30 minutes. More specifically Inputs and Outputs performance of Event Hub will be monitored.
 
-Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working corretly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
+The test clients start sending messages before the Databricks job is active, and those messages accumulate into Event Hubs for a few minutes. Then, the Databricks job starts consuming the backlog (here starting at 08:31). After a few minutes of this ramp-up, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same at around 60,000 messages per minute (here starting around 08:44).
 
-![Console Performance Report](../_doc/_images/console-performance-monitor.png)
+![Console Performance Report](../_doc/_images/databricks-performance-monitor.png)
 
 ## Azure Databricks
 
-TDB
+The deployed Azure Databricks workspace contains a notebook stored under `Shared/streaming_at_scale`. If you plan to modify the notebook, first copy it to another location, as it will be overwritten if you run the solution again.
 
-## Delta Table
+The solution runs a Databricks stream processing job for 30 minutes only. To sustain a stream processing job, consult the documentation on [Structured Streaming in Production](https://docs.azuredatabricks.net/spark/latest/structured-streaming/production.html).
 
-TDB
+You can log into the workspace and view the executed job by navigating to the Jobs pane:
+
+![Databricks streaming statistics](../_doc/_images/databricks-jobs.png)
+
+After clicking on the job, you can navigate to the run and view the executed notebook. By expanding the output of the `writeStream` cell, you can see statistics about stream processing.
+
+![Databricks streaming statistics](../_doc/_images/databricks-stream-stats.png)
+
+## Optimizing the Structured Streaming job
+
+A good starting point for cluster configuration is to have the number of workers equal the number of Event Hubs partitions, so that all workers participate in consuming data from Event Hubs.
+
+The limiting factor for throughput is not consuming from Event Hubs, but writing data to Delta Lake (Parquet columnar compressed data). To increase throughput if needed, you can leverage the following settings:
+
+- Having additional worker nodes, to parallelize the writing across additional processes. Note that columnar data compression gains quickly level off, and that this will result in smaller files in Delta Lake storage.
+- Increasing the maxEventsPerTrigger setting, i.e. number of events processed per Structured Streaming micro-batch, at the cost of addittional latency.
+
+Here are some measures of maximum processing rate (events/second) observed using Databricks Runtime 5.4 and Standard\_DS3\_v2 worker nodes (Event Hubs configured with 2 partitions and 2 throughput units):
+
+| maxEventsPerTrigger (columns) & worker nodes (rows)       | 3000 | 4000 | 5000 | 6000 | 7000 |
+|--------------------|------|------|------|------|------|
+| **1**              | 525  |  700 |  918 | 1090 | 1168 |
+| **2**              | 700  |  898 | 1067 | 1250 | 1442 |
+| **3**              | 773  | 1000 | 1250 | 1406 | 1632 |
+| **4**              | 800  | 1067 | 1375 | 1502 | 1632 |
+
+
+Accordingly, in the standard solution we defined 2 worker nodes and DATABRICKS_MAXEVENTSPERTRIGGER=7000 to ensure a max ingestion rate over 40% higher than the average incoming throughput, in order to account for spikes, node failures, etc.
 
 ## Query Data
 
+Data is stored in a Delta Lake Spark table in the created Azure Databricks workspace, backed by Azure Data Lake Storage Gen2. You can query the table by logging  into the Databricks workspace, creating a cluster, and creating a notebook to query the data.
+From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
 From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
 
 ```scala
@@ -151,7 +178,7 @@ and the you can query the table using Spark SQL for example:
 
 ```
 %sql
-SELECT * FROM delta.`abfss://databricks@<created-adsl2-storage-account>.dfs.core.windows.net/stream_scale_events` LIMIT 1000
+SELECT * FROM delta.`abfss://databricks@<created-adsl2-storage-account>.dfs.core.windows.net/stream_scale_events` LIMIT 100
 ```
 
 More info here:
