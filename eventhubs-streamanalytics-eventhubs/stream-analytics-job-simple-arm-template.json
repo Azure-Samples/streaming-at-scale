@@ -9,7 +9,13 @@
         "eventHubNamespace": {
             "type": "string"
         },
+        "eventHubNamespaceOut": {
+            "type": "string"
+        },
         "eventHubKey": {
+            "type": "securestring"
+        },
+        "eventHubKeyOut": {
             "type": "securestring"
         },
         "eventHubName": {
@@ -114,9 +120,9 @@
                             "datasource": {
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
-                                    "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                                    "serviceBusNamespace": "[parameters('eventHubNamespaceOut')]",
                                     "sharedAccessPolicyName": "RootManageSharedAccessKey",
-                                    "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKeyOut')]",
                                     "eventHubName": "[parameters('eventHubNameOut')]",
                                     "partitionKey": "[parameters('eventHubPartitionKeyOut')]"
                                 }

@@ -53,7 +53,7 @@ fi
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
-    export EVENTHUB_CAPACITY=10
+    export EVENTHUB_CAPACITY=12
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
     export TEST_CLIENTS=30
@@ -61,7 +61,7 @@ fi
 
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export EVENTHUB_PARTITIONS=6
+    export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=12 # must be 1, 3, 6 or a multiple or 6
@@ -137,9 +137,9 @@ echo
 echo "***** [I] Setting up INGESTION AND EGRESS EVENT HUBS"
     
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"
-    export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_NAME_OUT=$PREFIX"out-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_NAMES="$EVENTHUB_NAME $EVENTHUB_NAME_OUT"
+    export EVENTHUB_NAMESPACE_OUT=$PREFIX"eventhubsout"
+    export EVENTHUB_NAMESPACES="$EVENTHUB_NAMESPACE $EVENTHUB_NAMESPACE_OUT"
+    export EVENTHUB_NAME="streamingatscale-$EVENTHUB_PARTITIONS"
     export EVENTHUB_CG="asa"
 
     RUN=`echo $STEPS | grep I -o || true`

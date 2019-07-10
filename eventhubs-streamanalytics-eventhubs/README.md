@@ -15,7 +15,9 @@ statusNotificationTargets:
 
 # Streaming at Scale with Azure Event Hubs and Stream Analytics
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data. This is done to analyze pure streaming performances of Stream Analytics; no aggregation is done and data is passed as fast as possibile from the input to the output. Data is augmented by adding additional fields.
+This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data. This is done to analyze pure streaming performances of Stream Analytics; no aggregation is done and data is passed as fast as possible from the input to the output. Data is augmented by adding additional fields.
+
+To support very high throughput, two different Event Hubs namespaces are deployed by the template. Event Hubs capacity is limited to up to 20 units of 1 MB/s each (although this limit can be increased through a support ticket). If incoming throughput is under 10 MB/s, you could deploy two Event Hub instances under a single namespace instead.
 
 The provided scripts will an end-to-end solution complete with load test client.  
 
