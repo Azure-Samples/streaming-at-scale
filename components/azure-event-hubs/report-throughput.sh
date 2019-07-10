@@ -15,7 +15,8 @@ printf "$fmt" "" $(tr -C " " "-" <<<$metric_names)
 printf "$fmt" "MAX VALUE" "$((EVENTHUB_CAPACITY*1000*PER_MIN))" "$((EVENTHUB_CAPACITY*1*MB*PER_MIN))" "$((EVENTHUB_CAPACITY*4096*PER_MIN))" "$((EVENTHUB_CAPACITY*2*MB*PER_MIN))" "-"
 printf "$fmt" "" $(tr -C " " "-" <<<$metric_names)
 for i in {1..30} ; do
-  printf "$fmt" "$(date +%Y-%m-%dT%H:%M:%S%z)" $(az monitor metrics list --resource "$eh_resource" --interval PT1M --metrics $(tr " " "," <<< $metric_names) --offset 1M | jq -r '.value[] | .timeseries[0].data[0].total')
+  printf "$fmt" "$(date +%Y-%m-%dT%H:%M:%S%z)" $(az monitor metrics list --resource "$eh_resource" --interval PT1M --metrics $(tr " " "," <<< $metric_names) --offset 1M --query 'value[].timeseries[0].data[0].floor(total)' -o tsv)
+
   # sleep until next full minute. "10#" is to force base 10 if string is e.g. "09"
   sleep "$((60 - 10#$(date +%S) ))"
 done
