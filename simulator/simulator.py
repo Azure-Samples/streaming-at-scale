@@ -31,6 +31,8 @@ EVENT_HUB = {
     'token': get_auth_token(os.environ['EVENTHUB_NAMESPACE'], os.environ['EVENTHUB_NAME'], os.environ['EVENTHUB_KEY'])
 }
 
+duplicateEveryNEvents = int(os.environ.get('DUPLICATE_EVERY_N_EVENTS') or 0)
+
 class DeviceSimulator(TaskSet):
     headers = {
         'Content-Type': 'application/atom+xml;type=noretry;charset=utf-8 ',
@@ -65,7 +67,10 @@ class DeviceSimulator(TaskSet):
         brokerProperties = { 'PartitionKey': str(deviceIndex) }
         headers["BrokerProperties"] = json.dumps(brokerProperties)
 
-        self.client.post(self.endpoint, json=jsonBody, verify=False, headers=headers)
+
+        n = 2 if duplicateEveryNEvents>0 and random.randrange(duplicateEveryNEvents) == 0 else 1
+        for i in range(n):
+            self.client.post(self.endpoint, json=jsonBody, verify=False, headers=headers)
 
     @task
     def sendTemperature(self):

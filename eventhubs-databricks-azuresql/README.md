@@ -107,6 +107,62 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
+## Duplicate handling
+
+In case the Databricks job fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Azure SQL Database. The solution implements an ETL process to make this operation idempotent, so that events are not duplicated in Azure SQL Database (based on the eventId attribute). The process has been engineered for performance at high throughput.
+
+Data is first [bulk loaded](https://docs.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql)
+into a staging table whose partition scheme is aligned to that of the target table. Then, a stored procedure is run within Azure SQL Database in order to first deduplicate events from the staging table, then insert only new events into the target table, and finally the staging table is cleared (see [Databricks notebook](../streaming/databricks/notebooks/eventhubs-to-azuresql.scala)).
+
+Due to lookups, performance can be expected to decrease as data accumulates in the target table, so you should perform careful measurements for your scenario. The ETL process introduces a performance bottleneck. In the chart below, processing is not keeping up with the event generation rate of 10k events per second, although the database is running at a high P6 tier (the spike around 20:54 is due to an intermittent database disconnection while running the ETL stored procedure, and demonstrates that the job seamlessly recovers from such a transient failure).
+
+![Console Performance Report](etl-performance.png)
+
+The stored procedure code is as follows:
+
+
+
+```sql
+CREATE PROCEDURE [dbo].[stp_WriteDataBatch] 
+as
+  -- Move events from staging_table to rawdata table.
+  -- WARNING: This procedure is non transaction to optimize performance, and
+  --          assumes no concurrent writes into the staging_table during its execution.
+  declare @buid uniqueidentifier = newId();
+
+  -- ETL logic: insert events if they do not already exist in destination table
+WITH staging_data_with_partition AS
+(
+	SELECT * 
+	FROM dbo.staging_table
+)
+MERGE dbo.rawdata AS t
+    USING (
+
+      -- Deduplicate events from staging table
+      SELECT  *
+      FROM (SELECT *,
+	    ROW_NUMBER() OVER (PARTITION BY PartitionId, EventId ORDER BY EnqueuedAt) AS RowNumber
+        FROM staging_data_with_partition
+        ) AS StagingDedup
+      WHERE StagingDedup.RowNumber = 1
+
+    ) AS s
+        ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
+
+    WHEN NOT MATCHED THEN
+        INSERT (PartitionId, EventId, Type, DeviceId, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
+			BatchId, StoredAt) 
+        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+			@buid, sysutcdatetime())
+        ;
+
+TRUNCATE TABLE dbo.staging_table;
+
+GO
+EXEC [stp_WriteDataBatch]
+```
+
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:

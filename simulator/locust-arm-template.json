@@ -32,6 +32,13 @@
         "description": "Event Hub key"
       }
     },
+    "duplicateEveryNEvents": {
+      "type": "int",
+      "metadata": {
+        "description": "Generate duplicate events for every N event on average (randomly selected), if >0"
+      },
+      "defaultValue": 0
+    },
     "numberOfInstances": {
       "type": "int",
       "metadata": {
@@ -80,6 +87,10 @@
                 {
                   "name": "EVENTHUB_NAME",
                   "value": "[parameters('eventHubName')]"
+                },
+                {
+                  "name": "DUPLICATE_EVERY_N_EVENTS",
+                  "value": "[parameters('duplicateEveryNEvents')]"
                 }
               ],
               "resources": {
@@ -172,6 +183,10 @@
                 {
                   "name": "EVENTHUB_NAME",
                   "value": "[parameters('eventHubName')]"
+                },
+                {
+                  "name": "DUPLICATE_EVERY_N_EVENTS",
+                  "value": "[parameters('duplicateEveryNEvents')]"
                 }
               ],
               "resources": {

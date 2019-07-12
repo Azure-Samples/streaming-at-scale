@@ -172,8 +172,7 @@ case $SQL_TABLE_KIND in
         TABLE_SUFFIX="_cs"
         ;;
     *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore', 'rowstore-inmemory', 'columnstore' or 'columnstore-inmemory'"
-        echo "please install it as it is needed by the script"
+        echo "SQL_TABLE_KIND must be set to 'rowstore', 'columnstore'"
         exit 1
         ;;
 esac
@@ -238,6 +237,7 @@ echo "***** [P] Setting up PROCESSING"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+    export SQL_ETL_STORED_PROC="stp_WriteDataBatch$TABLE_SUFFIX"
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
