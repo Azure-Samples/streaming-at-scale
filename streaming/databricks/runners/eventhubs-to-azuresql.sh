@@ -12,6 +12,8 @@ databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" 
   | .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
   | .notebook_task.base_parameters."eventhub-maxEventsPerTrigger" = "$DATABRICKS_MAXEVENTSPERTRIGGER"
   | .notebook_task.base_parameters."azuresql-servername" = "$SQL_SERVER_NAME"
-  | .notebook_task.base_parameters."azuresql-tablename" = "$SQL_TABLE_NAME"
+  | .notebook_task.base_parameters."azuresql-finaltable" = "$SQL_TABLE_NAME"
+  | .notebook_task.base_parameters."azuresql-etlstoredproc" = "$SQL_ETL_STORED_PROC"
+  
 JQ
 )"
