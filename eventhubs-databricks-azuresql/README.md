@@ -151,16 +151,13 @@ MERGE dbo.rawdata AS t
         ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
 
     WHEN NOT MATCHED THEN
-        INSERT (PartitionId, EventId, Type, DeviceId, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
-			BatchId, StoredAt) 
-        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
-			@buid, sysutcdatetime())
+        INSERT (PartitionId, EventId, Type, DeviceId, CreatedAt, Value, ComplexData, 
+	                EnqueuedAt, ProcessedAt, BatchId, StoredAt) 
+        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.CreatedAt, s.Value, s.ComplexData,
+	                s.EnqueuedAt, s.ProcessedAt, @buid, sysutcdatetime())
         ;
 
 TRUNCATE TABLE dbo.staging_table;
-
-GO
-EXEC [stp_WriteDataBatch]
 ```
 
 ## Solution customization
