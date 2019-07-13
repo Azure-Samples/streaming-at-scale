@@ -1,0 +1,19 @@
+{
+  "name": "Sample job",
+  "new_cluster": {
+    "spark_version": "5.4.x-scala2.11",
+    "node_type_id": "Standard_DS3_v2",
+    "num_workers": 3,
+    "spark_env_vars": {
+      "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+    }
+  },
+  "libraries": [
+    {
+      "maven": {
+        "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.12"
+      }
+    }
+  ],
+  "timeout_seconds": 1800
+}

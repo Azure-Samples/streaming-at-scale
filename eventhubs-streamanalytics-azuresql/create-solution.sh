@@ -118,16 +118,16 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az)
-if [ -z HAS_AZ ]; then
+HAS_AZ=$(command -v az || true)
+if [ -z "$HAS_AZ" ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
     exit 1
 fi
 
-HAS_JQ=$(command -v jq)
-if [ -z HAS_JQ ]; then
+HAS_JQ=$(command -v jq || true)
+if [ -z "$HAS_JQ" ]; then
     echo "jq not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
@@ -176,8 +176,8 @@ echo "***** [C] Setting up COMMON resources"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+        source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
@@ -189,7 +189,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        ./01-create-event-hub.sh
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -197,10 +197,12 @@ echo "***** [D] Setting up DATABASE"
 
     export SQL_SERVER_NAME=$PREFIX"sql" 
     export SQL_DATABASE_NAME="streaming"    
+    export SQL_ADMIN_PASS="Strong_Passw0rd!"  
+    export BACPAC_FILE="streaming-streamanalytics.bacpac"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
-        ./02-create-azure-sql.sh
+        source ../components/azure-sql-database/create-sql-database.sh
     fi
 echo
 
@@ -211,17 +213,15 @@ echo "***** [P] Setting up PROCESSING"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        ./03-create-stream-analytics.sh
+        source ./create-stream-analytics.sh
     fi
 echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
-
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        ./04-run-clients.sh
+        source ../simulator/run-event-generator.sh
     fi
 echo
 
@@ -229,7 +229,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        ./05-report-throughput.sh
+        source ../components/azure-event-hubs/report-throughput.sh
     fi
 echo
 

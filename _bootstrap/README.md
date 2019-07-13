@@ -1,6 +1,6 @@
 # Boostrap Solution
 
-This folder and its content can be used as a starting point to create a new end-to-end streaming solution sample. Followingyou can find the instruction to collaborate by creating new end-to-end samples.
+This folder and its content can be used as a starting point to create a new end-to-end streaming solution sample. Following you can find the instruction to collaborate by creating new end-to-end samples.
 
 ## Create a new folder
 
@@ -20,7 +20,7 @@ if you're planning to create an end-to-end solution using Kafka as the ingestion
 
 Copy the content of this `_bootstrap` folder into the folder you just created.
 
-## Folder content
+## Script content
 
 ### create-solution.sh
 
@@ -36,33 +36,36 @@ The file does the following things:
 
 Code should be self-explanatory; if not, just ask.
 
-### 01-create-event-hub.sh
+### source ../components/azure-event-hubs/create-event-hub.sh
 
-`01-create-event-hub.sh`: this files creates the Event Hub used for ingestion. If you are planning to use some other technology for the ingestion phase, like Kafka, just remove this file and create a new one, with a new name, that suits your need. Try to follow the same coding style to make sure samples are consistent.
+`create-event-hub.sh`: this script creates the Event Hub used for ingestion. If you are planning to use some other technology for the ingestion phase, like Kafka, just use another component or create a new one, with a new name, that suits your need. Try to follow the same coding style to make sure samples are consistent.
 
  If you are using Event Hub, you almost surely can use this script as is, without any change.
 
-### 02-create-database.sh
+### source ../components/azure-cosmosdb/create-cosmosdb.sh
 
-`02-create-database.sh`: this files is empty, as you have to fill in with the code needed to deploy the database you want to use for the end-to-end sample. You can take a look at the following script to understand how you can create your:
+`create-cosmosdb.sh`: this script creates a Cosmos DB instance for serving, again you can use another component instead, such as azure-sql-database.
 
-* [eventhubs-streamanalytics-azuresql/02-create-azure-sql.sh](../eventhubs-streamanalytics-azuresql/02-create-azure-sql.sh)
-* [eventhubs-streamanalytics-cosmosdb/02-create-cosmosdb.sh](../eventhubs-streamanalytics-cosmosdb/02-create-cosmosdb.sh)
-
-once you have created your file, make sure you rename it so that it will be clear which technology is using.
-
-### 03-create-stream-processor.sh
-
-`03-create-stream-processor.sh`: this files is empty, just like for the previous file, as you have to fill in with the code needed to deploy the stream processor you want to use for the end-to-end sample. You can take a look at the following script to understand how you can create your:
-
-* [eventhubs-functions-cosmosdb/03-create-processing-function.sh](../eventhubs-functions-cosmosdb/03-create-processing-function.sh)
-* [eventhubs-streamanalytics-azuresql/03-create-stream-analytics.sh](../eventhubs-streamanalytics-azuresql/03-create-stream-analytics.sh)
+* [../components/azure-sql-database/create-sql-database.sh](../components/azure-sql-database/create-sql-database.sh)
 
 once you have created your file, make sure you rename it so that it will be clear which technology is using.
 
-### 04-run-clients.sh
+### source ../components/azure-functions/create-processing-function.sh
+### source ../components/azure-functions/configure-processing-function-cosmosdb.sh
 
-`04-run-clients.sh` contains the code need to setup a [Locust](http://locust.io) cluster in distributed mode, usiong Azure Container Instances.
+`create-processing-function.sh`: this script creates an Azure Function for stream processing, again you can use another component instead, such as Databricks, or provide your own script.
+
+`configure-processing-function-cosmosdb.sh`: this script configures the Azure Function for output to Cosmos DB, here too you can change to another variant, e.g. to output to Azure SQL.
+
+You can take a look at the following script to understand how you can create your:
+
+* [eventhubs-streamanalytics-azuresql/create-stream-analytics.sh](../eventhubs-streamanalytics-azuresql/create-stream-analytics.sh)
+
+once you have created your file, make sure you rename it so that it will be clear which technology is using.
+
+### source ../simulator/run-event-generator.sh
+
+`run-event-generator.sh` contains the code need to setup a [Locust](http://locust.io) cluster in distributed mode, usiong Azure Container Instances.
 
 Each locust generates up to 340 msgs/sec. Each generated message is close to 1KB and look like this:
 
@@ -101,11 +104,15 @@ Each locust generates up to 340 msgs/sec. Each generated message is close to 1KB
 }
 ```
 
-and it will send data to the specified Event Hub. If you need to send data to something different, then you will need to create a new locustfile in [../_common/locust/simulator.py]([../_common/locust/simulator.py) and also make sure it is uploaded to the shared file folder (check the code in the script)
+and it will send data to the specified Event Hub. If you need to send data to something different, then you will need to create a new locustfile in [../simulator/simulator.py](../simulator/simulator.py) and also make sure it is uploaded to the shared file folder (check the code in the script).
+
+### source ../components/azure-event-hubs/report-throughput.sh
+
+`report-throughput.sh` queries Azure Monitor for Event Hub metrics and reports incoming and outgoing messages per minute. Ideally after a ramp-up phase those two metrics should be similar.
 
 ## General Notes
 
-Nothing is written in stone so if you need more than four files, just add the files you need and change the script accordingly. This has been done, for example, here:
+Nothing is set in stone so if you need more than four files, just add the files you need and change the script accordingly. This has been done, for example, here:
 
 [eventhubs-functions-cosmosdb](../eventhubs-functions-cosmosdb/)
 

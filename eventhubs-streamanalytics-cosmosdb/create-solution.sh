@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
@@ -109,16 +110,16 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az)
-if [ -z HAS_AZ ]; then
+HAS_AZ=$(command -v az || true)
+if [ -z "$HAS_AZ" ]; then
     echo "AZ CLI not found"
     echo "please install it as described here:"
     echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
     exit 1
 fi
 
-HAS_JQ=$(command -v jq)
-if [ -z HAS_JQ ]; then
+HAS_JQ=$(command -v jq || true)
+if [ -z "$HAS_JQ" ]; then
     echo "jq not found"
     echo "please install it using your package manager, for example, on Ubuntu:"
     echo "  sudo apt install jq"
@@ -152,9 +153,9 @@ echo "***** [C] Setting up COMMON resources"
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
@@ -165,8 +166,8 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CG="cosmos"
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
-        ./01-create-event-hub.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -177,8 +178,8 @@ echo "***** [D] Setting up DATABASE"
     export COSMOSDB_COLLECTION_NAME="rawdata"
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
-        ./02-create-cosmosdb.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-cosmosdb/create-cosmosdb.sh
     fi
 echo
 
@@ -186,28 +187,25 @@ echo "***** [P] Setting up PROCESSING"
 
     export PROC_JOB_NAME=$PREFIX"streamingjob"
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z $RUN ]; then
-        ./03-create-stream-analytics.sh
+    if [ ! -z "$RUN" ]; then
+        source ./create-stream-analytics.sh
     fi
 echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
-
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
-        ./04-run-clients.sh
+    if [ ! -z "$RUN" ]; then
+        source ../simulator/run-event-generator.sh
     fi
 echo
 
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z $RUN ]; then
-        ./05-report-throughput.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/report-throughput.sh
     fi
 echo
 
 echo "***** Done"
-
