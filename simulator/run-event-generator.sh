@@ -3,6 +3,8 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
+SIMULATOR_DUPLICATE_EVERY_N_EVENTS=${SIMULATOR_DUPLICATE_EVERY_N_EVENTS:-1000}
+
 echo "retrieving storage connection string"
 AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP -o tsv)
 
@@ -21,7 +23,7 @@ echo 'create test clients'
 echo ". count: $TEST_CLIENTS"
 
 echo "deploying locust..."
-locust_output=$(az group deployment create -g $RESOURCE_GROUP --template-file ../simulator/locust-arm-template.json --parameters eventHubNamespace=$EVENTHUB_NAMESPACE eventHubName=$EVENTHUB_NAME eventHubKey=$EVENTHUB_KEY storageAccountName=$AZURE_STORAGE_ACCOUNT fileShareName=locust numberOfInstances=$TEST_CLIENTS)
+locust_output=$(az group deployment create -g $RESOURCE_GROUP --template-file ../simulator/locust-arm-template.json --parameters eventHubNamespace=$EVENTHUB_NAMESPACE eventHubName=$EVENTHUB_NAME eventHubKey=$EVENTHUB_KEY storageAccountName=$AZURE_STORAGE_ACCOUNT fileShareName=locust numberOfInstances=$TEST_CLIENTS duplicateEveryNEvents=$SIMULATOR_DUPLICATE_EVERY_N_EVENTS)
 LOCUST_MONITOR=$(jq -r .properties.outputs.locustMonitor.value <<< "$locust_output")
 sleep 10
 
