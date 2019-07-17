@@ -12,24 +12,24 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export STEPS="CIPTMV"
+
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIPTM" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
-    echo "      M=METRICS reporting" 1>&2; 
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=$STEPS"
+    echo "    Possible values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:" arg; do
@@ -53,18 +53,6 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
-fi
-
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIPTM"
 fi
 
 # 10000 messages/sec
@@ -109,37 +97,9 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az || true)
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq || true)
-if [ -z "$HAS_JQ" ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
-    exit 1
-fi
-
-HAS_DATABRICKSCLI=$(command -v databricks || true)
-if [ -z "$HAS_DATABRICKSCLI" ]; then
-    echo "databricks-cli not found"
-    echo "please install it as described here:"
-    echo "https://github.com/databricks/databricks-cli"
-    exit 1
-fi
-
-AZ_SUBSCRIPTION_NAME=$(az account show --query name -o tsv || true)
-if [ -z "$AZ_SUBSCRIPTION_NAME" ]; then
-    #az account show already shows error message "Please run 'az login' to setup account."
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
+source ../assert/has-local-databrickscli.sh
 
 echo
 echo "Streaming at Scale with Azure Databricks and Delta"
@@ -150,7 +110,6 @@ echo "Steps to be executed: $STEPS"
 echo
 
 echo "Configuration: "
-echo ". Subscription    => $AZ_SUBSCRIPTION_NAME"
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
@@ -164,7 +123,7 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
-    export AZURE_STORAGE_ACCOUNT_GEN2=$PREFIX"storagegen2"
+    export AZURE_STORAGE_ACCOUNT_GEN2=$PREFIX"storhfs"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then

@@ -31,23 +31,23 @@ az eventhubs eventhub create -n $EVENTHUB_NAME -g $RESOURCE_GROUP \
     --storage-account $AZURE_STORAGE_ACCOUNT \
     -o tsv >> log.txt
 
-if [ -n "${EVENTHUB_CG:-}" ]; then
-echo 'creating consumer group'
-echo ". name: $EVENTHUB_CG"
-
-az eventhubs eventhub consumer-group create -n $EVENTHUB_CG -g $RESOURCE_GROUP \
-    --eventhub-name $EVENTHUB_NAME --namespace-name $eventHubsNamespace \
-    -o tsv >> log.txt
-fi
-
-az eventhubs eventhub authorization-rule create -g $RESOURCE_GROUP --eventhub-name $EVENTHUB_NAME \
+az eventhubs namespace authorization-rule create -g $RESOURCE_GROUP \
     --namespace-name $eventHubsNamespace \
     --name Listen --rights Listen \
     -o tsv >> log.txt
 
-az eventhubs eventhub authorization-rule create -g $RESOURCE_GROUP --eventhub-name $EVENTHUB_NAME \
+az eventhubs namespace authorization-rule create -g $RESOURCE_GROUP \
     --namespace-name $eventHubsNamespace \
     --name Send --rights Send \
     -o tsv >> log.txt
 
+if [ -n "${EVENTHUB_CG:-}" ]; then
+    echo 'creating consumer group'
+    echo ". name: $EVENTHUB_CG"
+
+    az eventhubs eventhub consumer-group create -n $EVENTHUB_CG -g $RESOURCE_GROUP \
+        --eventhub-name $EVENTHUB_NAME --namespace-name $eventHubsNamespace \
+        -o tsv >> log.txt
+    fi
 done
+

@@ -12,25 +12,25 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export STEPS="CIDPTM"
+
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
+    echo "-s: specify which steps should be executed. Default=$STEPS" 1>&2; 
+    echo "    Possible values:" 1>&2; 
     echo "      C=COMMON" 1>&2; 
     echo "      I=INGESTION" 1>&2; 
     echo "      D=DATABASE" 1>&2; 
     echo "      P=PROCESSING" 1>&2; 
     echo "      T=TEST clients" 1>&2; 
     echo "      M=METRICS reporting"
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:" arg; do
@@ -54,18 +54,6 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
-fi
-
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPTM"
 fi
 
 # ---- BEGIN: SET THE VALUES TO CORRECTLY HANDLE THE WORKLOAD
@@ -115,23 +103,8 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az || true)
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq || true)
-if [ -z "$HAS_JQ" ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
 
 echo
 echo "Streaming at Scale with Stream Analytics and CosmosDB"

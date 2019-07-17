@@ -5,7 +5,13 @@ set -euo pipefail
 
 echo 'getting EH primary connection string'
 EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
+if [[ -n "${DATABRICKS_HOST:-}" && -n "${DATABRICKS_TOKEN:-}" ]]; then
 
+  echo 'Not creating Databricks workspace. Using environment DATABRICKS_HOST and DATABRICKS_TOKEN settings'
+
+else
+
+if ! az resource show -g $RESOURCE_GROUP --resource-type Microsoft.Databricks/workspaces -n $ADB_WORKSPACE -o none 2>/dev/null; then
 echo 'creating databricks workspace'
 echo ". name: $ADB_WORKSPACE"
 az group deployment create \
@@ -16,6 +22,7 @@ az group deployment create \
   workspaceName=$ADB_WORKSPACE \
   tier=standard \
   -o tsv >>log.txt
+fi
 
 databricks_metainfo=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.Databricks/workspaces -n $ADB_WORKSPACE -o json)
 
@@ -63,7 +70,7 @@ if [[ -z "$pat_token" ]]; then
 EOM
   
   echo 'waiting for PAT (polling every 5 secs)...'
-  while true;  do
+  while : ; do
     pat_token=$(az keyvault secret show --vault-name "$ADB_TOKEN_KEYVAULT" --name "$databricks_token_secret_name" --query value -o tsv | grep dapi || true)	
     if [ ! -z "$pat_token" ]; then break; fi
 	  sleep 5
@@ -75,6 +82,7 @@ fi
 export DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"' <<<"$databricks_metainfo")
 export DATABRICKS_TOKEN="$pat_token"
 
+fi
 echo 'checking Databricks secrets scope exists'
 declare SECRETS_SCOPE=$(databricks secrets list-scopes --output JSON | jq -e ".scopes[]? | select (.name == \"MAIN\") | .name") &>/dev/null
 if [ -z "$SECRETS_SCOPE" ]; then

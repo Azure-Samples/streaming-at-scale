@@ -1,25 +1,26 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 export PREFIX=''
-export LOCATION='eastus'
-export TESTTYPE='1'
-export STEPS='CIPTM'
+export LOCATION="eastus"
+export TESTTYPE="1"
+export STEPS="CIPTM"
 export STREAM_ANALYTICS_JOBTYPE='simple'
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
-    echo "    Possibile values:"
+    echo "    Possible values:"
     echo "      C=COMMON"
     echo "      I=INGESTION"
     echo "      P=PROCESSING"
-    echo "      T=TEST clients" 
+    echo "      T=TEST clients"
     echo "      M=METRICS reporting"
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-a: type of job: simple or anomalydetection. Default=simple"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
 
@@ -89,23 +90,8 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az || true)
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq || true)
-if [ -z "$HAS_JQ" ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
 
 echo
 echo "Streaming at Scale with Stream Analytics and Event Hubs"
@@ -123,12 +109,15 @@ echo ". StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS, Job 
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
-echo "***** [C] Setting up common resources"
+echo "Deployment started..."
+echo
+
+echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
@@ -143,7 +132,7 @@ echo "***** [I] Setting up INGESTION AND EGRESS EVENT HUBS"
     export EVENTHUB_CG="asa"
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
@@ -152,7 +141,7 @@ echo "***** [P] Setting up PROCESSING"
 
     export PROC_JOB_NAME=$PREFIX"streamingjob"
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ./create-stream-analytics.sh
     fi
 echo
@@ -160,7 +149,7 @@ echo
 echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../simulator/run-event-generator.sh
     fi
 echo
@@ -168,9 +157,9 @@ echo
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/report-throughput.sh
     fi
 echo
 
-echo "***** done"
+echo "***** Done"
