@@ -3,8 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-echo 'getting EH primary connection string'
-EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
 if [[ -n "${DATABRICKS_HOST:-}" && -n "${DATABRICKS_TOKEN:-}" ]]; then
 
   echo 'Not creating Databricks workspace. Using environment DATABRICKS_HOST and DATABRICKS_TOKEN settings'

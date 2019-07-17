@@ -28,6 +28,7 @@ usage() {
     echo "      P=PROCESSING"
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
+    echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-f: function to test. Default=$PROC_FUNCTION"
     echo "-l: where to create the resources. Default=$LOCATION"
@@ -203,6 +204,18 @@ echo "***** [M] Starting METRICS reporting"
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    export ADB_WORKSPACE=$PREFIX"databricks" 
+    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-cosmosdb.sh
     fi
 echo
 

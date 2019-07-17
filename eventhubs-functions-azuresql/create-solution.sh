@@ -28,6 +28,7 @@ usage() {
     echo "      P=PROCESSING"
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
+    echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-k: test rowstore, columnstore, rowstore-inmemory, columnstore-inmemory. Default=$SQL_TABLE_KIND"
     echo "-l: where to create the resources. Default=$LOCATION"
@@ -217,6 +218,19 @@ echo "***** [M] Starting METRICS reporting"
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    export ADB_WORKSPACE=$PREFIX"databricks" 
+    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+    export SQL_TABLE_NAME="[dbo].[rawdata$TABLE_SUFFIX]"
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-azuresql.sh
     fi
 echo
 

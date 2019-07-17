@@ -10,8 +10,8 @@ dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max eve
 import org.apache.spark.eventhubs.{ EventHubsConf, EventPosition }
 
 val eventHubsConf = EventHubsConf(dbutils.secrets.get(scope = "MAIN", key = "event-hubs-read-connection-string"))
-  .setStartingPosition(EventPosition.fromStartOfStream)
   .setConsumerGroup(dbutils.widgets.get("eventhub-consumergroup"))
+  .setStartingPosition(EventPosition.fromStartOfStream)
   .setMaxEventsPerTrigger(dbutils.widgets.get("eventhub-maxEventsPerTrigger").toLong)
 
 val eventhubs = spark.readStream
@@ -23,21 +23,21 @@ val eventhubs = spark.readStream
 
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import java.time.Instant
+import java.sql.Timestamp
+
 val schema = StructType(
   StructField("eventId", StringType) ::
   StructField("complexData", StructType((1 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
-  StructField("createdAt", StringType) :: Nil)
-val jsons = eventhubs
-      .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
-      .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey", $"enqueuedTime".cast(StringType).as("enqueuedAt")) 
+  StructField("createdAt", TimestampType) :: Nil)
 
-// COMMAND ----------
-
-val transformed = jsons
-  .withColumn("processedAt", current_timestamp.cast(StringType))
+val streamData = eventhubs
+  .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
+  .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
+  .withColumn("processedAt", lit(Timestamp.from(Instant.now)))
 
 // COMMAND ----------
 
@@ -53,12 +53,20 @@ val cosmosDbConfig = Map(
 
 // COMMAND ----------
 
+// Convert Timestamp columns to Date type for Cosmos DB compatibility
+var streamDataMutated = streamData
+for (c <- streamData.schema.fields filter { _.dataType.isInstanceOf[org.apache.spark.sql.types.TimestampType] } map {_.name}) { 
+  streamDataMutated = streamDataMutated.withColumn(c, date_format(col(c), "yyyy-MM-dd'T'HH:mm:ss.SSSX"))
+}
+
+// COMMAND ----------
+
 import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
 
-val cosmosdb = transformed
+streamDataMutated
   .writeStream
   .format(classOf[CosmosDBSinkProvider].getName)
-  .option("checkpointLocation", "dbfs:/checkpoints/streaming-cosmosdb")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb")
   .outputMode("append")
   .options(cosmosDbConfig)
   .start()
