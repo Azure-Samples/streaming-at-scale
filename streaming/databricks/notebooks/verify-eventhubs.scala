@@ -73,7 +73,7 @@ if (batchCount == 0) {
 
 // COMMAND ----------
 
-dbutils.notebook.run("verify-common", 60, Map(
+dbutils.notebook.run("verify-common", 0, Map(
     "input-table" -> stagingTable
 ))
 

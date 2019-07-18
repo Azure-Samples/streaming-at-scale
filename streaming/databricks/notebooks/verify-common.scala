@@ -1,8 +1,7 @@
 // Databricks notebook source
 dbutils.widgets.text("input-table", "stream_data", "Spark table to pass stream data")
-dbutils.widgets.text("process-max-minutes", "5", "Max minutes timespan to process")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
-dbutils.widgets.text("assert-latency-milliseconds", "3000", "Assert max latency in milliseconds (averaged over 1 min windows)")
+dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")
 
 // COMMAND ----------
 
@@ -19,7 +18,6 @@ val streamData = table(dbutils.widgets.get("input-table"))
 import org.apache.spark.sql.functions._
 
 def asOptionalDouble (s:String) = if (s == null || s == "") None else Some(s.toDouble)
-val processMaxMinutes = asOptionalDouble(dbutils.widgets.get("process-max-minutes"))
 val assertEventsPerSecond = asOptionalDouble(dbutils.widgets.get("assert-events-per-second"))
 val assertLatencyMilliseconds = asOptionalDouble(dbutils.widgets.get("assert-latency-milliseconds"))
 
