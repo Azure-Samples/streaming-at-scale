@@ -87,7 +87,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=S3
+    export SQL_SKU=P1
     export TEST_CLIENTS=3
 fi
 
@@ -168,7 +168,6 @@ echo "***** [D] Setting up DATABASE"
     export SQL_SERVER_NAME=$PREFIX"sql" 
     export SQL_DATABASE_NAME="streaming"    
     export SQL_ADMIN_PASS="Strong_Passw0rd!"  
-    export BACPAC_FILE="streaming-streamanalytics.bacpac"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then

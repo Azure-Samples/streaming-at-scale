@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-BACPAC_FILE=${BACPAC_FILE:-streaming.bacpac}
-
 echo "retrieving storage connection string"
 AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP -o tsv)
 
@@ -12,7 +10,7 @@ az storage container create --connection-string $AZURE_STORAGE_CONNECTION_STRING
     -o tsv >> log.txt
 
 echo "uploading bacpac"
-az storage blob upload --connection-string $AZURE_STORAGE_CONNECTION_STRING --container-name database --name streaming.bacpac --file "../components/azure-sql-database/$BACPAC_FILE" \
+az storage blob upload --connection-string $AZURE_STORAGE_CONNECTION_STRING --container-name database --name streaming.bacpac --file "../components/azure-sql-database/streaming.bacpac" \
     -o tsv >> log.txt
 
 echo "retrieving blob url"

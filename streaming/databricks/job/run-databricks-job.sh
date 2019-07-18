@@ -40,6 +40,7 @@ cluster_jq_command="$(cat <<JQ
   | .notebook_task.notebook_path = "/Shared/streaming-at-scale/$notebook_name"
   | .new_cluster.node_type_id = "$DATABRICKS_NODETYPE"
   | .new_cluster.num_workers = $DATABRICKS_WORKERS
+  | .timeout_seconds = $((REPORT_THROUGHPUT_MINUTES * 60))
 JQ
 )"
 

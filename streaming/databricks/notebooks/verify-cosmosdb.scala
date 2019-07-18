@@ -40,18 +40,21 @@ val data = spark
 
 // COMMAND ----------
 
+import java.sql.Timestamp
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.util.UUID.randomUUID
 
-val cosmosDbDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-// Spark's unix_timestamp only converts down to the second, this UDF converts down to milliseconds.
-val cosmos_db_date_to_timestamp = udf((s: String) => new java.sql.Timestamp(cosmosDbDateFormat.parse(s).getTime))
+// Spark's unix_timestamp only converts down to the second, this UDF converts down to milliseconds
+// and supports variable numbers of sub-second decimals.
+val iso_datetime_to_ts = udf((s: String) => Timestamp.from(OffsetDateTime.parse(s, ISO_DATE_TIME).toInstant))
 
 val tempTable = "tempresult_" + randomUUID().toString.replace("-","_")
 
 data
-  .withColumn("createdAt", cosmos_db_date_to_timestamp($"createdAt"))
-  .withColumn("enqueuedAt", cosmos_db_date_to_timestamp($"enqueuedAt"))
-  .withColumn("processedAt", cosmos_db_date_to_timestamp($"processedAt"))
+  .withColumn("createdAt", iso_datetime_to_ts($"createdAt"))
+  .withColumn("enqueuedAt", iso_datetime_to_ts($"enqueuedAt"))
+  .withColumn("processedAt", iso_datetime_to_ts($"processedAt"))
   .withColumn("storedAt", $"_ts".cast("timestamp"))
   .drop("_ts")
   .createOrReplaceGlobalTempView(tempTable)
