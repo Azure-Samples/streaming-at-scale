@@ -16,5 +16,6 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-cosmosdb true "$
   | .notebook_task.base_parameters."cosmosdb-endpoint" = "https://$COSMOSDB_SERVER_NAME.documents.azure.com:443"
   | .notebook_task.base_parameters."cosmosdb-database" = "$COSMOSDB_DATABASE_NAME"
   | .notebook_task.base_parameters."cosmosdb-collection" = "$COSMOSDB_COLLECTION_NAME"
+  | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
 JQ
 )"
