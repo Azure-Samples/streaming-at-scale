@@ -1,6 +1,6 @@
 // Databricks notebook source
 dbutils.widgets.text("eventhub-consumergroup", "$Default", "Event Hubs consumer group")
-dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
+dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000000", "Event Hubs max events per trigger")
 
 // COMMAND ----------
 
@@ -36,8 +36,6 @@ val schema = StructType(
   Nil)
 
 val stagingTable = "tempresult_" + randomUUID().toString.replace("-","_")
-var mode = "ErrorIfExists"
-var batchCount = 0
 
 var query = streamingData
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
@@ -45,13 +43,9 @@ var query = streamingData
   // set when reading from the first eventhub, and the enqueued timestamp of the second eventhub is then the 'storedAt' time
   .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey", $"enqueuedTime".as("storedAt"))
   .writeStream
-  .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
-    batchDF.write.mode(mode).saveAsTable(stagingTable)
-    mode = "Append"
-    batchCount += 1
-  }
-  .start()
-
+  .format("delta")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/verify-eventhubs/" + stagingTable)
+  .table(stagingTable)
 
 // COMMAND ----------
 
@@ -67,7 +61,7 @@ println("Query stopped")
 if (query.exception.nonEmpty) {
   throw query.exception.get
 }
-if (batchCount == 0) {
+if (table(stagingTable).count == 0) {
   throw new AssertionError("No data collected")
 }
 
