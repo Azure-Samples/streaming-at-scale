@@ -64,7 +64,7 @@
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
                                     "serviceBusNamespace": "[parameters('eventHubNamespace')]",
-                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyName": "Listen",
                                     "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
                                     "eventHubName": "[parameters('eventHubName')]",
                                     "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"

@@ -17,7 +17,8 @@ az storage file upload -s locust --source ../simulator/simulator.py --connection
     -o tsv >> log.txt
 
 echo 'getting event hub key'
-EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list --name RootManageSharedAccessKey --namespace-name $EVENTHUB_NAMESPACE --resource-group $RESOURCE_GROUP --query 'primaryKey' -o tsv`
+EVENTHUB_POLICY='Send'
+EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list --name $EVENTHUB_POLICY --namespace-name $EVENTHUB_NAMESPACE --resource-group $RESOURCE_GROUP --query 'primaryKey' -o tsv`
 
 echo 'create test clients'
 echo ". count: $TEST_CLIENTS"
@@ -26,7 +27,8 @@ echo "deploying locust..."
 LOCUST_MONITOR=$(az group deployment create -g $RESOURCE_GROUP \
 	--template-file ../simulator/locust-arm-template.json \
 	--query properties.outputs.locustMonitor.value -o tsv --parameters \
-	eventHubNamespace=$EVENTHUB_NAMESPACE eventHubName=$EVENTHUB_NAME eventHubKey=$EVENTHUB_KEY \
+	eventHubNamespace=$EVENTHUB_NAMESPACE eventHubName=$EVENTHUB_NAME \
+        eventHubPolicy=$EVENTHUB_POLICY eventHubKey=$EVENTHUB_KEY \
 	storageAccountName=$AZURE_STORAGE_ACCOUNT fileShareName=locust \
 	numberOfInstances=$TEST_CLIENTS duplicateEveryNEvents=$SIMULATOR_DUPLICATE_EVERY_N_EVENTS \
 	)

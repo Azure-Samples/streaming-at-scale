@@ -5,8 +5,8 @@ set -euo pipefail
 
 source ../streaming/databricks/runners/verify-common.sh
 
-echo "getting cosmosdb master key"
-COSMOSDB_MASTER_KEY=$(az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv)
+echo "getting cosmosdb read-only master key"
+COSMOSDB_MASTER_KEY=$(az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryReadonlyMasterKey" -o tsv)
 
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "cosmosdb-write-master-key" --string-value "$COSMOSDB_MASTER_KEY"

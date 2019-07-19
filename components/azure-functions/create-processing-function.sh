@@ -44,7 +44,7 @@ echo 'removing local zip file'
 rm -f $PROC_PACKAGE_PATH
 
 echo 'getting shared access key'
-EVENTHUB_CS=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv`
+EVENTHUB_CS=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv`
 
 echo 'adding app settings for connection strings'
 

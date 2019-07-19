@@ -3,7 +3,7 @@
 set -euo pipefail
 
 echo 'getting event hubs shared access key'
-EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryKey" -o tsv`
+EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryKey" -o tsv`
 
 echo 'creating stream analytics job'
 echo ". name: $PROC_JOB_NAME"
