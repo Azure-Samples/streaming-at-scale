@@ -1,5 +1,5 @@
 ---
-topic: sample
+page_type: sample
 languages:
   - azurecli
   - csharp
@@ -18,6 +18,7 @@ products:
   - azure-storage
 statusNotificationTargets:
   - damauri@microsoft.com
+description: "How to setup an end-to-end solution to implement a streaming at scale scenario using a choice of different Azure technologies."
 ---
 
 # Streaming at Scale
