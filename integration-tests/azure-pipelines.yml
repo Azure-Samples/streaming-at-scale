@@ -26,7 +26,7 @@ jobs:
       sudo apt install python3-setuptools;
       sudo pip3 install wheel databricks-cli;
       databricks clusters spark-versions; 
-      echo "vso[task.setVariable variable=DATABRICKS_TOKEN]$DATABRICKS_TOKEN"; 
+      echo "##vso[task.setVariable variable=DATABRICKS_TOKEN]$DATABRICKS_TOKEN"; 
     displayName: Install Databricks CLI and expose token to next tasks
     env:
       DATABRICKS_TOKEN: $(DATABRICKS_PAT_TOKEN)
