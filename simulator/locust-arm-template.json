@@ -26,6 +26,13 @@
         "description": "Event Hub name"
       }
     },
+    "eventHubPolicy": {
+      "type": "string",
+      "metadata": {
+        "description": "Event Hub key"
+      },
+      "defaultValue": "RootManageSharedAccessKey"
+    },
     "eventHubKey": {
       "type": "securestring",
       "metadata": {
@@ -76,6 +83,10 @@
             "properties": {
               "image": "[variables('image')]",
               "environmentVariables": [
+                {
+                  "name": "EVENTHUB_POLICY",
+                  "value": "[parameters('eventHubPolicy')]",
+                },
                 {
                   "name": "EVENTHUB_KEY",
                   "secureValue": "[parameters('eventHubKey')]"
@@ -172,6 +183,10 @@
             "properties": {
               "image": "[variables('image')]",
               "environmentVariables": [
+                {
+                  "name": "EVENTHUB_POLICY",
+                  "value": "[parameters('eventHubPolicy')]",
+                },
                 {
                   "name": "EVENTHUB_KEY",
                   "secureValue": "[parameters('eventHubKey')]"

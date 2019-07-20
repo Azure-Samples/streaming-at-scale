@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
@@ -11,25 +12,26 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export STEPS="CIDPTMV"
+
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
-    echo "-s: specify which steps should be executed. Default=CIDPTM"
-    echo "    Possibile values:"
+    echo "-s: specify which steps should be executed. Default=$STEPS"
+    echo "    Possible values:"
     echo "      C=COMMON"
     echo "      I=INGESTION"
     echo "      D=DATABASE"
     echo "      P=PROCESSING"
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "      V=VERIFY deployment"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:" arg; do
@@ -53,18 +55,6 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
-fi
-
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPTM"
 fi
 
 # 10000 messages/sec
@@ -112,47 +102,9 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az || true)
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq || true)
-if [ -z "$HAS_JQ" ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "https://stedolan.github.io/jq/download/"
-    exit 1
-fi
-
-HAS_PYTHON=$(command -v python || true)
-if [ -z "$HAS_PYTHON" ]; then
-    echo "python 2.7 not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install python"
-    echo "or as described here:"
-    echo "https://wiki.python.org/moin/BeginnersGuide/Download"
-    exit 1
-fi
-
-HAS_DATABRICKSCLI=$(command -v databricks || true)
-if [ -z "$HAS_DATABRICKSCLI" ]; then
-    echo "databricks-cli not found"
-    echo "please install it as described here:"
-    echo "https://github.com/databricks/databricks-cli"
-    exit 1
-fi
-
-AZ_SUBSCRIPTION_NAME=$(az account show --query name -o tsv || true)
-if [ -z "$AZ_SUBSCRIPTION_NAME" ]; then
-    #az account show already shows error message "Please run 'az login' to setup account."
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
+source ../assert/has-local-databrickscli.sh
 
 echo
 echo "Streaming at Scale with Azure Databricks and CosmosDB"
@@ -179,7 +131,7 @@ echo "***** [C] Setting up COMMON resources"
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
@@ -192,7 +144,7 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CG="cosmos"
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
@@ -204,7 +156,7 @@ echo "***** [D] Setting up DATABASE"
     export COSMOSDB_COLLECTION_NAME="rawdata"
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-cosmosdb/create-cosmosdb.sh
     fi
 echo
@@ -215,7 +167,7 @@ echo "***** [P] Setting up PROCESSING"
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
     
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
         source ../streaming/databricks/runners/eventhubs-to-cosmosdb.sh
     fi
@@ -224,7 +176,7 @@ echo
 echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../simulator/run-event-generator.sh
     fi
 echo
@@ -232,8 +184,17 @@ echo
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z $RUN ]; then
+    if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-cosmosdb.sh
     fi
 echo
 

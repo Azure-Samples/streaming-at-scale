@@ -42,14 +42,9 @@ echo "steps to be executed: $STEPS"
 echo
 
 echo "checking prerequisistes..."
-HAS_AZ=$(command -v az || true)
 
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
 
 echo "deployment started..."
 echo

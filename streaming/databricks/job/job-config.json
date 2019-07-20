@@ -1,7 +1,7 @@
 {
   "name": "Sample job",
   "new_cluster": {
-    "spark_version": "5.4.x-scala2.11",
+    "spark_version": "5.5.x-scala2.11",
     "node_type_id": "Standard_DS3_v2",
     "num_workers": 3,
     "spark_env_vars": {
@@ -11,7 +11,7 @@
   "libraries": [
     {
       "maven": {
-        "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.12"
+        "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.13"
       }
     }
   ],

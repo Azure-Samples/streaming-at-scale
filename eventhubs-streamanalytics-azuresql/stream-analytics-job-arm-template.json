@@ -64,7 +64,7 @@
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
                                     "serviceBusNamespace": "[parameters('eventHubNamespace')]",
-                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyName": "Listen",
                                     "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
                                     "eventHubName": "[parameters('eventHubName')]",
                                     "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
@@ -77,7 +77,7 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "create table  [inputEventHub]\r\n(\r\n    eventId nvarchar(max),\r\n    [type] nvarchar(max),\r\n\tdeviceId nvarchar(max),\r\n\tcreatedAt datetime,\r\n\t[value] float,\r\n\tcomplexData record,\r\n\tEventProcessedUtcTime datetime,\r\n\tEventEnqueuedUtcTime datetime,\r\n\tPartitionId bigint\r\n)\r\nselect \r\n    eventId, \r\n    [type],\r\n    deviceId,\r\n    createdAt,\r\n    [value],\r\n    UDF.RecordToJson(complexData) as complexData,\r\n    EventProcessedUtcTime,\r\n    EventEnqueuedUtcTime,\r\n    cast(UDF.GetCurrentDateTime('') as datetime) AS ASAProcessedUtcTime,\r\n    PartitionId\r\ninto\r\n    [AzureSQL]\r\nfrom \r\n    [inputEventHub] partition by PartitionId\r\n"
+                        "query": "create table  [inputEventHub]\r\n(\r\n    eventId nvarchar(max),\r\n    [type] nvarchar(max),\r\n    deviceId nvarchar(max),\r\n    createdAt datetime,\r\n    [value] float,\r\n    complexData record,\r\n    EventProcessedUtcTime datetime,\r\n    EventEnqueuedUtcTime datetime,\r\n    PartitionId bigint\r\n)\r\nselect \r\n    '00000000-0000-0000-0000-000000000000' AS BatchId,\r\n    eventId, \r\n    [type],\r\n    deviceId,\r\n    createdAt,\r\n    [value],\r\n    UDF.RecordToJson(complexData) as complexData,\r\n    EventEnqueuedUtcTime AS enqueuedAt,\r\n    EventProcessedUtcTime AS processedAt,\r\n    cast(UDF.GetCurrentDateTime('') as datetime) AS storedAt,\r\n    PartitionId\r\ninto\r\n    [AzureSQL]\r\nfrom \r\n    [inputEventHub] partition by PartitionId\r\n"
                     }
                 },
                 "functions": [

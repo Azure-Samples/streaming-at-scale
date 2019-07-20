@@ -1,23 +1,23 @@
 // Databricks notebook source
-dbutils.widgets.text("eventhub-consumergroup", "azuresql")
+dbutils.widgets.text("eventhub-consumergroup", "azuresql", "Event Hubs consumer group")
+dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
 dbutils.widgets.text("azuresql-servername", "servername")
 dbutils.widgets.text("azuresql-stagingtable", "[dbo].[staging_table]")
 dbutils.widgets.text("azuresql-finaltable", "[dbo].[rawdata]")
 dbutils.widgets.text("azuresql-etlstoredproc", "[dbo].[stp_WriteDataBatch]")
-dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000", "Event Hubs max events per trigger")
 
 // COMMAND ----------
 
-import org.apache.spark.eventhubs._
+import org.apache.spark.eventhubs.{ EventHubsConf, EventPosition }
 
-val ehConf = EventHubsConf(dbutils.secrets.get(scope = "MAIN", key = "event-hubs-read-connection-string"))
+val eventHubsConf = EventHubsConf(dbutils.secrets.get(scope = "MAIN", key = "event-hubs-read-connection-string"))
   .setConsumerGroup(dbutils.widgets.get("eventhub-consumergroup"))
-  .setStartingPosition(EventPosition.fromEndOfStream)
+  .setStartingPosition(EventPosition.fromStartOfStream)
   .setMaxEventsPerTrigger(dbutils.widgets.get("eventhub-maxEventsPerTrigger").toLong)
 
-val reader = spark.readStream
+val eventhubs = spark.readStream
   .format("eventhubs")
-  .options(ehConf.toMap)
+  .options(eventHubsConf.toMap)
   .load()
 
 // COMMAND ----------
@@ -31,17 +31,12 @@ val schema = StructType(
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
-  StructField("createdAt", StringType) :: Nil)
+  StructField("createdAt", TimestampType) :: Nil)
 
-// COMMAND ----------
-
-val dataToWrite = reader
+val dataToWrite = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
-  .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey".cast(IntegerType), $"enqueuedTime".as("enqueuedAt")) 
-  .withColumn("createdAt", $"createdAt".cast(TimestampType))
-  .withColumn("processedAt", current_timestamp())
-  .withColumn("StoredAt", current_timestamp()) 
-  .select($"eventId".as("EventId"), $"Type", $"DeviceId", $"CreatedAt", $"Value", $"ComplexData", $"EnqueuedAt", $"ProcessedAt", $"StoredAt", $"PartitionKey".as("PartitionId"))
+  .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
+  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt)
 
 // COMMAND ----------
 
@@ -117,6 +112,8 @@ bulkCopyMetadata.addColumnMetadata(9, "PartitionId", java.sql.Types.INTEGER, 0, 
 import com.microsoft.azure.sqldb.spark.connect._
 import java.util.UUID.randomUUID
 import org.apache.spark.sql.DataFrame
+import java.time.Instant
+import java.sql.Timestamp
 
 val generateUUID = udf(() => randomUUID().toString)
 
@@ -124,13 +121,14 @@ var writeDataBatch : java.sql.PreparedStatement = null
 
 val WriteToSQLQuery  = dataToWrite
   .writeStream
-  .option("checkpointLocation", "dbfs:/checkpoints/streaming-to-azuresql")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-azuresql")
   .foreachBatch((batchDF: DataFrame, batchId: Long) => retry(6, 0) {
     
   // Load data into staging table.
   batchDF
     .withColumn("PartitionId", pmod(hash('DeviceId), lit(numPartitions)))
-     .select('EventId, 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'PartitionId)
+    .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
+    .select('EventId, 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'PartitionId)
     .bulkCopyToSqlDB(bulkCopyConfig, bulkCopyMetadata)
 
   if (writeDataBatch == null) {

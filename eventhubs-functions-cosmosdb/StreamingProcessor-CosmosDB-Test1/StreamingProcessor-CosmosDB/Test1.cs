@@ -38,7 +38,7 @@ namespace StreamingProcessor
 
                     var document = JObject.Parse(message);
                     document["enqueuedAt"] = data.SystemProperties.EnqueuedTimeUtc;
-                    document["storedAt"] = DateTime.UtcNow;
+                    document["processedAt"] = DateTime.UtcNow;
                     document["positionInBatch"] = positionInBatch;
 
                     tasks.Add(client.CreateDocumentAsync(document));

@@ -68,7 +68,7 @@
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
                                     "serviceBusNamespace": "[parameters('eventHubNamespace')]",
-                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyName": "Listen",
                                     "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
                                     "eventHubName": "[parameters('eventHubName')]",
                                     "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
@@ -81,7 +81,7 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "select *, UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime from inputEventHub partition by PartitionId"
+                        "query": "select eventId as id, deviceId, type, complexData, value, eventId, PartitionId, createdAt, EventEnqueuedUtcTime AS enqueuedAt, EventProcessedUtcTime AS processedAt, UDF.GetCurrentDateTime('') AS processedAt2 from inputEventHub partition by PartitionId"
                     }
                 },
                 "functions": [{
@@ -121,7 +121,7 @@
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
                                     "serviceBusNamespace": "[parameters('eventHubNamespaceOut')]",
-                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyName": "Send",
                                     "sharedAccessPolicyKey": "[parameters('eventHubKeyOut')]",
                                     "eventHubName": "[parameters('eventHubNameOut')]",
                                     "partitionKey": "[parameters('eventHubPartitionKeyOut')]"

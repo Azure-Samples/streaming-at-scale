@@ -68,7 +68,7 @@
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
                                     "serviceBusNamespace": "[parameters('eventHubNamespace')]",
-                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyName": "Listen",
                                     "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
                                     "eventHubName": "[parameters('eventHubName')]",
                                     "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
@@ -98,7 +98,7 @@
                                 "type": "Microsoft.ServiceBus/EventHub",
                                 "properties": {
                                     "serviceBusNamespace": "[parameters('eventHubNamespaceOut')]",
-                                    "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                                    "sharedAccessPolicyName": "Send",
                                     "sharedAccessPolicyKey": "[parameters('eventHubKeyOut')]",
                                     "eventHubName": "[parameters('eventHubNameOut')]",
                                     "partitionKey": "[parameters('eventHubPartitionKeyOut')]"

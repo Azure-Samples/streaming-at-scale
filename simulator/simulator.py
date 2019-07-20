@@ -15,20 +15,21 @@ import json
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-def get_auth_token(eh_namespace, eh_name, eh_key):
+def get_auth_token(eh_namespace, eh_name, eh_policy, eh_key):
     uri = quote_plus("https://{0}.servicebus.windows.net/{1}".format(eh_namespace, eh_name))
     eh_key = eh_key.encode('utf-8')
     expiry = str(int(time.time() + 60 * 60 * 24 * 31))
     string_to_sign = (uri + '\n' + expiry).encode('utf-8')
     signed_hmac_sha256 = hmac.HMAC(eh_key, string_to_sign, hashlib.sha256)
     signature = quote(base64.b64encode(signed_hmac_sha256.digest()))
-    return 'SharedAccessSignature sr={0}&sig={1}&se={2}&skn={3}'.format(uri, signature, expiry, "RootManageSharedAccessKey")
+    return 'SharedAccessSignature sr={0}&sig={1}&se={2}&skn={3}'.format(uri, signature, expiry, eh_policy)
 
 EVENT_HUB = {
     'namespace': os.environ['EVENTHUB_NAMESPACE'],
     'name': os.environ['EVENTHUB_NAME'],
     'key': os.environ['EVENTHUB_KEY'],
-    'token': get_auth_token(os.environ['EVENTHUB_NAMESPACE'], os.environ['EVENTHUB_NAME'], os.environ['EVENTHUB_KEY'])
+    'policy': os.environ['EVENTHUB_POLICY'],
+    'token': get_auth_token(os.environ['EVENTHUB_NAMESPACE'], os.environ['EVENTHUB_NAME'], os.environ['EVENTHUB_POLICY'], os.environ['EVENTHUB_KEY'])
 }
 
 duplicateEveryNEvents = int(os.environ.get('DUPLICATE_EVERY_N_EVENTS') or 0)
