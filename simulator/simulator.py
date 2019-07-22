@@ -43,7 +43,7 @@ class DeviceSimulator(TaskSet):
 
     endpoint = "/" + EVENT_HUB['name'] + "/messages?timeout=60&api-version=2014-01"
     
-    ccd = int(os.environ.get('COMPLEX_DATA_COUNT') or "23")
+    ccd = int(os.environ.get('COMPLEX_DATA_COUNT') or "21")
 
     def __sendData(self, payloadType):
         eventId = str(uuid.uuid4())
@@ -63,6 +63,8 @@ class DeviceSimulator(TaskSet):
 
         for cd in range(self.ccd):
             jsonBody['complexData']["moreData{}".format(cd)] = random.uniform(10,100)
+        jsonBody['complexData']["latitude"]  = random.uniform( 38.86939,  38.87279)
+        jsonBody['complexData']["longitude"] = random.uniform(-77.05812, -77.05323)
 
         headers = dict(self.headers)
         brokerProperties = { 'PartitionKey': str(deviceIndex) }
