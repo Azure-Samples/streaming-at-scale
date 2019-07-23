@@ -178,6 +178,7 @@ echo
 
 echo "***** [D] Setting up DATABASE"
 
+    export SQL_TYPE="db"
     export SQL_SERVER_NAME=$PREFIX"sql" 
     export SQL_DATABASE_NAME="streaming"    
     export SQL_ADMIN_PASS="Strong_Passw0rd!"  

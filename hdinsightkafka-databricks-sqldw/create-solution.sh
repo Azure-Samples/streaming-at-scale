@@ -15,7 +15,7 @@ trap 'on_error $LINENO' ERR
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
-export SQL_TABLE_KIND="rowstore"
+export SQL_TABLE_KIND="columnstore"
 export STEPS="CIDPTMV"
 
 usage() { 
@@ -30,7 +30,7 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-k: test rowstore, columnstore. Default=rowstore"
+    echo "-k: test rowstore, columnstore. Default=columnstore"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
@@ -66,7 +66,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
-    export SQL_SKU=P6
+    export SQL_SKU=DW100
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
@@ -77,7 +77,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
-    export SQL_SKU=P4
+    export SQL_SKU=DW100
     export TEST_CLIENTS=16 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=10
@@ -88,7 +88,7 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
-    export SQL_SKU=P2
+    export SQL_SKU=DW100
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
@@ -126,8 +126,8 @@ case $SQL_TABLE_KIND in
 esac
 
 echo
-echo "Streaming at Scale with Databricks and Azure SQL"
-echo "================================================"
+echo "Streaming at Scale with Databricks and Azure SQL DW"
+echo "==================================================="
 echo
 
 echo "Steps to be executed: $STEPS"
@@ -158,19 +158,19 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
-    export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
-    export EVENTHUB_CG="azuresql"
+    export HDINSIGHT_NAME=$PREFIX"hdi"    
+    export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
+    export KAFKA_TOPIC="streaming"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/create-event-hub.sh
+        source ../components/azure-hdinsight/create-hdinsight-kafka.sh
     fi
 echo
 
 echo "***** [D] Setting up DATABASE"
 
-    export SQL_TYPE="db"
+    export SQL_TYPE="dw"
     export SQL_SERVER_NAME=$PREFIX"sql"
     export SQL_DATABASE_NAME="streaming"  
     export SQL_ADMIN_PASS="Strong_Passw0rd!"  
@@ -191,7 +191,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../streaming/databricks/runners/eventhubs-to-azuresql.sh
+        source ../streaming/databricks/runners/kafka-to-sqldw.sh
     fi
 echo
 
@@ -207,7 +207,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/report-throughput.sh
+        source ../components/azure-hdinsight/report-throughput.sh
     fi
 echo
 
@@ -216,7 +216,7 @@ echo "***** [V] Starting deployment VERIFICATION"
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../streaming/databricks/runners/verify-azuresql.sh
+        source ../streaming/databricks/runners/verify-sqldw.sh
     fi
 echo
 

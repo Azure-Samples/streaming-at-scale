@@ -29,7 +29,7 @@ az sql server firewall-rule create \
     -o tsv >> log.txt
 
 echo "deploying SQL database"
-az sql db create --resource-group "$RESOURCE_GROUP" \
+az sql $SQL_TYPE create --resource-group "$RESOURCE_GROUP" \
     --server $SQL_SERVER_NAME \
     --name $SQL_DATABASE_NAME \
     --service-objective $SQL_SKU \
