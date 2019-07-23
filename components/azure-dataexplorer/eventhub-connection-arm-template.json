@@ -1,0 +1,46 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "eventHubNamespace": {
+            "type": "string"
+        },
+        "eventHubName": {
+            "type": "string"
+        },
+        "eventHubConsumerGroupName": {
+            "type": "string"
+        },
+        "dataExplorerClusterName": {
+            "type": "String"
+        },
+        "dataExplorerDatabaseName": {
+            "type": "String"
+        },
+        "dataExplorerTableName": {
+            "type": "String"
+        },
+        "dataExplorerMappingRuleName": {
+            "type": "String"
+        },
+        "dataExplorerConnectionName": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Kusto/Clusters/Databases/DataConnections",
+            "apiVersion": "2019-01-21",
+            "name": "[concat(parameters('dataExplorerClusterName'), '/', parameters('dataExplorerDatabaseName'), '/', parameters('dataExplorerConnectionName'))]",
+	    "location": "[resourceGroup().location]",
+            "kind": "EventHub",
+            "properties": {
+                "eventHubResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubNamespace'), parameters('eventHubName'))]",
+                "consumerGroup": "[parameters('eventHubConsumerGroupName')]",
+                "tableName": "[parameters('dataExplorerTableName')]",
+                "mappingRuleName": "[parameters('dataExplorerMappingRuleName')]",
+                "dataFormat": "JSON"
+            }
+        }
+    ]
+}
