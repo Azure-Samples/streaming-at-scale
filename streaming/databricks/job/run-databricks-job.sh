@@ -53,7 +53,11 @@ echo "starting Databricks notebook job for $notebook_name" | tee -a log.txt
 
 job_def=$(cat ../streaming/databricks/job/job-config.json | jq "$cluster_jq_command" | jq "$job_jq_command")
 
-job=$(databricks jobs create --json "$job_def")
+if ! job=$(databricks jobs create --json "$job_def"); then
+  #Databricks CLI outputs any error message to stdout rather than stderr, intercept that
+  echo $job >&2
+  exit 1
+fi
 job_id=$(echo $job | jq .job_id)
 
 run=$(databricks jobs run-now --job-id $job_id)
