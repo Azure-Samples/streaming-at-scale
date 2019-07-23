@@ -40,7 +40,7 @@ az storage share create -n sqlprovision --connection-string $AZURE_STORAGE_CONNE
     -o tsv >> log.txt
 
 echo 'uploading provisioning scripts'
-az storage file upload-batch --source ../components/azure-sql-database/provision \
+az storage file upload-batch --source ../components/azure-sql/provision \
     --destination sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
     -o tsv >> log.txt
 
@@ -57,5 +57,5 @@ az container create -g $RESOURCE_GROUP -n sqlprovision \
     -o tsv >> log.txt
 
 echo 'deleting container instance'
-az container delete -g $RESOURCE_GROUP -n sqlprovision-03 --yes \
+az container delete -g $RESOURCE_GROUP -n sqlprovision --yes \
     -o tsv >> log.txt

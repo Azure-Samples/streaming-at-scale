@@ -44,9 +44,9 @@ Code should be self-explanatory; if not, just ask.
 
 ### source ../components/azure-cosmosdb/create-cosmosdb.sh
 
-`create-cosmosdb.sh`: this script creates a Cosmos DB instance for serving, again you can use another component instead, such as azure-sql-database.
+`create-cosmosdb.sh`: this script creates a Cosmos DB instance for serving, again you can use another component instead, such as azure-sql.
 
-* [../components/azure-sql-database/create-sql-database.sh](../components/azure-sql-database/create-sql-database.sh)
+* [../components/azure-sql/create-sql.sh](../components/azure-sql/create-sql.sh)
 
 once you have created your file, make sure you rename it so that it will be clear which technology is using.
 

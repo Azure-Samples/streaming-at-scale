@@ -184,7 +184,7 @@ echo "***** [D] Setting up DATABASE"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-sql-database/create-sql-database.sh
+        source ../components/azure-sql/create-sql.sh
     fi
 echo
 
