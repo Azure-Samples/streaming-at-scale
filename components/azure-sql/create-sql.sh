@@ -71,7 +71,7 @@ if [ "$containerState" != "Succeeded" ]; then
 fi
 
 echo 'deleting container instance'
-echo az container delete -g $RESOURCE_GROUP -n "$instanceName" --yes \
+az container delete -g $RESOURCE_GROUP -n "$instanceName" --yes \
     -o tsv >> log.txt
 
 if [ "$containerState" != "Succeeded" ]; then
