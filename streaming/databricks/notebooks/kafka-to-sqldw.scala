@@ -20,6 +20,8 @@ val data = spark.readStream
 
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import java.time.Instant
+import java.sql.Timestamp
 
 val schema = StructType(
   StructField("eventId", StringType) ::
@@ -32,20 +34,9 @@ val schema = StructType(
 val dataToWrite = data
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
-  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt)
-
-// COMMAND ----------
-
-// Helper method to retry an operation up to n times with exponential backoff
-@annotation.tailrec
-final def retry[T](n: Int, backoff: Int)(fn: => T): T = {
-  Thread.sleep(((scala.math.pow(2, backoff) - 1) * 1000).toLong)
-  util.Try { fn } match {
-    case util.Success(x) => x
-    case _ if n > 1 => retry(n - 1, backoff + 1)(fn)
-    case util.Failure(e) => throw e
-  }
-}
+  .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
+  .withColumn("StoredAt", current_timestamp)
+  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
 
 // COMMAND ----------
 

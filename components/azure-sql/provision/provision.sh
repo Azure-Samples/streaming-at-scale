@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function run_sqlcmd {
-  /opt/mssql-tools/bin/sqlcmd -b -h-1 -S "$SQL_SERVER_NAME.database.windows.net" -d "$SQL_DATABASE_NAME" -U serveradmin -P "$SQL_ADMIN_PASS" "$@"
+  /opt/mssql-tools/bin/sqlcmd -b -h-1 -I -S "$SQL_SERVER_NAME.database.windows.net" -d "$SQL_DATABASE_NAME" -U serveradmin -P "$SQL_ADMIN_PASS" "$@"
 }
 
 run_sqlcmd -e -Q "IF OBJECT_ID(N'sqlprovision', N'U') IS NULL CREATE TABLE sqlprovision(script nvarchar(4000))"
