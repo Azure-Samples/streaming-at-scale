@@ -45,7 +45,8 @@ az storage file upload-batch --source ../components/azure-sql/provision \
     -o tsv >> log.txt
 
 echo 'running provisioning scripts in container instance'
-az container create -g $RESOURCE_GROUP -n sqlprovision \
+instanceName="sqlprovision-$(uuidgen | tr A-Z a-z)"
+az container create -g $RESOURCE_GROUP -n "$instanceName" \
     --image mcr.microsoft.com/mssql-tools:v1 \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY \
     --azure-file-volume-share-name sqlprovision --azure-file-volume-mount-path /sqlprovision \
@@ -56,6 +57,24 @@ az container create -g $RESOURCE_GROUP -n sqlprovision \
     --restart-policy Never \
     -o tsv >> log.txt
 
+TIMEOUT=60
+for i in $(seq 1 $TIMEOUT); do
+  containerState=$(az container show  -g $RESOURCE_GROUP -n "$instanceName" --query instanceView.state -o tsv)
+  case "state_$containerState" in
+    state_Pending|state_Running) : ;;
+    *)                           break;;
+  esac
+done
+
+if [ "$containerState" != "Succeeded" ]; then
+  az container logs  -g $RESOURCE_GROUP -n "$instanceName"
+fi
+
 echo 'deleting container instance'
-az container delete -g $RESOURCE_GROUP -n sqlprovision --yes \
+echo az container delete -g $RESOURCE_GROUP -n "$instanceName" --yes \
     -o tsv >> log.txt
+
+if [ "$containerState" != "Succeeded" ]; then
+  echo "SQL provisioning FAILED"
+  exit 1
+fi
