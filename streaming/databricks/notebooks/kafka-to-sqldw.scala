@@ -48,7 +48,7 @@ spark.conf.set(
   s"fs.azure.account.key.$tempStorageAccount.blob.core.windows.net",
   dbutils.secrets.get(scope = "MAIN", key = "sqldw-tempstorage-key"))
 
-df.writeStream
+dataToWrite.writeStream
   .format("com.databricks.spark.sqldw")
   .option("url", jdbcUrl)
   .option("user", dbutils.widgets.get("sqldw-user"))
