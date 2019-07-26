@@ -148,22 +148,28 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
+    export VNET_NAME=$PREFIX"-vnet"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-common/create-virtual-network.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
 echo "***** [I] Setting up INGESTION"
     
+    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
     export HDINSIGHT_NAME=$PREFIX"hdi"    
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
+    export HDINSIGHT_WORKERS="4"  
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_TOPIC="streaming"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
+        source ../components/azure-monitor/create-log-analytics.sh
         source ../components/azure-hdinsight/create-hdinsight-kafka.sh
     fi
 echo

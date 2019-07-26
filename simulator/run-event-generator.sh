@@ -3,55 +3,33 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-SIMULATOR_DUPLICATE_EVERY_N_EVENTS=${SIMULATOR_DUPLICATE_EVERY_N_EVENTS:-1000}
+CONTAINER_REGISTRY=$PREFIX"acr"
 
-echo "retrieving storage connection string"
-AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURE_STORAGE_ACCOUNT -g $RESOURCE_GROUP -o tsv)
+az acr create -g $RESOURCE_GROUP -n $CONTAINER_REGISTRY --sku Basic --admin-enabled true
 
-echo 'creating file share'
-az storage share create -n locust --connection-string $AZURE_STORAGE_CONNECTION_STRING \
-    -o tsv >> log.txt
+az acr build --registry $CONTAINER_REGISTRY --image generator:latest ../simulator/generator
 
-echo 'uploading simulator scripts'
-az storage file upload -s locust --source ../simulator/simulator.py --connection-string $AZURE_STORAGE_CONNECTION_STRING \
-    -o tsv >> log.txt
+endpoint=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --query 'properties.connectivityEndpoints[?name==`HTTPS`].location')
 
-echo 'getting event hub key'
-EVENTHUB_POLICY='Send'
-EVENTHUB_KEY=`az eventhubs namespace authorization-rule keys list --name $EVENTHUB_POLICY --namespace-name $EVENTHUB_NAMESPACE --resource-group $RESOURCE_GROUP --query 'primaryKey' -o tsv`
-
-echo 'create test clients'
-echo ". count: $TEST_CLIENTS"
-
-echo "deploying locust..."
-LOCUST_MONITOR=$(az group deployment create -g $RESOURCE_GROUP \
-	--template-file ../simulator/locust-arm-template.json \
-	--query properties.outputs.locustMonitor.value -o tsv --parameters \
-	eventHubNamespace=$EVENTHUB_NAMESPACE eventHubName=$EVENTHUB_NAME \
-        eventHubPolicy=$EVENTHUB_POLICY eventHubKey=$EVENTHUB_KEY \
-	storageAccountName=$AZURE_STORAGE_ACCOUNT fileShareName=locust \
-	numberOfInstances=$TEST_CLIENTS duplicateEveryNEvents=$SIMULATOR_DUPLICATE_EVERY_N_EVENTS \
-	)
-sleep 10
-
-echo ". endpoint: $LOCUST_MONITOR"
-
-echo "starting locust swarm..."
-declare USER_COUNT=$((250*$TEST_CLIENTS))
-declare HATCH_RATE=$((10*$TEST_CLIENTS))
-echo ". users: $USER_COUNT"
-echo ". hatch rate: $HATCH_RATE"
-curl -fsL $LOCUST_MONITOR/swarm -X POST -F "locust_count=$USER_COUNT" -F "hatch_rate=$HATCH_RATE"
-
-echo 'done'
-echo 'starting to monitor locusts for 20 seconds... '
-sleep 5
-for s in {1..10} 
-do
-    RPS=$(curl -s -X GET $LOCUST_MONITOR/stats/requests | jq ".stats[0].current_rps")
-    echo "locust is sending $RPS messages/sec"
-    sleep 2
+kafka_hostnames=$(curl -fsS -u admin:"$HDINSIGHT_PASSWORD" -G https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/services/KAFKA/components/KAFKA_BROKER | jq -r '["\(.host_components[].HostRoles.host_name)"] | join(" ")')
+echo $kafka_hostnames
+kafka_brokers=""
+for host in $kafka_hostnames; do
+    host_ip=$(curl -fsS -u admin:"$HDINSIGHT_PASSWORD" -G https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/hosts/$host | jq -r .Hosts.ip)
+    kafka_brokers="$kafka_brokers,$host_ip:9092"
 done
-echo 'monitoring done'
+kafka_brokers=${kafka_brokers:1}
 
-echo "locust monitor available at: $LOCUST_MONITOR"
+REGISTRY_LOGIN_SERVER=$(az acr show -n $CONTAINER_REGISTRY --query loginServer -o tsv)
+REGISTRY_LOGIN_PASS=$(az acr credential show -n $CONTAINER_REGISTRY --query passwords[0].value -o tsv)
+
+echo "creating generator container..."
+az container create -g $RESOURCE_GROUP -n data-generator \
+    --image $REGISTRY_LOGIN_SERVER/generator:latest \
+    --vnet $VNET_NAME --subnet producers-subnet \
+    --registry-login-server $REGISTRY_LOGIN_SERVER \
+    --registry-username $CONTAINER_REGISTRY --registry-password "$REGISTRY_LOGIN_PASS" \
+    -e KAFKA_SERVERS="$kafka_brokers" KAFKA_TOPIC="streaming" DUPLICATE_EVERY_N_EVENTS="${SIMULATOR_DUPLICATE_EVERY_N_EVENTS:-1000}" \
+    SPARK_JARS=/sparklib/spark-sql-kafka-0-10_2.11-2.4.3.jar,/sparklib/kafka-clients-0.10.2.2.jar \
+    --cpu 2 --memory 2 \
+    -o tsv
