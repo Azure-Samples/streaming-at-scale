@@ -1,3 +1,5 @@
+CREATE MASTER KEY
+GO
 /****** Object:  Table [dbo].[rawdata]     ******/
 CREATE TABLE [dbo].[rawdata](
 	[EventId] [uniqueidentifier] NOT NULL,
