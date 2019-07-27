@@ -2,7 +2,7 @@
 dbutils.widgets.text("sqldw-servername", "")
 dbutils.widgets.text("sqldw-user", "serveradmin")
 dbutils.widgets.text("sqldw-tempstorage-account", "")
-dbutils.widgets.text("sqldw-tempstorage-container", "")
+dbutils.widgets.text("sqldw-tempstorage-container", "sqldw")
 dbutils.widgets.text("sqldw-table", "rawdata_cs")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
 dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")

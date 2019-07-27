@@ -33,6 +33,8 @@ done
 kafka_brokers=${kafka_brokers:1}
 
 echo "creating generator container instance..."
+az container delete -g $RESOURCE_GROUP -n data-generator --yes \
+    -o tsv >> log.txt 2>/dev/null
 az container create -g $RESOURCE_GROUP -n data-generator \
     --image $REGISTRY_LOGIN_SERVER/generator:latest \
     --vnet $VNET_NAME --subnet producers-subnet \

@@ -1,9 +1,16 @@
 import os
 import time
 import datetime
+import uuid
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
+import pyspark.sql.functions as F
+from pyspark.sql.types import StringType
+
+complexDataCount = int(os.environ.get("COMPLEX_DATA_COUNT") or 23)
+duplicateEveryNEvents = int(os.environ.get("DUPLICATE_EVERY_N_EVENTS") or 0)
+
+generate_uuid = F.udf(lambda : str(uuid.uuid4()), StringType())
 
 spark = (SparkSession
   .builder
@@ -12,18 +19,33 @@ spark = (SparkSession
   .getOrCreate()
   )
 
-ratestream = (spark
+stream = (spark
   .readStream
   .format("rate")
   .option("rowsPerSecond", os.environ['EVENTS_PER_SECOND'])
   .load()
    )
 
-query = (ratestream
-  .withColumn("deviceId", expr("'contoso://' || (value % 10)"))
-  .withColumn("partition", expr("value % 10"))
-  .withColumn("value", rand())
-  .selectExpr("to_json(struct(deviceId, timestamp, value)) AS value", "partition")
+stream = (stream
+  .withColumn("deviceId", F.expr("'contoso://device-id-' || floor(rand() * 1000)"))
+  .withColumn("type", F.explode(F.array(F.lit("TEMP"), F.lit("CO2"))))
+  .withColumn("partition", F.expr("value % 10"))
+  .withColumn("eventId", generate_uuid())
+  .withColumn("createdAt", F.current_timestamp())
+  .withColumn("value", F.rand() * 90 + 10)
+  )
+
+for i in range(complexDataCount):
+  stream = stream.withColumn("moreData{}".format(i), F.rand() * 10)
+
+stream = stream.withColumn("complexData", F.struct([F.col("moreData{}".format(i)) for i in range(complexDataCount)]))
+
+#TODO
+#if duplicateEveryNEvents > 0:
+# stream = stream.withColumn("repeated", F.expr("explode(CASE WHEN rand() < {} THEN array(1,2) ELSE array(1) END)".format(duplicateEveryNEvents)))
+
+query = (stream
+  .selectExpr("to_json(struct(eventId, type, deviceId, createdAt, value, complexData)) AS value", "partition")
   .writeStream
   .partitionBy("partition")
   .format("kafka")

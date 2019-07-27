@@ -31,5 +31,7 @@ RUN mkdir -p /sparklib && \
 
 COPY --from=build /venv /venv
 
+ENV PYSPARK_PYTHON /venv/bin/python3
+
 # remember to run python from the virtualenv
 CMD ["/venv/bin/python3", "-m", "generator"]
