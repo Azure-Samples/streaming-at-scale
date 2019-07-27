@@ -64,8 +64,9 @@ fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export EVENTHUB_PARTITIONS=16
-    export EVENTHUB_CAPACITY=12
+    export HDINSIGHT_WORKERS="4"  
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export KAFKA_PARTITIONS=16
     export SQL_SKU=DW100
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
@@ -75,8 +76,9 @@ fi
 
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export EVENTHUB_PARTITIONS=10
-    export EVENTHUB_CAPACITY=6
+    export HDINSIGHT_WORKERS="4"  
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export KAFKA_PARTITIONS=10
     export SQL_SKU=DW100
     export TEST_CLIENTS=16 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
@@ -86,8 +88,9 @@ fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export EVENTHUB_PARTITIONS=4
-    export EVENTHUB_CAPACITY=2
+    export HDINSIGHT_WORKERS="4"  
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export KAFKA_PARTITIONS=4
     export SQL_SKU=DW100
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
@@ -136,9 +139,9 @@ echo
 echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
-echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo ". HDInsight Kafka => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS, Partitions: $KAFKA_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
-echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
+echo ". Azure SQL DW    => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
@@ -163,8 +166,6 @@ echo "***** [I] Setting up INGESTION"
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
     export HDINSIGHT_NAME=$PREFIX"hdi"    
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_TOPIC="streaming"
 
     RUN=`echo $STEPS | grep I -o || true`
@@ -197,6 +198,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
+        source ../components/azure-databricks/peer-databricks-vnet.sh
         source ../streaming/databricks/runners/kafka-to-sqldw.sh
     fi
 echo

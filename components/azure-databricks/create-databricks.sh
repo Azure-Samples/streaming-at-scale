@@ -18,7 +18,7 @@ az group deployment create \
   --template-file ../components/azure-databricks/databricks-arm-template.json \
   --parameters \
   workspaceName=$ADB_WORKSPACE \
-  tier=standard \
+  pricingTier=standard \
   -o tsv >>log.txt
 fi
 

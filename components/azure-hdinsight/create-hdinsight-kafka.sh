@@ -5,6 +5,16 @@ set -euo pipefail
 echo 'creating HDInsight cluster'
 echo ". name: $HDINSIGHT_NAME"
 
+config=$(cat<<JSON
+{
+  "kafka-broker": {
+    "auto.create.topics.enable": "true",
+    "num.partitions": "$KAFKA_PARTITIONS"
+  }
+}
+JSON
+)
+
 az hdinsight create -t kafka -g $RESOURCE_GROUP -n $HDINSIGHT_NAME \
   -p "$HDINSIGHT_PASSWORD" \
   --version 3.6 --component-version Kafka=1.1 \
@@ -13,7 +23,7 @@ az hdinsight create -t kafka -g $RESOURCE_GROUP -n $HDINSIGHT_NAME \
   --workernode-size $HDINSIGHT_WORKER_SIZE --size $HDINSIGHT_WORKERS \
   --workernode-data-disks-per-node 2 \
   --vnet-name $VNET_NAME --subnet ingestion-subnet \
-  --cluster-configurations '{ "kafka-broker": { "auto.create.topics.enable": "true" } }' \
+  --cluster-configurations "$config" \
   --storage-account $AZURE_STORAGE_ACCOUNT \
   -o tsv >> log.txt
 
@@ -22,7 +32,6 @@ endpoint=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --quer
 kafka_config_changed=""
 
 echo 'checking Kafka IP advertising status'
-set -x
 kafka_env_tag=$(curl -fsS -u admin:"$HDINSIGHT_PASSWORD" "https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME?fields=Clusters/desired_configs" | jq -r '.Clusters.desired_configs."kafka-env".tag')
 if [ "$kafka_env_tag" != "IP_ADV" ]; then
   echo 'Enabling Kafka IP advertising'
@@ -40,10 +49,16 @@ fi
 
 if [ -n "$kafka_config_changed" ]; then
   echo 'Stopping Kafka service'
-  curl -fsS -u admin:"$HDINSIGHT_PASSWORD"  -H 'X-Requested-By: ambari' -X PUT -d '{"Body": {"ServiceInfo": {"state": "INSTALLED"}}}' https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/services/KAFKA >> log.txt
-  sleep 10
+  curl -fsS -u admin:"$HDINSIGHT_PASSWORD" -H 'X-Requested-By: ambari' -X PUT -d '{"Body": {"ServiceInfo": {"state": "INSTALLED"}}}' https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/services/KAFKA >> log.txt
+  TIMEOUT=600
+  for i in $(seq 1 $TIMEOUT); do
+    if [ "$(curl -fsS -u admin:$HDINSIGHT_PASSWORD https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/services/KAFKA | jq -r .ServiceInfo.state)" == "INSTALLED" ]; then
+      break
+    fi
+    sleep 1
+  done
   echo 'Starting Kafka service'
-  curl -fsS -u admin:"$HDINSIGHT_PASSWORD"  -H 'X-Requested-By: ambari' -X PUT -d '{"Body": {"ServiceInfo": {"state": "STARTED"}}}' https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/services/KAFKA >> log.txt
+  curl -fsS -u admin:"$HDINSIGHT_PASSWORD" -H 'X-Requested-By: ambari' -X PUT -d '{"Body": {"ServiceInfo": {"state": "STARTED"}}}' https://$endpoint/api/v1/clusters/$HDINSIGHT_NAME/services/KAFKA >> log.txt
 fi
 
 echo 'Enable HDInsight monitoring'

@@ -1,10 +1,10 @@
 // Databricks notebook source
-dbutils.widgets.text("kafka-servers", "", "Kafka consumer group")
-dbutils.widgets.text("kafka-topics", "", "Kafka consumer group")
+dbutils.widgets.text("kafka-servers", "")
+dbutils.widgets.text("kafka-topics", "streaming")
 dbutils.widgets.text("sqldw-servername", "")
 dbutils.widgets.text("sqldw-user", "serveradmin")
 dbutils.widgets.text("sqldw-tempstorage-account", "")
-dbutils.widgets.text("sqldw-tempstorage-container", "")
+dbutils.widgets.text("sqldw-tempstorage-container", "sqldw")
 dbutils.widgets.text("sqldw-table", "rawdata_cs")
 
 // COMMAND ----------
@@ -32,8 +32,8 @@ val schema = StructType(
   StructField("createdAt", TimestampType) :: Nil)
 
 val dataToWrite = data
-  .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
-  .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
+  .select(from_json(decode($"value", "UTF-8"), schema).as("eventData"), $"*")
+  .select($"eventData.*", $"timestamp".as("enqueuedAt"))
   .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
   .withColumn("StoredAt", current_timestamp)
   .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
