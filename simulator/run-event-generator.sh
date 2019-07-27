@@ -46,5 +46,6 @@ az container create -g $RESOURCE_GROUP -n data-generator \
       EVENTS_PER_SECOND="$EVENTS_PER_SECOND" \
       DUPLICATE_EVERY_N_EVENTS="${SIMULATOR_DUPLICATE_EVERY_N_EVENTS:-1000}" \
       SPARK_JARS=/sparklib/spark-sql-kafka-0-10_2.11-2.4.3.jar,/sparklib/kafka-clients-0.10.2.2.jar \
+      COMPLEX_DATA_COUNT=7 \
     --cpu 2 --memory 2 \
     -o tsv >> log.txt

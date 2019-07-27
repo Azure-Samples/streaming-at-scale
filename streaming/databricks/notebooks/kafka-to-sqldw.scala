@@ -34,6 +34,7 @@ val schema = StructType(
 val dataToWrite = data
   .select(from_json(decode($"value", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"timestamp".as("enqueuedAt"))
+  .withColumn("ComplexData", to_json($"ComplexData"))
   .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
   .withColumn("StoredAt", current_timestamp)
   .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
