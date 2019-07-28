@@ -33,7 +33,7 @@ stream = (spark
 
 stream = (stream
   .withColumn("deviceId", F.expr("'contoso://device-id-' || floor(rand() * 1000)"))
-  .withColumn("type", F.explode(F.array(F.lit("TEMP"), F.lit("CO2"))))
+  .withColumn("type", F.expr("CASE WHEN rand()<0.5 THEN 'TEMP' ELSE 'CO2' END"))
   .withColumn("partitionKey", F.col("deviceId"))
   .withColumn("eventId", generate_uuid())
   .withColumn("createdAt", F.current_timestamp())
@@ -41,7 +41,7 @@ stream = (stream
   )
 
 for i in range(complexDataCount):
-  stream = stream.withColumn("moreData{}".format(i), F.rand() * 10)
+  stream = stream.withColumn("moreData{}".format(i), F.rand() * 90 + 10)
 
 stream = stream.withColumn("complexData", F.struct([F.col("moreData{}".format(i)) for i in range(complexDataCount)]))
 
