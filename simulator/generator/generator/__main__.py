@@ -2,34 +2,39 @@ import os
 import time
 import datetime
 import uuid
+import json
 
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
 
+rowsPerSecond = int(os.environ.get('EVENTS_PER_SECOND') or 1000)
 complexDataCount = int(os.environ.get("COMPLEX_DATA_COUNT") or 23)
 duplicateEveryNEvents = int(os.environ.get("DUPLICATE_EVERY_N_EVENTS") or 0)
+
+outputFormat = os.environ.get('OUTPUT_FORMAT') or "kafka"
+outputOptions = json.loads(os.environ.get('OUTPUT_OPTIONS') or "{}")
+secureOutputOptions = json.loads(os.environ.get('SECURE_OUTPUT_OPTIONS') or "{}")
 
 generate_uuid = F.udf(lambda : str(uuid.uuid4()), StringType())
 
 spark = (SparkSession
   .builder
   .appName("DataGenerator")
-  .config("spark.jars", os.environ['SPARK_JARS'])
   .getOrCreate()
   )
 
 stream = (spark
   .readStream
   .format("rate")
-  .option("rowsPerSecond", os.environ['EVENTS_PER_SECOND'])
+  .option("rowsPerSecond", rowsPerSecond)
   .load()
    )
 
 stream = (stream
   .withColumn("deviceId", F.expr("'contoso://device-id-' || floor(rand() * 1000)"))
   .withColumn("type", F.explode(F.array(F.lit("TEMP"), F.lit("CO2"))))
-  .withColumn("partition", F.expr("value % 10"))
+  .withColumn("partitionKey", F.col("deviceId"))
   .withColumn("eventId", generate_uuid())
   .withColumn("createdAt", F.current_timestamp())
   .withColumn("value", F.rand() * 90 + 10)
@@ -40,17 +45,22 @@ for i in range(complexDataCount):
 
 stream = stream.withColumn("complexData", F.struct([F.col("moreData{}".format(i)) for i in range(complexDataCount)]))
 
-#TODO
-#if duplicateEveryNEvents > 0:
-# stream = stream.withColumn("repeated", F.expr("explode(CASE WHEN rand() < {} THEN array(1,2) ELSE array(1) END)".format(duplicateEveryNEvents)))
+if duplicateEveryNEvents > 0:
+ stream = stream.withColumn("repeated", F.expr("CASE WHEN rand() < {} THEN array(1,2) ELSE array(1) END".format(1/duplicateEveryNEvents)))
+ stream = stream.withColumn("repeated", F.explode("repeated"))
+
+if outputFormat == "eventhubs":
+  bodyColumn = "body"
+else: #Kafka format
+  bodyColumn = "value"
 
 query = (stream
-  .selectExpr("to_json(struct(eventId, type, deviceId, createdAt, value, complexData)) AS value", "partition")
+  .selectExpr(f"to_json(struct(eventId, type, deviceId, createdAt, value, complexData)) AS {bodyColumn}", "partitionKey")
   .writeStream
-  .partitionBy("partition")
-  .format("kafka")
-  .option("kafka.bootstrap.servers", os.environ['KAFKA_SERVERS'])
-  .option("topic", os.environ['KAFKA_TOPIC'])
+  .partitionBy("partitionKey")
+  .format(outputFormat)
+  .options(**outputOptions)
+  .options(**secureOutputOptions)
   .option("checkpointLocation", "/tmp/checkpoint")
   .start()
   )

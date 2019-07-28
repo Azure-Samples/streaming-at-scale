@@ -18,8 +18,8 @@ JSON
 az hdinsight create -t kafka -g $RESOURCE_GROUP -n $HDINSIGHT_NAME \
   -p "$HDINSIGHT_PASSWORD" \
   --version 3.6 --component-version Kafka=1.1 \
-  --headnode-size Standard_D3_V2 \
-  --zookeepernode-size Standard_A2_V2 \
+  --zookeepernode-size Standard_D2_V2 \
+  --headnode-size Standard_E2_V3 \
   --workernode-size $HDINSIGHT_WORKER_SIZE --size $HDINSIGHT_WORKERS \
   --workernode-data-disks-per-node 2 \
   --vnet-name $VNET_NAME --subnet ingestion-subnet \

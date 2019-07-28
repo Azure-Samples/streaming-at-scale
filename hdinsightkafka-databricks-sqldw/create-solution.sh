@@ -67,7 +67,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export HDINSIGHT_WORKERS="4"  
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=16
-    export SQL_SKU=DW100
+    export SQL_SKU=DW100c
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
@@ -79,7 +79,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export HDINSIGHT_WORKERS="4"  
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=10
-    export SQL_SKU=DW100
+    export SQL_SKU=DW100c
     export TEST_CLIENTS=16 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=10
@@ -90,8 +90,9 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export HDINSIGHT_WORKERS="4"  
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=4
-    export SQL_SKU=DW100
+    export SQL_SKU=DW100c
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
@@ -199,6 +200,7 @@ echo "***** [P] Setting up PROCESSING"
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
         source ../components/azure-databricks/peer-databricks-vnet.sh
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
         source ../streaming/databricks/runners/kafka-to-sqldw.sh
     fi
 echo
@@ -207,7 +209,8 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
+        source ../simulator/run-event-generator-kafka.sh
     fi
 echo
 
@@ -215,6 +218,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
         source ../components/azure-hdinsight/report-throughput.sh
     fi
 echo

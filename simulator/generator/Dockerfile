@@ -1,3 +1,9 @@
+FROM mcr.microsoft.com/java/maven:8u192-zulu-debian9 AS maven
+
+ADD dependencies /dep
+
+RUN mvn -f /dep dependency:copy-dependencies
+
 FROM mcr.microsoft.com/java/jre:8u192-zulu-alpine AS build
 
 # Install Python
@@ -23,13 +29,11 @@ WORKDIR /project
 FROM mcr.microsoft.com/java/jre:8u192-zulu-alpine AS production
 
 # Install Python
-RUN apk add --no-cache python3 bash
-
-RUN mkdir -p /sparklib && \
-    wget -O/sparklib/spark-sql-kafka-0-10_2.11-2.4.3.jar https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.11/2.4.3/spark-sql-kafka-0-10_2.11-2.4.3.jar && \
-    wget -O/sparklib/kafka-clients-0.10.2.2.jar https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/0.10.2.2/kafka-clients-0.10.2.2.jar
+RUN apk add --no-cache python3=3.6.8-r0 bash
 
 COPY --from=build /venv /venv
+
+COPY --from=maven /dep/target/dependency /venv/lib/python3.6/site-packages/pyspark/jars
 
 ENV PYSPARK_PYTHON /venv/bin/python3
 
