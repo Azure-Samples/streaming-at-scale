@@ -78,11 +78,10 @@ while (query.isActive):
       totalRows += rp['numInputRows']
   rps = (totalRows - lastPrintedTimestampRows) / (now - lastPrintedTimestamp)
   lastPrintedTimestamp = now
-  nextPrintedTimestamp += 10
+  nextPrintedTimestamp += 60
   if lastPrintedTimestamp > 0:
     print("%s %10.1f events/s" % (datetime.datetime.now().isoformat(), rps))
   lastPrintedTimestampRows = totalRows
   time.sleep(nextPrintedTimestamp - now)
-
 
 print(query.exception())
