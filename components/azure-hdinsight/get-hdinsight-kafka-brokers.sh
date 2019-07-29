@@ -18,3 +18,6 @@ done
 
 #remove initial comma from string
 export KAFKA_BROKERS=${kafka_brokers:1}
+export KAFKA_SECURITY_PROTOCOL=PLAINTEXT
+export KAFKA_SASL_MECHANISM=
+export KAFKA_SASL_JAAS_CONFIG=

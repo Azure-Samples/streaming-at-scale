@@ -16,12 +16,18 @@ echo "building generator container..."
 az acr build --registry $CONTAINER_REGISTRY --image generator:latest ../simulator/generator \
     -o tsv >> log.txt
 
+if [ -n "${VNET_NAME:-}" ]; then
+  vnet_options="--vnet $VNET_NAME --subnet producers-subnet"
+else
+  vnet_options=""
+fi
+
 echo "creating generator container instance..."
 az container delete -g $RESOURCE_GROUP -n data-generator --yes \
     -o tsv >> log.txt 2>/dev/null
 az container create -g $RESOURCE_GROUP -n data-generator \
     --image $REGISTRY_LOGIN_SERVER/generator:latest \
-    $VNET_OPTIONS \
+    $vnet_options \
     --registry-login-server $REGISTRY_LOGIN_SERVER \
     --registry-username $CONTAINER_REGISTRY --registry-password "$REGISTRY_LOGIN_PASS" \
     -e \
@@ -29,7 +35,7 @@ az container create -g $RESOURCE_GROUP -n data-generator \
       OUTPUT_OPTIONS="$OUTPUT_OPTIONS" \
       EVENTS_PER_SECOND="$EVENTS_PER_SECOND" \
       DUPLICATE_EVERY_N_EVENTS="${SIMULATOR_DUPLICATE_EVERY_N_EVENTS:-1000}" \
-      COMPLEX_DATA_COUNT=7 \
+      COMPLEX_DATA_COUNT=${SIMULATOR_COMPLEX_DATA_COUNT:-} \
     --secure-environment-variables SECURE_OUTPUT_OPTIONS="$SECURE_OUTPUT_OPTIONS" \
     --cpu 2 --memory 4 \
     -o tsv >> log.txt

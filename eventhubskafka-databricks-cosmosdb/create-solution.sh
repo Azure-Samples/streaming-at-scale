@@ -15,7 +15,6 @@ trap 'on_error $LINENO' ERR
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
-export SQL_TABLE_KIND="columnstore"
 export STEPS="CIDPTMV"
 
 usage() { 
@@ -30,13 +29,12 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-k: test rowstore, columnstore. Default=columnstore"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:k:" arg; do
+while getopts ":d:s:t:l:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -50,9 +48,6 @@ while getopts ":d:s:t:l:k:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-                k)
-			SQL_TABLE_KIND=${OPTARG}
-			;;
 		esac
 done
 shift $((OPTIND-1))
@@ -64,38 +59,34 @@ fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
-    export KAFKA_PARTITIONS=16
-    export SQL_SKU=DW100c
+    export EVENTHUB_PARTITIONS=16
+    export EVENTHUB_CAPACITY=12
+    export COSMOSDB_RU=100000
     export TEST_CLIENTS=30
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
-    export DATABRICKS_MAXEVENTSPERTRIGGER=70000
+    export DATABRICKS_MAXEVENTSPERTRIGGER=100000
 fi
 
 # 5500 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
-    export KAFKA_PARTITIONS=10
-    export SQL_SKU=DW100c
-    export TEST_CLIENTS=16 
+    export EVENTHUB_PARTITIONS=8
+    export EVENTHUB_CAPACITY=6
+    export COSMOSDB_RU=50000
+    export TEST_CLIENTS=16
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=10
-    export DATABRICKS_MAXEVENTSPERTRIGGER=35000
+    export DATABRICKS_WORKERS=8
+    export DATABRICKS_MAXEVENTSPERTRIGGER=50000
 fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
-    export KAFKA_PARTITIONS=4
-    export SQL_SKU=DW100c
+    export EVENTHUB_PARTITIONS=2
+    export EVENTHUB_CAPACITY=2
+    export COSMOSDB_RU=20000
     export TEST_CLIENTS=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=4
+    export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
@@ -115,23 +106,9 @@ source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
 source ../assert/has-local-databrickscli.sh
 
-declare TABLE_SUFFIX=""
-case $SQL_TABLE_KIND in
-    rowstore)
-        TABLE_SUFFIX=""
-        ;;
-    columnstore)
-        TABLE_SUFFIX="_cs"
-        ;;
-    *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore', 'columnstore'"
-        exit 1
-        ;;
-esac
-
 echo
-echo "Streaming at Scale with Databricks and Azure SQL DW"
-echo "==================================================="
+echo "Streaming at Scale with Azure Databricks and CosmosDB"
+echo "====================================================="
 echo
 
 echo "Steps to be executed: $STEPS"
@@ -140,9 +117,9 @@ echo
 echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
-echo ". HDInsight Kafka => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS, Partitions: $KAFKA_PARTITIONS"
+echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
-echo ". Azure SQL DW    => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
+echo ". CosmosDB        => RU: $COSMOSDB_RU"
 echo ". Locusts         => $TEST_CLIENTS"
 echo
 
@@ -152,40 +129,36 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
-    export VNET_NAME=$PREFIX"-vnet"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
-        source ../components/azure-common/create-virtual-network.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
 echo "***** [I] Setting up INGESTION"
     
-    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
-    export HDINSIGHT_NAME=$PREFIX"hdi"    
-    export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
+    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"    
+    export EVENTHUB_NAME=$PREFIX"in-"$EVENTHUB_PARTITIONS
+    export EVENTHUB_CG="cosmos"
+    export EVENTHUB_ENABLE_KAFKA="true"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-monitor/create-log-analytics.sh
-        source ../components/azure-hdinsight/create-hdinsight-kafka.sh
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
 echo "***** [D] Setting up DATABASE"
 
-    export SQL_TYPE="dw"
-    export SQL_SERVER_NAME=$PREFIX"sql"
-    export SQL_DATABASE_NAME="streaming"  
-    export SQL_ADMIN_PASS="Strong_Passw0rd!"  
-    export SQL_TABLE_NAME="rawdata$TABLE_SUFFIX"
+    export COSMOSDB_SERVER_NAME=$PREFIX"cosmosdb" 
+    export COSMOSDB_DATABASE_NAME="streaming"
+    export COSMOSDB_COLLECTION_NAME="rawdata"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-sql/create-sql.sh
+        source ../components/azure-cosmosdb/create-cosmosdb.sh
     fi
 echo
 
@@ -194,24 +167,20 @@ echo "***** [P] Setting up PROCESSING"
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
     export KAFKA_TOPIC="streaming"
-    export SQL_ETL_STORED_PROC="stp_WriteDataBatch$TABLE_SUFFIX"
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../components/azure-databricks/peer-databricks-vnet.sh
-        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
-        source ../streaming/databricks/runners/kafka-to-sqldw.sh
+        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export SIMULATOR_COMPLEX_DATA_COUNT=7
-
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
+        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
         source ../simulator/run-event-generator-kafka.sh
     fi
 echo
@@ -220,8 +189,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
-        source ../components/azure-hdinsight/report-throughput.sh
+        source ../components/azure-event-hubs/report-throughput.sh
     fi
 echo
 
@@ -230,7 +198,7 @@ echo "***** [V] Starting deployment VERIFICATION"
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../streaming/databricks/runners/verify-sqldw.sh
+        source ../streaming/databricks/runners/verify-cosmosdb.sh
     fi
 echo
 

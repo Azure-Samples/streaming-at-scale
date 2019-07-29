@@ -9,6 +9,5 @@ EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_G
 OUTPUT_FORMAT="eventhubs"
 OUTPUT_OPTIONS="{}"
 SECURE_OUTPUT_OPTIONS="{\"eventhubs.connectionstring\": \"$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME\"}"
-VNET_OPTIONS=""
 
 source ../simulator/run-generator.sh
