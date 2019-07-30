@@ -8,6 +8,9 @@ source ../streaming/databricks/runners/verify-common.sh
 echo "retrieving storage account key"
 AZURE_STORAGE_KEY=$(az storage account keys list -g $RESOURCE_GROUP -n $AZURE_STORAGE_ACCOUNT -o tsv --query "[0].value")
 
+echo "creating Polybase container"
+az storage container create --account-name $AZURE_STORAGE_ACCOUNT -n sqldw -o tsv >> log.txt
+
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "sqldw-pass" --string-value "$SQL_ADMIN_PASS"
 databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$AZURE_STORAGE_KEY"
