@@ -8,7 +8,7 @@ AZURE_STORAGE_KEY=$(az storage account keys list -g $RESOURCE_GROUP -n $AZURE_ST
 
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "sqldw-pass" --string-value "$SQL_ADMIN_PASS"
-databricks secrets put --scope "MAIN" --key "sqldw-tempstorage-key" --string-value "$AZURE_STORAGE_KEY"
+databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$AZURE_STORAGE_KEY"
 
 checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/streaming-sqldw
 echo "Deleting checkpoints directory $checkpoints_dir"

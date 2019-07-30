@@ -10,7 +10,7 @@ AZURE_STORAGE_KEY=$(az storage account keys list -g $RESOURCE_GROUP -n $AZURE_ST
 
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "sqldw-pass" --string-value "$SQL_ADMIN_PASS"
-databricks secrets put --scope "MAIN" --key "sqldw-tempstorage-key" --string-value "$AZURE_STORAGE_KEY"
+databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$AZURE_STORAGE_KEY"
 
 source ../streaming/databricks/job/run-databricks-job.sh verify-sqldw true "$(cat <<JQ
   .notebook_task.base_parameters."sqldw-servername" = "$SQL_SERVER_NAME"

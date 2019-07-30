@@ -14,7 +14,7 @@ val serverName = dbutils.widgets.get("sqldw-servername")
 val jdbcUrl = s"jdbc:sqlserver://$serverName.database.windows.net;database=streaming"
 spark.conf.set(
   s"fs.azure.account.key.$tempStorageAccount.blob.core.windows.net",
-  dbutils.secrets.get(scope = "MAIN", key = "sqldw-tempstorage-key"))
+  dbutils.secrets.get(scope = "MAIN", key = "storage-account-key"))
 
 val data = spark
   .read
