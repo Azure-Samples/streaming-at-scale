@@ -30,4 +30,5 @@ az network vnet peering create -g $databricksResourceGroup -n "DatabricksToHDIns
 echo "Peering HDInsight VNet to Databricks VNet"
 az network vnet peering create -g $RESOURCE_GROUP -n "$hdinsight_peering_name" \
   --vnet-name $VNET_NAME --remote-vnet $databricks_vnet_id \
+  --allow-vnet-access \
   -o tsv >> log.txt
