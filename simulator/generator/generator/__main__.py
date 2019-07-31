@@ -20,6 +20,7 @@ generate_uuid = F.udf(lambda : str(uuid.uuid4()), StringType())
 
 spark = (SparkSession
   .builder
+  .master("local[*]")
   .appName("DataGenerator")
   .getOrCreate()
   )
