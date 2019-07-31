@@ -52,6 +52,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_CAPACITY=3
     export TEST_CLIENTS=30
 fi
 
@@ -60,6 +61,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_CAPACITY=2
     export TEST_CLIENTS=16
 fi
 
@@ -68,6 +70,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_CAPACITY=1
     export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
     export TEST_CLIENTS=3 
 fi

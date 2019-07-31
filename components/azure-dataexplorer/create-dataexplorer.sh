@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+echo "checking Key Vault exists"
+if ! az keyvault show -g $RESOURCE_GROUP -n $DATAEXPLORER_KEYVAULT -o none 2>/dev/null ; then
+  echo "creating KeyVault $DATAEXPLORER_KEYVAULT"
+  az keyvault create -g $RESOURCE_GROUP -n $DATAEXPLORER_KEYVAULT -o tsv >>log.txt
+fi
+
 # Create service principal for consumer clients to read Data Explorer data (used by Databricks verification job).
 # Run as early as possible in script, as principal takes time to become available for RBAC operation below.
 echo "checking service principal exists"
@@ -23,7 +29,7 @@ fi
 echo 'creating Data Explorer account'
 echo ". name: $DATAEXPLORER_CLUSTER"
 if ! az kusto cluster show -g $RESOURCE_GROUP -n $DATAEXPLORER_CLUSTER -o none 2>/dev/null; then
-    az kusto cluster create -g $RESOURCE_GROUP -n $DATAEXPLORER_CLUSTER --sku $DATAEXPLORER_SKU \
+    az kusto cluster create -g $RESOURCE_GROUP -n $DATAEXPLORER_CLUSTER --sku $DATAEXPLORER_SKU --capacity $DATAEXPLORER_CAPACITY \
         -o tsv >> log.txt
 fi
 
@@ -56,12 +62,6 @@ kustoQuery "/v1/rest/mgmt" ".create table EventTable ( eventId: string, complexD
 echo 'creating Data Explorer table mapping'
 if ! kustoQuery "/v1/rest/mgmt" ".show table EventTable ingestion json mapping \\\"EventMapping\\\"" 2>/dev/null; then
   kustoQuery "/v1/rest/mgmt" ".create table EventTable ingestion json mapping 'EventMapping' '[ { \\\"column\\\": \\\"eventId\\\", \\\"path\\\": \\\"$.eventId\\\" }, { \\\"column\\\": \\\"complexData\\\", \\\"path\\\": \\\"$.complexData\\\" }, { \\\"column\\\": \\\"value\\\", \\\"path\\\": \\\"$.value\\\" }, { \\\"column\\\": \\\"type\\\", \\\"path\\\": \\\"$.type\\\" }, { \\\"column\\\": \\\"deviceId\\\", \\\"path\\\": \\\"$.deviceId\\\" }, { \\\"column\\\": \\\"createdAt\\\", \\\"path\\\": \\\"$.createdAt\\\" } ]'"
-fi
-
-echo "checking Key Vault exists"
-if ! az keyvault show -g $RESOURCE_GROUP -n $DATAEXPLORER_KEYVAULT -o none 2>/dev/null ; then
-  echo "creating KeyVault $DATAEXPLORER_KEYVAULT"
-  az keyvault create -g $RESOURCE_GROUP -n $DATAEXPLORER_KEYVAULT -o tsv >>log.txt
 fi
 
 echo "getting service principal"
