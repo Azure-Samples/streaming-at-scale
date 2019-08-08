@@ -161,6 +161,14 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
 
+### [Event Hubs + Data Accelerator + Cosmos DB](eventhubs-dataaccelerator-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Microsft Data Accelerator on HDInsight and Service Fabric (Stream Process)
+- Cosmos DB (Serve)
+
 ## Note
 
 Performance and Services change quickly in the cloud, so please keep in mind that all values used in the samples were tested at them moment of writing. If you find any discrepancies with what you observe when running the scripts, please create an issue and report it and/or create a PR to update the documentation and the sample. Thanks!
