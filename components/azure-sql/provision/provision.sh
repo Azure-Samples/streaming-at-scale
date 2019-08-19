@@ -14,7 +14,7 @@ for provisioning_script in /sqlprovision/*.sql; do
     echo "runout: [$already_run]"
   if [ "$already_run" -eq "0" ]; then
     echo "running sqlcmd"
-    run_sqlcmd -e -i /sqlprovision/provision.sql
+    run_sqlcmd -e -i "$provisioning_script"
     run_sqlcmd -e -Q "INSERT INTO sqlprovision VALUES ('$script_name')"
   else
     echo "already run"
