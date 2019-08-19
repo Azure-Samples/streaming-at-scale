@@ -63,11 +63,11 @@ You can take a look at the following script to understand how you can create you
 
 once you have created your file, make sure you rename it so that it will be clear which technology is using.
 
-### source ../simulator/run-event-generator.sh
+### source ../simulator/run-generator-eventhubs.sh
 
-`run-event-generator.sh` contains the code need to setup a [Locust](http://locust.io) cluster in distributed mode, usiong Azure Container Instances.
+`run-generator-eventhubs.sh` contains the code need to setup Spark clients, using Azure Container Instances.
 
-Each locust generates up to 340 msgs/sec. Each generated message is close to 1KB and look like this:
+Each client generates up to 2000 msgs/sec. Each generated message is close to 1KB and look like this:
 
 ```json
 {
@@ -104,7 +104,7 @@ Each locust generates up to 340 msgs/sec. Each generated message is close to 1KB
 }
 ```
 
-and it will send data to the specified Event Hub. If you need to send data to something different, then you will need to create a new locustfile in [../simulator/simulator.py](../simulator/simulator.py) and also make sure it is uploaded to the shared file folder (check the code in the script).
+and it will send data to the specified Event Hub.
 
 ### source ../components/azure-event-hubs/report-throughput.sh
 

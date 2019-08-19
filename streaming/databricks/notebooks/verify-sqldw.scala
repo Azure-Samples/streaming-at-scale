@@ -24,6 +24,7 @@ val data = spark
   .option("password", dbutils.secrets.get(scope = "MAIN", key = "sqldw-pass"))
   .option("tempDir", s"wasbs://$tempStorageContainer@$tempStorageAccount.blob.core.windows.net/")
   .option("forwardSparkAzureStorageCredentials", "true")
+  .option("maxStrLength", "4000")
   .option("dbTable", dbutils.widgets.get("sqldw-table"))
   .load()
 

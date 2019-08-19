@@ -60,7 +60,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=12
     export DATABRICKS_MAXEVENTSPERTRIGGER=70000
@@ -70,7 +70,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=6
     export DATABRICKS_MAXEVENTSPERTRIGGER=35000
@@ -80,14 +80,14 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=7000
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -115,7 +115,7 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -162,7 +162,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 

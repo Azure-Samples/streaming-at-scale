@@ -67,7 +67,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
     export SQL_SKU=P6
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
     export DATABRICKS_MAXEVENTSPERTRIGGER=70000
@@ -78,7 +78,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
     export SQL_SKU=P4
-    export TEST_CLIENTS=16 
+    export SIMULATOR_INSTANCES=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=10
     export DATABRICKS_MAXEVENTSPERTRIGGER=35000
@@ -89,14 +89,14 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
     export SQL_SKU=P2
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -139,7 +139,7 @@ echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
 echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -199,7 +199,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 

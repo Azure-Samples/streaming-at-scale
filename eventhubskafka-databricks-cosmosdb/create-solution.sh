@@ -62,7 +62,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
     export COSMOSDB_RU=100000
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
     export DATABRICKS_MAXEVENTSPERTRIGGER=100000
@@ -73,7 +73,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export COSMOSDB_RU=50000
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=8
     export DATABRICKS_MAXEVENTSPERTRIGGER=50000
@@ -84,14 +84,14 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -120,7 +120,7 @@ echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
 echo ". CosmosDB        => RU: $COSMOSDB_RU"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -166,7 +166,7 @@ echo "***** [P] Setting up PROCESSING"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
-    export KAFKA_TOPIC="streaming"
+    export KAFKA_TOPIC="$EVENTHUB_NAME"
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
@@ -181,7 +181,7 @@ echo "***** [T] Starting up TEST clients"
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
-        source ../simulator/run-event-generator-kafka.sh
+        source ../simulator/run-generator-kafka.sh
     fi
 echo
 

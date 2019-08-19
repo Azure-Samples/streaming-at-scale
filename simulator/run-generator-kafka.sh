@@ -15,9 +15,9 @@ OPTIONS
 )
 SECURE_OUTPUT_OPTIONS=$(cat <<OPTIONS
 {
-  "kafka.sasl.jaas.config": "${KAFKA_SASL_JAAS_CONFIG//\"/\\\"}"
+  "kafka.sasl.jaas.config": "${KAFKA_SASL_JAAS_CONFIG//\"/\"}"
 }
 OPTIONS
 )
 
-source ../simulator/run-generator.sh
+source ../simulator/create-generator-instances.sh

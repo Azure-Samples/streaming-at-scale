@@ -68,7 +68,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=16
     export SQL_SKU=DW100c
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
     export DATABRICKS_MAXEVENTSPERTRIGGER=70000
@@ -80,7 +80,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=10
     export SQL_SKU=DW100c
-    export TEST_CLIENTS=16 
+    export SIMULATOR_INSTANCES=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=10
     export DATABRICKS_MAXEVENTSPERTRIGGER=35000
@@ -93,14 +93,14 @@ if [ "$TESTTYPE" == "1" ]; then
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=4
     export SQL_SKU=DW100c
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -143,7 +143,7 @@ echo ". Region          => $LOCATION"
 echo ". HDInsight Kafka => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS, Partitions: $KAFKA_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
 echo ". Azure SQL DW    => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -207,12 +207,10 @@ echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export SIMULATOR_COMPLEX_DATA_COUNT=7
-
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
-        source ../simulator/run-event-generator-kafka.sh
+        source ../simulator/run-generator-kafka.sh
     fi
 echo
 

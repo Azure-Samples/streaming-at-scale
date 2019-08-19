@@ -8,6 +8,7 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
 
+executors = int(os.environ.get('EXECUTORS') or 1)
 rowsPerSecond = int(os.environ.get('EVENTS_PER_SECOND') or 1000)
 complexDataCount = int(os.environ.get("COMPLEX_DATA_COUNT") or 23)
 duplicateEveryNEvents = int(os.environ.get("DUPLICATE_EVERY_N_EVENTS") or 0)
@@ -20,7 +21,7 @@ generate_uuid = F.udf(lambda : str(uuid.uuid4()), StringType())
 
 spark = (SparkSession
   .builder
-  .master("local[*]")
+  .master("local[%d]" % executors)
   .appName("DataGenerator")
   .getOrCreate()
   )

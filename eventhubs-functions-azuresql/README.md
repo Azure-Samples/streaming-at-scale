@@ -77,7 +77,7 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+- **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 - **Azure Function**: to process data incoming from Event Hubs as a stream
 - **Application Insight**: to monitor Azure Function performances
@@ -122,7 +122,7 @@ If you want to change some setting of the solution, like number of load test cli
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export SQL_SKU=P1
-    export TEST_CLIENTS=3
+    export SIMULATOR_INSTANCES=1
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 

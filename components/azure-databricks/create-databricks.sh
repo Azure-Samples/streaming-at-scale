@@ -3,9 +3,13 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-if [[ -n "${DATABRICKS_HOST:-}" && -n "${DATABRICKS_TOKEN:-}" ]]; then
+if [ -n "${DATABRICKS_TOKEN:-}" ]; then
 
-  echo 'Not creating Databricks workspace. Using environment DATABRICKS_HOST and DATABRICKS_TOKEN settings'
+  echo 'Not creating Databricks workspace. Using environment DATABRICKS_TOKEN setting'
+
+  if [ -z "${DATABRICKS_HOST:-}" ]; then
+    export DATABRICKS_HOST="https://$LOCATION.azuredatabricks.net"
+  fi
 
 else
 

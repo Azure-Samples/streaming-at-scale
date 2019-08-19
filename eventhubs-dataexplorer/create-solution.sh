@@ -53,7 +53,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_CAPACITY=12
     export DATAEXPLORER_SKU=D13_v2
     export DATAEXPLORER_CAPACITY=3
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
 fi
 
 # 5000 messages/sec
@@ -62,7 +62,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_CAPACITY=6
     export DATAEXPLORER_SKU=D12_v2
     export DATAEXPLORER_CAPACITY=2
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
 fi
 
 # 1000 messages/sec
@@ -72,11 +72,11 @@ if [ "$TESTTYPE" == "1" ]; then
     export DATAEXPLORER_SKU=D11_v2
     export DATAEXPLORER_CAPACITY=1
     export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1 
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -103,7 +103,7 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Data Explorer   => SKU: $DATAEXPLORER_SKU"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -149,7 +149,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 

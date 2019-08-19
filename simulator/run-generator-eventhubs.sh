@@ -10,4 +10,4 @@ OUTPUT_FORMAT="eventhubs"
 OUTPUT_OPTIONS="{}"
 SECURE_OUTPUT_OPTIONS="{\"eventhubs.connectionstring\": \"$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME\"}"
 
-source ../simulator/run-generator.sh
+source ../simulator/create-generator-instances.sh

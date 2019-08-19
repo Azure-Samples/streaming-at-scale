@@ -70,7 +70,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=16
     export SQL_SKU=P6
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
 fi
 
 # 5500 messages/sec
@@ -81,7 +81,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=8
     export SQL_SKU=P4
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
 fi
 
 # 1000 messages/sec
@@ -92,11 +92,11 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export SQL_SKU=P1
-    export TEST_CLIENTS=3
+    export SIMULATOR_INSTANCES=1
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -147,7 +147,7 @@ echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
 echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -210,7 +210,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 
