@@ -3,3 +3,4 @@ log.txt
 .DS_Store
 *.json-e
 .vscode/
+slnx.sqlite
