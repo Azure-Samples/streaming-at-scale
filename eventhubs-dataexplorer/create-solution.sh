@@ -51,7 +51,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_SKU=D13_v2
     export DATAEXPLORER_CAPACITY=3
     export TEST_CLIENTS=30
 fi
@@ -60,7 +60,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_SKU=D12_v2
     export DATAEXPLORER_CAPACITY=2
     export TEST_CLIENTS=16
 fi
