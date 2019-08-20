@@ -70,8 +70,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export DATAEXPLORER_SKU=D11_v2
-    export DATAEXPLORER_CAPACITY=1
-    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
+    export DATAEXPLORER_CAPACITY=2
     export SIMULATOR_INSTANCES=1 
 fi
 
@@ -136,7 +135,7 @@ echo "***** [D] Setting up DATABASE"
 
     export DATAEXPLORER_CLUSTER=$PREFIX"adx" 
     export DATAEXPLORER_DATABASE="streaming"
-    export DATAEXPLORER_CLIENT_NAME=$DATAEXPLORER_CLUSTER"-reader9"
+    export DATAEXPLORER_CLIENT_NAME=$DATAEXPLORER_CLUSTER"-reader"
     export DATAEXPLORER_KEYVAULT=$DATAEXPLORER_CLUSTER"kv"
 
     RUN=`echo $STEPS | grep D -o || true`

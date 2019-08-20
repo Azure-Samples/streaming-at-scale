@@ -17,7 +17,7 @@ products:
   - azure-stream-analytics
   - azure-storage
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 description: "How to setup an end-to-end solution to implement a streaming at scale scenario using a choice of different Azure technologies."
 ---
 
@@ -113,6 +113,14 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Cosmos DB (Serve)
 
+### [Event Hubs Kafka + Azure Databricks + Cosmos DB](eventhubskafka-databricks-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log) with Kafka endpoint
+- Azure Databricks (Stream Process)
+- Cosmos DB (Serve)
+
 ### [Event Hubs + Azure Databricks + Delta](eventhubs-databricks-delta)
 
 Implement a stream processing architecture using:
@@ -161,12 +169,27 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
 
+### [HDInsight Kafka + Azure Databricks + Azure SQL](hdinsightkafka-databricks-sqldw)
+
+Implement a stream processing architecture using:
+
+- HDInsight Kafka (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- Azure SQL Data Warehouse (Serve)
+
+### [Event Hubs + Azure Data Explorer](eventhubs-dataexplorer)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Azure Data Explorer (Stream Process / Serve)
+
 ### [Event Hubs + Data Accelerator + Cosmos DB](eventhubs-dataaccelerator-cosmosdb)
 
 Implement a stream processing architecture using:
 
 - Event Hubs (Ingest / Immutable Log)
-- Microsft Data Accelerator on HDInsight and Service Fabric (Stream Process)
+- Microsoft Data Accelerator on HDInsight and Service Fabric (Stream Process)
 - Cosmos DB (Serve)
 
 ## Note
@@ -180,7 +203,6 @@ The following technologies could also be used in the end-to-end sample solution.
 ### Ingestion
 
 - IoT Hub
-- EventHub Kafka
 
 ### Stream Processing
 
@@ -188,7 +210,6 @@ The following technologies could also be used in the end-to-end sample solution.
 
 ### Batch Processing
 
-- Databricks Spark
 - Azure Data Explorer
 
 ### Serving Layer

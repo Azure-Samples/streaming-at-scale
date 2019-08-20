@@ -2,7 +2,7 @@
 
 This sample uses Event Hubs Capture and Apache Drill to ingest data and make it available to be queried.
 
-The provided scripts will an end-to-end solution complete with load test client.
+The provided scripts will create an end-to-end solution complete with load test client.
 
 ## Running the Scripts
 

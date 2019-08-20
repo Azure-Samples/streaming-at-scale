@@ -4,21 +4,22 @@ languages:
   - azurecli
   - json
   - sql
+  - scala
 products:
   - azure
   - azure-container-instances
   - azure-cosmos-db
+  - azure-databricks
   - azure-event-hubs
-  - azure-stream-analytics
 statusNotificationTargets:
   - algattik@microsoft.com
 ---
 
-# Streaming at Scale with Azure Event Hubs, Stream Analytics and Cosmos DB
+# Streaming at Scale with Azure Event Hubs Kafka, Databricks and Cosmos DB
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses Cosmos DB as a sink to store JSON data.
+This sample uses Cosmos DB as database to store JSON data.
 
-The provided scripts will create an end-to-end solution complete with load test client.  
+The provided scripts will create an end-to-end solution complete with load test client.
 
 ## Running the Scripts
 
@@ -32,8 +33,12 @@ The following tools/languages are also needed:
 
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest)
   - Install: `sudo apt install azure-cli`
-- [jq](https://stedolan.github.io/jq/)
+- [jq](https://stedolan.github.io/jq/download/)
   - Install: `sudo apt install jq`
+- [python](https://www.python.org/)
+  - Install: `sudo apt install python python-pip`
+- [databricks-cli](https://github.com/databricks/databricks-cli)
+  - Install: `pip install --upgrade databricks-cli`
 
 ## Setup Solution
 
@@ -53,7 +58,7 @@ once you have selected the subscription you want to use just execute the followi
 
     ./create-solution.sh -d <solution_name>
 
-then `solution_name` value will be used to create a resource group that will contain all resources created by the script. It will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generated a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `solution_name` is also used to create a storage account, which has several constraints on characters usage:
+then `solution_name` value will be used to create a resource group that will contain all resources created by the script. It will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generate a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `solution_name` is also used to create a storage account, which has several constraints on characters usage:
 
 [Storage Naming Conventions and Limits](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#storage)
 
@@ -64,7 +69,7 @@ to have an overview of all the supported arguments just run
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./generate-solution-name.sh
+    ./_common/generate-solution-name.sh
 
 ## Created resources
 
@@ -72,7 +77,7 @@ The script will create the following resources:
 
 - **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-- **Stream Analytics**: to process analytics on streaming data
+- **Azure Databricks**: to process data incoming from Event Hubs Kafka as a stream. Workspace, Job and related cluster will be created
 - **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
 ## Streamed Data
@@ -102,60 +107,54 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
-## Duplicate handling
-
-In case the Azure Stream Analytics infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Stream Analytics functionality to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-documentdb-output#upserts-from-stream-analytics) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
-
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_STREAMING_UNITS=6
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
+    export DATABRICKS_NODETYPE=Standard_DS3_v2
+    export DATABRICKS_WORKERS=2
+    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
-The above settings has been chosen to sustain a 1000 msg/sec stream. Likewise, below settings has been chosen to sustain at least 10,000 msg/sec stream. Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
-
-    export EVENTHUB_PARTITIONS=12
-    export EVENTHUB_CAPACITY=12
-    export PROC_STREAMING_UNITS=36
-    export COSMOSDB_RU=100000
-    export SIMULATOR_INSTANCES=5
+The above settings has been chosen to sustain a 1000 msg/sec stream.
 
 ## Monitor performance
 
-Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" and "Backlogged Input Events" metrics. The default metrics are aggregated per minute, here is a sample metrics snapshot showing 10K Events/Sec (600K+ Events/minute). Ensure that "Watermark delay" metric stays in single digit seconds latency. "Watermark Delay" is one of the key metric that will help you to understand if Stream Analytics is keeping up with the incoming data. If delay is constantly increasing, you need to take a look at the destination to see if it can keep up with the speed or check if you need to increase SU: https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/.
+In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
 
-ASA metrics showing 10K events/sec:
+Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working correctly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
 
-![ASA metrics](01-stream-analytics-metrics.png "Azure Stream Analytics 10K events/sec metrics")
+![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 
-You can also use Event Hub "Metrics" pane and ensure there "Throttled Requests" don't slow down your pipeline.
+## Azure Databricks
 
-However, In Cosmos DB throttling is expected especially at higher throughput scenarios. As long as ASA metric "Watermark delay" is not consistently increasing, your processing is not falling behind, throttling in Cosmos DB is okay.
+At present time the Cosmos DB Spark Connector *does not* suport `timestamp` data type. If you try to send to Cosmos DB a dataframe containing a timestamp, in fact, you'll get the followin error:
 
-![Cosmos DB metrics](02-cosmosdb-metrics.png "Cosmos DB collection metrics")
-
-## Stream Analytics
-
-Note that the solution configurations have been verified with compatibility level 1.2. The deployed Stream Analytics solution doesn't do any analytics or projection, but it just inject an additional field using a simple Javascript UDF:
-
-```sql
-select 
-    *, 
-    UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime
-from 
-    inputEventHub partition by PartitionId
 ```
+java.lang.ClassCastException: java.lang.Long cannot be cast to java.sql.Timestamp
+```
+
+As a workaround the `timestamp` columns are sent to Cosmos DB as Strings.
+
+## Cosmos DB
+
+When scaling up you may have noticed that you need more RU that would you could expect. Assuming that Cosmos DB consume 7 RU per write, to stream 5000 msgs/sec you can expect to use up to 35000 RU. Instead the sample is using 50000. There are three main reasons that explain what that is happening:
+
+1. indexing
+2. document size
+3. physical data distribution
+
+Look at the details of the [Azure Functions sample](../eventhubs-functions-cosmosdb#cosmos-db) to see a detailed description of mentioned concepts.
 
 ## Query Data
 
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
 
 ```sql
-    SELECT * FROM c WHERE c.type = 'CO2'
+SELECT * FROM c WHERE c.type = 'CO2'
 ```
 
 ## Clean up

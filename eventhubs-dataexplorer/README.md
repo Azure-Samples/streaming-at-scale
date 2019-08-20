@@ -8,16 +8,15 @@ languages:
 products:
   - azure
   - azure-container-instances
-  - azure-cosmos-db
-  - azure-databricks
+  - azure-data-explorer
   - azure-event-hubs
 statusNotificationTargets:
   - algattik@microsoft.com
 ---
 
-# Streaming at Scale with Azure Event Hubs, Databricks and Cosmos DB
+# Streaming at Scale with Azure Event Hubs and Azure Data Explorer
 
-This sample uses Cosmos DB as database to store JSON data
+This sample uses Azure Data Explorer as database to store JSON data.
 
 The provided scripts will create an end-to-end solution complete with load test client.
 
@@ -29,16 +28,12 @@ Please note that the scripts have been tested on [Ubuntu 18 LTS](http://releases
 - [WSL Ubuntu 18.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab)
 - [Ubuntu 18.04 LTS Azure VM](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/Canonical.UbuntuServer1804LTS)
 
-The following tools/languages are also needed:
+The following tools are also needed:
 
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest)
   - Install: `sudo apt install azure-cli`
 - [jq](https://stedolan.github.io/jq/download/)
   - Install: `sudo apt install jq`
-- [python](https://www.python.org/)
-  - Install: `sudo apt install python python-pip`
-- [databricks-cli](https://github.com/databricks/databricks-cli)
-  - Install: `pip install --upgrade databricks-cli`
 
 ## Setup Solution
 
@@ -77,8 +72,7 @@ The script will create the following resources:
 
 - **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-- **Azure Databricks**: to process data incoming from Event Hubs as a stream. Workspace, Job and related cluster will be created
-- **Cosmos DB** Server, Database and Collection: to store and serve processed data
+- **Azure Data Explorer**: to process data incoming from Event Hubs as a stream, and store and serve processed data. Cluster, database, table, table mapping and Event Hub connection will be created
 
 ## Streamed Data
 
@@ -109,52 +103,33 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, Data Explorer tier and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export COSMOSDB_RU=20000
-    export SIMULATOR_INSTANCES=1
-    export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=2
-    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
+    export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_CAPACITY=2
+    export SIMULATOR_INSTANCES=1 
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 
 ## Monitor performance
 
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
-
-Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working correctly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
+Performance will be monitored and displayed on the console for 30 minutes. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working correctly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
 
 ![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 
-## Azure Databricks
+## Azure Data Explorer
 
-At present time the Cosmos DB Spark Connector *does not* suport `timestamp` data type. If you try to send to Cosmos DB a dataframe containing a timestamp, in fact, you'll get the followin error:
-
-```
-java.lang.ClassCastException: java.lang.Long cannot be cast to java.sql.Timestamp
-```
-
-As a workaround the `timestamp` columns are sent to Cosmos DB as Strings.
-
-## Cosmos DB
-
-When scaling up you may have noticed that you need more RU that would you could expect. Assuming that Cosmos DB consume 7 RU per write, to stream 5000 msgs/sec you can expect to use up to 35000 RU. Instead the sample is using 50000. There are three main reasons that explain what that is happening:
-
-1. indexing
-2. document size
-3. physical data distribution
-
-Look at the details of the [Azure Functions sample](../eventhubs-functions-cosmosdb#cosmos-db) to see a detailed description of mentioned concepts.
+Data Explorer is configured to ingest data from Event Hubs, with a simple mapping from JSON fields to table columns.
 
 ## Query Data
 
-Data is available in the created Cosmos DB database. You can query it from the portal, for example:
+Data is available in the created Azure Data Explorer cluster. You can query it from the portal, for example:
 
 ```sql
-SELECT * FROM c WHERE c.type = 'CO2'
+EventTable
+| where ['type'] == 'CO2'
 ```
 
 ## Clean up

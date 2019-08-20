@@ -26,7 +26,7 @@ if ! az keyvault secret show --vault-name $DATAEXPLORER_KEYVAULT --name $DATAEXP
     -o tsv >>log.txt
 fi
 
-echo 'creating Data Explorer account'
+echo 'creating Data Explorer cluster'
 echo ". name: $DATAEXPLORER_CLUSTER"
 if ! az kusto cluster show -g $RESOURCE_GROUP -n $DATAEXPLORER_CLUSTER -o none 2>/dev/null; then
     az kusto cluster create -g $RESOURCE_GROUP -n $DATAEXPLORER_CLUSTER --sku $DATAEXPLORER_SKU --capacity $DATAEXPLORER_CAPACITY \

@@ -61,7 +61,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export SIMULATOR_INSTANCES=5
 fi
 
-# 5500 messages/sec
+# 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6

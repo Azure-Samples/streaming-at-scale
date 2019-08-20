@@ -11,7 +11,7 @@ products:
   - azure-sql-database
   - azure-stream-analytics
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs, Stream Analytics and Azure SQL
@@ -144,7 +144,7 @@ In the `create-solution.sh` script values to test
 
 are already set, use the parameter `-t`, and then run the script.
 
-## Monitor performances
+## Monitor performance
 
 Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" metrics. This last is especially important to understand if the processing engine is keeping up with the incoming data or is falling behind:
 

@@ -74,7 +74,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export DATABRICKS_MAXEVENTSPERTRIGGER=70000
 fi
 
-# 5500 messages/sec
+# 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export HDINSIGHT_WORKERS="4"  
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
@@ -89,7 +89,6 @@ fi
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
     export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=4
     export SQL_SKU=DW100c

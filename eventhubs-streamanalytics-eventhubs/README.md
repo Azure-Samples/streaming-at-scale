@@ -10,7 +10,7 @@ products:
   - azure-event-hubs
   - azure-stream-analytics  
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs and Stream Analytics
@@ -19,7 +19,7 @@ This sample uses Stream Analytics to process streaming data from EventHub and us
 
 To support very high throughput, two different Event Hubs namespaces are deployed by the template. Event Hubs capacity is limited to up to 20 units of 1 MB/s each (although this limit can be increased through a support ticket). If incoming throughput is under 10 MB/s, you could deploy two Event Hub instances under a single namespace instead.
 
-The provided scripts will an end-to-end solution complete with load test client.  
+The provided scripts will create an end-to-end solution complete with load test client.  
 
 ## Running the Scripts
 
@@ -126,7 +126,7 @@ If you want to change some setting of the solution, like number of load test cli
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 
-## Monitor performances
+## Monitor performance
 
 Please use Metrics pane in Stream Analytics, see "Input/Output Events" for throughput and "Watermark Delay" metric to see if the job is keeping up with the input rate.  You can also use Event Hub "Metrics" pane to see if there are any "Throttled Requests" and adjust the Threshold Units accordingly. "Watermark Delay" is one of the key metric that will help you to understand if Stream Analytics is keeping up with the incoming data. If delay is constantly increasing, you need to take a look at the destination to see if it can keep up with the speed or check if you need to increase SU: https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/.
 

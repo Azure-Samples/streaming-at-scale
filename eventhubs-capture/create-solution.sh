@@ -18,7 +18,7 @@ export LOCATION=eastus
 # export EVENTHUB_CAPACITY=12
 # export SIMULATOR_INSTANCES=5
 
-# 5500 messages/sec
+# 5000 messages/sec
 # export EVENTHUB_PARTITIONS=8
 # export EVENTHUB_CAPACITY=8
 # export SIMULATOR_INSTANCES=3

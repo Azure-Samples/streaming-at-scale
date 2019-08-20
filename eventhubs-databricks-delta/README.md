@@ -12,7 +12,7 @@ products:
   - azure-event-hubs
   - azure-storage
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs, Databricks and Delta Lake
@@ -69,7 +69,7 @@ to have an overview of all the supported arguments just run
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./common/generate-solution-name.sh
+    ./_common/generate-solution-name.sh
 
 ## Created resources
 
