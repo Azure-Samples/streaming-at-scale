@@ -130,6 +130,8 @@ Data is available in the created Azure Data Explorer cluster. You can query it f
 ```sql
 EventTable
 | where ['type'] == 'CO2'
+| summarize count() by bin(createdAt, 5m)
+| render timechart
 ```
 
 ## Clean up
