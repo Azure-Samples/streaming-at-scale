@@ -33,7 +33,7 @@ More info on Streaming architectures can also be found here:
 Here's also a list of scenarios where a Streaming solution fits nicely
 
 - [Event-Driven](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven)
-- [CQRS](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/cqrs)
+- [CQRS](https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs)
 - [Microservices](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/microservices)
 - [Big Data](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/big-data)
 - [Near-Real Time Operational Analytics](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/get-started-with-columnstore-for-real-time-operational-analytics?view=sql-server-2017)
