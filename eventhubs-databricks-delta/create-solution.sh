@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
@@ -11,24 +12,25 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export STEPS="CIPTMV"
+
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIPTM" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
-    echo "      M=METRICS reporting" 1>&2; 
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=$STEPS"
+    echo "    Possible values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
+    echo "      V=VERIFY deployment"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:" arg; do
@@ -52,18 +54,6 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
-fi
-
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIPTM"
 fi
 
 # 10000 messages/sec
@@ -108,37 +98,9 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az || true)
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq || true)
-if [ -z "$HAS_JQ" ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
-    exit 1
-fi
-
-HAS_DATABRICKSCLI=$(command -v databricks || true)
-if [ -z "$HAS_DATABRICKSCLI" ]; then
-    echo "databricks-cli not found"
-    echo "please install it as described here:"
-    echo "https://github.com/databricks/databricks-cli"
-    exit 1
-fi
-
-AZ_SUBSCRIPTION_NAME=$(az account show --query name -o tsv || true)
-if [ -z "$AZ_SUBSCRIPTION_NAME" ]; then
-    #az account show already shows error message "Please run 'az login' to setup account."
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
+source ../assert/has-local-databrickscli.sh
 
 echo
 echo "Streaming at Scale with Azure Databricks and Delta"
@@ -149,7 +111,6 @@ echo "Steps to be executed: $STEPS"
 echo
 
 echo "Configuration: "
-echo ". Subscription    => $AZ_SUBSCRIPTION_NAME"
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
@@ -163,12 +124,13 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
-    export AZURE_STORAGE_ACCOUNT_GEN2=$PREFIX"storagegen2"
+    export AZURE_STORAGE_ACCOUNT_GEN2=$PREFIX"storhfs"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+        source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
+        source ../components/azure-storage/create-storage-hfs.sh
     fi
 echo 
 
@@ -180,7 +142,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        ./01-create-event-hub.sh
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -191,7 +153,8 @@ echo "***** [P] Setting up PROCESSING"
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        ./03-create-databricks.sh
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/eventhubs-to-delta.sh
     fi
 echo
 
@@ -199,7 +162,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        ./04-run-clients.sh
+        source ../simulator/run-event-generator.sh
     fi
 echo
 
@@ -207,9 +170,17 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        ./05-report-throughput.sh
+        source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-delta.sh
     fi
 echo
 
 echo "***** Done"
-

@@ -1,5 +1,5 @@
 ---
-topic: sample
+page_type: sample
 languages:
   - azurecli
   - csharp
@@ -18,6 +18,7 @@ products:
   - azure-storage
 statusNotificationTargets:
   - damauri@microsoft.com
+description: "How to setup an end-to-end solution to implement a streaming at scale scenario using a choice of different Azure technologies."
 ---
 
 # Streaming at Scale
@@ -32,7 +33,7 @@ More info on Streaming architectures can also be found here:
 Here's also a list of scenarios where a Streaming solution fits nicely
 
 - [Event-Driven](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven)
-- [CQRS](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/cqrs)
+- [CQRS](https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs)
 - [Microservices](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/microservices)
 - [Big Data](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/big-data)
 - [Near-Real Time Operational Analytics](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/get-started-with-columnstore-for-real-time-operational-analytics?view=sql-server-2017)
@@ -159,6 +160,14 @@ Implement a stream processing architecture using:
 - Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
+
+### [Event Hubs + Data Accelerator + Cosmos DB](eventhubs-dataaccelerator-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Microsft Data Accelerator on HDInsight and Service Fabric (Stream Process)
+- Cosmos DB (Serve)
 
 ## Note
 

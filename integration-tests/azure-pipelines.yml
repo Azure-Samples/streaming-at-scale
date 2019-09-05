@@ -1,0 +1,53 @@
+trigger:
+- master
+
+jobs:
+
+- job: generator
+  steps:
+  - bash: echo "##vso[task.setVariable variable=TaskList;isOutput=true]$(bash integration-tests/generate-task-list.sh)"
+    name: GenerateTasks
+    displayName: Generating list of integration test tasks
+
+- job: runner
+  dependsOn: generator
+  timeoutInMinutes: 180
+  pool:
+    vmImage: 'ubuntu-16.04'
+  strategy:
+    maxParallel: 1
+    matrix: $[ dependencies.generator.outputs['GenerateTasks.TaskList'] ]
+  variables:
+    DATABRICKS_HOST: https://$(LOCATION).azuredatabricks.net
+  steps:
+
+  - bash: >
+      set -e;
+      sudo apt install python3-setuptools;
+      sudo pip3 install wheel databricks-cli;
+      databricks clusters spark-versions; 
+      echo "##vso[task.setVariable variable=DATABRICKS_TOKEN]$DATABRICKS_TOKEN"; 
+    displayName: Install Databricks CLI and expose token to next tasks
+    env:
+      DATABRICKS_TOKEN: $(DATABRICKS_PAT_TOKEN)
+
+  - task: AzureCLI@1
+    displayName: Check RG name available
+    inputs:
+      azureSubscription: ARMConnection
+      scriptPath: integration-tests/check-resource-group.sh
+
+  - task: AzureCLI@1
+    displayName: Run test
+    inputs:
+      azureSubscription: ARMConnection
+      workingDirectory: $(TestDir)
+      scriptPath: $(TestDir)/create-solution.sh
+      arguments: -d $(RG_NAME) $(TestArgs)
+
+  - task: AzureCLI@1
+    displayName: Delete RG
+    condition: always() # this step will always run, even if the pipeline is cancelled
+    inputs:
+      azureSubscription: ARMConnection
+      scriptPath: integration-tests/delete-resource-group.sh

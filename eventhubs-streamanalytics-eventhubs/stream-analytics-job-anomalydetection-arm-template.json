@@ -1,0 +1,113 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "streamingJobName": {
+            "type": "string",
+            "defaultValue": "streamingjob"
+        },
+        "eventHubNamespace": {
+            "type": "string"
+        },
+        "eventHubNamespaceOut": {
+            "type": "string"
+        },
+        "eventHubKey": {
+            "type": "securestring"
+        },
+        "eventHubKeyOut": {
+            "type": "securestring"
+        },
+        "eventHubName": {
+            "type": "string"
+        },
+        "eventHubNameOut": {
+            "type": "string"
+        },
+        "eventHubConsumerGroupName": {
+            "type": "string"
+        },
+        "streamingUnits": {
+            "type": "int",
+            "defaultValue": 3
+        },
+        "eventHubPartitionKeyOut": {
+            "type": "string",
+            "defaultValue": "deviceId"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-01-preview",
+            "name": "[parameters('streamingJobName')]",
+            "location": "[resourceGroup().location]",
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "identity": {
+                "type": "systemAssigned"
+            },
+            "properties": {
+                "sku": {
+                    "name": "standard"
+                },
+                "eventsOutOfOrderPolicy": "adjust",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "compatibilityLevel": "1.2",
+                "outputStartMode": "JobStartTime",
+                "inputs": [
+                    {
+                        "name": "inputEventHub",
+                        "properties": {
+                            "type": "stream",
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.ServiceBus/EventHub",
+                                "properties": {
+                                    "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                                    "sharedAccessPolicyName": "Listen",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
+                                    "eventHubName": "[parameters('eventHubName')]",
+                                    "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "transformation": {
+                    "name": "ProcessSampleData",
+                    "properties": {
+                        "streamingUnits": "[int(parameters('streamingUnits'))]",
+                        "query": "WITH AnomalyDetectionStep AS \n (SELECT eventenqueuedutctime time, CAST(value as float) as val, \n AnomalyDetection_SpikeAndDip(CAST(value as float), 95, 60, 'spikesanddips') OVER(LIMIT DURATION(millisecond, 55)) as SpikeAndDipScores \n FROM inputEventHub partition by partitionid) \n SELECT time, val, \n CAST(GetRecordPropertyValue(SpikeAndDipScores, 'Score') as float) as SpikeAndDipScore, \n CAST(GetRecordPropertyValue(SpikeAndDipScores, 'IsAnomaly') as bigint) as IsSpikeAndDipAnomaly \n INTO output \n FROM AnomalyDetectionStep Partition By PartitionId"
+                    }
+                },
+                "outputs": [
+                    {
+                        "name": "output",
+                        "properties": {
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.ServiceBus/EventHub",
+                                "properties": {
+                                    "serviceBusNamespace": "[parameters('eventHubNamespaceOut')]",
+                                    "sharedAccessPolicyName": "Send",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKeyOut')]",
+                                    "eventHubName": "[parameters('eventHubNameOut')]",
+                                    "partitionKey": "[parameters('eventHubPartitionKeyOut')]"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

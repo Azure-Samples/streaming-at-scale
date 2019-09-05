@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
@@ -11,27 +12,28 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export SQL_TABLE_KIND="rowstore"
+export STEPS="CIDPTMV"
+
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
-    echo "-s: specify which steps should be executed. Default=CIDPTM"
-    echo "    Possibile values:"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=$STEPS"
+    echo "    Possible values:"
     echo "      C=COMMON"
     echo "      I=INGESTION"
     echo "      D=DATABASE"
     echo "      P=PROCESSING"
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "      V=VERIFY deployment"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-k: test rowstore, columnstore. Default=rowstore"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
-export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:k:" arg; do
@@ -48,7 +50,7 @@ while getopts ":d:s:t:l:k:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-        k)
+                k)
 			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
@@ -58,22 +60,6 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
-fi
-
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$SQL_TABLE_KIND" ]]; then
-	export SQL_TABLE_KIND="rowstore"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPTM"
 fi
 
 # 10000 messages/sec
@@ -121,47 +107,9 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az || true)
-if [ -z "$HAS_AZ" ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq || true)
-if [ -z "$HAS_JQ" ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "https://stedolan.github.io/jq/download/"
-    exit 1
-fi
-
-HAS_PYTHON=$(command -v python || true)
-if [ -z "$HAS_PYTHON" ]; then
-    echo "python 2.7 not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install python"
-    echo "or as described here:"
-    echo "https://wiki.python.org/moin/BeginnersGuide/Download"
-    exit 1
-fi
-
-HAS_DATABRICKSCLI=$(command -v databricks || true)
-if [ -z "$HAS_DATABRICKSCLI" ]; then
-    echo "databricks-cli not found"
-    echo "please install it as described here:"
-    echo "https://github.com/databricks/databricks-cli"
-    exit 1
-fi
-
-AZ_SUBSCRIPTION_NAME=$(az account show --query name -o tsv || true)
-if [ -z "$AZ_SUBSCRIPTION_NAME" ]; then
-    #az account show already shows error message "Please run 'az login' to setup account."
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
+source ../assert/has-local-databrickscli.sh
 
 declare TABLE_SUFFIX=""
 case $SQL_TABLE_KIND in
@@ -172,8 +120,7 @@ case $SQL_TABLE_KIND in
         TABLE_SUFFIX="_cs"
         ;;
     *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore', 'rowstore-inmemory', 'columnstore' or 'columnstore-inmemory'"
-        echo "please install it as it is needed by the script"
+        echo "SQL_TABLE_KIND must be set to 'rowstore', 'columnstore'"
         exit 1
         ;;
 esac
@@ -203,9 +150,9 @@ echo "***** [C] Setting up COMMON resources"
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
@@ -216,8 +163,8 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CG="azuresql"
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
-        ./01-create-event-hub.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -229,8 +176,8 @@ echo "***** [D] Setting up DATABASE"
     export SQL_TABLE_NAME="rawdata$TABLE_SUFFIX"
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
-        ./02-create-azure-sql.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-sql/create-sql.sh
     fi
 echo
 
@@ -238,30 +185,38 @@ echo "***** [P] Setting up PROCESSING"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+    export SQL_ETL_STORED_PROC="stp_WriteDataBatch$TABLE_SUFFIX"
     
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z $RUN ]; then
-        ./03-create-databricks.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/eventhubs-to-azuresql.sh
     fi
 echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
-
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
-        ./04-run-clients.sh
+    if [ ! -z "$RUN" ]; then
+        source ../simulator/run-event-generator.sh
     fi
 echo
 
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z $RUN ]; then
-        ./05-report-throughput.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-azuresql.sh
     fi
 echo
 
 echo "***** Done"
-

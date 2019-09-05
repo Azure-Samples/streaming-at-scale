@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
@@ -11,27 +12,28 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export PROC_FUNCTION="Test0"
+export STEPS="CIDPTM"
+
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-f <function-type>] [-l <location>]"
-    echo "-s: specify which steps should be executed. Default=CIDPT"
-    echo "    Possibile values:"
+    echo "-s: specify which steps should be executed. Default=$STEPS"
+    echo "    Possible values:"
     echo "      C=COMMON"
     echo "      I=INGESTION"
     echo "      D=DATABASE"
     echo "      P=PROCESSING"
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
-    echo "-f: function to test. Default=Test0"    
-    echo "-l: where to create the resources. Default=eastus"
+    echo "      V=VERIFY deployment"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
+    echo "-f: function to test. Default=$PROC_FUNCTION"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
-export PROC_FUNCTION=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:f:" arg; do
@@ -48,7 +50,7 @@ while getopts ":d:s:t:l:f:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-        f)
+                f)
 			PROC_FUNCTION=${OPTARG}
 			;;
 		esac
@@ -58,22 +60,6 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
-fi
-
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$PROC_FUNCTION" ]]; then
-	export PROC_FUNCTION="Test0"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPTM"
 fi
 
 # 10000 messages/sec
@@ -129,39 +115,10 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az)
-if [ -z HAS_AZ ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq)
-if [ -z HAS_JQ ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
-    exit 1
-fi
-
-HAS_ZIP=$(command -v zip)
-if [ -z HAS_ZIP ]; then
-    echo "zip not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install zip"
-    exit 1
-fi
-
-HAS_DOTNET=`command -v dotnet`
-if [ -z HAS_DOTNET ]; then
-    echo "dotnet SDK not found"
-    echo "please install it as it is needed by the script"
-    echo "https://dotnet.microsoft.com/download"
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
+source ../assert/has-local-zip.sh
+source ../assert/has-local-dotnet.sh
 
 echo
 echo "Streaming at Scale with Azure Functions and CosmosDB"
@@ -189,8 +146,8 @@ echo "***** [C] setting up COMMON resources"
 
     RUN=`echo $STEPS | grep C -o || true`    
     if [ ! -z "$RUN" ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+        source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
@@ -202,7 +159,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        ./01-create-event-hub.sh
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
@@ -214,7 +171,7 @@ echo "***** [D] Setting up DATABASE"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
-        ./02-create-cosmosdb.sh
+        source ../components/azure-cosmosdb/create-cosmosdb.sh
     fi
 echo
 
@@ -229,26 +186,36 @@ echo "***** [P] Setting up PROCESSING"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        ./03-create-processing-function.sh
-        ./04-configure-processing-function-cosmosdb.sh
+        source ../components/azure-functions/create-processing-function.sh
+        source ../components/azure-functions/configure-processing-function-cosmosdb.sh
     fi
 echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
-
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        ./05-run-clients.sh
+        source ../simulator/run-event-generator.sh
     fi
 echo
 
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z $RUN ]; then
-        ./06-report-throughput.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    export ADB_WORKSPACE=$PREFIX"databricks" 
+    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-cosmosdb.sh
     fi
 echo
 

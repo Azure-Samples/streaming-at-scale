@@ -1,0 +1,162 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "streamingJobName": {
+            "type": "string",
+            "defaultValue": "streamingjob"
+        },
+        "eventHubNamespace": {
+            "type": "string"
+        },
+        "eventHubKey": {
+            "type": "securestring"
+        },
+        "eventHubName": {
+            "type": "string"
+        },
+        "eventHubConsumerGroupName": {
+            "type": "string"
+        },
+        "streamingUnits": {
+            "type": "int",
+            "defaultValue": 3
+        },
+        "azureSQLServer": {
+            "type": "string"
+        },
+        "azureSQLDatabase": {
+            "type": "securestring"
+        },
+        "azureSQLTable": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-01-preview",
+            "name": "[parameters('streamingJobName')]",
+            "location": "[resourceGroup().location]",
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "identity": {
+                "type": "systemAssigned"
+            },
+            "properties": {
+                "sku": {
+                    "name": "standard"
+                },
+                "eventsOutOfOrderPolicy": "drop",
+                "eventsOutOfOrderMaxDelayInSeconds": 10,
+                "compatibilityLevel": "1.1",
+                "outputStartMode": "JobStartTime",
+                "inputs": [
+                    {
+                        "name": "inputEventHub",
+                        "properties": {
+                            "type": "stream",
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.ServiceBus/EventHub",
+                                "properties": {
+                                    "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                                    "sharedAccessPolicyName": "Listen",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
+                                    "eventHubName": "[parameters('eventHubName')]",
+                                    "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "transformation": {
+                    "name": "ProcessSampleData",
+                    "properties": {
+                        "streamingUnits": "[int(parameters('streamingUnits'))]",
+                        "query": "create table  [inputEventHub]\r\n(\r\n    eventId nvarchar(max),\r\n    [type] nvarchar(max),\r\n    deviceId nvarchar(max),\r\n    createdAt datetime,\r\n    [value] float,\r\n    complexData record,\r\n    EventProcessedUtcTime datetime,\r\n    EventEnqueuedUtcTime datetime,\r\n    PartitionId bigint\r\n)\r\nselect \r\n    '00000000-0000-0000-0000-000000000000' AS BatchId,\r\n    eventId, \r\n    [type],\r\n    deviceId,\r\n    createdAt,\r\n    [value],\r\n    UDF.RecordToJson(complexData) as complexData,\r\n    EventEnqueuedUtcTime AS enqueuedAt,\r\n    EventProcessedUtcTime AS processedAt,\r\n    cast(UDF.GetCurrentDateTime('') as datetime) AS storedAt,\r\n    PartitionId\r\ninto\r\n    [AzureSQL]\r\nfrom \r\n    [inputEventHub] partition by PartitionId\r\n"
+                    }
+                },
+                "functions": [
+                    {
+                        "name": "GetCurrentDateTime",
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
+                        "properties": {
+                            "type": "Scalar",
+                            "properties": {
+                                "inputs": [
+                                    {
+                                        "dataType": "any",
+                                        "isConfigurationParameter": null
+                                    }
+                                ],
+                                "output": {
+                                    "dataType": "any"
+                                },
+                                "binding": {
+                                    "type": "Microsoft.StreamAnalytics/JavascriptUdf",
+                                    "properties": {
+                                        "script": "// Sample UDF which returns current timestamp.\nfunction main(s) {\n    return new Date().toISOString();\n}"
+                                    }
+                                }
+                            }                            
+                        }
+                    },
+                    {
+                        "name": "RecordToJSON",
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
+                        "properties": {
+                            "type": "Scalar",
+                            "properties": {
+                                "inputs": [
+                                    {
+                                        "dataType": "record",
+                                        "isConfigurationParameter": null
+                                    }
+                                ],
+                                "output": {
+                                    "dataType": "nvarchar(max)"
+                                },
+                                "binding": {
+                                    "type": "Microsoft.StreamAnalytics/JavascriptUdf",
+                                    "properties": {
+                                        "script": "// Convert record to JSON.\nfunction main(record) {\n    return JSON.stringify(record);\n}"                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "AzureSQL",
+                        "properties": {
+                          "serialization": {
+                            "type": "Json",
+                            "properties": {
+                              "encoding": "UTF8",
+                              "format": "LineSeparated"
+                            }
+                          },
+                          "datasource": {
+                            "type": "Microsoft.Sql/Server/Database",
+                            "properties": {
+                              "server": "[parameters('azureSQLServer')]",
+                              "database": "[parameters('azureSQLDatabase')]",
+                              "table": "[parameters('azureSQLTable')]",
+                              "user": "serveradmin",                              
+                              "password": "Strong_Passw0rd!",
+                              "maxWriterCount": 0,
+                              "maxBatchCount": 10000
+                            }
+                          }
+                        }
+                      }
+                ]
+            }
+        }
+    ]
+}

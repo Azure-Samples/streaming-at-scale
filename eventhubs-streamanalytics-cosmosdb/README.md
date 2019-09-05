@@ -102,6 +102,10 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
+## Duplicate handling
+
+In case the Azure Stream Analytics infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Stream Analytics functionality to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-documentdb-output#upserts-from-stream-analytics) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
+
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
@@ -120,19 +124,19 @@ The above settings has been chosen to sustain a 1000 msg/sec stream. Likewise, b
     export COSMOSDB_RU=100000
     export TEST_CLIENTS=30
 
-## Monitor performances
+## Monitor performance
 
 Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" and "Backlogged Input Events" metrics. The default metrics are aggregated per minute, here is a sample metrics snapshot showing 10K Events/Sec (600K+ Events/minute). Ensure that "Watermark delay" metric stays in single digit seconds latency. "Watermark Delay" is one of the key metric that will help you to understand if Stream Analytics is keeping up with the incoming data. If delay is constantly increasing, you need to take a look at the destination to see if it can keep up with the speed or check if you need to increase SU: https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/.
 
 ASA metrics showing 10K events/sec:
 
-![ASA metrics](.\01-stream-analytics-metrics.png "Azure Stream Analytics 10K events/sec metrics")
+![ASA metrics](01-stream-analytics-metrics.png "Azure Stream Analytics 10K events/sec metrics")
 
 You can also use Event Hub "Metrics" pane and ensure there "Throttled Requests" don't slow down your pipeline.
 
 However, In Cosmos DB throttling is expected especially at higher throughput scenarios. As long as ASA metric "Watermark delay" is not consistently increasing, your processing is not falling behind, throttling in Cosmos DB is okay.
 
-![Cosmos DB metrics](.\02-cosmosdb-metrics.png "Cosmos DB collection metrics")
+![Cosmos DB metrics](02-cosmosdb-metrics.png "Cosmos DB collection metrics")
 
 ## Stream Analytics
 
@@ -151,7 +155,7 @@ from
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
 
 ```sql
-    SELECT * FROM c WHERE c.eventData.type = 'CO2'
+    SELECT * FROM c WHERE c.type = 'CO2'
 ```
 
 ## Clean up
