@@ -12,7 +12,7 @@ products:
   - azure-event-hubs
   - azure-storage
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs, Databricks and Delta Lake
@@ -69,13 +69,13 @@ to have an overview of all the supported arguments just run
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./common/generate-solution-name.sh
+    ./_common/generate-solution-name.sh
 
 ## Created resources
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+- **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 - **Azure Databricks**: to process data incoming from Event Hubs as a stream, and store it using Delta Lake. An Azure databricks Workspace and Job will be created, and the job will be run for 30 minutes on a transient cluster.
 
@@ -112,7 +112,7 @@ If you want to change some setting of the solution, like number of load test cli
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export TEST_CLIENTS=3
+    export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=7000

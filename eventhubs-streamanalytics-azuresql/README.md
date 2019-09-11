@@ -11,7 +11,7 @@ products:
   - azure-sql-database
   - azure-stream-analytics
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs, Stream Analytics and Azure SQL
@@ -86,7 +86,7 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default four Locust nodes (master + 3 slaves) will be created, generating a load of 1000 events/second
+- **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 - **Stream Analytics** to process analytics on streaming data
 - **Azure SQL** Server and Database: to store and serve processed data
@@ -129,7 +129,7 @@ export PROC_JOB_NAME=streamingjob
 export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
 export SQL_SKU=S3
 export SQL_TABLE_KIND="rowstore" # or "columnstore"
-export TEST_CLIENTS=3
+export SIMULATOR_INSTANCES=1
 ```
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
@@ -144,7 +144,7 @@ In the `create-solution.sh` script values to test
 
 are already set, use the parameter `-t`, and then run the script.
 
-## Monitor performances
+## Monitor performance
 
 Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" metrics. This last is especially important to understand if the processing engine is keeping up with the incoming data or is falling behind:
 

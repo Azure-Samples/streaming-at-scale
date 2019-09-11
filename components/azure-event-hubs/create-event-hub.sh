@@ -15,6 +15,7 @@ echo ". auto-inflate: false"
 
 az eventhubs namespace create -n $eventHubsNamespace -g $RESOURCE_GROUP \
     --sku Standard --location $LOCATION --capacity $EVENTHUB_CAPACITY \
+    --enable-kafka "${EVENTHUB_ENABLE_KAFKA:-false}" \
     --enable-auto-inflate false \
     -o tsv >> log.txt
 
