@@ -55,6 +55,8 @@ println("Waiting while stream collects data")
 while (query.isActive) {
   if (!query.status.isDataAvailable) {
     println("No more data available")
+    // https://stackoverflow.com/questions/45717433/stop-structured-streaming-query-gracefully
+    while (query.status.isTriggerActive) {}
     query.stop
   }
   Thread.sleep(1000)

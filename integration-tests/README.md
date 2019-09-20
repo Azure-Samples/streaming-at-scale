@@ -17,10 +17,53 @@ Since the provisioning of an Azure Databricks workspace cannot be fully
 automated at present, you must generate a PAT token of a preexisting workspace
 and supply it to the pipeline.
 
+## Installing the build agent
+
+As the integration tests can run for more than 6 hours, they must be run on self-hosted VSTS agents.
+
+In VSTS, create an agent pool named "streaming-at-scale".
+
+In the Azure portal, create an Azure VM with:
+* Resource group: streamingitests
+* VM name: streamingbuildagent
+* OS: Ubuntu 18.04 LTS
+
+SSH to the VM and run the following commands interactively one a time.
+
+```bash
+# Install VSTS agent. When prompted enter the VSTS host and a PAT token with Agent Pool management permissions.
+mkdir agent
+cd agent
+wget https://vstsagentpackage.azureedge.net/agent/2.155.1/vsts-agent-linux-x64-2.155.1.tar.gz
+tar zxvf vsts-agent-linux-x64-2.155.1.tar.gz 
+./config.sh 
+sudo ./svc.sh install
+sudo ./svc.sh start
+# Install jq
+sudo apt install jq
+# Install zip
+sudo apt install zip
+# Install az (Azure CLI)
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+# Install dotnet SDK
+wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo add-apt-repository universe
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt-get install dotnet-sdk-2.2
+```
+
+
 ## Creating the integration test pipeline in Azure DevOps
 
-* Create a Databricks workspace in the Azure region of your choice.
+* Create a Databricks workspace in the Azure region of your choice:
+  * tier: standard
+  * make sure the workspace is deployed with a custom VNET (as the HDInsight
+    Kafka setup will need to peer VNETs). The custom VNET must be named
+    'databricks-vnet'.
 * Create a project in Azure Pipelines.
+* Install a build agent (instructions below).
 * In your Azure Pipelines project settings, navigate to service connection and
   create an ARM service connection to your Azure subscription named
   'ARMConnection'. Do not restrict the connection to a particular resource
@@ -34,7 +77,11 @@ and supply it to the pipeline.
 | --------------------   | ---------------------------------------------- | --------- | ---------- |
 | LOCATION               | Azure region in which to deploy infrastructure | required  | eastus     |
 | DATABRICKS_PAT_TOKEN   | (secret variable) Databricks PAT token for a Databricks workspace deployed in $LOCATION | required | dapi01234567890123456789012345678901 |
+| DATABRICKS_RESOURCE_GROUP | Resource Group containing the Databricks VNET | required | streamingitests |
+DATABRICKS_RESOURCE_GROUP
 | RESOURCE_GROUP_PREFIX  | Prefix used to name deployed resources. Must be globally unique, use a sufficiently unique string  | required | xyzzy0x4 |
+| AGENT_VM_RESOURCE_GROUP | Resource group of the build agent VM  | required | streamingitests |
+| AGENT_VM_NAME          | Name of the build agent VM  | required | streamingbuildagent |
 
 
 ## Running the integration tests
