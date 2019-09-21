@@ -3,7 +3,7 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-databricksResourceGroup=${DATABRICKS_RESOURCE_GROUP:-$RESOURCE_GROUP}
+databricksResourceGroup=${DATABRICKS_VNET_RESOURCE_GROUP:-$RESOURCE_GROUP}
 
 echo "Getting VNET ids"
 databricks_vnet_name="databricks-vnet"

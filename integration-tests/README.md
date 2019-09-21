@@ -78,7 +78,7 @@ sudo apt-get install dotnet-sdk-2.2
 | --------------------   | ---------------------------------------------- | --------- | ---------- |
 | LOCATION               | Azure region in which to deploy infrastructure | required  | eastus     |
 | DATABRICKS_PAT_TOKEN   | (secret variable) Databricks PAT token for a Databricks workspace deployed in $LOCATION | required | dapi01234567890123456789012345678901 |
-| DATABRICKS_RESOURCE_GROUP | Resource Group containing the Databricks VNET | required | streamingitests |
+| DATABRICKS_VNET_RESOURCE_GROUP | Resource Group containing the Databricks VNET | required | streamingitests |
 | RESOURCE_GROUP_PREFIX  | Prefix used to name deployed resources. Must be globally unique, use a sufficiently unique string  | required | xyzzy0x4 |
 | AGENT_VM_RESOURCE_GROUP | Resource group of the build agent VM  | required | streamingitests |
 | AGENT_VM_NAME          | Name of the build agent VM  | required | streamingbuildagent |
