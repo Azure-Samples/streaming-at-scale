@@ -30,12 +30,27 @@ jobs:
 
   - script: |
       pip3 install pytest pytest-azurepipelines flaky
-    displayName: 'Install dependencies'
+    displayName: 'Install test dependencies'
+
   - task: AzureCLI@1
     inputs:
       azureSubscription: ARMConnection
       scriptLocation: 'inlineScript'
-      inlineScript: cd integration-tests && python3 -m pytest -s
+      inlineScript: cd integration-tests && python3 -m pytest -s --stage 1
+    displayName: 'pytest stage 1'
+
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ARMConnection
+      scriptLocation: 'inlineScript'
+      inlineScript: cd integration-tests && python3 -m pytest -s --stage 2
+    displayName: 'pytest stage 2'
+
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ARMConnection
+      scriptLocation: 'inlineScript'
+      inlineScript: cd integration-tests && python3 -m pytest -s --stage 3
       # Provide service principal (for Azure Data Explorer RBAC setup)
       addSpnToEnvironment: true
-    displayName: 'pytest'
+    displayName: 'pytest stage 3'

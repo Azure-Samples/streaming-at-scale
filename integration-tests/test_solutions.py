@@ -9,18 +9,26 @@ from flaky import flaky
 
 # Generate parametric tests by parsing test_spec.json files in each solution directory
 def pytest_generate_tests(metafunc):
+    stage = metafunc.config.getoption("stage")
     test_spec_files = glob.glob("../*/test_spec.json")
     test_specs = []
-    for f in test_spec_files:
+    test_ids = []
+    for f in sorted(test_spec_files):
         with open(f) as fd:
             new_specs = json.load(fd)
             for spec in new_specs:
-                spec["folder"] = os.path.basename(os.path.dirname(f))
-            test_specs.extend(new_specs)
+                if spec["stage"] == stage:
+                    spec["folder"] = os.path.basename(os.path.dirname(f))
+                    test_specs.append(spec)
+                    test_id = "{} {} ({})".format(
+                        spec["short"], spec["folder"], " ".join(spec["extra_args"]))
+                    test_ids.append(test_id)
     argnames = ["folder", "short", "steps",
                 "minutes", "throughput", "extra_args"]
     metafunc.parametrize(
-        argnames, [[spec[name] for name in argnames] for spec in test_specs]
+        argnames,
+        [[spec[name] for name in argnames] for spec in test_specs],
+        ids=test_ids
     )
 
 
