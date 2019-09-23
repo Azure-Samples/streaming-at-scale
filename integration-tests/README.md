@@ -23,10 +23,7 @@ As the integration tests can run for more than 6 hours, they must be run on self
 
 Create a project in Azure DevOps. Create an agent pool named "streaming-at-scale".
 
-In the Azure portal, create an Azure VM with:
-* Resource group: streamingitests
-* VM name: streamingbuildagent
-* OS: Ubuntu 18.04 LTS
+In the Azure portal, create an Azure VM with Ubuntu 18.04 LTS.
 
 SSH to the VM and run the following commands interactively one a time.
 
@@ -65,7 +62,7 @@ sudo apt-get install dotnet-sdk-2.2
     'databricks-vnet'.
   * You can use the [Databricks VNET
   template](https://azure.microsoft.com/en-us/resources/templates/101-databricks-all-in-one-template-for-vnet-injection/),
-  changing the tier to standard. 
+  changing the tier to standard on the deployment screen.
 * Install a build agent (instructions below).
 * In your Azure DevOps project settings, navigate to service connection and
   create an ARM service connection to your Azure subscription named
@@ -79,7 +76,7 @@ sudo apt-get install dotnet-sdk-2.2
 | Variable name          | Description                                    | Required? | Example    |
 | --------------------   | ---------------------------------------------- | --------- | ---------- |
 | LOCATION               | Azure region in which to deploy infrastructure | required  | eastus     |
-| DATABRICKS_PAT_TOKEN   | (secret variable) Databricks PAT token for a Databricks workspace deployed in $LOCATION | required | dapi01234567890123456789012345678901 |
+| DATABRICKS_PAT_TOKEN   | (secret variable) Databricks PAT token for a Databricks workspace deployed in $LOCATION | required | dapi012345... |
 | DATABRICKS_VNET_RESOURCE_GROUP | Resource Group containing the Databricks VNET | required | streamingitests |
 | RESOURCE_GROUP_PREFIX  | Prefix used to name deployed resources. Must be globally unique, use a sufficiently unique string  | required | xyzzy0x4 |
 | AGENT_VM_RESOURCE_GROUP | Resource group of the build agent VM  | required | streamingitests |
