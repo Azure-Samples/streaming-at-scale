@@ -19,9 +19,9 @@ and supply it to the pipeline.
 
 ## Installing the build agent
 
-As the integration tests can run for more than 6 hours, they must be run on self-hosted VSTS agents.
+As the integration tests can run for more than 6 hours, they must be run on self-hosted Azure DevOps agents.
 
-In VSTS, create an agent pool named "streaming-at-scale".
+Create a project in Azure DevOps. Create an agent pool named "streaming-at-scale".
 
 In the Azure portal, create an Azure VM with:
 * Resource group: streamingitests
@@ -31,7 +31,7 @@ In the Azure portal, create an Azure VM with:
 SSH to the VM and run the following commands interactively one a time.
 
 ```bash
-# Install VSTS agent. When prompted enter the VSTS host and a PAT token with Agent Pool management permissions.
+# Install Azure DevOps agent. When prompted enter the Azure DevOps host and a PAT token with Agent Pool management permissions.
 mkdir agent
 cd agent
 wget https://vstsagentpackage.azureedge.net/agent/2.155.1/vsts-agent-linux-x64-2.155.1.tar.gz
@@ -63,9 +63,11 @@ sudo apt-get install dotnet-sdk-2.2
   * make sure the workspace is deployed with a custom VNET (as the HDInsight
     Kafka setup will need to peer VNETs). The custom VNET must be named
     'databricks-vnet'.
-* Create a project in Azure Pipelines.
+  * You can use the [Databricks VNET
+  template](https://azure.microsoft.com/en-us/resources/templates/101-databricks-all-in-one-template-for-vnet-injection/),
+  changing the tier to standard. 
 * Install a build agent (instructions below).
-* In your Azure Pipelines project settings, navigate to service connection and
+* In your Azure DevOps project settings, navigate to service connection and
   create an ARM service connection to your Azure subscription named
   'ARMConnection'. Do not restrict the connection to a particular resource
   group.
