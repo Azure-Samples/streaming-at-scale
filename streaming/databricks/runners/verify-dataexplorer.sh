@@ -12,7 +12,7 @@ echo "getting Storage key"
 AZURE_STORAGE_KEY=$(az storage account keys list -g $RESOURCE_GROUP -n $AZURE_STORAGE_ACCOUNT -o tsv --query "[0].value")
 
 echo "getting Service Principal ID and password"
-appId=$(az ad sp show --id http://$DATAEXPLORER_CLIENT_NAME --query appId --output tsv)
+appId=$(az keyvault secret show --vault-name $DATAEXPLORER_KEYVAULT -n $DATAEXPLORER_CLIENT_NAME-id --query value -o tsv)
 password=$(az keyvault secret show --vault-name $DATAEXPLORER_KEYVAULT -n $DATAEXPLORER_CLIENT_NAME-password --query value -o tsv)
 
 echo 'writing Databricks secrets'

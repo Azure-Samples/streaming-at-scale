@@ -13,11 +13,7 @@ OUTPUT_OPTIONS=$(cat <<OPTIONS
 }
 OPTIONS
 )
-SECURE_OUTPUT_OPTIONS=$(cat <<OPTIONS
-{
-  "kafka.sasl.jaas.config": "${KAFKA_SASL_JAAS_CONFIG//\"/\"}"
-}
-OPTIONS
-)
+
+SECURE_OUTPUT_OPTIONS=$(echo "$KAFKA_SASL_JAAS_CONFIG" | jq --raw-input '{"kafka.sasl.jaas.config":.}')
 
 source ../simulator/create-generator-instances.sh

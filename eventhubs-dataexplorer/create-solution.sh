@@ -14,7 +14,7 @@ usage() {
     echo "    Possible values:"
     echo "      C=COMMON"
     echo "      I=INGESTION"
-    echo "      P=PROCESSING"
+    echo "      D=DATABASE"
     echo "      T=TEST clients"
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
