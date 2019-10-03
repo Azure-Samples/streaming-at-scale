@@ -3,51 +3,67 @@ trigger:
 
 jobs:
 
-- job: generator
+- job: start_agent
   steps:
-  - bash: echo "##vso[task.setVariable variable=TaskList;isOutput=true]$(bash integration-tests/generate-task-list.sh)"
-    name: GenerateTasks
-    displayName: Generating list of integration test tasks
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ARMConnection
+      scriptLocation: 'inlineScript'
+      inlineScript: az vm start -g "$AGENT_VM_RESOURCE_GROUP" -n "$AGENT_VM_NAME"
+    displayName: 'start agent VM'
 
-- job: runner
-  dependsOn: generator
-  timeoutInMinutes: 180
+- job: run_tests
+  dependsOn: start_agent
+  timeoutInMinutes: 0
   pool:
-    vmImage: 'ubuntu-16.04'
-  strategy:
-    maxParallel: 1
-    matrix: $[ dependencies.generator.outputs['GenerateTasks.TaskList'] ]
+    name: streaming-at-scale
   variables:
     DATABRICKS_HOST: https://$(LOCATION).azuredatabricks.net
   steps:
 
-  - bash: >
-      set -e;
-      sudo apt install python3-setuptools;
-      sudo pip3 install wheel databricks-cli;
-      databricks clusters spark-versions; 
-      echo "##vso[task.setVariable variable=DATABRICKS_TOKEN]$DATABRICKS_TOKEN"; 
+  - bash: |
+      set -e
+      sudo apt install -y python3-pip python3-setuptools
+      sudo pip3 install wheel databricks-cli
+      databricks clusters spark-versions
+      echo "##vso[task.setVariable variable=DATABRICKS_TOKEN]$DATABRICKS_TOKEN"
     displayName: Install Databricks CLI and expose token to next tasks
     env:
       DATABRICKS_TOKEN: $(DATABRICKS_PAT_TOKEN)
 
-  - task: AzureCLI@1
-    displayName: Check RG name available
-    inputs:
-      azureSubscription: ARMConnection
-      scriptPath: integration-tests/check-resource-group.sh
+  - script: |
+      pip3 install pytest pytest-azurepipelines flaky
+    displayName: 'Install test dependencies'
 
   - task: AzureCLI@1
-    displayName: Run test
     inputs:
       azureSubscription: ARMConnection
-      workingDirectory: $(TestDir)
-      scriptPath: $(TestDir)/create-solution.sh
-      arguments: -d $(RG_NAME) $(TestArgs)
+      scriptLocation: 'inlineScript'
+      inlineScript: cd integration-tests && python3 -m pytest -s --stage 1
+    displayName: 'pytest stage 1'
 
   - task: AzureCLI@1
-    displayName: Delete RG
-    condition: always() # this step will always run, even if the pipeline is cancelled
     inputs:
       azureSubscription: ARMConnection
-      scriptPath: integration-tests/delete-resource-group.sh
+      scriptLocation: 'inlineScript'
+      inlineScript: cd integration-tests && python3 -m pytest -s --stage 2
+    displayName: 'pytest stage 2'
+
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ARMConnection
+      scriptLocation: 'inlineScript'
+      inlineScript: cd integration-tests && python3 -m pytest -s --stage 3
+      # Provide service principal (for Azure Data Explorer RBAC setup)
+      addSpnToEnvironment: true
+    displayName: 'pytest stage 3'
+
+- job: stop_agent
+  dependsOn: run_tests
+  steps:
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ARMConnection
+      scriptLocation: 'inlineScript'
+      inlineScript: az vm deallocate -g "$AGENT_VM_RESOURCE_GROUP" -n "$AGENT_VM_NAME" --no-wait
+    displayName: 'stop agent VM'

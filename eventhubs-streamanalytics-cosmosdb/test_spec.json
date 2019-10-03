@@ -1,0 +1,10 @@
+[
+  {
+    "stage": "2",
+    "short": "esc1",
+    "steps": "CIDPTMV",
+    "minutes": "10",
+    "throughput": "1",
+    "extra_args": []
+  }
+]

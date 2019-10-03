@@ -37,10 +37,12 @@ val schema = StructType(
   StructField("processedAt", TimestampType) ::
   Nil)
 
+val arrayOfEventsSchema = ArrayType(schema)
+
 val stagingTable = "tempresult_" + randomUUID().toString.replace("-","_")
 
 var query = streamingData
-  .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
+  .select(explode(from_json(decode($"body", "UTF-8"), arrayOfEventsSchema)).as("eventData"), $"*")
   // When consuming from the output of eventhubs-streamanalytics-eventhubs pipeline, 'enqueuedAt' will haven been
   // set when reading from the first eventhub, and the enqueued timestamp of the second eventhub is then the 'storedAt' time
   .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey", $"enqueuedTime".as("storedAt"))
@@ -55,6 +57,8 @@ println("Waiting while stream collects data")
 while (query.isActive) {
   if (!query.status.isDataAvailable) {
     println("No more data available")
+    // https://stackoverflow.com/questions/45717433/stop-structured-streaming-query-gracefully
+    while (query.status.isTriggerActive) {}
     query.stop
   }
   Thread.sleep(1000)

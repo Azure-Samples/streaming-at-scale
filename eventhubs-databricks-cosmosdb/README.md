@@ -12,14 +12,14 @@ products:
   - azure-databricks
   - azure-event-hubs
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs, Databricks and Cosmos DB
 
 This sample uses Cosmos DB as database to store JSON data
 
-The provided scripts will an end-to-end solution complete with load test client.
+The provided scripts will create an end-to-end solution complete with load test client.
 
 ## Running the Scripts
 
@@ -69,13 +69,13 @@ to have an overview of all the supported arguments just run
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./common/generate-solution-name.sh
+    ./_common/generate-solution-name.sh
 
 ## Created resources
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+- **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 - **Azure Databricks**: to process data incoming from Event Hubs as a stream. Workspace, Job and related cluster will be created
 - **Cosmos DB** Server, Database and Collection: to store and serve processed data
@@ -114,18 +114,18 @@ If you want to change some setting of the solution, like number of load test cli
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
 The above settings has been chosen to sustain a 1000 msg/sec stream.
 
-## Monitor performances
+## Monitor performance
 
 In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
 
-Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working corretly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
+Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working correctly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
 
 ![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 

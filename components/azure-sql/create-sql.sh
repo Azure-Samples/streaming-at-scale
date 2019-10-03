@@ -28,8 +28,8 @@ az sql server firewall-rule create \
     --end-ip-address 0.0.0.0 \
     -o tsv >> log.txt
 
-echo "deploying SQL database"
-az sql db create --resource-group "$RESOURCE_GROUP" \
+echo "deploying SQL $SQL_TYPE"
+az sql $SQL_TYPE create --resource-group "$RESOURCE_GROUP" \
     --server $SQL_SERVER_NAME \
     --name $SQL_DATABASE_NAME \
     --service-objective $SQL_SKU \
@@ -40,7 +40,10 @@ az storage share create -n sqlprovision --connection-string $AZURE_STORAGE_CONNE
     -o tsv >> log.txt
 
 echo 'uploading provisioning scripts'
-az storage file upload-batch --source ../components/azure-sql/provision \
+az storage file upload --source ../components/azure-sql/provision/provision.sh \
+    --share-name sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
+    -o tsv >> log.txt
+az storage file upload-batch --source ../components/azure-sql/provision/$SQL_TYPE \
     --destination sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
     -o tsv >> log.txt
 

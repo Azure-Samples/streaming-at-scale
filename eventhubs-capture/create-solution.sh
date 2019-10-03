@@ -16,17 +16,17 @@ export LOCATION=eastus
 # 10000 messages/sec
 # export EVENTHUB_PARTITIONS=12
 # export EVENTHUB_CAPACITY=12
-# export TEST_CLIENTS=10
+# export SIMULATOR_INSTANCES=5
 
-# 5500 messages/sec
+# 5000 messages/sec
 # export EVENTHUB_PARTITIONS=8
 # export EVENTHUB_CAPACITY=8
-# export TEST_CLIENTS=10
+# export SIMULATOR_INSTANCES=3
 
 # 1000 messages/sec
 export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=2
-export TEST_CLIENTS=2
+export SIMULATOR_INSTANCES=1
 
 export STEPS=${2:-CITD}
 
@@ -76,7 +76,7 @@ echo "***** [T] starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 

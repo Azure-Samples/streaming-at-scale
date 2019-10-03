@@ -12,14 +12,14 @@ products:
   - azure-event-hubs
   - azure-sql-database
 statusNotificationTargets:
-  - damauri@microsoft.com
+  - algattik@microsoft.com
 ---
 
 # Streaming at Scale with Azure Event Hubs, Databricks and Azure SQL
 
-This sample uses Cosmos DB as database to store JSON data
+This sample uses Azure SQL DB as database to store JSON data.
 
-The provided scripts will an end-to-end solution complete with load test client.
+The provided scripts will create an end-to-end solution complete with load test client.
 
 ## Running the Scripts
 
@@ -69,13 +69,13 @@ to have an overview of all the supported arguments just run
 **Note**
 To make sure that name collisions will be unlikely, you should use a random string to give name to your solution. The following script will generated a 7 random lowercase letter name for you:
 
-    ./common/generate-solution-name.sh
+    ./_common/generate-solution-name.sh
 
 ## Created resources
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
+- **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 - **Azure Databricks**: to process data incoming from Event Hubs as a stream. Workspace, Job and related cluster will be created
 - **Azure SQL** Server and Database: to store and serve processed data
@@ -162,13 +162,13 @@ TRUNCATE TABLE dbo.staging_table;
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, Azure SQL Database tier and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
 ```bash
     export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
     export SQL_SKU=P2
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
@@ -176,9 +176,9 @@ If you want to change some setting of the solution, like number of load test cli
 
 The above settings has been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
-## Monitor performances
+## Monitor performance
 
-Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working corretly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
+Performance will be monitored and displayed on the console for 30 minutes. More specifically Inputs and Outputs performance of Event Hub will be monitored. If everything is working correctly, the number of reported `IncomingMessages` and `OutgoingMessages` should be roughly the same. (Give couple of minutes for ramp-up)
 
 ![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 

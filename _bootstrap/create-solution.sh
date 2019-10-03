@@ -66,17 +66,17 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
     export COSMOSDB_RU=100000
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
 fi
 
-# 5500 messages/sec
+# 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
     export COSMOSDB_RU=60000
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
 fi
 
 # 1000 messages/sec
@@ -86,13 +86,13 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3 
+    export SIMULATOR_INSTANCES=1 
 fi
 
 # ---- END: SET THE VALUES TO CORRECTLY HANDLE THE WORLOAD
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -120,7 +120,7 @@ echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
 echo ". CosmosDB        => RU: $COSMOSDB_RU"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -186,7 +186,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 

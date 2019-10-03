@@ -114,7 +114,8 @@
                             "serialization": {
                                 "type": "JSON",
                                 "properties": {
-                                    "encoding": "UTF8"
+                                    "encoding": "UTF8",
+                                    "format": "Array"
                                 }
                             },
                             "datasource": {

@@ -22,6 +22,7 @@ wait_for_run () {
             sleep 10
         fi
     done
+    echo
 
     result_state=$(jq -r ".state.result_state" <<< "$run_info") 
     state_message=$(jq -r ".state.state_message" <<< "$run_info")

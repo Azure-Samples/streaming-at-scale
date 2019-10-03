@@ -69,17 +69,17 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=20
     export COSMOSDB_RU=100000 
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
 fi
 
-# 5500 messages/sec
+# 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=10
     export COSMOSDB_RU=50000
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
 fi
 
 # 1000 messages/sec
@@ -89,11 +89,11 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
-    export TEST_CLIENTS=3
+    export SIMULATOR_INSTANCES=1
 fi
 
 # last checks and variables setup
-if [ -z "${TEST_CLIENTS+x}" ]; then
+if [ -z "${SIMULATOR_INSTANCES+x}" ]; then
     usage
 fi
 
@@ -134,7 +134,7 @@ echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
 echo ". CosmosDB        => RU: $COSMOSDB_RU"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -195,7 +195,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../simulator/run-event-generator.sh
+        source ../simulator/run-generator-eventhubs.sh
     fi
 echo
 
