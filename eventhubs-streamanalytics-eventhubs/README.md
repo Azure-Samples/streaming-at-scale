@@ -130,6 +130,37 @@ The above settings has been chosen to sustain a 1000 msg/sec stream.
 
 Please use Metrics pane in Stream Analytics, see "Input/Output Events" for throughput and "Watermark Delay" metric to see if the job is keeping up with the input rate.  You can also use Event Hub "Metrics" pane to see if there are any "Throttled Requests" and adjust the Threshold Units accordingly. "Watermark Delay" is one of the key metric that will help you to understand if Stream Analytics is keeping up with the incoming data. If delay is constantly increasing, you need to take a look at the destination to see if it can keep up with the speed or check if you need to increase SU: https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/.
 
+
+The deployment script will also report performance, by default every minute for 30 minutes:
+
+```
+***** [M] Starting METRICS reporting
+Event Hub capacity: 2 throughput units (this determines MAX VALUE below).
+Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
+                        Event Hub #   IncomingMessages  IncomingBytes  OutgoingMessages   OutgoingBytes  ThrottledRequests
+                        -----------   ----------------  -------------  ----------------   -------------  -----------------
+              MAX VALUE                         120000      120000000            491520       240000000                  -
+                        -----------   ----------------  -------------  ----------------   -------------  -----------------
+    2019-10-03T07:57:00           1                  0              0                 0               0                  0
+    2019-10-03T07:57:00           2                  0              0                 0               0                  0
+    2019-10-03T07:58:00           1              24050       22809797             24050        22809797                  0
+    2019-10-03T07:58:00           2                  0              0                 0               0                  0
+    2019-10-03T07:59:01           1              60037       56940526             60037        56940526                  0
+    2019-10-03T07:59:01           2                341       62393762                 0               0                  0
+    2019-10-03T08:00:00           1              60090       56989878             60090        56989878                  0
+    2019-10-03T08:00:00           2                375       65683281                 0               0                  0
+    2019-10-03T08:01:00           1              60036       56940643             60036        56940643                  0
+    2019-10-03T08:01:00           2                376       65708824                 0               0                  0
+```
+
+In column "Event Hub #", 1 refers to the Event Hub used as input to Stream
+Analytics, and 2 to the Event Hub used as output. After a few minutes of
+ramp-up, the metrics for Event Hub 1 will show around 60k events/min
+(depending on selected event rate, here 1k events/s). As Stream Analytics
+batches up messages when outputting to Event Hubs, the rate in events/minute
+on Event Hub 2 will be much lower, but you can see from the Incoming Bytes
+metric that the data rate on both event hubs is similar.
+
 ## Stream Analytics
 
 Note that the solution configurations have been verified with compatibility level 1.2. The deployed Stream Analytics solution doesn't do any analytics or projection, but it just inject an additional field using a simple Javascript UDF:

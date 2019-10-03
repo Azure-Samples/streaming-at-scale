@@ -10,7 +10,7 @@ jobs:
       azureSubscription: ARMConnection
       scriptLocation: 'inlineScript'
       inlineScript: az vm start -g "$AGENT_VM_RESOURCE_GROUP" -n "$AGENT_VM_NAME"
-    displayName: 'start agent'
+    displayName: 'start agent VM'
 
 - job: run_tests
   dependsOn: start_agent
@@ -57,3 +57,13 @@ jobs:
       # Provide service principal (for Azure Data Explorer RBAC setup)
       addSpnToEnvironment: true
     displayName: 'pytest stage 3'
+
+- job: stop_agent
+  dependsOn: run_tests
+  steps:
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ARMConnection
+      scriptLocation: 'inlineScript'
+      inlineScript: az vm deallocate -g "$AGENT_VM_RESOURCE_GROUP" -n "$AGENT_VM_NAME" --no-wait
+    displayName: 'stop agent VM'
