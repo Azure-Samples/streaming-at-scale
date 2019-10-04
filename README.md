@@ -11,11 +11,13 @@ products:
   - azure-container-instances
   - azure-cosmos-db
   - azure-databricks
+  - azure-data-explorer
   - azure-event-hubs
   - azure-functions  
   - azure-sql-database
   - azure-stream-analytics
   - azure-storage
+  - azure-time-series-insights
 statusNotificationTargets:
   - algattik@microsoft.com
 description: "How to setup an end-to-end solution to implement a streaming at scale scenario using a choice of different Azure technologies."
@@ -192,6 +194,14 @@ Implement a stream processing architecture using:
 - Microsoft Data Accelerator on HDInsight and Service Fabric (Stream Process)
 - Cosmos DB (Serve)
 
+### [Event Hubs + Time Series Insights](eventhubs-timeseriesinsights)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Time Series Insights (Stream Process / Serve / Store to Parquet)
+- Azure Storage (Serve for data analytics)
+
 ## Note
 
 Performance and Services change quickly in the cloud, so please keep in mind that all values used in the samples were tested at them moment of writing. If you find any discrepancies with what you observe when running the scripts, please create an issue and report it and/or create a PR to update the documentation and the sample. Thanks!
@@ -206,13 +216,6 @@ The following technologies could also be used in the end-to-end sample solution.
 
 ### Stream Processing
 
-- Azure Data Explorer
-
 ### Batch Processing
 
-- Azure Data Explorer
-
 ### Serving Layer
-
-- Azure Data Explorer
-- Azure DW
