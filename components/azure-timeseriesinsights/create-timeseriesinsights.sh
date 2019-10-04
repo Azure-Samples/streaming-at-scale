@@ -10,6 +10,7 @@ az group deployment create \
   --resource-group $RESOURCE_GROUP \
   --template-file ../components/azure-timeseriesinsights/tsi-eventhubs-arm-template.json \
   --parameters \
+  environmentName=$TSI_ENVIRONMENT \
   eventHubNamespace=$EVENTHUB_NAMESPACE \
   eventHubName=$EVENTHUB_NAME \
   eventSourceKeyName=Listen \
