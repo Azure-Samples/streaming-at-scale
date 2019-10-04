@@ -27,7 +27,7 @@ val streamStatistics = streamData
     .groupBy('storedAtMinute)
     .agg(
       (count('eventId)/60).as("events_per_second"),
-      avg('latency)as("avg_latency_s")
+      avg('latency).as("avg_latency_s")
     )
     .orderBy('storedAtMinute)
     .cache

@@ -25,7 +25,7 @@ import java.sql.Timestamp
 
 val schema = StructType(
   StructField("eventId", StringType) ::
-  StructField("complexData", StructType((1 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
   StructField("value", DoubleType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
