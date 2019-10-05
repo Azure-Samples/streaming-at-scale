@@ -2,8 +2,17 @@
 
 set -euo pipefail
 
-# Get ID of current user, to grant access to TSI environment
-userId=$(az ad signed-in-user show --query objectId -o tsv)
+accessPolicyContributorObjectIds=""
+
+userType=$(az account show --query user.type -o tsv)
+
+if [ "$userType" == "user" ]; then
+
+  # Get ID of current user, to grant access to TSI environment
+  userId=$(az ad signed-in-user show --query objectId -o tsv)
+  accessPolicyContributorObjectIds='"'$userId'"'
+
+fi
 
 echo 'creating TSI'
 az group deployment create \
@@ -18,5 +27,5 @@ az group deployment create \
   storageAccountName=$AZURE_STORAGE_ACCOUNT \
   environmentTimeSeriesIdProperties='[{"name":"deviceId", "type":"string"}]' \
   eventSourceTimestampPropertyName=createdAt \
-  accessPolicyContributorObjectIds='["'$userId'"]' \
+  accessPolicyContributorObjectIds='['$accessPolicyContributorObjectIds']' \
   -o tsv >>log.txt
