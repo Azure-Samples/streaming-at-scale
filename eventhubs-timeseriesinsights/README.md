@@ -17,6 +17,9 @@ statusNotificationTargets:
 # Streaming at Scale with Azure Event Hubs and Azure Time Series Insights
 
 This sample uses Azure Time Series Insights as database to store JSON data.
+Time Series Insights ingests event data from Event Hubs and makes it available
+for online querying and exploration. In addition, it stores the data in Parquet
+format on Azure Storage, where it is available for analytics.
 
 The provided scripts will create an end-to-end solution complete with load test client.
 
