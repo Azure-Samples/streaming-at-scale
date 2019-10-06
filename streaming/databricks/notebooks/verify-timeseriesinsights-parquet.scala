@@ -20,7 +20,8 @@ spark.sql(s"MSCK REPAIR TABLE `$tempTable`")
 val tempView = "tempview_" + randomUUID().toString.replace("-","_")
 
 table(tempTable)
-  .withColumn("storedAt", $"createdAt_datetime")
+  // TSI ingestion is configured to use 'createdAt' field as timestamp.
+  .withColumn("storedAt", $"timestamp")
   .withColumnRenamed("timestamp", "enqueuedAt")
   .withColumnRenamed("eventId_string", "eventId")
   .createOrReplaceGlobalTempView(tempView)
