@@ -8,14 +8,9 @@ source ../streaming/databricks/runners/verify-common.sh
 # TSI writes data into a storage container named after the environment ID.
 # Navigate the TSI API to retrieve the environment ID for the given TSI resource.
 
-tsi_resource_id=$(az resource show -g $RESOURCE_GROUP -n $TSI_ENVIRONMENT \
+tsi_id=$(az resource show -g $RESOURCE_GROUP -n $TSI_ENVIRONMENT \
   --resource-type Microsoft.TimeSeriesInsights/environments \
-  --query id -o tsv)
-
-tsi_id=$(az rest -m GET \
-  -u "https://api.timeseries.azure.com/environments?api-version=2016-12-12" \
-  --resource https://api.timeseries.azure.com/ \
-  --query "environments[?resourceId == '$tsi_resource_id'].environmentId" -o tsv)
+  --query properties.dataAccessId -o tsv)
 
 tsi_data="wasbs://env-$tsi_id@$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/V=1/PT=Time"
 
