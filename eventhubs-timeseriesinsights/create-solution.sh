@@ -2,7 +2,6 @@
 
 # Strict mode, fail on any error
 set -euo pipefail
-set -x
 
 export PREFIX=''
 export LOCATION="eastus"
