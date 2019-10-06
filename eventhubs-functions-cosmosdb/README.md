@@ -125,7 +125,7 @@ If you want to change some setting of the solution, like number of load test cli
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
 ## Monitor performance
 
