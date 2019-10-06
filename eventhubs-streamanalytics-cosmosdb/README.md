@@ -116,7 +116,9 @@ If you want to change some setting of the solution, like number of load test cli
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
 
-The above settings has been chosen to sustain a 1000 msg/sec stream. Likewise, below settings has been chosen to sustain at least 10,000 msg/sec stream. Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
+
+The below settings are used to sustain at least 10,000 msg/sec stream. Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
 
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12

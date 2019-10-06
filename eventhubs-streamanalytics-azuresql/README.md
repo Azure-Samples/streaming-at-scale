@@ -132,7 +132,7 @@ export SQL_TABLE_KIND="rowstore" # or "columnstore"
 export SIMULATOR_INSTANCES=1
 ```
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
 ## Scaling the solution
 
