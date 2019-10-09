@@ -2,6 +2,7 @@
 dbutils.widgets.text("input-table", "stream_data", "Spark table to pass stream data")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
 dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")
+dbutils.widgets.text("assert-duplicate-fraction", "0", "Assert max proportion of duplicate events")
 
 // COMMAND ----------
 
@@ -11,18 +12,14 @@ if (dbutils.secrets.list("MAIN").exists { s => s.key == "storage-account-key"}) 
 
 // COMMAND ----------
 
-val streamData = table(dbutils.widgets.get("input-table"))
+val inputData = table(dbutils.widgets.get("input-table")).cache
 
 // COMMAND ----------
 
 import org.apache.spark.sql.functions._
 
-def asOptionalDouble (s:String) = if (s == null || s == "") None else Some(s.toDouble)
-val assertEventsPerSecond = asOptionalDouble(dbutils.widgets.get("assert-events-per-second"))
-val assertLatencyMilliseconds = asOptionalDouble(dbutils.widgets.get("assert-latency-milliseconds"))
-
-val streamStatistics = streamData
-    .withColumn("storedAtMinute", (floor(unix_timestamp('storedAt) / 60)  * 60).cast("timestamp"))
+val storedByMinuteStats = inputData
+    .withColumn("storedAtMinute", (floor(unix_timestamp('storedAt) / 60) * 60).cast("timestamp"))
     .withColumn("latency", 'storedAt.cast("double") - 'enqueuedAt.cast("double"))
     .groupBy('storedAtMinute)
     .agg(
@@ -32,46 +29,73 @@ val streamStatistics = streamData
     .orderBy('storedAtMinute)
     .cache
 
-val globalStats = streamStatistics.agg(
+display(storedByMinuteStats)
+
+// COMMAND ----------
+
+val storedStats = storedByMinuteStats.agg(
   count('storedAtMinute).as("minutesWithData"),
   max('events_per_second).as("maxThroughputEventsPerSecond"),
   min('avg_latency_s).as("minLatencySeconds")
 ).cache
 
-display(globalStats)
-
-// COMMAND ----------
-
-display(streamStatistics)
-
-// COMMAND ----------
-
-case class GlobalStats(
+case class StoredStats(
   minutesWithData: Option[Long],
   maxThroughputEventsPerSecond: Option[Double],
   minLatencySeconds: Option[Double]
 )
-val stats = globalStats.as[GlobalStats].head
+val stats = storedStats.as[StoredStats].head
 
-var assertionsPassed = true
+display(storedStats)
+
+// COMMAND ----------
+
+val duplicates = inputData
+    .groupBy('eventId)
+    .agg(count('eventId).as("count"))
+    .where('count > 1)
+    .count
+
+val duplicateFraction = duplicates.toDouble / inputData.count
+
+// COMMAND ----------
+
+import scala.collection.mutable.ListBuffer
+
+def asOptionalDouble (s:String) = if (s == null || s == "") None else Some(s.toDouble)
+def getWidgetAsDouble (w:String) = asOptionalDouble(dbutils.widgets.get(w))
+
+var assertionsFailed = new ListBuffer[String]()
+
+val assertEventsPerSecond = getWidgetAsDouble("assert-events-per-second")
 if (assertEventsPerSecond.nonEmpty) {
-  if (stats.maxThroughputEventsPerSecond.isEmpty ||
-      (stats.maxThroughputEventsPerSecond.get < assertEventsPerSecond.get)) {
-    println("FAILED: min throughput")
-    assertionsPassed = false
+  val expected = assertEventsPerSecond.get
+  val actual = stats.maxThroughputEventsPerSecond
+  if (actual.isEmpty || (actual.get < expected)) {
+    assertionsFailed += s"min throughput per second: expected min $expected, got $actual"
   }
 }
+
+val assertLatencyMilliseconds = getWidgetAsDouble("assert-latency-milliseconds")
 if (assertLatencyMilliseconds.nonEmpty) {
-  if (stats.minLatencySeconds.isEmpty ||
-      ((stats.minLatencySeconds.get * 1000) > assertLatencyMilliseconds.get)) {
-    println("FAILED: max latency")
-    assertionsPassed = false
+  val expected = assertLatencyMilliseconds.get
+  val actual = stats.minLatencySeconds
+  if (actual.isEmpty || ((actual.get * 1000) > expected)) {
+    assertionsFailed += s"max latency in milliseconds: expected max $expected, got $actual"
+  }
+}
+
+val assertDuplicateFraction = getWidgetAsDouble("assert-duplicate-fraction")
+if (assertDuplicateFraction.nonEmpty) {
+  val expected = assertDuplicateFraction.get
+  if (duplicateFraction > expected) {
+    assertionsFailed += s"fraction of duplicate events: expected max $expected, got $duplicateFraction"
   }
 }
 
 // COMMAND ----------
 
-assert (assertionsPassed, "Test assertion(s) failed")
+assert(assertionsFailed.isEmpty, s"Test assertion(s) failed: ${assertionsFailed.mkString(";")}")
 
 // COMMAND ----------
 
