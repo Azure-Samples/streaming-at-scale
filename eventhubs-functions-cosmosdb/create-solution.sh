@@ -192,6 +192,8 @@ echo "***** [P] Setting up PROCESSING"
 echo
 
 echo "***** [T] Starting up TEST clients"
+export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=2
+
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
