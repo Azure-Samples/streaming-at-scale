@@ -14,5 +14,6 @@ databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" 
 source ../streaming/databricks/job/run-databricks-job.sh verify-eventhubs true "$(cat <<JQ
   .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
+  | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
 JQ
 )"

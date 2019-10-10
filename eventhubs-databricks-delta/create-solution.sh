@@ -160,9 +160,6 @@ echo
 
 echo "***** [T] Starting up TEST clients"
 
-    #FIXME
-    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=0
-
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
         source ../simulator/run-generator-eventhubs.sh
@@ -178,6 +175,8 @@ echo "***** [M] Starting METRICS reporting"
 echo
 
 echo "***** [V] Starting deployment VERIFICATION"
+
+    export ALLOW_DUPLICATES=1
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then

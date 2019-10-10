@@ -1,6 +1,7 @@
 // Databricks notebook source
 dbutils.widgets.text("storage-path", "", "WASB URL to data storage container")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
+dbutils.widgets.text("assert-duplicate-fraction", "0", "Assert max proportion of duplicate events")
 
 // COMMAND ----------
 
@@ -31,7 +32,8 @@ table(tempTable)
 dbutils.notebook.run("verify-common", 0, Map(
     "input-table" -> (spark.conf.get("spark.sql.globalTempDatabase") + "." + tempView),
     "assert-events-per-second" -> dbutils.widgets.get("assert-events-per-second"),
-    "assert-latency-milliseconds" -> "0" // As we use event timestamp as stored timestamp, measured latency should be 0
+    "assert-latency-milliseconds" -> "0", // As we use event timestamp as stored timestamp, measured latency should be 0
+    "assert-duplicate-fraction" -> dbutils.widgets.get("assert-duplicate-fraction")
 ))
 
 // COMMAND ----------

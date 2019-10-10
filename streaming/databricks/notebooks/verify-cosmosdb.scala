@@ -3,7 +3,7 @@ dbutils.widgets.text("cosmosdb-endpoint", "https://MYACCOUNT.documents.azure.com
 dbutils.widgets.text("cosmosdb-database", "streaming", "Cosmos DB database")
 dbutils.widgets.text("cosmosdb-collection", "rawdata", "Cosmos DB collection")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
-dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")
+dbutils.widgets.text("assert-duplicate-fraction", "0", "Assert max proportion of duplicate events")
 
 // COMMAND ----------
 
@@ -66,5 +66,6 @@ data
 dbutils.notebook.run("verify-common", 0, Map(
     "input-table" -> (spark.conf.get("spark.sql.globalTempDatabase") + "." + tempTable),
     "assert-events-per-second" -> dbutils.widgets.get("assert-events-per-second"),
-    "assert-latency-milliseconds" -> dbutils.widgets.get("assert-latency-milliseconds")
+    "assert-latency-milliseconds" -> dbutils.widgets.get("assert-latency-milliseconds"),
+    "assert-duplicate-fraction" -> dbutils.widgets.get("assert-duplicate-fraction")
 ))

@@ -22,5 +22,6 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-sqldw true "$(ca
   | .notebook_task.base_parameters."sqldw-tempstorage-container" = "sqldw"
   | .notebook_task.base_parameters."sqldw-table" = "$SQL_TABLE_NAME"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
+  | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
 JQ
 )"

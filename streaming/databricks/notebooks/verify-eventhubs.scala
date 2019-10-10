@@ -3,6 +3,7 @@ dbutils.widgets.text("eventhub-consumergroup", "$Default", "Event Hubs consumer 
 dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000000", "Event Hubs max events per trigger")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
 dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")
+dbutils.widgets.text("assert-duplicate-fraction", "0", "Assert max proportion of duplicate events")
 
 // COMMAND ----------
 
@@ -76,7 +77,8 @@ if (table(stagingTable).count == 0) {
 dbutils.notebook.run("verify-common", 0, Map(
     "input-table" -> stagingTable,
     "assert-events-per-second" -> dbutils.widgets.get("assert-events-per-second"),
-    "assert-latency-milliseconds" -> dbutils.widgets.get("assert-latency-milliseconds")
+    "assert-latency-milliseconds" -> dbutils.widgets.get("assert-latency-milliseconds"),
+    "assert-duplicate-fraction" -> dbutils.widgets.get("assert-duplicate-fraction")
 ))
 
 // COMMAND ----------

@@ -23,5 +23,6 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-timeseriesinsigh
   .new_cluster.spark_conf."spark.hadoop.fs.azure.account.key.$AZURE_STORAGE_ACCOUNT.blob.core.windows.net" = "$AZURE_STORAGE_KEY"
   | .notebook_task.base_parameters."storage-path" = "$tsi_data"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
+  | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
 JQ
 )"
