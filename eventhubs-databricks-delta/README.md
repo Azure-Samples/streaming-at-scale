@@ -106,6 +106,10 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
+## Duplicate event handling
+
+The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in Delta. Deduplicating events on write this is in the solution development roadmap.
+
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Databricks workers and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:

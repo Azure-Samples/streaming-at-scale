@@ -112,6 +112,11 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
+## Duplicate event handling
+
+The solution currently does not perform event deduplication.  As there is a unique ID on the eventId field in Azure SQL Database, function invocations will fail for those duplicates and entire event batches would be discarded. Therefore, the solution is only suitable when the upstream event generation pipeline up to Event Hubs has at-most once delivery guarantees (i.e. fire and forget message delivery, where messages are not redelivered even if the Event Hub does not acknowledge reception).
+
+
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Azure SQL Databsae tier and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:

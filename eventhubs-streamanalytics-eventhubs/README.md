@@ -102,6 +102,10 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
+## Duplicate event handling
+
+The solution does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in the destination Event Hub.
+
 ## Anomaly detection
 
 By default, the solution will set up a simple data movement job. Optionally, you can configure the job to perform anomaly detection:
