@@ -66,17 +66,3 @@ az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
     --settings ConsumerGroup=$EVENTHUB_CG \
     -o tsv >> log.txt
 
-echo 'creating AppInsights'
-az resource create --resource-group $RESOURCE_GROUP --resource-type "Microsoft.Insights/components" \
-    --name $PROC_FUNCTION_APP_NAME-appinsights --location $LOCATION --properties '{"ApplicationId":"StreamingAtScale","Application_Type":"other","Flow_Type":"Redfield"}' \
-    -o tsv >> log.txt
-
-echo 'getting AppInsights instrumentation key'
-APPINSIGHTS_INSTRUMENTATIONKEY=`az resource show -g $RESOURCE_GROUP -n $PROC_FUNCTION_APP_NAME-appinsights --resource-type "Microsoft.Insights/components" --query properties.InstrumentationKey -o tsv`
-
-echo 'configuring azure function with AppInsights'
-echo ". APPINSIGHTS_INSTRUMENTATIONKEY: $APPINSIGHTS_INSTRUMENTATIONKEY"
-az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --settings APPINSIGHTS_INSTRUMENTATIONKEY=$APPINSIGHTS_INSTRUMENTATIONKEY \
-    -o tsv >> log.txt
