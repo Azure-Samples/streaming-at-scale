@@ -31,6 +31,7 @@ val schema = StructType(
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
+  StructField("deviceSequenceNumber", LongType) ::
   StructField("createdAt", TimestampType) :: Nil)
 
 var streamData = eventhubs

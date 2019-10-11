@@ -13,11 +13,13 @@ echo ". capacity: $EVENTHUB_CAPACITY"
 echo ". capture: $EVENTHUB_CAPTURE"
 echo ". auto-inflate: false"
 
-az eventhubs namespace create -n $eventHubsNamespace -g $RESOURCE_GROUP \
+if ! az eventhubs namespace show -n $eventHubsNamespace -g $RESOURCE_GROUP -o none 2>/dev/null; then
+  az eventhubs namespace create -n $eventHubsNamespace -g $RESOURCE_GROUP \
     --sku Standard --location $LOCATION --capacity $EVENTHUB_CAPACITY \
     --enable-kafka "${EVENTHUB_ENABLE_KAFKA:-false}" \
     --enable-auto-inflate false \
     -o tsv >> log.txt
+fi
 
 echo 'creating eventhub instance'
 echo ". name: $EVENTHUB_NAME"

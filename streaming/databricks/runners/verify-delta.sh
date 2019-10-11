@@ -9,5 +9,6 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-delta true "$(ca
   .notebook_task.base_parameters."delta-table" = "events_$PREFIX"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
   | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
+  | .notebook_task.base_parameters."assert-outofsequence-fraction" = "$ALLOW_OUTOFSEQUENCE_FRACTION"
 JQ
 )"

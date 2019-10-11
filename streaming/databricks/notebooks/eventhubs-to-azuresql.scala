@@ -31,12 +31,13 @@ val schema = StructType(
   StructField("value", StringType) ::
   StructField("type", StringType) ::
   StructField("deviceId", StringType) ::
+  StructField("deviceSequenceNumber", LongType) ::
   StructField("createdAt", TimestampType) :: Nil)
 
 val dataToWrite = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
-  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt)
+  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'DeviceSequenceNumber, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt)
 
 // COMMAND ----------
 
@@ -99,12 +100,13 @@ var bulkCopyMetadata = new BulkCopyMetadata
 bulkCopyMetadata.addColumnMetadata(1, "EventId", java.sql.Types.NVARCHAR, 128, 0)
 bulkCopyMetadata.addColumnMetadata(2, "Type", java.sql.Types.NVARCHAR, 10, 0)
 bulkCopyMetadata.addColumnMetadata(3, "DeviceId", java.sql.Types.NVARCHAR, 100, 0)
-bulkCopyMetadata.addColumnMetadata(4, "CreatedAt", java.sql.Types.NVARCHAR, 128, 0)
-bulkCopyMetadata.addColumnMetadata(5, "Value", java.sql.Types.NVARCHAR, 128, 0)
-bulkCopyMetadata.addColumnMetadata(6, "ComplexData", java.sql.Types.NVARCHAR, -1, 0)
-bulkCopyMetadata.addColumnMetadata(7, "EnqueuedAt", java.sql.Types.NVARCHAR, 128, 0)
-bulkCopyMetadata.addColumnMetadata(8, "ProcessedAt", java.sql.Types.NVARCHAR, 128, 0)
-bulkCopyMetadata.addColumnMetadata(9, "PartitionId", java.sql.Types.INTEGER, 0, 0)
+bulkCopyMetadata.addColumnMetadata(4, "DeviceSequenceNumber", java.sql.Types.Long, 0, 0)
+bulkCopyMetadata.addColumnMetadata(5, "CreatedAt", java.sql.Types.NVARCHAR, 128, 0)
+bulkCopyMetadata.addColumnMetadata(6, "Value", java.sql.Types.NVARCHAR, 128, 0)
+bulkCopyMetadata.addColumnMetadata(7, "ComplexData", java.sql.Types.NVARCHAR, -1, 0)
+bulkCopyMetadata.addColumnMetadata(8, "EnqueuedAt", java.sql.Types.NVARCHAR, 128, 0)
+bulkCopyMetadata.addColumnMetadata(9, "ProcessedAt", java.sql.Types.NVARCHAR, 128, 0)
+bulkCopyMetadata.addColumnMetadata(10, "PartitionId", java.sql.Types.INTEGER, 0, 0)
 
 
 // COMMAND ----------
@@ -128,7 +130,7 @@ val WriteToSQLQuery  = dataToWrite
   batchDF
     .withColumn("PartitionId", pmod(hash('DeviceId), lit(numPartitions)))
     .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
-    .select('EventId, 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'PartitionId)
+    .select('EventId, 'Type, 'DeviceId, 'DeviceSequenceNumber, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'PartitionId)
     .bulkCopyToSqlDB(bulkCopyConfig, bulkCopyMetadata)
 
   if (writeDataBatch == null) {

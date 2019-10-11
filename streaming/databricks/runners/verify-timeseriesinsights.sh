@@ -24,5 +24,6 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-timeseriesinsigh
   | .notebook_task.base_parameters."storage-path" = "$tsi_data"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
   | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
+  | .notebook_task.base_parameters."assert-outofsequence-fraction" = "$ALLOW_OUTOFSEQUENCE_FRACTION"
 JQ
 )"

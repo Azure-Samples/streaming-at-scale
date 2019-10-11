@@ -10,6 +10,7 @@ from pyspark.sql.types import StringType
 
 executors = int(os.environ.get('EXECUTORS') or 1)
 rowsPerSecond = int(os.environ.get('EVENTS_PER_SECOND') or 1000)
+numberOfDevices = int(os.environ.get('NUMBER_OF_DEVICES') or 1000)
 complexDataCount = int(os.environ.get("COMPLEX_DATA_COUNT") or 23)
 duplicateEveryNEvents = int(os.environ.get("DUPLICATE_EVERY_N_EVENTS") or 0)
 
@@ -32,12 +33,14 @@ stream = (spark
   .option("rowsPerSecond", rowsPerSecond)
   .load()
    )
+# Rate stream has columns "timestamp" and "value"
 
 stream = (stream
-  .withColumn("deviceId", F.expr("'contoso://device-id-' || floor(rand() * 1000)"))
+  .withColumn("deviceId", F.concat(F.lit("contoso://device-id-"), F.expr("mod(value, %d)" % numberOfDevices)))
   .withColumn("type", F.expr("CASE WHEN rand()<0.5 THEN 'TEMP' ELSE 'CO2' END"))
   .withColumn("partitionKey", F.col("deviceId"))
   .withColumn("eventId", generate_uuid())
+  # current_timestamp is later than rate stream timestamp, therefore more accurate to measure end-to-end latency
   .withColumn("createdAt", F.current_timestamp())
   .withColumn("value", F.rand() * 90 + 10)
   )
@@ -57,7 +60,7 @@ else: #Kafka format
   bodyColumn = "value"
 
 query = (stream
-  .selectExpr(f"to_json(struct(eventId, type, deviceId, createdAt, value, complexData)) AS {bodyColumn}", "partitionKey")
+  .selectExpr("to_json(struct(eventId, type, deviceId, createdAt, value, complexData)) AS %s" % bodyColumn, "partitionKey")
   .writeStream
   .partitionBy("partitionKey")
   .format(outputFormat)
