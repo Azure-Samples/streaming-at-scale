@@ -46,6 +46,9 @@ class TestSolutions():
                *extra_args]
         env = dict(os.environ, REPORT_THROUGHPUT_MINUTES=minutes)
         subprocess.run(cmd, env=env, cwd="../" + folder, check=True)
+        with open('test-output.txt', 'r') as test_output_file:
+            test_output = test_output_file.read()
+        assert test_output == ""
 
     @pytest.fixture(autouse=True)
     def run_around_tests(self, short):

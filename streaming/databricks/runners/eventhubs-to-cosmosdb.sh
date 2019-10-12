@@ -20,14 +20,15 @@ databricks fs rm -r "$checkpoints_dir"
 echo 'importing Spark library'
 # Cosmos DB must be imported as Uber JAR and not resolved through maven coordinates,
 # see https://kb.databricks.com/data-sources/cosmosdb-connector-lib-conf.html
-cosmosdb_spark_jar=azure-cosmosdb-spark_2.4.0_2.11-1.4.0-uber.jar
+cosmosdb_spark_jar=azure-cosmosdb-spark_2.4.0_2.11-1.4.1-uber.jar
 jar_tempfile=$(mktemp)
-curl -fsL -o "$jar_tempfile" "http://central.maven.org/maven2/com/microsoft/azure/azure-cosmosdb-spark_2.4.0_2.11/1.4.0/$cosmosdb_spark_jar"
+curl -fsL -o "$jar_tempfile" "http://central.maven.org/maven2/com/microsoft/azure/azure-cosmosdb-spark_2.4.0_2.11/1.4.1/$cosmosdb_spark_jar"
 databricks fs cp --overwrite "$jar_tempfile" "dbfs:/mnt/streaming-at-scale/$cosmosdb_spark_jar"
 rm $jar_tempfile
 
 source ../streaming/databricks/job/run-databricks-job.sh eventhubs-to-cosmosdb false "$(cat <<JQ
-  .libraries += [{"jar": "dbfs:/mnt/streaming-at-scale/azure-cosmosdb-spark_2.4.0_2.11-1.4.0-uber.jar"}]
+  .libraries += [ { "maven": { "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.13" } } ]
+  | .libraries += [{"jar": "dbfs:/mnt/streaming-at-scale/azure-cosmosdb-spark_2.4.0_2.11-1.4.1-uber.jar"}]
   | .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
   | .notebook_task.base_parameters."eventhub-maxEventsPerTrigger" = "$DATABRICKS_MAXEVENTSPERTRIGGER"
   | .notebook_task.base_parameters."cosmosdb-endpoint" = "https://$COSMOSDB_SERVER_NAME.documents.azure.com:443"

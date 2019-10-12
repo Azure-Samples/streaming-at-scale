@@ -9,4 +9,8 @@ eh_resource=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.Even
 export KAFKA_BROKERS="$EVENTHUB_NAMESPACE.servicebus.windows.net:9093"
 export KAFKA_SECURITY_PROTOCOL=SASL_SSL
 export KAFKA_SASL_MECHANISM=PLAIN
-export KAFKA_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS\";"
+
+# For running within Databricks: kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule
+# For running outside of Databricks: org.apache.kafka.common.security.plain.PlainLoginModule
+loginModule="kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule"
+export KAFKA_SASL_JAAS_CONFIG="$loginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS\";"

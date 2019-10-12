@@ -1,5 +1,6 @@
 // Databricks notebook source
 dbutils.widgets.text("input-table", "stream_data", "Spark table to pass stream data")
+dbutils.widgets.text("test-output-path", "dbfs:/test-output/test-output.txt", "DBFS location to store assertion results")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
 dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")
 dbutils.widgets.text("assert-duplicate-fraction", "0", "Assert max proportion of duplicate events")
@@ -146,7 +147,13 @@ if (assertMissingFraction.nonEmpty) {
 
 // COMMAND ----------
 
-assert(assertionsFailed.isEmpty, s"Test assertion(s) failed: ${assertionsFailed.mkString(";")}")
+println("Writing test result file")
+
+dbutils.fs.put(dbutils.widgets.get("test-output-path"), assertionsFailed.mkString("\n"), overwrite=true)
+
+if (!assertionsFailed.isEmpty) {
+   println(s"Test assertion(s) failed: ${assertionsFailed.mkString(";")}")
+}
 
 // COMMAND ----------
 

@@ -21,9 +21,12 @@ databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value
 
 source ../streaming/databricks/job/run-databricks-job.sh verify-timeseriesinsights-parquet true "$(cat <<JQ
   .new_cluster.spark_conf."spark.hadoop.fs.azure.account.key.$AZURE_STORAGE_ACCOUNT.blob.core.windows.net" = "$AZURE_STORAGE_KEY"
+  | .notebook_task.base_parameters."test-output-path" = "$DATABRICKS_TESTOUTPUTPATH"
   | .notebook_task.base_parameters."storage-path" = "$tsi_data"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
   | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
   | .notebook_task.base_parameters."assert-outofsequence-fraction" = "$ALLOW_OUTOFSEQUENCE_FRACTION"
 JQ
 )"
+
+source ../streaming/databricks/runners/verify-download-result.sh

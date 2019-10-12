@@ -1,4 +1,5 @@
 log.txt
+test-output.txt
 *.pyc
 .DS_Store
 *.json-e

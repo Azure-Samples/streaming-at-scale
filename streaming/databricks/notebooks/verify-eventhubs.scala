@@ -1,4 +1,5 @@
 // Databricks notebook source
+dbutils.widgets.text("test-output-path", "dbfs:/test-output/test-output.txt", "DBFS location to store assertion results")
 dbutils.widgets.text("eventhub-consumergroup", "$Default", "Event Hubs consumer group")
 dbutils.widgets.text("eventhub-maxEventsPerTrigger", "1000000", "Event Hubs max events per trigger")
 dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
@@ -76,6 +77,7 @@ if (table(stagingTable).count == 0) {
 // COMMAND ----------
 
 dbutils.notebook.run("verify-common", 0, Map(
+    "test-output-path" -> dbutils.widgets.get("test-output-path"),
     "input-table" -> stagingTable,
     "assert-events-per-second" -> dbutils.widgets.get("assert-events-per-second"),
     "assert-latency-milliseconds" -> dbutils.widgets.get("assert-latency-milliseconds"),

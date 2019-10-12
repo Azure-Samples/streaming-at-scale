@@ -18,7 +18,8 @@ echo "Deleting checkpoints directory $checkpoints_dir"
 databricks fs rm -r "$checkpoints_dir"
 
 source ../streaming/databricks/job/run-databricks-job.sh eventhubs-to-delta false "$(cat <<JQ
-  .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
+  .libraries += [ { "maven": { "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.13" } } ]
+  | .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
   | .notebook_task.base_parameters."eventhub-maxEventsPerTrigger" = "$DATABRICKS_MAXEVENTSPERTRIGGER"
   | .notebook_task.base_parameters."storage-account" = "$AZURE_STORAGE_ACCOUNT_GEN2"
   | .notebook_task.base_parameters."delta-table" = "events_$PREFIX"

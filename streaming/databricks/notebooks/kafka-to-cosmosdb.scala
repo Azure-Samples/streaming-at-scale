@@ -1,6 +1,8 @@
 // Databricks notebook source
 dbutils.widgets.text("kafka-servers", "")
 dbutils.widgets.text("kafka-topics", "streaming")
+dbutils.widgets.text("kafka-sasl-mechanism", "")
+dbutils.widgets.text("kafka-security-protocol", "")
 dbutils.widgets.text("cosmosdb-endpoint", "https://MYACCOUNT.documents.azure.com", "Cosmos DB endpoint")
 dbutils.widgets.text("cosmosdb-database", "streaming", "Cosmos DB database")
 dbutils.widgets.text("cosmosdb-collection", "rawdata", "Cosmos DB collection")

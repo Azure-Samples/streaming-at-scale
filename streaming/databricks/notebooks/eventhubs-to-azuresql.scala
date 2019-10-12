@@ -100,7 +100,7 @@ var bulkCopyMetadata = new BulkCopyMetadata
 bulkCopyMetadata.addColumnMetadata(1, "EventId", java.sql.Types.NVARCHAR, 128, 0)
 bulkCopyMetadata.addColumnMetadata(2, "Type", java.sql.Types.NVARCHAR, 10, 0)
 bulkCopyMetadata.addColumnMetadata(3, "DeviceId", java.sql.Types.NVARCHAR, 100, 0)
-bulkCopyMetadata.addColumnMetadata(4, "DeviceSequenceNumber", java.sql.Types.Long, 0, 0)
+bulkCopyMetadata.addColumnMetadata(4, "DeviceSequenceNumber", java.sql.Types.BIGINT, 0, 0)
 bulkCopyMetadata.addColumnMetadata(5, "CreatedAt", java.sql.Types.NVARCHAR, 128, 0)
 bulkCopyMetadata.addColumnMetadata(6, "Value", java.sql.Types.NVARCHAR, 128, 0)
 bulkCopyMetadata.addColumnMetadata(7, "ComplexData", java.sql.Types.NVARCHAR, -1, 0)

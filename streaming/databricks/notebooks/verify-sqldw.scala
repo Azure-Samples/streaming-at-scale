@@ -1,4 +1,5 @@
 // Databricks notebook source
+dbutils.widgets.text("test-output-path", "dbfs:/test-output/test-output.txt", "DBFS location to store assertion results")
 dbutils.widgets.text("sqldw-servername", "")
 dbutils.widgets.text("sqldw-user", "serveradmin")
 dbutils.widgets.text("sqldw-tempstorage-account", "")
@@ -40,6 +41,7 @@ data
 // COMMAND ----------
 
 dbutils.notebook.run("verify-common", 0, Map(
+    "test-output-path" -> dbutils.widgets.get("test-output-path"),
     "input-table" -> (spark.conf.get("spark.sql.globalTempDatabase") + "." + tempTable),
     "assert-events-per-second" -> dbutils.widgets.get("assert-events-per-second"),
     "assert-latency-milliseconds" -> dbutils.widgets.get("assert-latency-milliseconds"),
