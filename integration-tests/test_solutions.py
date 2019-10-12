@@ -45,8 +45,9 @@ class TestSolutions():
                "-l", os.environ['LOCATION'],
                *extra_args]
         env = dict(os.environ, REPORT_THROUGHPUT_MINUTES=minutes)
-        subprocess.run(cmd, env=env, cwd="../" + folder, check=True)
-        with open('../test-output.txt', 'r') as test_output_file:
+        cwd = "../" + folder
+        subprocess.run(cmd, env=env, cwd=cwd, check=True)
+        with open(cwd + '/test-output.txt', 'r') as test_output_file:
             test_output = test_output_file.read()
         assert test_output == ""
 
