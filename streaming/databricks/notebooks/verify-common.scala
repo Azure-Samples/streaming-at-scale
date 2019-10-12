@@ -100,11 +100,12 @@ if (assertDuplicateFraction.nonEmpty) {
 
 // COMMAND ----------
 
-val timeSequence = Window.partitionBy("deviceId").orderBy('storedAt, monotonically_increasing_id)
+val timeSequence = Window.partitionBy("deviceId").orderBy('storedAt, 'deviceSequenceNumber)
 
 val outOfSequence = inputData
   .withColumn("deviceSequenceNumberDelta", 'deviceSequenceNumber - lag('deviceSequenceNumber, 1).over(timeSequence))
-  .filter('deviceSequenceNumberDelta =!= 1)
+  // in-sequence events will have delta=1, duplicate events will have delta=0 (ignore them as they are checked separately)
+  .filter('deviceSequenceNumberDelta > 1)
   .count
 
 val outOfSequenceFraction = outOfSequence.toDouble / inputData.count
@@ -129,7 +130,7 @@ val missingEvents = inputData
   .withColumn("fractionInOrder", 'orderInDevice.cast("double") / 'countForDevice)
   .filter('fractionInOrder >= 0.1 and 'fractionInOrder <= 0.9)
   .withColumn("deviceSequenceNumberDelta", 'deviceSequenceNumber - lag('deviceSequenceNumber, 1).over(deviceSequence))
-  // normal events will have delta=1, duplicate events will have delta=0 (ignore them as they are checked separately)
+  // in-sequence events will have delta=1, duplicate events will have delta=0 (ignore them as they are checked separately)
   .filter('deviceSequenceNumberDelta > 1)
   .count
 

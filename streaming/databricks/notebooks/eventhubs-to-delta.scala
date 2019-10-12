@@ -26,13 +26,13 @@ import java.time.Instant
 import java.sql.Timestamp
 
 val schema = StructType(
-  StructField("eventId", StringType) ::
-  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
-  StructField("value", StringType) ::
-  StructField("type", StringType) ::
-  StructField("deviceId", StringType) ::
-  StructField("deviceSequenceNumber", LongType) ::
-  StructField("createdAt", TimestampType) :: Nil)
+  StructField("eventId", StringType, false) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType, false)))) ::
+  StructField("value", StringType, false) ::
+  StructField("type", StringType, false) ::
+  StructField("deviceId", StringType, false) ::
+  StructField("deviceSequenceNumber", LongType, false) ::
+  StructField("createdAt", TimestampType, false) :: Nil)
 
 var streamData = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")

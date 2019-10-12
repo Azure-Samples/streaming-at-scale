@@ -37,6 +37,7 @@ stream = (spark
 
 stream = (stream
   .withColumn("deviceId", F.concat(F.lit("contoso://device-id-"), F.expr("mod(value, %d)" % numberOfDevices)))
+  .withColumn("deviceSequenceNumber", F.expr("value div %d" % numberOfDevices))
   .withColumn("type", F.expr("CASE WHEN rand()<0.5 THEN 'TEMP' ELSE 'CO2' END"))
   .withColumn("partitionKey", F.col("deviceId"))
   .withColumn("eventId", generate_uuid())
@@ -60,7 +61,7 @@ else: #Kafka format
   bodyColumn = "value"
 
 query = (stream
-  .selectExpr("to_json(struct(eventId, type, deviceId, createdAt, value, complexData)) AS %s" % bodyColumn, "partitionKey")
+  .selectExpr("to_json(struct(eventId, type, deviceId, deviceSequenceNumber, createdAt, value, complexData)) AS %s" % bodyColumn, "partitionKey")
   .writeStream
   .partitionBy("partitionKey")
   .format(outputFormat)

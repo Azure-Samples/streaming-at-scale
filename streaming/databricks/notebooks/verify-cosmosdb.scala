@@ -26,16 +26,16 @@ val cosmosDbConfig = Config(Map(
 ))
 
 val schema = StructType(
-  StructField("eventId", StringType) ::
-  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
-  StructField("value", StringType) ::
-  StructField("type", StringType) ::
-  StructField("deviceId", StringType) ::
-  StructField("deviceSequenceNumber", LongType) ::
-  StructField("createdAt", StringType) ::
-  StructField("enqueuedAt", StringType) ::
-  StructField("processedAt", StringType) ::
-  StructField("_ts", LongType) ::
+  StructField("eventId", StringType, false) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType, false)))) ::
+  StructField("value", StringType, false) ::
+  StructField("type", StringType, false) ::
+  StructField("deviceId", StringType, false) ::
+  StructField("deviceSequenceNumber", LongType, false) ::
+  StructField("createdAt", StringType, false) ::
+  StructField("enqueuedAt", StringType, false) ::
+  StructField("processedAt", StringType, false) ::
+  StructField("_ts", LongType, false) ::
   Nil)
 
 val data = spark
