@@ -67,7 +67,7 @@ import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
 streamDataMutated
   .writeStream
   .format(classOf[CosmosDBSinkProvider].getName)
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/kafka-to-cosmosdb")
   .outputMode("append")
   .options(cosmosDbConfig)
   .start()

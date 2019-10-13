@@ -77,7 +77,7 @@ if (assertLatencyMilliseconds.nonEmpty) {
   val expected = assertLatencyMilliseconds.get
   val actual = stats.minLatencySeconds
   if (actual.isEmpty || ((actual.get * 1000) > expected)) {
-    assertionsFailed += s"max latency in milliseconds: expected max $expected, got $actual"
+    assertionsFailed += s"max latency in milliseconds: expected max $expected milliseconds, got $actual seconds"
   }
 }
 

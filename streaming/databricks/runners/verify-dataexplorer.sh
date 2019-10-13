@@ -20,7 +20,7 @@ databricks secrets put --scope "MAIN" --key "dataexplorer-client-password" --str
 databricks secrets put --scope "MAIN" --key "dataexplorer-storage-key" --string-value "$AZURE_STORAGE_KEY"
 
 source ../streaming/databricks/job/run-databricks-job.sh verify-dataexplorer true "$(cat <<JQ
-  .libraries += [ { "maven": { "coordinates": "com.microsoft.azure.kusto:spark-kusto-connector:1.0.0-BETA-06", "exclusions": ["javax.mail:mail"] } } ]
+  .libraries += [ { "maven": { "coordinates": "com.microsoft.azure.kusto:spark-kusto-connector:1.0.0-BETA-04", "exclusions": ["javax.mail:mail"] } } ]
   | .notebook_task.base_parameters."test-output-path" = "$DATABRICKS_TESTOUTPUTPATH"
   | .notebook_task.base_parameters."dataexplorer-cluster" = "$kustoURL"
   | .notebook_task.base_parameters."dataexplorer-database" = "$DATAEXPLORER_DATABASE"

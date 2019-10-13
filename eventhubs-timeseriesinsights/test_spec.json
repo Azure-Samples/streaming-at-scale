@@ -1,5 +1,6 @@
 [
   {
+    "enabled": true,
     "stage": "2",
     "short": "eti1",
     "steps": "CIDTMV",

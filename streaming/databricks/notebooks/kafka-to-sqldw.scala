@@ -59,5 +59,5 @@ dataToWrite.writeStream
   .option("forwardSparkAzureStorageCredentials", "true")
   .option("maxStrLength", "4000")
   .option("dbTable", dbutils.widgets.get("sqldw-table"))
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-sqldw")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/kafka-to-sqldw")
   .start()

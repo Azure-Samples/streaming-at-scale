@@ -47,6 +47,7 @@ val streamData = eventhubs
 // for the description of the available configurations.
 val cosmosDbConfig = Map(
   "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
+  "ConnectionMode" -> "DirectHttps",
   "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
   "Database" -> dbutils.widgets.get("cosmosdb-database"),
   "Collection" -> dbutils.widgets.get("cosmosdb-collection")
@@ -67,7 +68,7 @@ import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
 streamDataMutated
   .writeStream
   .format(classOf[CosmosDBSinkProvider].getName)
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/eventhubs-to-cosmosdb")
   .outputMode("append")
   .options(cosmosDbConfig)
   .start()
