@@ -13,11 +13,16 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$STORAGE_GEN2_KEY"
 
+delta_table="events_$PREFIX"
+checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/eventhubs-to-delta/"$delta_table"
+echo "Deleting checkpoints directory $checkpoints_dir"
+databricks fs rm -r "$checkpoints_dir"
+
 source ../streaming/databricks/job/run-databricks-job.sh eventhubs-to-delta false "$(cat <<JQ
   .libraries += [ { "maven": { "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.13" } } ]
   | .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
   | .notebook_task.base_parameters."eventhub-maxEventsPerTrigger" = "$DATABRICKS_MAXEVENTSPERTRIGGER"
   | .notebook_task.base_parameters."storage-account" = "$AZURE_STORAGE_ACCOUNT_GEN2"
-  | .notebook_task.base_parameters."delta-table" = "events_$PREFIX"
+  | .notebook_task.base_parameters."delta-table" = "$delta_table"
 JQ
 )"
