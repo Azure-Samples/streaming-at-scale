@@ -38,7 +38,7 @@ val dataToWrite = data
   .withColumn("ComplexData", to_json($"ComplexData"))
   .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
   .withColumn("StoredAt", current_timestamp)
-  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
+  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'DeviceSequenceNumber, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
 
 // COMMAND ----------
 
