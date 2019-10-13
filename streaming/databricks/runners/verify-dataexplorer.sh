@@ -29,6 +29,8 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-dataexplorer tru
   | .notebook_task.base_parameters."dataexplorer-storage-account" = "$AZURE_STORAGE_ACCOUNT"
   | .notebook_task.base_parameters."dataexplorer-storage-container" = "dataexplorer"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
+  | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
+  | .notebook_task.base_parameters."assert-outofsequence-fraction" = "$ALLOW_OUTOFSEQUENCE_FRACTION"
 JQ
 )"
 

@@ -13,7 +13,7 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 databricks secrets put --scope "MAIN" --key "cosmosdb-write-master-key" --string-value "$COSMOSDB_MASTER_KEY"
 
-checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb
+checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/eventhubs-to-cosmosdb
 echo "Deleting checkpoints directory $checkpoints_dir"
 databricks fs rm -r "$checkpoints_dir"
 

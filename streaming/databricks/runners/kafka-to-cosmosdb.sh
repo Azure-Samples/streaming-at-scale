@@ -10,10 +10,10 @@ echo "getting cosmosdb master key"
 COSMOSDB_MASTER_KEY=$(az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv)
 
 echo 'writing Databricks secrets'
-databricks secrets put --scope "MAIN" --key "kafka-sasl-jaas-config" --string-value "$KAFKA_SASL_JAAS_CONFIG"
+databricks secrets put --scope "MAIN" --key "kafka-sasl-jaas-config" --string-value "$KAFKA_SASL_JAAS_CONFIG_DATABRICKS"
 databricks secrets put --scope "MAIN" --key "cosmosdb-write-master-key" --string-value "$COSMOSDB_MASTER_KEY"
 
-checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb
+checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/kafka-to-cosmosdb
 echo "Deleting checkpoints directory $checkpoints_dir"
 databricks fs rm -r "$checkpoints_dir"
 

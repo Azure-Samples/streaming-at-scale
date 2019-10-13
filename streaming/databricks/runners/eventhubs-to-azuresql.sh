@@ -10,7 +10,7 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 databricks secrets put --scope "MAIN" --key "azuresql-pass" --string-value "$SQL_ADMIN_PASS"
 
-checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/streaming-azuresql
+checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/eventhubs-to-azuresql
 echo "Deleting checkpoints directory $checkpoints_dir"
 databricks fs rm -r "$checkpoints_dir"
 
