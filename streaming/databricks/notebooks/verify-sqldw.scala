@@ -28,7 +28,21 @@ val data = spark
   .option("tempDir", s"wasbs://$tempStorageContainer@$tempStorageAccount.blob.core.windows.net/")
   .option("forwardSparkAzureStorageCredentials", "true")
   .option("maxStrLength", "4000")
-  .option("dbTable", dbutils.widgets.get("sqldw-table"))
+  .option("query", s"""
+            SELECT
+            CAST([EventId] AS char(36)) AS [EventId], -- UniqueIdentifier type is not supported in Polybase
+            [Type],
+            [DeviceId],
+            [DeviceSequenceNumber],
+            [CreatedAt],
+            [Value],
+            [ComplexData],
+            [EnqueuedAt],
+            [ProcessedAt],
+            [StoredAt]
+            FROM 
+            ${dbutils.widgets.get("sqldw-table")}
+            """)
   .load()
 
 // COMMAND ----------
