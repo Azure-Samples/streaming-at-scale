@@ -39,6 +39,8 @@ val streamData = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
   .withColumn("processedAt", lit(Timestamp.from(Instant.now)))
+  // Unique ID column for Upsert
+  .withColumn("id", 'eventId)
 
 // COMMAND ----------
 
@@ -48,6 +50,7 @@ val streamData = eventhubs
 val cosmosDbConfig = Map(
   "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
   "ConnectionMode" -> "DirectHttps",
+  "Upsert" -> "true",
   "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
   "Database" -> dbutils.widgets.get("cosmosdb-database"),
   "Collection" -> dbutils.widgets.get("cosmosdb-collection")
