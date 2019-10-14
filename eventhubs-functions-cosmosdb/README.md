@@ -117,7 +117,7 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 ## Duplicate event handling
 
-The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). As the Cosmos DB SDK configures a new document ID for each item written into Cosmos DB, and Cosmos DB is not configured with a unique eventId key, this results in duplicate events in the Cosmos DB store. Improving this is in the solution development roadmap.
+As a result of transient errors, events could be processed more than once (at-least-once event delivery guarantee). In case the Azure Stream Analytics infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Function binding logic to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
 
 ## Solution customization
 
