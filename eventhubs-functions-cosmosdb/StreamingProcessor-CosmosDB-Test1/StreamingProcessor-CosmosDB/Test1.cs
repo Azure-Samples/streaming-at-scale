@@ -37,6 +37,7 @@ namespace StreamingProcessor
                     string message = Encoding.UTF8.GetString(data.Body.Array);
 
                     var document = JObject.Parse(message);
+                    document["id"] = document["eventId"];
                     document["enqueuedAt"] = data.SystemProperties.EnqueuedTimeUtc;
                     document["processedAt"] = DateTime.UtcNow;
                     document["positionInBatch"] = positionInBatch;

@@ -24,12 +24,13 @@ import java.time.Instant
 import java.sql.Timestamp
 
 val schema = StructType(
-  StructField("eventId", StringType) ::
-  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
-  StructField("value", DoubleType) ::
-  StructField("type", StringType) ::
-  StructField("deviceId", StringType) ::
-  StructField("createdAt", TimestampType) :: Nil)
+  StructField("eventId", StringType, false) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType, false)))) ::
+  StructField("value", DoubleType, false) ::
+  StructField("type", StringType, false) ::
+  StructField("deviceId", StringType, false) ::
+  StructField("deviceSequenceNumber", LongType, false) ::
+  StructField("createdAt", TimestampType, false) :: Nil)
 
 val dataToWrite = data
   .select(from_json(decode($"value", "UTF-8"), schema).as("eventData"), $"*")
@@ -37,7 +38,7 @@ val dataToWrite = data
   .withColumn("ComplexData", to_json($"ComplexData"))
   .withColumn("ProcessedAt", lit(Timestamp.from(Instant.now)))
   .withColumn("StoredAt", current_timestamp)
-  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
+  .select('eventId.as("EventId"), 'Type, 'DeviceId, 'DeviceSequenceNumber, 'CreatedAt, 'Value, 'ComplexData, 'EnqueuedAt, 'ProcessedAt, 'StoredAt)
 
 // COMMAND ----------
 
@@ -58,5 +59,5 @@ dataToWrite.writeStream
   .option("forwardSparkAzureStorageCredentials", "true")
   .option("maxStrLength", "4000")
   .option("dbTable", dbutils.widgets.get("sqldw-table"))
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-sqldw")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/kafka-to-sqldw")
   .start()

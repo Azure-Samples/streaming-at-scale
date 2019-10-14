@@ -23,7 +23,7 @@ def pytest_generate_tests(metafunc):
                     test_id = "{} {} ({})".format(
                         spec["short"], spec["folder"], " ".join(spec["extra_args"]))
                     test_ids.append(test_id)
-    argnames = ["folder", "short", "steps",
+    argnames = ["enabled", "folder", "short", "steps",
                 "minutes", "throughput", "extra_args"]
     metafunc.parametrize(
         argnames,
@@ -36,19 +36,29 @@ class TestSolutions():
 
     # Test the creation of a solution.
     # Flaky is used to rerun tests that may fail because of transient cloud issues.
-    #@flaky(max_runs=3)
+    @flaky(max_runs=3)
     def test_solution(self, folder, steps, minutes, throughput, extra_args):
+
         print(self, folder, steps, minutes, throughput, extra_args)
+
         cmd = ["./create-solution.sh",
                "-d", self.rg,
                "-s", steps,
                "-l", os.environ['LOCATION'],
                *extra_args]
         env = dict(os.environ, REPORT_THROUGHPUT_MINUTES=minutes)
-        subprocess.run(cmd, env=env, cwd="../" + folder, check=True)
+        cwd = "../" + folder
+        subprocess.run(cmd, env=env, cwd=cwd, check=True)
+        with open(cwd + '/test-output.txt', 'r') as test_output_file:
+            test_output = test_output_file.read()
+        assert test_output == ""
 
     @pytest.fixture(autouse=True)
-    def run_around_tests(self, short):
+    def run_around_tests(self, short, enabled):
+
+        if not enabled:
+            pytest.skip("Disabled in test_spec.json")
+
         self.rg = os.environ['RESOURCE_GROUP_PREFIX'] + short
         # Delete solution resource group if already exists
         subprocess.run(["./check-resource-group.sh", self.rg], check=True)

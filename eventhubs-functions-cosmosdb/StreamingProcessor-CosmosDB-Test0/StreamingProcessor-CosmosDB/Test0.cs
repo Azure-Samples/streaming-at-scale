@@ -8,9 +8,6 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.EventHubs;
-using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents;
-using Newtonsoft.Json;
 
 namespace StreamingProcessor
 {
@@ -22,7 +19,7 @@ namespace StreamingProcessor
         [FunctionName("Test0")]
         public static async Task RunAsync(
             [EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup = "%ConsumerGroup%")] EventData[] eventHubData,
-            [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<string> cosmosMessage,
+            [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
             ILogger log)
         {
             var tasks = new List<Task>();
@@ -37,10 +34,11 @@ namespace StreamingProcessor
                     string message = Encoding.UTF8.GetString(data.Body.Array);
 
                     var document = JObject.Parse(message);
+                    document["id"] = document["eventId"];
                     document["enqueuedAt"] = data.SystemProperties.EnqueuedTimeUtc;
                     document["processedAt"] = DateTime.UtcNow;
 
-                    tasks.Add(cosmosMessage.AddAsync(JsonConvert.SerializeObject(document)));
+                    tasks.Add(cosmosMessage.AddAsync(document));
                 }
                 catch (Exception ex)
                 {

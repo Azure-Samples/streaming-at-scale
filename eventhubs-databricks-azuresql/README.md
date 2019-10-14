@@ -107,7 +107,7 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
-## Duplicate handling
+## Duplicate event handling
 
 In case the Databricks job fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Azure SQL Database. The solution implements an ETL process to make this operation idempotent, so that events are not duplicated in Azure SQL Database (based on the eventId attribute). The process has been engineered for performance at high throughput.
 

@@ -114,6 +114,10 @@ Streamed data simulates an IoT device sending the following JSON data:
 }
 ```
 
+## Duplicate event handling
+
+The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). As the Cosmos DB SDK configures a new document ID for each item written into Cosmos DB, and Cosmos DB is not configured with a unique eventId key, this results in duplicate events in the Cosmos DB store. Improving this is in the solution development roadmap.
+
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:

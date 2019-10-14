@@ -1,8 +1,8 @@
 [
   {
-    "enabled": true,
-    "stage": "2",
-    "short": "eti1",
+    "enabled": false,
+    "stage": "3",
+    "short": "ed1",
     "steps": "CIDTMV",
     "minutes": "10",
     "throughput": "1",
