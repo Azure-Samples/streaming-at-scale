@@ -36,7 +36,7 @@ class TestSolutions():
 
     # Test the creation of a solution.
     # Flaky is used to rerun tests that may fail because of transient cloud issues.
-    @flaky(max_runs=3)
+    #@flaky(max_runs=3)
     def test_solution(self, folder, steps, minutes, throughput, extra_args):
 
         print(self, folder, steps, minutes, throughput, extra_args)
