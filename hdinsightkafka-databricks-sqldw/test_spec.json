@@ -1,7 +1,7 @@
 [
   {
     "enabled": true,
-    "stage": "1",
+    "stage": "3",
     "short": "hdw1",
     "steps": "CIDPTMV",
     "minutes": "20",
