@@ -142,6 +142,14 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - [Delta Tables](https://delta.io/) (Serve)
 
+### [Event Hubs + Azure Databricks + Event Hubs](eventhubs-databricks-eventhubs)
+
+Implement a stream processing architecture using:
+
+- Event Hubs (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- Event Hubs (Serve)
+
 ### [Event Hubs + Azure Functions + Azure SQL](eventhubs-functions-azuresql)
 
 Implement a stream processing architecture using:
