@@ -101,10 +101,15 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
+
+## Duplicate event handling
+
+The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in Delta. Deduplicating events on write this is in the solution development roadmap.
 
 ## Solution customization
 

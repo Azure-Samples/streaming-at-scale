@@ -27,12 +27,13 @@ import java.time.Instant
 import java.sql.Timestamp
 
 val schema = StructType(
-  StructField("eventId", StringType) ::
-  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
-  StructField("value", StringType) ::
-  StructField("type", StringType) ::
-  StructField("deviceId", StringType) ::
-  StructField("createdAt", TimestampType) :: Nil)
+  StructField("eventId", StringType, false) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType, false)))) ::
+  StructField("value", StringType, false) ::
+  StructField("type", StringType, false) ::
+  StructField("deviceId", StringType, false) ::
+  StructField("deviceSequenceNumber", LongType, false) ::
+  StructField("createdAt", TimestampType, false) :: Nil)
 
 val streamData = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
@@ -46,6 +47,7 @@ val streamData = eventhubs
 // for the description of the available configurations.
 val cosmosDbConfig = Map(
   "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
+  "ConnectionMode" -> "DirectHttps",
   "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
   "Database" -> dbutils.widgets.get("cosmosdb-database"),
   "Collection" -> dbutils.widgets.get("cosmosdb-collection")
@@ -66,7 +68,7 @@ import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
 streamDataMutated
   .writeStream
   .format(classOf[CosmosDBSinkProvider].getName)
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/eventhubs-to-cosmosdb")
   .outputMode("append")
   .options(cosmosDbConfig)
   .start()

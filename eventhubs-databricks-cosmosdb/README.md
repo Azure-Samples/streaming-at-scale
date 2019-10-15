@@ -102,10 +102,15 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
+
+## Duplicate event handling
+
+The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). As the Databricks job configures a new document ID for each item written into Cosmos DB, and Cosmos DB is not configured with a unique eventId key, this results in duplicate events in the Cosmos DB store. Improving this is in scope of [issue #43](https://github.com/Azure-Samples/streaming-at-scale/issues/43).
 
 ## Solution customization
 

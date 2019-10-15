@@ -65,7 +65,7 @@ namespace StreamingProcessor
 
         public async Task<ResourceResponse<Document>> CreateDocumentAsync(object payload)
         {
-            return await _client.CreateDocumentAsync(_collectionLink, payload);
+            return await _client.UpsertDocumentAsync(_collectionLink, payload);
         }
     }
 }

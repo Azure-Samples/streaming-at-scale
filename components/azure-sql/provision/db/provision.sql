@@ -10,6 +10,7 @@ CREATE TYPE [dbo].[payloadType] AS TABLE(
 	[ComplexData] [nvarchar](max) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[Type] [varchar](10) NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[EnqueuedAt] [datetime2](7) NOT NULL,
@@ -27,6 +28,7 @@ CREATE TYPE [dbo].[payloadType_mo] AS TABLE(
 	[ComplexData] [nvarchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[EnqueuedAt] [datetime2](7) NOT NULL,
@@ -46,6 +48,7 @@ CREATE TABLE [dbo].[rawdata_cs_mo]
 	[EventId] [uniqueidentifier] NOT NULL,
 	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[ComplexData] [nvarchar](1000) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
@@ -72,10 +75,10 @@ begin atomic with (transaction isolation level = snapshot,  language = 'english'
 declare @buid uniqueidentifier = newId() 
 
 insert into dbo.rawdata_cs_mo
-	([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
 select
 	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
 	sysutcdatetime() as StoredAt
 from
 	@payload
@@ -89,6 +92,7 @@ CREATE TABLE [dbo].[rawdata_mo]
 	[EventId] [uniqueidentifier] NOT NULL,
 	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[ComplexData] [nvarchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
@@ -119,10 +123,10 @@ begin atomic with (transaction isolation level = snapshot,  language = 'english'
 declare @buid uniqueidentifier = newId() 
 
 insert into dbo.rawdata_mo
-	([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
 select
 	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
 	sysutcdatetime() as StoredAt
 from
 	@payload
@@ -135,6 +139,7 @@ CREATE TABLE [dbo].[rawdata](
 	[EventId] [uniqueidentifier] NOT NULL,
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[ComplexData] [nvarchar](max) NOT NULL,
@@ -155,6 +160,7 @@ CREATE TABLE [dbo].[rawdata_cs](
 	[EventId] [uniqueidentifier] NOT NULL,
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[ComplexData] [nvarchar](max) NOT NULL,
@@ -174,6 +180,7 @@ CREATE TABLE [dbo].[staging_table](
 	[EventId] [uniqueidentifier] NOT NULL,
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
 	[ComplexData] [nvarchar](max) NOT NULL,
@@ -205,10 +212,10 @@ as
 declare @buid uniqueidentifier = newId() 
 
 insert into dbo.rawdata 
-	([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
 select
 	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
 	sysutcdatetime() as StoredAt
 from
 	@payload
@@ -224,19 +231,19 @@ as
 declare @buid uniqueidentifier = newId() 
 
 insert into dbo.rawdata_cs
-	([BatchId], [EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
 select
 	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
 	sysutcdatetime() as StoredAt
 from
 	@payload
 GO
 /****** Object:  StoredProcedure [dbo].[stp_WriteDataBatch]     ******/
-CREATE procedure [dbo].[stp_WriteDataBatch] 
+CREATE PROCEDURE [dbo].[stp_WriteDataBatch] 
 as
   -- Move events from staging_table to rawdata table.
-  -- WARNING: This procedure is non transaction to optimize performance, and
+  -- WARNING: This procedure is non-transactional to optimize performance, and
   --          assumes no concurrent writes into the staging_table during its execution.
   declare @buid uniqueidentifier = newId();
 
@@ -261,9 +268,9 @@ MERGE dbo.rawdata AS t
         ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
 
     WHEN NOT MATCHED THEN
-        INSERT (PartitionId, EventId, Type, DeviceId, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
+        INSERT (PartitionId, EventId, Type, DeviceId, DeviceSequenceNumber, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
 			BatchId, StoredAt) 
-        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
 			@buid, sysutcdatetime())
         ;
 
@@ -273,7 +280,7 @@ GO
 CREATE procedure [dbo].[stp_WriteDataBatch_cs] 
 as
   -- Move events from staging_table to rawdata table.
-  -- WARNING: This procedure is non transaction to optimize performance, and
+  -- WARNING: This procedure is non-transactional to optimize performance, and
   --          assumes no concurrent writes into the staging_table during its execution.
   declare @buid uniqueidentifier = newId();
 
@@ -298,9 +305,9 @@ MERGE dbo.rawdata_cs AS t
         ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
 
     WHEN NOT MATCHED THEN
-        INSERT (PartitionId, EventId, Type, DeviceId, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
+        INSERT (PartitionId, EventId, Type, DeviceId, DeviceSequenceNumber, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
 			BatchId, StoredAt) 
-        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
 			@buid, sysutcdatetime())
         ;
 

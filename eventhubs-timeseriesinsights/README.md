@@ -99,10 +99,15 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
+
+## Duplicate event handling
+
+Time Series Insights does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in Time Series Insights.
 
 ## Solution customization
 

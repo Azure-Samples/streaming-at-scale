@@ -81,10 +81,21 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
+
+## Duplicate event handling
+
+Event delivery guarantees are a critical aspect of streaming solutions. Azure Event Hubs provides an at-least-once event delivery guarantees. In addition, the upstream components that compose a real-world deployment will typically send events to Event Hubs with at-least-once guarantees (i.e. for reliability purposes, they should be configured to retry if they do not get an acknowledgement of message reception by the Event Hub endpoint, though the message might actually have been ingested). And finally, the stream processing system typically only has at-least-once guarantees when delivering data into the serving layer. Duplicate messages are therefore unavoidable and are better dealt with explicitly.
+
+Depending on the type of application, it might be acceptable to store and serve duplicate messages, or it might desirable to deduplicate messages. The serving layer might even have strong uniqueness guarantees (e.g. unique key in Azure SQL Database). To demonstrate effective message duplicate handling strategies, the various solution templates demonstrate, where possible, effective message duplicate handling strategies for the given combination of stream processing and serving technologies. In most solutions, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average).
+
+## Integration tests
+
+End-to-end integration tests are configured to run. You can check the [latest closed pulled requests](https://github.com/Azure-Samples/streaming-at-scale/pulls?q=is%3Aclosed) ("View Details") to navigate to the integration test run in Azure DevOps. The integration test suite deploys each solution and runs verification jobs in Azure Databricks that pull the data from the serving layer of the given solution and verifies the solution event processing rate and duplicate handling guarantees.
 
 ## Available solutions
 

@@ -103,14 +103,15 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
 
-## Duplicate handling
+## Duplicate event handling
 
-The Azure Databricks connector for Azure SQL Data Warehouse offers [end-to-end exactly-once guarantee for writing data in streaming mode](https://docs.azuredatabricks.net/spark/latest/data-sources/azure/sql-data-warehouse.html#fault-tolerance-semantics). This is automatically handled by the connector.
+The Azure Databricks connector for Azure SQL Data Warehouse offers [end-to-end exactly-once guarantee for writing data in streaming mode](https://docs.azuredatabricks.net/spark/latest/data-sources/azure/sql-data-warehouse.html#fault-tolerance-semantics). This is automatically handled by the connector. This guarantees exactly-once delivery between Databricks and SQL DW, but will not resolve duplicate events arising from at-least-once delivery guarantees upstream of Event Hubs. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicates are propagated up to SQL DW.
 
 ## Solution customization
 

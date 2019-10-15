@@ -99,6 +99,7 @@ Each client generates up to 2000 msgs/sec. Each generated message is close to 1K
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-1554",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }

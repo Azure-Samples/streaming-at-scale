@@ -21,6 +21,7 @@ databricks secrets put --scope "MAIN" --key "dataexplorer-storage-key" --string-
 
 source ../streaming/databricks/job/run-databricks-job.sh verify-dataexplorer true "$(cat <<JQ
   .libraries += [ { "maven": { "coordinates": "com.microsoft.azure.kusto:spark-kusto-connector:1.0.0-BETA-04", "exclusions": ["javax.mail:mail"] } } ]
+  | .notebook_task.base_parameters."test-output-path" = "$DATABRICKS_TESTOUTPUTPATH"
   | .notebook_task.base_parameters."dataexplorer-cluster" = "$kustoURL"
   | .notebook_task.base_parameters."dataexplorer-database" = "$DATAEXPLORER_DATABASE"
   | .notebook_task.base_parameters."dataexplorer-query" = "EventTable"
@@ -28,5 +29,9 @@ source ../streaming/databricks/job/run-databricks-job.sh verify-dataexplorer tru
   | .notebook_task.base_parameters."dataexplorer-storage-account" = "$AZURE_STORAGE_ACCOUNT"
   | .notebook_task.base_parameters."dataexplorer-storage-container" = "dataexplorer"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"
+  | .notebook_task.base_parameters."assert-duplicate-fraction" = "$ALLOW_DUPLICATE_FRACTION"
+  | .notebook_task.base_parameters."assert-outofsequence-fraction" = "$ALLOW_OUTOFSEQUENCE_FRACTION"
 JQ
 )"
+
+source ../streaming/databricks/runners/verify-download-result.sh

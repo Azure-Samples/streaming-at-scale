@@ -32,6 +32,7 @@ namespace StreamingProcessor
             payload.Columns.Add("ComplexData", typeof(string));
             payload.Columns.Add("Value", typeof(decimal));
             payload.Columns.Add("DeviceId", typeof(string));
+            payload.Columns.Add("DeviceSequenceNumber", typeof(long));
             payload.Columns.Add("Type", typeof(string));
             payload.Columns.Add("CreatedAt", typeof(string));
             payload.Columns.Add("EnqueuedAt", typeof(DateTime));
@@ -51,6 +52,7 @@ namespace StreamingProcessor
                     JsonConvert.SerializeObject(JObject.Parse(json["complexData"].ToString()), Formatting.None),
                     decimal.Parse(json["value"].ToString()),
                     json["deviceId"].ToString(),
+                    json["deviceSequenceNumber"],
                     json["type"].ToString(),
                     json["createdAt"].ToString(),
                     data.SystemProperties.EnqueuedTimeUtc,
