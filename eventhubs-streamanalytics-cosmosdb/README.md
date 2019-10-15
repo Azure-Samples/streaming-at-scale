@@ -97,6 +97,7 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
@@ -106,7 +107,7 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 In case the Azure Stream Analytics infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Stream Analytics functionality to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-documentdb-output#upserts-from-stream-analytics) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
 
-In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate will not be present in Cosmos DB.
+In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicates will not be present in Cosmos DB.
 
 ## Solution customization
 

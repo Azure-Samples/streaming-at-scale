@@ -240,7 +240,7 @@ from
 	@payload
 GO
 /****** Object:  StoredProcedure [dbo].[stp_WriteDataBatch]     ******/
-CREATE procedure [dbo].[stp_WriteDataBatch] 
+CREATE PROCEDURE [dbo].[stp_WriteDataBatch] 
 as
   -- Move events from staging_table to rawdata table.
   -- WARNING: This procedure is non-transactional to optimize performance, and
