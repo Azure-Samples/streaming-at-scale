@@ -46,7 +46,7 @@ Make sure you are logged into your Azure account:
 
     az login
 
-and also make sure you have the subscription you want to use selected
+and also make sure you have selected the subscription you want to use:
 
     az account list
 
