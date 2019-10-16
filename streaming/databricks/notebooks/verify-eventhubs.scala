@@ -36,9 +36,13 @@ val schema = StructType(
   StructField("type", StringType, false) ::
   StructField("deviceId", StringType, false) ::
   StructField("deviceSequenceNumber", LongType, false) ::
-  StructField("createdAt", TimestampType, false) ::
-  StructField("enqueuedAt", TimestampType, false) ::
-  StructField("processedAt", TimestampType, false) ::
+  StructField("PartitionId", IntegerType, false) ::
+  // Parse time fields as string as workaround for https://issues.apache.org/jira/browse/SPARK-17914 
+  // (incorrectly marked as resolved as of Spark 2.4.3, see Jira comments)
+  StructField("createdAt", StringType, false) ::
+  StructField("enqueuedAt", StringType, false) ::
+  StructField("processedAt", StringType, false) ::
+  StructField("processedAt2", StringType, false) ::
   Nil)
 
 val arrayOfEventsSchema = ArrayType(schema)
@@ -50,6 +54,12 @@ var query = streamingData
   // When consuming from the output of eventhubs-streamanalytics-eventhubs pipeline, 'enqueuedAt' will haven been
   // set when reading from the first eventhub, and the enqueued timestamp of the second eventhub is then the 'storedAt' time
   .select($"eventData.*", $"offset", $"sequenceNumber", $"publisher", $"partitionKey", $"enqueuedTime".as("storedAt"))
+  // Continue workaround for https://issues.apache.org/jira/browse/SPARK-17914 
+  .withColumn("createdAt", $"createdAt".cast(TimestampType))
+  .withColumn("enqueuedAt", $"enqueuedAt".cast(TimestampType))
+  .withColumn("processedAt", $"processedAt".cast(TimestampType))
+  .withColumn("processedAt2", $"processedAt2".cast(TimestampType))
+  // Write stream as a delta table
   .writeStream
   .format("delta")
   .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/verify-eventhubs/" + stagingTable)

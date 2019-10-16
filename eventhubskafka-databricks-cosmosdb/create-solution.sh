@@ -195,8 +195,6 @@ echo
 
 echo "***** [V] Starting deployment VERIFICATION"
 
-    export ALLOW_DUPLICATES=1
-
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
