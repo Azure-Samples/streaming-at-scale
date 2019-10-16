@@ -17,7 +17,7 @@ statusNotificationTargets:
 
 # Streaming at Scale with Azure Event Hubs, Databricks and Cosmos DB
 
-This sample uses Cosmos DB as database to store JSON data
+This sample uses Cosmos DB as database to store JSON data.
 
 The provided scripts will create an end-to-end solution complete with load test client.
 
@@ -110,7 +110,9 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 ## Duplicate event handling
 
-The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). As the Databricks job configures a new document ID for each item written into Cosmos DB, and Cosmos DB is not configured with a unique eventId key, this results in duplicate events in the Cosmos DB store. Improving this is in scope of [issue #43](https://github.com/Azure-Samples/streaming-at-scale/issues/43).
+In case the infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Cosmos DB Upsert functionality to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
+
+In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate will not be present in Cosmos DB.
 
 ## Solution customization
 

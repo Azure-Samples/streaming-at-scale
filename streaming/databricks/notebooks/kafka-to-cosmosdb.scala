@@ -39,6 +39,8 @@ val streamData = data
   .select(from_json(decode($"value", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"timestamp".as("enqueuedAt"))
   .withColumn("processedAt", lit(Timestamp.from(Instant.now)))
+  // Unique ID column for Upsert
+  .withColumn("id", 'eventId)
 
 // COMMAND ----------
 

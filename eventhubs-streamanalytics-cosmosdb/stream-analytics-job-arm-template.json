@@ -42,7 +42,7 @@
         },
         "cosmosdbDocumentId": {
             "type": "string",
-            "defaultValue": "id"
+            "defaultValue": "eventId"
         }
     },
     "resources": [
@@ -90,7 +90,7 @@
                     "name": "ProcessSampleData",
                     "properties": {
                         "streamingUnits": "[int(parameters('streamingUnits'))]",
-                        "query": "select eventId as id, deviceId, deviceSequenceNumber, type, complexData, value, eventId, PartitionId, createdAt, EventEnqueuedUtcTime AS enqueuedAt, EventProcessedUtcTime AS processedAt, UDF.GetCurrentDateTime('') AS processedAt2 from inputEventHub partition by PartitionId"
+                        "query": "select deviceId, deviceSequenceNumber, type, complexData, value, eventId, PartitionId, createdAt, EventEnqueuedUtcTime AS enqueuedAt, EventProcessedUtcTime AS processedAt, UDF.GetCurrentDateTime('') AS processedAt2 from inputEventHub partition by PartitionId"
                     }
                 },
                 "functions": [{
