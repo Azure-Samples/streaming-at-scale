@@ -42,7 +42,7 @@ val schema = StructType(
   StructField("createdAt", StringType, false) ::
   StructField("enqueuedAt", StringType, false) ::
   StructField("processedAt", StringType, false) ::
-  StructField("processedAt2", StringType, false) ::
+  StructField("processedAt2", StringType, true) ::
   Nil)
 
 val arrayOfEventsSchema = ArrayType(schema)

@@ -30,12 +30,12 @@ val schema = StructType(
   StructField("deviceSequenceNumber", LongType, false) ::
   StructField("createdAt", TimestampType, false) :: Nil)
 
-val watermarkColumn = "enqueuedAt"
+val watermarkColumn = "createdAt"
 
 val streamData = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"enqueuedTime".as("enqueuedAt"))
-  .withWatermark(watermarkColumn, "10 seconds")
+  .withWatermark(watermarkColumn, "120 seconds")
   // watermark column must be part of dropDuplicates, or aggregation state will grow indefinitely!
   .dropDuplicates("eventId", watermarkColumn)
   .withColumn("processedAt", current_timestamp)
