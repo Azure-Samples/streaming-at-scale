@@ -46,7 +46,7 @@ val eventHubsConfWrite = EventHubsConf(dbutils.secrets.get(scope = "MAIN", key =
 
 val query = 
 streamData
-  .select(to_json(struct($"*")).as("body"))
+  .select(to_json(struct($"*")).as("body"), $"deviceId".as("partitionKey"))
   .writeStream
   .format("eventhubs")
   .outputMode("append")

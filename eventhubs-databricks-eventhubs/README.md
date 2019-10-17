@@ -176,6 +176,24 @@ and 2 to the Event Hub used as output. After a few minutes of
 ramp-up, the metrics for Event Hubs 1 and 2 will show around 60k events/min
 (depending on selected event rate, here 1k events/s).
 
+## Azure Databricks
+
+The deployed Azure Databricks workspace contains a notebook stored under `Shared/streaming_at_scale`. If you plan to modify the notebook, first copy it to another location, as it will be overwritten if you run the solution again.
+
+The solution runs a Databricks stream processing job for 30 minutes only. To sustain a stream processing job, consult the documentation on [Structured Streaming in Production](https://docs.azuredatabricks.net/spark/latest/structured-streaming/production.html).
+
+You can log into the workspace and view the executed job by navigating to the Jobs pane:
+
+![Databricks streaming statistics](../_doc/_images/databricks-jobs.png)
+
+After clicking on the job, you can navigate to the run and view the executed notebook. By expanding the output of the `writeStream` cell, you can see statistics about stream processing. Figures may fluctuate widely during the first few minutes. At steady state at 1,000 events/second, performance becomes quite consistent.
+
+![Databricks streaming statistics](../_doc/_images/databricks-window-steady.png)
+
+At higher event rates (here 10,000 events/second), the job does reach a stable state: 
+
+![Databricks streaming statistics](../_doc/_images/databricks-window-unsteady.png)
+
 ## Clean up
 
 To remove all the created resource, you can just delete the related resource group
