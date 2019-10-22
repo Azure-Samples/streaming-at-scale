@@ -3,15 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-on_error() {
-    set +e
-    echo "There was an error, execution halted" >&2
-    echo "Error at line $1"
-    exit 1
-}
-
-trap 'on_error $LINENO' ERR
-
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
