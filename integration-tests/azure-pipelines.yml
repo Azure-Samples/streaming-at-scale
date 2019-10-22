@@ -26,6 +26,10 @@ jobs:
 
   - bash: |
       set -e
+      while ps -opid= -C dpkg > /dev/null; do
+        echo "Waiting for other dpkg process to complete..."
+        sleep 10
+      done
       sudo apt install -y python3-pip python3-setuptools
       sudo pip3 install wheel databricks-cli
       databricks clusters spark-versions
