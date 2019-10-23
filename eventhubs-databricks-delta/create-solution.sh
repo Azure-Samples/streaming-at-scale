@@ -176,7 +176,7 @@ echo
 
 echo "***** [V] Starting deployment VERIFICATION"
 
-    export ALLOW_DUPLICATES=1
+    export ASSERT_DUPLICATE_FRACTION=0.01
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then

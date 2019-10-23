@@ -7,10 +7,12 @@ export DATABRICKS_TESTOUTPUTPATH=dbfs:/test-output/$(uuidgen)
 #Databricks job timeout
 export REPORT_THROUGHPUT_MINUTES=40
 
-if [ -n "${ALLOW_DUPLICATES:-}" ]; then
-  ALLOW_DUPLICATE_FRACTION=0.0011
-else
-  ALLOW_DUPLICATE_FRACTION=0
-fi
-
-ALLOW_OUTOFSEQUENCE_FRACTION=1.00
+emptyJson={}
+VERIFY_SETTINGS=$(echo "${VERIFY_SETTINGS:-$emptyJson}" \
+  | jq '.testOutputPath="'$DATABRICKS_TESTOUTPUTPATH'"' \
+  | jq 'if .assertEventsPerSecond then . else .assertEventsPerSecond='$(($TESTTYPE * 900))' end' \
+  | jq 'if .assertLatencyMilliseconds then . else .assertLatencyMilliseconds='${ASSERT_LATENCY_MS:-5000}' end' \
+  | jq 'if .assertDuplicateFraction then . else .assertDuplicateFraction='${ASSERT_DUPLICATE_FRACTION:-0}' end' \
+  | jq 'if .assertOutOfSequenceFraction then . else .assertOutOfSequenceFraction='${ASSERT_OUTOFSEQUENCE_FRACTION:-0}' end' \
+  | jq 'if .assertMissingFraction then . else .assertMissingFraction='${ASSERT_MISSING_FRACTION:-0}' end' \
+)

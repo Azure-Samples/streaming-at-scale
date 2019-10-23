@@ -186,6 +186,8 @@ echo
 
 echo "***** [V] Starting deployment VERIFICATION"
 
+    export ASSERT_OUTOFSEQUENCE_FRACTION=0.1
+
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh

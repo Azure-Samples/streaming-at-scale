@@ -1,10 +1,28 @@
 // Databricks notebook source
+dbutils.widgets.text("verify-settings", "{}", "Verification job settings")
 dbutils.widgets.text("input-table", "stream_data", "Spark table to pass stream data")
-dbutils.widgets.text("test-output-path", "dbfs:/test-output/test-output.txt", "DBFS location to store assertion results")
-dbutils.widgets.text("assert-events-per-second", "900", "Assert min events per second (computed over 1 min windows)")
-dbutils.widgets.text("assert-latency-milliseconds", "15000", "Assert max latency in milliseconds (averaged over 1 min windows)")
-dbutils.widgets.text("assert-duplicate-fraction", "0", "Assert max proportion of duplicate events")
-dbutils.widgets.text("assert-outofsequence-fraction", "0", "Assert max proportion of out-of-sequence events")
+
+//
+
+import org.json4s
+import org.json4s.JValue
+import org.json4s.jackson.JsonMethods.parse
+
+implicit lazy val formats = org.json4s.DefaultFormats
+
+case class Settings (
+  testOutputPath: Option[String],
+  assertEventsPerSecond: Option[Double],
+  assertLatencyMilliseconds: Option[Double],
+  assertDuplicateFraction: Option[Double],
+  assertOutOfSequenceFraction: Option[Double],
+  assertMissingFraction: Option[Double]
+)
+
+val settings = parse(dbutils.widgets.get("verify-settings")).extract[Settings]
+
+// DBFS location to store assertion results
+val testOutputPath: String = settings.testOutputPath getOrElse "dbfs:/test-output/test-output.txt"
 
 // COMMAND ----------
 
@@ -16,14 +34,11 @@ if (dbutils.secrets.list("MAIN").exists { s => s.key == "storage-account-key"}) 
 
 import scala.collection.mutable.ListBuffer
 
-def asOptionalDouble (s:String) = if (s == null || s == "") None else Some(s.toDouble)
-def getWidgetAsDouble (w:String) = asOptionalDouble(dbutils.widgets.get(w))
-
 var assertionsFailed = new ListBuffer[String]()
 
 // COMMAND ----------
 
-val assertEventsPerSecond = getWidgetAsDouble("assert-events-per-second")
+val assertEventsPerSecond = settings.assertEventsPerSecond getOrElse 900d
 
 // Fetch event data, limiting to one hour of data
 val inputData = table(dbutils.widgets.get("input-table"))
@@ -76,7 +91,7 @@ if (assertEventsPerSecond.nonEmpty) {
   }
 }
 
-val assertLatencyMilliseconds = getWidgetAsDouble("assert-latency-milliseconds")
+val assertLatencyMilliseconds = settings.assertLatencyMilliseconds getOrElse 15000d
 if (assertLatencyMilliseconds.nonEmpty) {
   val expected = assertLatencyMilliseconds.get
   val actual = stats.minLatencySeconds
@@ -95,7 +110,7 @@ val duplicates = inputData
 
 val duplicateFraction = duplicates.toDouble / inputData.count
 
-val assertDuplicateFraction = getWidgetAsDouble("assert-duplicate-fraction")
+val assertDuplicateFraction = settings.assertDuplicateFraction getOrElse 0d
 if (assertDuplicateFraction.nonEmpty) {
   val expected = assertDuplicateFraction.get
   if (duplicateFraction > expected) {
@@ -115,7 +130,7 @@ val outOfSequence = inputData
 
 val outOfSequenceFraction = outOfSequence.toDouble / inputData.count
 
-val assertOutOfSequenceFraction = getWidgetAsDouble("assert-outofsequence-fraction")
+val assertOutOfSequenceFraction = settings.assertOutOfSequenceFraction getOrElse 0d
 if (assertOutOfSequenceFraction.nonEmpty) {
   val expected = assertOutOfSequenceFraction.get
   if (outOfSequenceFraction > expected) {
@@ -141,7 +156,7 @@ val missingEvents = inputData
 
 val missingFraction = missingEvents.toDouble / inputData.count
 
-val assertMissingFraction = Some(0d)
+val assertMissingFraction = settings.assertMissingFraction getOrElse 0d
 if (assertMissingFraction.nonEmpty) {
   val expected = assertMissingFraction.get
   if (missingFraction > expected) {
@@ -153,7 +168,7 @@ if (assertMissingFraction.nonEmpty) {
 
 println("Writing test result file")
 
-dbutils.fs.put(dbutils.widgets.get("test-output-path"), assertionsFailed.mkString("\n"), overwrite=true)
+dbutils.fs.put(testOutputPath, assertionsFailed.mkString("\n"), overwrite=true)
 
 if (!assertionsFailed.isEmpty) {
    println(s"Test assertion(s) failed: ${assertionsFailed.mkString(";")}")

@@ -187,6 +187,8 @@ echo "***** [V] Starting deployment VERIFICATION"
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
 
+    export ASSERT_OUTOFSEQUENCE_FRACTION=1
+
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh

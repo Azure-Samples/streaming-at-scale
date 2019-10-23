@@ -155,7 +155,8 @@ echo "***** [V] Starting deployment VERIFICATION"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
-    export ALLOW_DUPLICATES=1
+
+    export ASSERT_DUPLICATE_FRACTION=0.01
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
