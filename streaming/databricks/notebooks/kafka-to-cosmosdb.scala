@@ -50,6 +50,7 @@ val streamData = data
 val cosmosDbConfig = Map(
   "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
   "ConnectionMode" -> "DirectHttps",
+  "Upsert" -> "true",
   "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
   "Database" -> dbutils.widgets.get("cosmosdb-database"),
   "Collection" -> dbutils.widgets.get("cosmosdb-collection")
