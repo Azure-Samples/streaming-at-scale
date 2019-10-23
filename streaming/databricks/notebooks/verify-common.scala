@@ -14,16 +14,21 @@ if (dbutils.secrets.list("MAIN").exists { s => s.key == "storage-account-key"}) 
 
 // COMMAND ----------
 
-val inputData = table(dbutils.widgets.get("input-table")).cache
-
-// COMMAND ----------
-
 import scala.collection.mutable.ListBuffer
 
 def asOptionalDouble (s:String) = if (s == null || s == "") None else Some(s.toDouble)
 def getWidgetAsDouble (w:String) = asOptionalDouble(dbutils.widgets.get(w))
 
 var assertionsFailed = new ListBuffer[String]()
+
+// COMMAND ----------
+
+val assertEventsPerSecond = getWidgetAsDouble("assert-events-per-second")
+
+// Fetch event data, limiting to one hour of data
+val inputData = table(dbutils.widgets.get("input-table"))
+  .limit(((assertEventsPerSecond getOrElse 1000d) * 3600).toInt)
+  .cache
 
 // COMMAND ----------
 
@@ -63,7 +68,6 @@ display(storedStats)
 
 val stats = storedStats.as[StoredStats].head
 
-val assertEventsPerSecond = getWidgetAsDouble("assert-events-per-second")
 if (assertEventsPerSecond.nonEmpty) {
   val expected = assertEventsPerSecond.get
   val actual = stats.maxThroughputEventsPerSecond
