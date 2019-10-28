@@ -30,10 +30,11 @@ object ConsistencyCheckerStreamingJob {
   def main(args: Array[String]): Unit = {
 
     // set up the execution environment
-    val properties = new Properties
-    val env = StreamingJobCommon.createStreamExecutionEnvironment(args, properties)
+    val propertiesIn = new Properties
+    val propertiesOut = new Properties
+    val env = StreamingJobCommon.createStreamExecutionEnvironment(args, propertiesIn, propertiesOut)
 
-    val topic = properties.remove("topic").asInstanceOf[String]
+    val topic = propertiesIn.remove("topic").asInstanceOf[String]
     if (topic == null) throw new IllegalArgumentException("Missing configuration value kafka.topic")
     LOG.info("Consuming from Kafka topic: {}", topic)
 
@@ -42,7 +43,7 @@ object ConsistencyCheckerStreamingJob {
 
     // Create Kafka consumer deserializing from JSON.
     // Flink recommends using Kafka 0.11 consumer as Kafka 1.0 consumer is not stable.
-    val kafka = new FlinkKafkaConsumer011[ObjectNode](topic, new JsonNodeDeserializationSchema, properties)
+    val kafka = new FlinkKafkaConsumer011[ObjectNode](topic, new JsonNodeDeserializationSchema, propertiesIn)
     kafka.setStartFromLatest()
 
     // Create Flink stream source from Kafka.

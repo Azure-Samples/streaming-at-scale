@@ -9,3 +9,6 @@ dependency-reduced-pom.xml
 *.iml
 .vscode/
 slnx.sqlite
+.classpath
+.project
+.settings

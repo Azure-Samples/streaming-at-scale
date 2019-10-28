@@ -18,15 +18,11 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 
-/**
-  * A Flink Streaming Job that computes summary statistics on incoming events.
-  *
-  */
 object StreamingJobCommon {
 
   private val LOG = LoggerFactory.getLogger(getClass)
 
-  def createStreamExecutionEnvironment(args: Array[String], properties: Properties): StreamExecutionEnvironment = {
+  def createStreamExecutionEnvironment(args: Array[String], propertiesIn: Properties, propertiesOut: Properties): StreamExecutionEnvironment = {
     val params = ParameterTool.fromArgs(args)
 
     // set up the execution environment
@@ -36,7 +32,9 @@ object StreamingJobCommon {
     env.getConfig.setGlobalJobParameters(params)
 
     // Use kafka.* properties to build kafka connection
-    params.toMap.asScala.foreach { case (k, v) => if (k.startsWith("kafka.")) properties.put(k.replace("kafka.", ""), v) }
+    def setProperties(prefix: String, properties: Properties) = params.toMap.asScala.foreach { case (k, v) => if (k.startsWith(prefix)) properties.put(k.replace(prefix, ""), v) }
+    setProperties("kafka.in.", propertiesIn)
+    setProperties("kafka.out.", propertiesOut)
 
     // Set Flink task parallelism
     env.setParallelism(params.getInt("parallelism", 1))

@@ -4,13 +4,14 @@
 set -euo pipefail
 
 echo 'getting EH primary connection string'
-EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
+EVENTHUB_CS_IN_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv)
+EVENTHUB_CS_OUT_SEND=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Send --query "primaryConnectionString" -o tsv)
+EVENTHUB_CS_OUT_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Send --query "primaryConnectionString" -o tsv)
 
 echo 'creating ACR instance'
 echo ". name: $ACR_NAME"
 
 az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --sku Basic -o tsv >> log.txt
-az acr login --name $ACR_NAME
 
 echo 'creating AKS cluster'
 echo ". name: $AKS_CLUSTER"
@@ -36,8 +37,9 @@ echo 'building flink job'
 mvn -f flink-kafka-consumer clean package
 
 echo 'building flink-service-port-patcher docker image'
-docker build -t $ACR_NAME.azurecr.io/flink-service-port-patcher:latest -f docker/flink-service-port-patcher/Dockerfile docker/flink-service-port-patcher
-docker push $ACR_NAME.azurecr.io/flink-service-port-patcher:latest
+az acr build --registry $ACR_NAME --resource-group $RESOURCE_GROUP \
+  --image $ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
+  docker/flink-service-port-patcher
 
 echo 'deploying Helm'
 
@@ -49,7 +51,6 @@ echo '. chart: zookeeper'
 helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 helm upgrade --install zookeeper incubator/zookeeper
 
-kafka_conn_args="--kafka.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.group.id , \"$EVENTHUB_CG\" , --kafka.request.timeout.ms , \"15000\" , --kafka.sasl.mechanism , PLAIN , --kafka.security.protocol , SASL_SSL , --kafka.sasl.jaas.config , '\$(KAFKA_CS)'"
 
 function deploy_helm() {
 
@@ -57,9 +58,14 @@ release_name="flink-$1"
 echo ". release: $release_name"
 
 echo 'building flink job image'
-docker build -t $ACR_NAME.azurecr.io/flink-job-$1:latest -f docker/flink-job/Dockerfile . --build-arg job_jar=flink-kafka-consumer/target/assembly/flink-kafka-consumer-$1.jar
-
-docker push $ACR_NAME.azurecr.io/flink-job-$1:latest
+tmpdir=$(mktemp -d)
+cp -R docker/flink-job $tmpdir
+cp flink-kafka-consumer/target/assembly/flink-kafka-consumer-$1.jar $tmpdir/flink-job
+az acr build --registry $ACR_NAME --resource-group $RESOURCE_GROUP \
+  --image $ACR_NAME.azurecr.io/flink-job-$1:latest \
+  --build-arg job_jar=flink-kafka-consumer-$1.jar \
+  $tmpdir/flink-job
+rm -r $tmpdir
 
 #"helm upgrade --install" is the idempotent version of "helm install --name"
 helm upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
@@ -69,8 +75,10 @@ helm upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
   --set resources.jobmanager.serviceportpatcher.image=$ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
   --set flink.num_taskmanagers=$FLINK_PARALLELISM \
   --set persistence.storageClass=azure-file \
-  --set flink.secrets.KAFKA_CS="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS\";" \
-  --set resources.jobmanager.args="{--parallelism , $FLINK_PARALLELISM , $kafka_conn_args , $2}"
+  --set flink.secrets.KAFKA_CS_IN_LISTEN="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS_IN_LISTEN\";" \
+  --set flink.secrets.KAFKA_CS_OUT_SEND="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS_OUT_SEND\";" \
+  --set flink.secrets.KAFKA_CS_OUT_LISTEN="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS_OUT_LISTEN\";" \
+  --set resources.jobmanager.args="{--parallelism , $FLINK_PARALLELISM , $2}"
 
 echo "To get the Flink Job manager UI, run:"
 echo "  kubectl get services "$release_name-flink-standalone-jobmanager" -o 'jsonpath={"http://"}{.status.loadBalancer.ingress[0].ip}{":8081/"}'"
@@ -78,8 +86,8 @@ echo "It may take some time for the public IP to be assigned by the cloud provis
 echo
 }
 
-deploy_helm "stateful-relay" "--kafka.topic.in , \"$EVENTHUB_NAME\", --kafka.topic.out , \"$EVENTHUB_NAME_OUT\""
-deploy_helm "consistency-checker" "--kafka.topic , \"$EVENTHUB_NAME_OUT\""
+deploy_helm "stateful-relay" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_IN_LISTEN)' , --kafka.out.topic , \"$EVENTHUB_NAME\" , --kafka.out.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , PLAIN , --kafka.out.security.protocol , SASL_SSL , --kafka.out.sasl.jaas.config , '\$(KAFKA_CS_OUT_SEND)'"
+deploy_helm "consistency-checker" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE_OUT.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_OUT_LISTEN)'"
 
 echo "- To list deployed pods, run:"
 echo "    kubectl get pods"

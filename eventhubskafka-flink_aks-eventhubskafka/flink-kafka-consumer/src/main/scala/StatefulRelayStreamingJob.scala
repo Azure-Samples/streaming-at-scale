@@ -19,26 +19,27 @@ object StatefulRelayStreamingJob {
   def main(args: Array[String]): Unit = {
 
     // set up the execution environment
-    val properties = new Properties
-    val env = StreamingJobCommon.createStreamExecutionEnvironment(args, properties)
+    val propertiesIn = new Properties
+    val propertiesOut = new Properties
+    val env = StreamingJobCommon.createStreamExecutionEnvironment(args, propertiesIn, propertiesOut)
 
-    val topicIn = properties.remove("topic.in").asInstanceOf[String]
+    val topicIn = propertiesIn.remove("topic").asInstanceOf[String]
     if (topicIn == null) throw new IllegalArgumentException("Missing configuration value kafka.topic.in")
     LOG.info("Consuming from Kafka topic: {}", topicIn)
 
-    val topicOut = properties.remove("topic.out").asInstanceOf[String]
+    val topicOut = propertiesOut.remove("topic").asInstanceOf[String]
     if (topicOut == null) throw new IllegalArgumentException("Missing configuration value kafka.topic.out")
     LOG.info("Writing into Kafka topic: {}", topicOut)
 
     // Create Kafka consumer deserializing from JSON.
     // Flink recommends using Kafka 0.11 consumer as Kafka 1.0 consumer is not stable.
-    val kafkaIn = new FlinkKafkaConsumer011[ObjectNode](topicIn, new JsonNodeDeserializationSchema, properties)
+    val kafkaIn = new FlinkKafkaConsumer011[ObjectNode](topicIn, new JsonNodeDeserializationSchema, propertiesIn)
 
     val mapper = new ObjectMapper
     val kafkaOut = new FlinkKafkaProducer011[ObjectNode](
       topicOut,
       e => mapper.writeValueAsBytes(e),
-      properties
+      propertiesOut
     )
 
     // Create Flink stream source from Kafka.
