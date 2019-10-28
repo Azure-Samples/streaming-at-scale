@@ -146,7 +146,7 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_NAMESPACE_OUT=$PREFIX"eventhubsout"
     export EVENTHUB_NAMESPACES="$EVENTHUB_NAMESPACE $EVENTHUB_NAMESPACE_OUT"
     export EVENTHUB_NAME="streamingatscale-topic-$EVENTHUB_PARTITIONS"
-    export EVENTHUB_CG="flink"
+    export EVENTHUB_CG="verify"
     export EVENTHUB_ENABLE_KAFKA="true"
 
     RUN=`echo $STEPS | grep I -o || true`

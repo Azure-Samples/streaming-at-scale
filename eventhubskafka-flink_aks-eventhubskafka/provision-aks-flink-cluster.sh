@@ -6,7 +6,7 @@ set -euo pipefail
 echo 'getting EH primary connection string'
 EVENTHUB_CS_IN_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv)
 EVENTHUB_CS_OUT_SEND=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Send --query "primaryConnectionString" -o tsv)
-EVENTHUB_CS_OUT_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Send --query "primaryConnectionString" -o tsv)
+EVENTHUB_CS_OUT_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Listen --query "primaryConnectionString" -o tsv)
 
 echo 'creating ACR instance'
 echo ". name: $ACR_NAME"
