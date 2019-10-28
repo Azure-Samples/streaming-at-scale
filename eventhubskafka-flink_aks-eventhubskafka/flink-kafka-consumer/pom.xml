@@ -95,6 +95,23 @@
                 <executions>
                     <!-- Run shade goal on package phase -->
                     <execution>
+                        <id>simple-relay</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.directory}/assembly/${project.artifactId}-simple-relay.jar
+                            </outputFile>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>SimpleRelayStreamingJob</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>stateful-relay</id>
                         <phase>package</phase>
                         <goals>

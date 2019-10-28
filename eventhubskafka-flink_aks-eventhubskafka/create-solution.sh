@@ -7,6 +7,8 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTM"
+export FLINK_PLATFORM='aks'
+export FLINK_JOBTYPE='simple'
 
 usage() {
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -19,12 +21,14 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
+    echo "-p: platform: aks or hdinsight. Default=$FLINK_PLATFORM"
+    echo "-a: type of job: simple or stateful. Default=$FLINK_JOBTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1;
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:" arg; do
+while getopts ":d:s:t:l:p:a:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -37,6 +41,12 @@ while getopts ":d:s:t:l:" arg; do
 			;;
 		l)
 			LOCATION=${OPTARG}
+			;;
+		p)
+			FLINK_PLATFORM=${OPTARG}
+			;;
+		a)
+			FLINK_JOBTYPE=${OPTARG}
 			;;
 		esac
 done
@@ -55,6 +65,8 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export AKS_NODES=3
+    export HDINSIGHT_WORKERS="4"
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"
     export FLINK_PARALLELISM=2
     export SIMULATOR_INSTANCES=5
 fi
@@ -64,6 +76,8 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export AKS_NODES=3
+    export HDINSIGHT_WORKERS="4"
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"
     export FLINK_PARALLELISM=2
     export SIMULATOR_INSTANCES=3
 fi
@@ -72,6 +86,8 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
+    export HDINSIGHT_WORKERS="4"
+    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"
     export AKS_NODES=3
     export FLINK_PARALLELISM=2
     export SIMULATOR_INSTANCES=1
@@ -122,6 +138,11 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
+  echo ". HDInsight       => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS"
+else
+  echo ". AKS             => VM: $AKS_VM_SIZE, Workers: $AKS_NODES"
+fi
 echo ". Flink           => AKS nodes: $AKS_NODES x $AKS_VM_SIZE, Parallelism: $FLINK_PARALLELISM"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
@@ -157,13 +178,17 @@ echo
 
 echo "***** [P] Setting up PROCESSING"
 
+    export VNET_NAME=$PREFIX"-vnet"
+    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
+    export HDINSIGHT_NAME=$PREFIX"hdi"
+    export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
     export AKS_CLUSTER=$PREFIX"aks"
     export ACR_NAME=$PREFIX"acr"
     export KAFKA_TOPIC="$EVENTHUB_NAME"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z $RUN ]; then
-        source ./provision-aks-flink-cluster.sh 
+        source ./provision-flink-cluster.sh
     fi
 echo
 
