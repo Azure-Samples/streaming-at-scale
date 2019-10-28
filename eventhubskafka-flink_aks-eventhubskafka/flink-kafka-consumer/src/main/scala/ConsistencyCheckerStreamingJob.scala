@@ -63,15 +63,15 @@ object ConsistencyCheckerStreamingJob {
           val e1 = it.next()
           if (it.hasNext) {
             val e2 = it.next()
-            // Compute difference in eventNumber between subsequent events as seen by stateful relay.
+            // Compute difference in deviceSequenceNumber between subsequent events as seen by stateful relay.
             // Expected to always equal 1.
             var eventNumberDelta2: Option[Long] = Option.empty
-            if (e2.get("previousEventNumber") != null) {
-              eventNumberDelta2 = Some(e2.get("eventNumber").longValue - e2.get("previousEventNumber").longValue)
+            if (e2.get("previousSequenceNumber") != null) {
+              eventNumberDelta2 = Some(e2.get("deviceSequenceNumber").longValue - e2.get("previousSequenceNumber").longValue)
             }
-            // Compute difference in eventNumber between subsequent events. Expected to always equal 1,
+            // Compute difference in deviceSequenceNumber between subsequent events. Expected to always equal 1,
             // unless events are lost or duplicated upstream.
-            val eventNumberDelta = e2.get("eventNumber").longValue - e1.get("eventNumber").longValue
+            val eventNumberDelta = e2.get("deviceSequenceNumber").longValue - e1.get("deviceSequenceNumber").longValue
             if (eventNumberDelta != 1) {
               LOG.info(s"Non-consecutive events [$e1] [$e2]")
             }

@@ -9,7 +9,7 @@ import org.apache.flink.util.Collector
 import org.slf4j.LoggerFactory
 
 /**
-  * A Flink Streaming Job that computes summary statistics on incoming events.
+  * A Flink Streaming Job that applies a sliding window on incoming events.
   *
   */
 object StatefulRelayStreamingJob {
@@ -57,7 +57,7 @@ object StatefulRelayStreamingJob {
           var e1 = it.next()
           if (it.hasNext) {
             val e2 = it.next()
-            e2.set("previousEventNumber", e1.get("eventNumber"))
+            e2.set("previousSequenceNumber", e1.get("deviceSequenceNumber"))
             e1 = e2
           }
           out.collect(e1)
