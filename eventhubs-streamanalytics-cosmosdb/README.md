@@ -1,6 +1,22 @@
+---
+topic: sample
+languages:
+  - azurecli
+  - json
+  - sql
+products:
+  - azure
+  - azure-container-instances
+  - azure-cosmos-db
+  - azure-event-hubs
+  - azure-stream-analytics
+statusNotificationTargets:
+  - algattik@microsoft.com
+---
+
 # Streaming at Scale with Azure Event Hubs, Stream Analytics and Cosmos DB
 
-This sample uses Stream Analytics to process streaming data from EventHub and uses Cosmos DB as a sink to store JSON data
+This sample uses Stream Analytics to process streaming data from EventHub and uses Cosmos DB as a sink to store JSON data.
 
 The provided scripts will create an end-to-end solution complete with load test client.  
 
@@ -54,10 +70,44 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 The script will create the following resources:
 
-* **Azure Container Instances** to host [Locust](https://locust.io/) Load Test Clients: by default two Locust client will be created, generating a load of 1000 events/second
-* **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-* **Stream Analytics**: to process analytics on streaming data
-* **Cosmos DB** Server, Database and Collection: to store and serve processed data
+- **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
+- **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
+- **Stream Analytics**: to process analytics on streaming data
+- **Cosmos DB** Server, Database and Collection: to store and serve processed data
+
+## Streamed Data
+
+Streamed data simulates an IoT device sending the following JSON data:
+
+```json
+{
+    "eventId": "b81d241f-5187-40b0-ab2a-940faf9757c0",
+    "complexData": {
+        "moreData0": 57.739726013343247,
+        "moreData1": 52.230732688620829,
+        "moreData2": 57.497518587807189,
+        "moreData3": 81.32211656749469,
+        "moreData4": 54.412361539409427,
+        "moreData5": 75.36416309399911,
+        "moreData6": 71.53407865773488,
+        "moreData7": 45.34076957651598,
+        "moreData8": 51.3068118685458,
+        "moreData9": 44.44672606436184,
+        [...]
+    },
+    "value": 49.02278128887753,
+    "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
+    "type": "CO2",
+    "createdAt": "2019-05-16T17:16:40.000003Z"
+}
+```
+
+## Duplicate event handling
+
+In case the Azure Stream Analytics infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Stream Analytics functionality to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-documentdb-output#upserts-from-stream-analytics) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
+
+In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicates will not be present in Cosmos DB.
 
 ## Solution customization
 
@@ -66,45 +116,57 @@ If you want to change some setting of the solution, like number of load test cli
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export PROC_STREAMING_UNITS=6
-    export COSMOSDB_RU=10000
-    export TEST_CLIENTS=2
+    export COSMOSDB_RU=20000
+    export SIMULATOR_INSTANCES=1
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
-Likewise, below settings has been chosen to sustain at least 10,000 msg/sec stream. 
-Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
-    export EVENTHUB_PARTITIONS=16
+The below settings are used to sustain at least 10,000 msg/sec stream. Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
+
+    export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export PROC_STREAMING_UNITS=48
-    export COSMOSDB_RU=80000
-    export TEST_CLIENTS=20
+    export PROC_STREAMING_UNITS=36
+    export COSMOSDB_RU=100000
+    export SIMULATOR_INSTANCES=5
 
-## Monitor performances
+## Monitor performance
 
-Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" and "Backlogged Input Events" metrics.
-The default metrics are aggregated per minute, here is a sample metrics snapshot showing 10K Events/Sec (600K+ Events/minute).
-Ensure that "Watermark delay" metric stays in single digit seconds latency.
+Please use Metrics pane in Stream Analytics for "Input/Output Events", "Watermark Delay" and "Backlogged Input Events" metrics. The default metrics are aggregated per minute, here is a sample metrics snapshot showing 10K Events/Sec (600K+ Events/minute). Ensure that "Watermark delay" metric stays in single digit seconds latency. "Watermark Delay" is one of the key metric that will help you to understand if Stream Analytics is keeping up with the incoming data. If delay is constantly increasing, you need to take a look at the destination to see if it can keep up with the speed or check if you need to increase SU: https://azure.microsoft.com/en-us/blog/new-metric-in-azure-stream-analytics-tracks-latency-of-your-streaming-pipeline/.
 
 ASA metrics showing 10K events/sec:
 
-![ASA metrics](.\01-stream-analytics-metrics.png "Azure Stream Analytics 10K events/sec metrics")
+![ASA metrics](01-stream-analytics-metrics.png "Azure Stream Analytics 10K events/sec metrics")
 
 You can also use Event Hub "Metrics" pane and ensure there "Throttled Requests" don't slow down your pipeline.
 
-However, In Cosmos DB throttling is expected especially at higher throughput scenarios. 
-As long as ASA metric "Watermark delay" is not consistently increasing, your processing is not falling behind, throttling in Cosmos DB is okay.
+However, In Cosmos DB throttling is expected especially at higher throughput scenarios. As long as ASA metric "Watermark delay" is not consistently increasing, your processing is not falling behind, throttling in Cosmos DB is okay.
 
-![Cosmos DB metrics](.\02-cosmosdb-metrics.png "Cosmos DB collection metrics")
-
+![Cosmos DB metrics](02-cosmosdb-metrics.png "Cosmos DB collection metrics")
 
 ## Stream Analytics
 
-Note that the solution configurations have been verified with compatibility level 1.2 . 
+Note that the solution configurations have been verified with compatibility level 1.2. The deployed Stream Analytics solution doesn't do any analytics or projection, but it just inject an additional field using a simple Javascript UDF:
 
-The deployed Stream Analytics solution doesn't do any analytics or projection , these will be added as separate solutions.
+```sql
+select 
+    *, 
+    UDF.GetCurrentDateTime('') AS ASAProcessedUtcTime
+from 
+    inputEventHub partition by PartitionId
+```
 
 ## Query Data
 
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
 
-    `SELECT * FROM c WHERE c.eventData.type = 'CO2'`
+```sql
+    SELECT * FROM c WHERE c.type = 'CO2'
+```
+
+## Clean up
+
+To remove all the created resource, you can just delete the related resource group
+
+```bash
+az group delete -n <resource-group-name>
+```

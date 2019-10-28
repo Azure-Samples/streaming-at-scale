@@ -1,0 +1,137 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "streamingJobName": {
+            "type": "string",
+            "defaultValue": "streamingjob"
+        },
+        "eventHubNamespace": {
+            "type": "string"
+        },
+        "eventHubNamespaceOut": {
+            "type": "string"
+        },
+        "eventHubKey": {
+            "type": "securestring"
+        },
+        "eventHubKeyOut": {
+            "type": "securestring"
+        },
+        "eventHubName": {
+            "type": "string"
+        },
+        "eventHubNameOut": {
+            "type": "string"
+        },
+        "eventHubConsumerGroupName": {
+            "type": "string"
+        },
+        "streamingUnits": {
+            "type": "int",
+            "defaultValue": 3
+        },
+        "eventHubPartitionKeyOut": {
+            "type": "string",
+            "defaultValue": "deviceId"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-01-preview",
+            "name": "[parameters('streamingJobName')]",
+            "location": "[resourceGroup().location]",
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "identity": {
+                "type": "systemAssigned"
+            },
+            "properties": {
+                "sku": {
+                    "name": "standard"
+                },
+                "eventsOutOfOrderPolicy": "drop",
+                "eventsOutOfOrderMaxDelayInSeconds": 10,
+                "compatibilityLevel": "1.2",
+                "outputStartMode": "JobStartTime",
+                "inputs": [
+                    {
+                        "name": "inputEventHub",
+                        "properties": {
+                            "type": "stream",
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.ServiceBus/EventHub",
+                                "properties": {
+                                    "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                                    "sharedAccessPolicyName": "Listen",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKey')]",
+                                    "eventHubName": "[parameters('eventHubName')]",
+                                    "consumerGroupName": "[parameters('eventHubConsumerGroupName')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "transformation": {
+                    "name": "ProcessSampleData",
+                    "properties": {
+                        "streamingUnits": "[int(parameters('streamingUnits'))]",
+                        "query": "select eventId as id, deviceId, deviceSequenceNumber, type, complexData, value, eventId, PartitionId, createdAt, EventEnqueuedUtcTime AS enqueuedAt, EventProcessedUtcTime AS processedAt, UDF.GetCurrentDateTime('') AS processedAt2 from inputEventHub partition by PartitionId"
+                    }
+                },
+                "functions": [{
+                    "name": "GetCurrentDateTime",
+                    "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
+                    "properties": {
+                        "type": "Scalar",
+                        "properties": {
+                            "inputs": [{
+                                "dataType": "any",
+                                "isConfigurationParameter": null
+                            }],
+                            "output": {
+                                "dataType": "any"
+                            },
+                            "binding": {
+                                "type": "Microsoft.StreamAnalytics/JavascriptUdf",
+                                "properties": {
+                                    "script": "// Sample UDF which returns current timestamp.\nfunction main(s) {\n    return new Date().toISOString();\n}"
+                                }
+                            }
+                        },
+                        "etag": "cc766b0b-3746-4c3b-bb8e-d9366a6c352e"
+                    }
+                }],
+                "outputs": [
+                    {
+                        "name": "output",
+                        "properties": {
+                            "serialization": {
+                                "type": "JSON",
+                                "properties": {
+                                    "encoding": "UTF8",
+                                    "format": "Array"
+                                }
+                            },
+                            "datasource": {
+                                "type": "Microsoft.ServiceBus/EventHub",
+                                "properties": {
+                                    "serviceBusNamespace": "[parameters('eventHubNamespaceOut')]",
+                                    "sharedAccessPolicyName": "Send",
+                                    "sharedAccessPolicyKey": "[parameters('eventHubKeyOut')]",
+                                    "eventHubName": "[parameters('eventHubNameOut')]",
+                                    "partitionKey": "[parameters('eventHubPartitionKeyOut')]"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

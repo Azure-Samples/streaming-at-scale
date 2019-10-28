@@ -11,26 +11,28 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export PREFIX=''
+export LOCATION="eastus"
+export TESTTYPE="1"
+export SQL_TABLE_KIND="rowstore"
+export STEPS="CIDPTM"
+
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]" 1>&2; 
-    echo "-s: specify which steps should be executed. Default=CIDPT" 1>&2; 
-    echo "    Possibile values:" 1>&2; 
-    echo "      C=COMMON" 1>&2; 
-    echo "      I=INGESTION" 1>&2; 
-    echo "      D=DATABASE" 1>&2; 
-    echo "      P=PROCESSING" 1>&2; 
-    echo "      T=TEST clients" 1>&2; 
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=1"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
+    echo "-s: specify which steps should be executed. Default=$STEPS"
+    echo "    Possible values:"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      D=DATABASE"
+    echo "      P=PROCESSING"
+    echo "      T=TEST clients"
+    echo "      M=METRICS reporting"
+    echo "      V=VERIFY deployment"
+    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-k: test rowstore or columnstore. Default=rowstore"
-    echo "-l: where to create the resources. Default=eastus"
+    echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
-
-export PREFIX=''
-export LOCATION=''
-export TESTTYPE=''
-export STEPS=''
-export SQL_TABLE_KIND=''
 
 # Initialize parameters specified from command line
 while getopts ":d:s:t:l:k:" arg; do
@@ -47,7 +49,7 @@ while getopts ":d:s:t:l:k:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-        k)
+                k)
 			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
@@ -59,22 +61,6 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
-if [[ -z "$LOCATION" ]]; then
-	export LOCATION="eastus"
-fi
-
-if [[ -z "$TESTTYPE" ]]; then
-	export TESTTYPE="1"
-fi
-
-if [[ -z "$SQL_TABLE_KIND" ]]; then
-	export SQL_TABLE_KIND="rowstore"
-fi
-
-if [[ -z "$STEPS" ]]; then
-	export STEPS="CIDPT"
-fi
-
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
@@ -82,17 +68,17 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
     export SQL_SKU=P6
-    export TEST_CLIENTS=30
+    export SIMULATOR_INSTANCES=5
 fi
 
-# 5500 messages/sec
+# 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=6
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
+    export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
     export SQL_SKU=P4
-    export TEST_CLIENTS=16
+    export SIMULATOR_INSTANCES=3
 fi
 
 # 1000 messages/sec
@@ -100,13 +86,13 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=S3
-    export TEST_CLIENTS=3
+    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
+    export SQL_SKU=P1
+    export SIMULATOR_INSTANCES=1
 fi
 
 # last checks and variables setup
-if [ -z ${TEST_CLIENTS+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -117,23 +103,8 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
-HAS_AZ=$(command -v az)
-if [ -z HAS_AZ ]; then
-    echo "AZ CLI not found"
-    echo "please install it as described here:"
-    echo "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest"
-    exit 1
-fi
-
-HAS_JQ=$(command -v jq)
-if [ -z HAS_JQ ]; then
-    echo "jq not found"
-    echo "please install it using your package manager, for example, on Ubuntu:"
-    echo "  sudo apt install jq"
-    echo "or as described here:"
-    echo "  https://stedolan.github.io/jq/download/"
-    exit 1
-fi
+source ../assert/has-local-az.sh
+source ../assert/has-local-jq.sh
 
 declare TABLE_SUFFIX=""
 case $SQL_TABLE_KIND in
@@ -163,7 +134,7 @@ echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". StreamAnalytics => Name: $PROC_JOB_NAME, SU: $PROC_STREAMING_UNITS"
 echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
-echo ". Locusts         => $TEST_CLIENTS"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -174,9 +145,9 @@ echo "***** [C] Setting up COMMON resources"
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
 
     RUN=`echo $STEPS | grep C -o || true`
-    if [ ! -z $RUN ]; then
-        ../_common/01-create-resource-group.sh
-        ../_common/02-create-storage-account.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
 
@@ -187,19 +158,21 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CG="azuresql"
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z $RUN ]; then
-        ./01-create-event-hub.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
 echo "***** [D] Setting up DATABASE"
 
+    export SQL_TYPE="db"
     export SQL_SERVER_NAME=$PREFIX"sql" 
     export SQL_DATABASE_NAME="streaming"    
+    export SQL_ADMIN_PASS="Strong_Passw0rd!"  
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z $RUN ]; then
-        ./02-create-azure-sql.sh
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-sql/create-sql.sh
     fi
 echo
 
@@ -209,18 +182,38 @@ echo "***** [P] Setting up PROCESSING"
     export SQL_TABLE_NAME="rawdata$TABLE_SUFFIX"
 
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z $RUN ]; then
-        ./03-create-stream-analytics.sh
+    if [ ! -z "$RUN" ]; then
+        source ./create-stream-analytics.sh
     fi
 echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export LOCUST_DNS_NAME=$PREFIX"locust"
+    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=-1
 
     RUN=`echo $STEPS | grep T -o || true`
-    if [ ! -z $RUN ]; then
-        ./04-run-clients.sh
+    if [ ! -z "$RUN" ]; then
+        source ../simulator/run-generator-eventhubs.sh
+    fi
+echo
+
+echo "***** [M] Starting METRICS reporting"
+
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    export ADB_WORKSPACE=$PREFIX"databricks" 
+    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-azuresql.sh
     fi
 echo
 
