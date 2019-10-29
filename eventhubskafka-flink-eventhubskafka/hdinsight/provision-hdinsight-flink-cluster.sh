@@ -3,7 +3,7 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-source create-hdinsight.sh
+source hdinsight/create-hdinsight.sh
 
 container=flinkscriptaction
 
@@ -14,7 +14,7 @@ az storage container policy create --account-name $AZURE_STORAGE_ACCOUNT -c $con
     -n HDInsightRead --permissions r --expiry 2100-01-01 -o none
 
 az storage blob upload --account-name $AZURE_STORAGE_ACCOUNT -c $container \
-    -n install-flink.sh -f install-flink.sh \
+    -n install-flink.sh -f hdinsight/install-flink.sh \
     -o tsv >> log.txt
 
 script_uri=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT -c $container \

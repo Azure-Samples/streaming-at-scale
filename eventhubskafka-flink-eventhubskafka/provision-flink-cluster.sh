@@ -7,9 +7,7 @@ echo 'building flink job'
 #mvn -f flink-kafka-consumer clean package
 
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
-  pushd hdinsight > /dev/null
-    source provision-hdinsight-flink-cluster.sh
-  popd
+  source hdinsight/provision-hdinsight-flink-cluster.sh
 else
   pushd kubernetes > /dev/null
     source provision-aks-flink-cluster.sh

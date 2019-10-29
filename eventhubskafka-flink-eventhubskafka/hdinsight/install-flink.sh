@@ -10,7 +10,7 @@ rm -f /tmp/HDInsightUtilities-v01.sh
 
 # Only run on first data node (to run only once in entire cluster)
 if [ $(test_is_first_datanode) == 0 ] ; then
-  return
+  return 0
 fi
 
 flink_version=1.9.1

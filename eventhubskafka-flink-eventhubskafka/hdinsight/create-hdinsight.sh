@@ -5,8 +5,8 @@ set -euo pipefail
 echo 'creating HDInsight cluster'
 echo ". name: $HDINSIGHT_NAME"
 
-source ../../components/azure-common/create-virtual-network.sh
-source ../../components/azure-monitor/create-log-analytics.sh
+source ../components/azure-common/create-virtual-network.sh
+source ../components/azure-monitor/create-log-analytics.sh
 
 az hdinsight create -t hadoop -g $RESOURCE_GROUP -n $HDINSIGHT_NAME \
   -p "$HDINSIGHT_PASSWORD" \
