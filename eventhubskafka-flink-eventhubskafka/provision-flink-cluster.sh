@@ -4,7 +4,7 @@
 set -euo pipefail
 
 echo 'building flink job'
-mvn -f flink-kafka-consumer clean package
+#mvn -f flink-kafka-consumer clean package
 
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
   pushd hdinsight > /dev/null
