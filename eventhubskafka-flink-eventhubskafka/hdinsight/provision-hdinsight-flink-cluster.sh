@@ -3,7 +3,7 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-source hdinsight/create-hdinsight.sh
+#source hdinsight/create-hdinsight.sh
 
 container=flinkscriptaction
 

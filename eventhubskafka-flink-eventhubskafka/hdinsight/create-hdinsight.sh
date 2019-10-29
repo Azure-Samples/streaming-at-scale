@@ -18,8 +18,6 @@ az hdinsight create -t hadoop -g $RESOURCE_GROUP -n $HDINSIGHT_NAME \
   --storage-account $AZURE_STORAGE_ACCOUNT \
   -o tsv >> log.txt
 
-endpoint=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --query 'properties.connectivityEndpoints[?name==`HTTPS`].location')
-
 echo 'Enable HDInsight monitoring'
 echo ". workspace: $LOG_ANALYTICS_WORKSPACE"
 
