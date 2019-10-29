@@ -17,7 +17,13 @@ echo 'creating AKS cluster'
 echo ". name: $AKS_CLUSTER"
 
 if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null 2>&1; then
-az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES -s $AKS_VM_SIZE -k $AKS_KUBERNETES_VERSION --generate-ssh-keys -o tsv >> log.txt
+  # if SP vars are set and not empty
+  if [[ -n ${AD_SP_APP_ID:-} && -n ${AD_SP_SECRET:-} ]]; then
+    echo ". service-principal: $AD_SP_APP_ID"
+    az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES -s $AKS_VM_SIZE -k $AKS_KUBERNETES_VERSION --generate-ssh-keys --service-principal $AD_SP_APP_ID  --client-secret $AD_SP_SECRET -o tsv >> log.txt
+  else
+    az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES -s $AKS_VM_SIZE -k $AKS_KUBERNETES_VERSION --generate-ssh-keys -o tsv >> log.txt
+  fi
 fi
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
@@ -30,6 +36,7 @@ ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "
 # Create role assignment
 existing_role=$(az role assignment list --assignee $AKS_CLIENT_ID --role acrpull --scope $ACR_ID -o tsv)
 if [ -z "$existing_role" ]; then
+  echo 'assign role to SP for ACR pull'
   az role assignment create --assignee $AKS_CLIENT_ID --role acrpull --scope $ACR_ID -o tsv >> log.txt
 fi
 
