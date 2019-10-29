@@ -135,16 +135,19 @@ echo "Steps to be executed: $STEPS"
 echo
 
 echo "Configuration: "
-echo ". Resource Group  => $RESOURCE_GROUP"
-echo ". Region          => $LOCATION"
-echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo ". Resource Group      => $RESOURCE_GROUP"
+echo ". Region              => $LOCATION"
+echo ". EventHubs           => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
-  echo ". HDInsight       => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS"
+  echo ". HDInsight           => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS"
 else
-  echo ". AKS             => VM: $AKS_VM_SIZE, Workers: $AKS_NODES"
+  echo ". AKS                 => VM: $AKS_VM_SIZE, Workers: $AKS_NODES"
 fi
-echo ". Flink           => AKS nodes: $AKS_NODES x $AKS_VM_SIZE, Parallelism: $FLINK_PARALLELISM"
-echo ". Simulators      => $SIMULATOR_INSTANCES"
+echo ". Flink               => AKS nodes: $AKS_NODES x $AKS_VM_SIZE, Parallelism: $FLINK_PARALLELISM"
+echo ". Simulators          => $SIMULATOR_INSTANCES"
+if [[ -n ${AD_SP_APP_ID:-} && -n ${AD_SP_SECRET:-} ]]; then
+    echo ". Service Principal   => $AD_SP_APP_ID"
+fi
 echo
 
 echo "Deployment started..."
