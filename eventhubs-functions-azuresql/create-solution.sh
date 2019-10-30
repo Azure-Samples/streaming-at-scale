@@ -50,7 +50,7 @@ while getopts ":d:s:t:l:k:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-                k)
+        k)
 			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
@@ -60,6 +60,19 @@ shift $((OPTIND-1))
 if [[ -z "$PREFIX" ]]; then
 	echo "Enter a name for this deployment."
 	usage
+fi
+
+# 20000 messages/sec
+# more messages but smaller
+if [ "$TESTTYPE" == "20" ]; then
+    export EVENTHUB_PARTITIONS=16
+    export EVENTHUB_CAPACITY=20
+    export PROC_FUNCTION=Test0
+    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_WORKERS=16
+    export SQL_SKU=HS_Gen5_24
+    export SIMULATOR_INSTANCES=10
+    export SIMULATOR_COMPLEX_DATA_COUNT=10
 fi
 
 # 10000 messages/sec
