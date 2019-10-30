@@ -91,7 +91,7 @@ echo
 }
 
 
-if [ "FLINK_JOBTYPE" == "stateful" ]; then
+if [ "$FLINK_JOBTYPE" == "stateful" ]; then
 
   deploy_helm "stateful-relay" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_IN_LISTEN)' , --kafka.out.topic , \"$EVENTHUB_NAME\" , --kafka.out.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , PLAIN , --kafka.out.security.protocol , SASL_SSL , --kafka.out.sasl.jaas.config , '\$(KAFKA_CS_OUT_SEND)'"
   deploy_helm "consistency-checker" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE_OUT.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_OUT_LISTEN)'"
