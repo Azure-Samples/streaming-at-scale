@@ -85,7 +85,7 @@ helm upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
   --set resources.jobmanager.args="{--parallelism , $FLINK_PARALLELISM , $2}"
 
 echo "To get the Flink Job manager UI, run:"
-echo "  kubectl get services "$release_name-flink-standalone-jobmanager" -o 'jsonpath={"http://"}{.status.loadBalancer.ingress[0].ip}{":8081/"}'"
+echo "  kubectl get services "$release_name-flink-jobmanager" -o '"'jsonpath={"http://"}{.status.loadBalancer.ingress[0].ip}{":8081/\n"}'"'"
 echo "It may take some time for the public IP to be assigned by the cloud provisioner."
 echo
 }
@@ -102,7 +102,7 @@ if [ "FLINK_JOBTYPE" == "stateful" ]; then
 
 else #simple job
 
-  deploy_helm "simple-relay" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_IN_LISTEN)' , --kafka.out.topic , \"$EVENTHUB_NAME\" , --kafka.out.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , PLAIN , --kafka.out.security.protocol , SASL_SSL , --kafka.out.sasl.jaas.config , '\$(KAFKA_CS_OUT_SEND)'"
+  deploy_helm "$FLINK_JOBTYPE" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_IN_LISTEN)' , --kafka.out.topic , \"$EVENTHUB_NAME\" , --kafka.out.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , PLAIN , --kafka.out.security.protocol , SASL_SSL , --kafka.out.sasl.jaas.config , '\$(KAFKA_CS_OUT_SEND)'"
 
 fi
 

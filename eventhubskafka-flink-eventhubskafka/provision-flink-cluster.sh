@@ -4,7 +4,7 @@
 set -euo pipefail
 
 echo 'building flink job'
-mvn -f flink-kafka-consumer clean package
+mvn clean package -f flink-kafka-consumer -P package-$FLINK_JOBTYPE
 
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
   source hdinsight/provision-hdinsight-flink-cluster.sh

@@ -1,46 +1,32 @@
-import java.util.Properties
+package com.microsoft.samples.flink
 
-import org.apache.flink.formats.json.JsonNodeDeserializationSchema
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode
+import com.microsoft.samples.flink.data.SampleRecord
+import com.microsoft.samples.flink.utils.JsonMapperSchema
+import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.streaming.api.datastream
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator
 import org.apache.flink.streaming.api.scala._
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
+import org.apache.flink.streaming.api.windowing.windows.GlobalWindow
 import org.apache.flink.util.Collector
 import org.slf4j.LoggerFactory
 
 /**
-  * A Flink Streaming Job that applies a sliding window on incoming events.
-  *
-  */
+ * A Flink Streaming Job that applies a sliding window on incoming events.
+ *
+ */
 object StatefulRelayStreamingJob {
 
   private val LOG = LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {
 
-    // set up the execution environment
-    val propertiesIn = new Properties
-    val propertiesOut = new Properties
-    val env = StreamingJobCommon.createStreamExecutionEnvironment(args, propertiesIn, propertiesOut)
+    val params = ParameterTool.fromArgs(args)
 
-    val topicIn = propertiesIn.remove("topic").asInstanceOf[String]
-    if (topicIn == null) throw new IllegalArgumentException("Missing configuration value kafka.topic.in")
-    LOG.info("Consuming from Kafka topic: {}", topicIn)
-
-    val topicOut = propertiesOut.remove("topic").asInstanceOf[String]
-    if (topicOut == null) throw new IllegalArgumentException("Missing configuration value kafka.topic.out")
-    LOG.info("Writing into Kafka topic: {}", topicOut)
-
-    // Create Kafka consumer deserializing from JSON.
-    // Flink recommends using Kafka 0.11 consumer as Kafka 1.0 consumer is not stable.
-    val kafkaIn = new FlinkKafkaConsumer011[ObjectNode](topicIn, new JsonNodeDeserializationSchema, propertiesIn)
-
-    val mapper = new ObjectMapper
-    val kafkaOut = new FlinkKafkaProducer011[ObjectNode](
-      topicOut,
-      e => mapper.writeValueAsBytes(e),
-      propertiesOut
-    )
+    val env = StreamingJobCommon.createStreamExecutionEnvironment(params)
+    val schema = new JsonMapperSchema(classOf[SampleRecord])
+    val kafkaIn = StreamingJobCommon.createKafkaConsumer(params, schema)
+    val schema2 = new JsonMapperSchema(classOf[EnrichedRecord])
+    val kafkaOut = StreamingJobCommon.createKafkaProducer(params, schema2)
 
     // Create Flink stream source from Kafka.
     val stream = env.addSource(kafkaIn)
@@ -48,26 +34,30 @@ object StatefulRelayStreamingJob {
     // Build Flink pipeline.
     stream
       // Group events by device (aligned with Kafka partitions)
-      .keyBy(e => e.get("deviceId").textValue)
+      .keyBy(e => e.deviceId)
       // Apply a function on each pair of events (sliding window of 2 events)
-      .countWindow(size = 2, slide = 1)
-      .apply((_, _, input, out: Collector[ObjectNode]) => {
+      .countWindow(2, 1)
+      .apply((_, _, input, out: Collector[EnrichedRecord]) => {
         val it = input.iterator
         if (it.hasNext) {
           var e1 = it.next()
           if (it.hasNext) {
             val e2 = it.next()
-            e2.set("previousSequenceNumber", e1.get("deviceSequenceNumber"))
-            e1 = e2
+            val result = EnrichedRecord(e2, Some(e1.deviceSequenceNumber))
+            out.collect(result)
           }
-          out.collect(e1)
         }
       })
-      .keyBy(e => e.get("deviceId").textValue)
+      .keyBy(e => e.toString)
       .addSink(kafkaOut)
 
     // execute program
     env.execute("stateful relay")
   }
+
+  case class EnrichedRecord(
+                             record: SampleRecord,
+                             previousSequenceNumber: Option[Long]
+                           )
 
 }

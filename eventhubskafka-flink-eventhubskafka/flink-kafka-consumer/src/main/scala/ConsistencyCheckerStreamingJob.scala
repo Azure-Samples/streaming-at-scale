@@ -1,49 +1,45 @@
-import java.time.Instant
+package com.microsoft.samples.flink
+
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit
-import java.util
-import java.util.Properties
+import java.{lang, util}
 
+import com.microsoft.samples.flink.ConsistencyCheckerStreamingJob.ComputeEventRatePreAggregator
+import com.microsoft.samples.flink.StatefulRelayStreamingJob.EnrichedRecord
+import com.microsoft.samples.flink.data.SampleTag
+import com.microsoft.samples.flink.utils.JsonMapperSchema
 import org.apache.flink.api.common.ExecutionConfig
 import org.apache.flink.api.common.functions.{ReduceFunction, RichFlatMapFunction}
 import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.formats.json.JsonNodeDeserializationSchema
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode
-import org.apache.flink.streaming.api.scala._
-import org.apache.flink.streaming.api.scala.function.ProcessAllWindowFunction
+import org.apache.flink.streaming.api.datastream
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator
+import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 import org.apache.flink.util.Collector
 import org.slf4j.LoggerFactory
 
 /**
-  * A Flink Streaming Job that computes summary statistics on incoming events.
-  *
-  */
+ * A Flink Streaming Job that computes summary statistics on incoming events.
+ *
+ */
 object ConsistencyCheckerStreamingJob {
 
   private val LOG = LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {
 
-    // set up the execution environment
-    val propertiesIn = new Properties
-    val propertiesOut = new Properties
-    val env = StreamingJobCommon.createStreamExecutionEnvironment(args, propertiesIn, propertiesOut)
+    val params = ParameterTool.fromArgs(args)
 
-    val topic = propertiesIn.remove("topic").asInstanceOf[String]
-    if (topic == null) throw new IllegalArgumentException("Missing configuration value kafka.topic")
-    LOG.info("Consuming from Kafka topic: {}", topic)
+    val env = StreamingJobCommon.createStreamExecutionEnvironment(params)
+    val schema = new JsonMapperSchema(classOf[EnrichedRecord])
+    val kafka = StreamingJobCommon.createKafkaConsumer(params, schema)
 
     // get aggregation interval, e.g. every 1 second
     val aggregateMs = getAggregateMs(env.getConfig)
 
-    // Create Kafka consumer deserializing from JSON.
-    // Flink recommends using Kafka 0.11 consumer as Kafka 1.0 consumer is not stable.
-    val kafka = new FlinkKafkaConsumer011[ObjectNode](topic, new JsonNodeDeserializationSchema, propertiesIn)
     kafka.setStartFromLatest()
 
     // Create Flink stream source from Kafka.
@@ -52,11 +48,11 @@ object ConsistencyCheckerStreamingJob {
     // Build Flink pipeline.
     stream
       // Group events by device (aligned with Kafka partitions)
-      .keyBy(e => e.get("deviceId"))
-      .flatMap(new DuplicateFilter[ObjectNode](e => e.get("eventId").textValue))
-      .keyBy(e => e.get("deviceId").textValue)
+      .keyBy(e => e.record.deviceId)
+      .flatMap(new DuplicateFilter[EnrichedRecord](e => e.record.eventId))
+      .keyBy(e => e.record.deviceId)
       // Apply a function on each pair of events (sliding window of 2 events)
-      .countWindow(size = 2, slide = 1)
+      .countWindow(2, 1)
       .apply((_, _, input, out: Collector[EventStats]) => {
         val it = input.iterator
         if (it.hasNext) {
@@ -66,17 +62,17 @@ object ConsistencyCheckerStreamingJob {
             // Compute difference in deviceSequenceNumber between subsequent events as seen by stateful relay.
             // Expected to always equal 1.
             var eventNumberDelta2: Option[Long] = Option.empty
-            if (e2.get("previousSequenceNumber") != null) {
-              eventNumberDelta2 = Some(e2.get("deviceSequenceNumber").longValue - e2.get("previousSequenceNumber").longValue)
+            if (e2.previousSequenceNumber.isDefined) {
+              eventNumberDelta2 = Some(e2.record.deviceSequenceNumber - e2.previousSequenceNumber.get)
             }
             // Compute difference in deviceSequenceNumber between subsequent events. Expected to always equal 1,
             // unless events are lost or duplicated upstream.
-            val eventNumberDelta = e2.get("deviceSequenceNumber").longValue - e1.get("deviceSequenceNumber").longValue
+            val eventNumberDelta = e2.record.deviceSequenceNumber - e1.record.deviceSequenceNumber
             if (eventNumberDelta != 1) {
               LOG.info(s"Non-consecutive events [$e1] [$e2]")
             }
             // Compute event latency ('age' = difference between wallclock time and event time)
-            val eventAge = ChronoUnit.MILLIS.between(Instant.parse(e2.get("createdAt").textValue), now)
+            val eventAge = ChronoUnit.MILLIS.between(e2.record.createdAt, now)
             // Build a structure for reduce function, tracking eventNumberDeltaCounts and eventAge value
             out.collect(EventStats(Map((eventNumberDelta2, eventNumberDelta) -> 1L), eventAge))
           }
@@ -86,10 +82,11 @@ object ConsistencyCheckerStreamingJob {
       .timeWindowAll(Time.milliseconds(aggregateMs))
       .reduce(
         // Merge data as we go, for memory-efficient processing
-        preAggregator = new ComputeEventRatePreAggregator,
+        new ComputeEventRatePreAggregator,
         // Compute summary statistics
-        windowFunction = new ComputeEventRateProcessFunction
+        new ComputeEventRateProcessFunction
       )
+
       .setParallelism(1) // applies to reduce() operator only
 
       .print
@@ -98,17 +95,13 @@ object ConsistencyCheckerStreamingJob {
     env.execute("Sample Kafka Consumer - event counter by second")
   }
 
-  // Data structure to collect event statistics during map-reduce processing
-  case class EventStats(eventNumberDeltaCounts: Map[(Option[Long], Long), Long], sumOfLatencies: Long)
-
   // Helper to retrieve configuration value for time aggregation window
   private def getAggregateMs(config: ExecutionConfig) = {
     config.getGlobalJobParameters.asInstanceOf[ParameterTool].getLong("aggregate.milliseconds", 1000L)
   }
 
-  object DuplicateFilter {
-    val descriptor = new ValueStateDescriptor("seen", classOf[LRUCache])
-  }
+  // Data structure to collect event statistics during map-reduce processing
+  case class EventStats(eventNumberDeltaCounts: Map[(Option[Long], Long), Long], sumOfLatencies: Long)
 
   class DuplicateFilter[T](identifierMapper: (T => Any), maxSize: Integer = 100) extends RichFlatMapFunction[T, T] {
     private var operatorState: ValueState[LRUCache] = _
@@ -152,7 +145,7 @@ object ConsistencyCheckerStreamingJob {
 
   class ComputeEventRateProcessFunction
     extends ProcessAllWindowFunction[EventStats, String, TimeWindow] {
-    override def process(context: Context, elements: Iterable[EventStats], out: Collector[String]): Unit = {
+    override def process(context: ProcessAllWindowFunction[EventStats, String, TimeWindow]#Context, elements: lang.Iterable[EventStats], out: Collector[String]): Unit = {
       val aggregateMs = getAggregateMs(getRuntimeContext.getExecutionConfig)
       val singleItem = elements.iterator.next
       val eventNumberDifferenceCounts = singleItem.eventNumberDeltaCounts
@@ -162,6 +155,11 @@ object ConsistencyCheckerStreamingJob {
       val sumOfLatencies = singleItem.sumOfLatencies
       out.collect(s"[$now] ${eventCount * 1000 / aggregateMs} events/s, avg end-to-end latency ${sumOfLatencies / eventCount} ms; $anomalousEventNumberDeltaCount non-sequential events [${anomalousEventNumberDeltaCounts.mkString(",")}]")
     }
+
+  }
+
+  object DuplicateFilter {
+    val descriptor = new ValueStateDescriptor("seen", classOf[LRUCache])
   }
 
 }

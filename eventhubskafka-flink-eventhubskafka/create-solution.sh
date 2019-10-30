@@ -8,7 +8,7 @@ export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTM"
 export FLINK_PLATFORM='aks'
-export FLINK_JOBTYPE='simple'
+export FLINK_JOBTYPE='simple-relay'
 
 usage() {
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -22,7 +22,7 @@ usage() {
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-p: platform: aks or hdinsight. Default=$FLINK_PLATFORM"
-    echo "-a: type of job: simple or stateful. Default=$FLINK_JOBTYPE"
+    echo "-a: type of job: 'simple-relay', 'stateful' or 'complex-processing'. Default=$FLINK_JOBTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1;
 }
@@ -185,7 +185,7 @@ echo "***** [P] Setting up PROCESSING"
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
     export HDINSIGHT_NAME=$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
-    export AKS_CLUSTER=$PREFIX"aks"
+    export AKS_CLUSTER=$PREFIX"aksc"
     export ACR_NAME=$PREFIX"acr"
     export KAFKA_TOPIC="$EVENTHUB_NAME"
 
