@@ -47,10 +47,11 @@ object ConsistencyCheckerStreamingJob {
 
     // Build Flink pipeline.
     stream
+      .map(_.value)
       // Group events by device (aligned with Kafka partitions)
-      .keyBy(e => e.record.deviceId)
-      .flatMap(new DuplicateFilter[EnrichedRecord](e => e.record.eventId))
-      .keyBy(e => e.record.deviceId)
+      .keyBy(_.record.deviceId)
+      .flatMap(new DuplicateFilter[EnrichedRecord](_.record.eventId))
+      .keyBy(_.record.deviceId)
       // Apply a function on each pair of events (sliding window of 2 events)
       .countWindow(2, 1)
       .apply((_, _, input, out: Collector[EventStats]) => {

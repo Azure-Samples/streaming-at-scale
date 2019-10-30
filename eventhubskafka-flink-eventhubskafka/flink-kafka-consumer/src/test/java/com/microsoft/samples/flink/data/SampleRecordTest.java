@@ -45,7 +45,8 @@ public class SampleRecordTest {
     @Test
     public void deserialize() throws Exception {
         ConsumerRecord<byte[], byte[]> kafkaRecord = new ConsumerRecord<byte[], byte[]>("foo", 0, 0, null, serialized.getBytes());
-        SampleRecord objFromSerialized = mapper.deserialize(kafkaRecord);
+        ConsumerRecord<byte[], SampleRecord> obj = mapper.deserialize(kafkaRecord);
+        SampleRecord objFromSerialized = obj.value();
 
         assertEquals(objToString(sampleRecord), objToString(objFromSerialized));
     }

@@ -31,8 +31,9 @@ object SimpleRelayStreamingJob {
 
     // Build Flink pipeline.
     stream
-      .map(e => {
-        e.enqueuedAt = e.createdAt // TODO use actual Kafka enqueued time
+      .map(r => {
+        val e = r.value()
+        e.enqueuedAt = Instant.ofEpochMilli(r.timestamp())
         e.processedAt = Instant.now
         e
       })

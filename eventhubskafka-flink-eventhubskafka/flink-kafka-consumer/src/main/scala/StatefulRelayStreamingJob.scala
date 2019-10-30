@@ -4,10 +4,11 @@ import com.microsoft.samples.flink.data.SampleRecord
 import com.microsoft.samples.flink.utils.JsonMapperSchema
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.datastream
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator
+import org.apache.flink.streaming.api.datastream.{DataStreamSource, SingleOutputStreamOperator}
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.windows.GlobalWindow
 import org.apache.flink.util.Collector
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 
 /**
@@ -34,7 +35,8 @@ object StatefulRelayStreamingJob {
     // Build Flink pipeline.
     stream
       // Group events by device (aligned with Kafka partitions)
-      .keyBy(e => e.deviceId)
+      .map(_.value)
+      .keyBy(_.deviceId)
       // Apply a function on each pair of events (sliding window of 2 events)
       .countWindow(2, 1)
       .apply((_, _, input, out: Collector[EnrichedRecord]) => {
@@ -48,7 +50,7 @@ object StatefulRelayStreamingJob {
           }
         }
       })
-      .keyBy(e => e.toString)
+      .keyBy(_.toString)
       .addSink(kafkaOut)
 
     // execute program

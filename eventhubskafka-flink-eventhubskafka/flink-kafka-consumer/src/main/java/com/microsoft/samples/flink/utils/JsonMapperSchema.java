@@ -1,6 +1,7 @@
 package com.microsoft.samples.flink.utils;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonGenerator;
@@ -10,6 +11,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.*;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Headers;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,7 +20,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 
-public class JsonMapperSchema<T> implements KafkaDeserializationSchema<T>, SerializationSchema<T> {
+public class JsonMapperSchema<T> implements KafkaDeserializationSchema<ConsumerRecord<byte[], T>>, SerializationSchema<T> {
 
     private static final DateTimeFormatter dateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX").withZone(ZoneOffset.UTC);
@@ -46,19 +48,20 @@ public class JsonMapperSchema<T> implements KafkaDeserializationSchema<T>, Seria
     }
 
     @Override
-    public T deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) throws Exception {
-        byte[] message = consumerRecord.value();
-        return mapper.readValue(message, type);
-    }
-
-    @Override
-    public boolean isEndOfStream(T newElement) {
+    public boolean isEndOfStream(ConsumerRecord<byte[], T> newElement) {
         return false;
     }
 
     @Override
-    public TypeInformation<T> getProducedType() {
-        return TypeExtractor.getForClass(type);
+    public ConsumerRecord<byte[], T> deserialize(ConsumerRecord<byte[], byte[]> r) throws Exception {
+        byte[] message = r.value();
+        T v = mapper.readValue(message, type);
+        return new
+            ConsumerRecord<byte[], T>(r.topic(), r.partition(), r. offset(), r. timestamp(), r. timestampType(), null, r. serializedKeySize(), r. serializedValueSize(), r. key(), v, r. headers());
+    }
+
+    public TypeInformation<ConsumerRecord<byte[], T>> getProducedType() {
+        return TypeInformation.of(new TypeHint<ConsumerRecord<byte[], T>>(){});
     }
 
     private static class InstantSerializer extends JsonSerializer<Instant> implements Serializable {
