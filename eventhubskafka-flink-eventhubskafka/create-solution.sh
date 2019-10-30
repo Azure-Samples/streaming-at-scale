@@ -185,7 +185,7 @@ echo "***** [P] Setting up PROCESSING"
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
     export HDINSIGHT_NAME=$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
-    export AKS_CLUSTER=$PREFIX"aksc"
+    export AKS_CLUSTER=$PREFIX"aks"
     export ACR_NAME=$PREFIX"acr"
     export KAFKA_TOPIC="$EVENTHUB_NAME"
 
