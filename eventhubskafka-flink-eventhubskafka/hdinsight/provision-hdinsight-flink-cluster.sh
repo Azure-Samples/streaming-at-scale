@@ -7,22 +7,27 @@ source hdinsight/create-hdinsight.sh
 
 container=flinkscriptaction
 
+echo 'creating script action storage container'
+echo ". name: $container"
+
 az storage container create --account-name $AZURE_STORAGE_ACCOUNT -n $container \
     -o tsv >> log.txt
 
 az storage container policy create --account-name $AZURE_STORAGE_ACCOUNT -c $container \
     -n HDInsightRead --permissions r --expiry 2100-01-01 -o none
 
+echo 'uploading script action script'
+
 az storage blob upload --account-name $AZURE_STORAGE_ACCOUNT -c $container \
-    -n install-flink.sh -f hdinsight/install-flink.sh \
+    -n start-flink-cluster.sh -f hdinsight/script-actions/start-flink-cluster.sh \
     -o tsv >> log.txt
 
 script_uri=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT -c $container \
-   --policy-name HDInsightRead --full-uri -n install-flink.sh -o tsv
+   --policy-name HDInsightRead --full-uri -n start-flink-cluster.sh -o tsv
 )
 
 az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_NAME \
-  --name MyCluster \
+  --name StartFlinkCluster \
   --script-uri "$script_uri" \
   --roles workernode \
   -o tsv >> log.txt
