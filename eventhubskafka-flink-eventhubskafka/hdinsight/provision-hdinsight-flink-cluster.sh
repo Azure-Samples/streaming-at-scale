@@ -38,6 +38,7 @@ az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_
 tmpfile=$(mktemp)
 az storage blob download --account-name $AZURE_STORAGE_ACCOUNT -c $HDINSIGHT_NAME -n apps/flink/flink_master.txt -f $tmpfile -o none
 flink_master=$(cat $tmpfile)
+rm $tmpfile
 
 user=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --query 'properties.computeProfile.roles[0].osProfile.linuxOperatingSystemProfile.username')
 endpoint=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --query 'properties.connectivityEndpoints[?name==`SSH`].location')
