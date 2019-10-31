@@ -5,11 +5,7 @@ set -euo pipefail
 
 container=flinkscriptaction
 
-echo 'uploading script action script'
-
-az storage blob upload --account-name $AZURE_STORAGE_ACCOUNT -c $container \
-    -n run-flink-job.sh -f hdinsight/script-actions/run-flink-job.sh \
-    -o tsv >> log.txt
+echo 'Getting SAS for script action script'
 
 script_uri=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT -c $container \
    --policy-name HDInsightRead --full-uri -n run-flink-job.sh -o tsv
@@ -17,7 +13,7 @@ script_uri=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT 
 
 echo 'uploading Flink job jar'
 
-jarname="$(uuidgen).jar"
+jarname="apps/flink/jobs/$(uuidgen).jar"
 az storage blob upload --account-name $AZURE_STORAGE_ACCOUNT -c $HDINSIGHT_NAME \
     -n $jarname -f flink-kafka-consumer/target/assembly/flink-kafka-consumer-simple-relay.jar \
     -o tsv >> log.txt

@@ -65,6 +65,9 @@ To connect to the Flink Job Manager Web UI, tunnel to host and port reported abo
 ssh -L 10000:wn2-algatt.pvszxskaguqehnrfy2pxxxhewe.fx.internal.cloudapp.net:43861 sshuser@algattik01hdi-ssh.azurehdinsight.net
 ```
 
-Then open a web browser on http://localhost/10000.
+The console output of the `create-solution.sh` script contains the command line above with the correct syntax for your deployment.
+
+After the tunnel is created, open a web browser on http://localhost/10000.
+
 
 
