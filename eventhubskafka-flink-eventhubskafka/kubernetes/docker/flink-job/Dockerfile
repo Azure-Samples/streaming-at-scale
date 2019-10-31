@@ -1,4 +1,6 @@
-FROM flink:1.8.0
+ARG flink_version=1.8.0
+
+FROM flink:$flink_version
 
 ARG job_jar=NOT_SET
 
