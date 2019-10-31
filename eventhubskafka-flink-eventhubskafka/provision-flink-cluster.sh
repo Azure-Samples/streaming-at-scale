@@ -4,7 +4,7 @@
 set -euo pipefail
 
 echo 'building Flink job'
-#mvn clean package -f flink-kafka-consumer -P package-$FLINK_JOBTYPE
+mvn clean package -f flink-kafka-consumer -P package-$FLINK_JOBTYPE
 
 echo 'retrieving Flink version from build'
 eval "FLINK_VERSION$(grep '^flink.version=.*' flink-kafka-consumer/target/maven.properties | grep -o '=.*' )"
