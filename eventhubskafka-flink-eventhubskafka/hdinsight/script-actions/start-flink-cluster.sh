@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+flink_version=$1
+flink_scala_version=$2
+
 # Import the helper method module.
 # See https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-script-actions-linux#helpermethods
 mkdir -p /opt/flink
@@ -13,14 +16,17 @@ if [ $(test_is_first_datanode) == 0 ] ; then
   exit 0
 fi
 
-flink_version=1.9.1
-scala_version=2.11
+flink_master=$(yarn app -list -appTypes "Apache Flink" | sed -rn 's!.*http://(.*)!\1!p' | head -1)
+if [ -n "$flink_master" ]; then
+  echo "Flink is already running" >&2
+  exit 0
+fi
 
 cd /opt/flink
-curl -sfL -o flink.tgz "https://archive.apache.org/dist/flink/flink-$flink_version/flink-$flink_version-bin-scala_$scala_version.tgz"
+curl -sfL -o flink.tgz "https://archive.apache.org/dist/flink/flink-$flink_version/flink-$flink_version-bin-scala_$flink_scala_version.tgz"
 tar zxvf flink.tgz
 rm -f flink
 ln -s flink-$flink_version flink
 cd flink
 export HADOOP_CLASSPATH=$(hadoop classpath)
-./bin/yarn-session.sh --jobManagerMemory 1024m --taskManagerMemory 4096m --detached --name Flink
+./bin/yarn-session.sh --jobManagerMemory 1024m --taskManagerMemory 4096m --detached --name Flink --applicationType "Apache Flink"

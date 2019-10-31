@@ -16,5 +16,12 @@ hdfs dfs -copyToLocal "$1" "$jobjar"
 
 shift
 
+flink_master=$(yarn app -list -appTypes "Apache Flink" | sed -rn 's!.*http://(.*)!\1!p' | head -1)
+
+if [ -z "$flink_master" ]; then
+  echo "Couldn't find Flink JobManager in YARN. Is Flink running?" >&2
+  exit 1
+fi
+
 cd /opt/flink/flink
-./bin/flink run $jobjar "$@"
+./bin/flink run --jobmanager "$flink_master" --detached $jobjar "$@"

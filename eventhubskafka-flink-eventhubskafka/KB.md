@@ -42,3 +42,29 @@ workaround: rerun the script.
 Why? 
 
 This is a transient error that we need to fix.
+
+## HDInsight setup
+
+The HDInsight password is hard-coded in the script `create-solution.sh`. It is only for manual access; the deployment scripts perform all cluster actions via script actions.
+
+When connecting to the HDInsight cluster, you will land on the first head node. The Flink deployment script action actually runs on the first worker node. To list worker nodes: `yarn node -list` (they are listed unordered, the first worker node is the one with the lowest number, usually its name starts with `wn0-`). The script installs the Flink client under /opt/flink.
+
+The Flink application itself (Job Manager) will run on any other of the worker nodes. To find out which, SSH into the cluster and run:
+
+```
+yarn app -list
+
+Total number of applications (application-types: [], states: [SUBMITTED, ACCEPTED, RUNNING] and tags: []):1
+                Application-Id	    Application-Name	    Application-Type	      User	     Queue	             State	       Final-State	       Progress	                       Tracking-URL
+application_1572498497480_0001	               Flink	        Apache Flink	      root	   default	           RUNNING	         UNDEFINED	           100%	http://wn2-algatt.pvszxskaguqehnrfy2pxxxhewe.fx.internal.cloudapp.net:43861
+```
+
+To connect to the Flink Job Manager Web UI, tunnel to host and port reported above:
+
+```
+ssh -L 10000:wn2-algatt.pvszxskaguqehnrfy2pxxxhewe.fx.internal.cloudapp.net:43861 sshuser@algattik01hdi-ssh.azurehdinsight.net
+```
+
+Then open a web browser on http://localhost/10000.
+
+

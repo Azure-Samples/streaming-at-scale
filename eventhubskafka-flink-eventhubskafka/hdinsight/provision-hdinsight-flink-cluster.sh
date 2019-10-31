@@ -26,9 +26,12 @@ script_uri=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT 
    --policy-name HDInsightRead --full-uri -n start-flink-cluster.sh -o tsv
 )
 
+echo 'running script action'
+
 az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_NAME \
   --name StartFlinkCluster \
   --script-uri "$script_uri" \
+  --script-parameters "'$FLINK_VERSION' '$FLINK_SCALA_VERSION'" \
   --roles workernode \
   -o tsv >> log.txt
 
