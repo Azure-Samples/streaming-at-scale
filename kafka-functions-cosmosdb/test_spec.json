@@ -1,0 +1,14 @@
+[
+  {
+    "enabled": true,
+    "stage": "2",
+    "short": "efc1",
+    "steps": "CIDPTMV",
+    "minutes": "10",
+    "throughput": "1",
+    "extra_args": [
+      "-f",
+      "Test0"
+    ]
+  }
+]
