@@ -82,7 +82,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=16
-    export SQL_SKU=P6
+    export SQL_SKU=BC_Gen5_8
     export SIMULATOR_INSTANCES=5
 fi
 
