@@ -5,3 +5,6 @@ test-output.txt
 *.json-e
 .vscode/
 slnx.sqlite
+*.azureauth
+.idea
+target
