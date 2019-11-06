@@ -22,11 +22,11 @@ echo 'building function app'
 ACTIVE_TEST=$PROC_FUNCTION
 FUNCTION_SRC_PATH="$PROC_PACKAGE_FOLDER/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET-$ACTIVE_TEST/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET"
 echo ". path: $FUNCTION_SRC_PATH"
-dotnet build $FUNCTION_SRC_PATH --configuration Release >> log.txt
+dotnet build $FUNCTION_SRC_PATH --configuration Release --runtime win-x64 >> log.txt
 
 echo 'creating zip file'
 CURDIR=$PWD
-ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1/"
+ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1/win-x64"
 echo " .zipped folder: $ZIPFOLDER"
 rm -f $PROC_PACKAGE_PATH
 cd $ZIPFOLDER
