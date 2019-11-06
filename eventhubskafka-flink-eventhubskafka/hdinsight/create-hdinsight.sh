@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-source ../components/azure-common/create-virtual-network.sh
 source ../components/azure-monitor/create-log-analytics.sh
 
 echo 'creating storage container'

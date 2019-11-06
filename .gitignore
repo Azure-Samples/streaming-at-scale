@@ -5,3 +5,5 @@ test-output.txt
 *.json-e
 .vscode/
 slnx.sqlite
+target
+.idea

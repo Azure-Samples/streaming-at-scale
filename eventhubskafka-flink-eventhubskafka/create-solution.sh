@@ -168,17 +168,21 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
+    export VNET_NAME=$PREFIX"-vnet"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
+        source ../components/azure-common/create-virtual-network.sh
     fi
 echo
 
 echo "***** [I] Setting up INGESTION"
 
-    export VNET_NAME=$PREFIX"-vnet"
+    export KAFKA_TOPIC="in"
+    export KAFKA_OUT_TOPIC="out"
+
       if [ "$INGESTION_PLATFORM" == "hdinsightkafka" ]; then
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
     export HDINSIGHT_KAFKA_NAME=$PREFIX"hdikafka"    
@@ -187,8 +191,6 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"
     export EVENTHUB_NAMESPACE_OUT=$PREFIX"eventhubsout"
     export EVENTHUB_NAMESPACES="$EVENTHUB_NAMESPACE $EVENTHUB_NAMESPACE_OUT"
-    export KAFKA_TOPIC="in"
-    export KAFKA_OUT_TOPIC="out"
     export EVENTHUB_NAMES="$KAFKA_TOPIC $KAFKA_OUT_TOPIC"
     export EVENTHUB_CG="verify"
     export EVENTHUB_ENABLE_KAFKA="true"
@@ -197,7 +199,6 @@ echo "***** [I] Setting up INGESTION"
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
       if [ "$INGESTION_PLATFORM" == "hdinsightkafka" ]; then
-        source ../components/azure-common/create-virtual-network.sh
         source ../components/azure-monitor/create-log-analytics.sh
         source ../components/azure-hdinsight/create-hdinsight-kafka.sh
       else
@@ -209,7 +210,8 @@ echo
 echo "***** [P] Setting up PROCESSING"
 
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
-    export HDINSIGHT_YARN_NAME=$PREFIX"hdiyarn"
+    # Creating multiple HDInsight clusters in the same Virtual Network requires each cluster to have unique first six characters. 
+    export HDINSIGHT_YARN_NAME="yarn"$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
     export AKS_CLUSTER=$PREFIX"aks"
     export SERVICE_PRINCIPAL_KV_NAME=$AKS_CLUSTER
