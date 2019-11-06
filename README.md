@@ -14,6 +14,7 @@ products:
   - azure-data-explorer
   - azure-event-hubs
   - azure-functions  
+  - azure-kubernetes-service
   - azure-sql-database
   - azure-stream-analytics
   - azure-storage
@@ -100,6 +101,14 @@ End-to-end integration tests are configured to run. You can check the [latest cl
 ## Available solutions
 
 At present time the available solutions are
+
+### [Kafka on AKS + Azure Databricks + Cosmos DB](akskafka-databricks-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Kafka on Azure Kubernetes Service (AKS) (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- Cosmos DB (Serve)
 
 ### [Event Hubs Capture Sample](eventhubs-capture)
 
