@@ -10,10 +10,14 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.5" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
   </ItemGroup>
+  <!-- Next ItemGroup section is because we don't have an updated Kafka Extensions package -->
   <ItemGroup>
     <Reference Include="Microsoft.Azure.WebJobs.Extensions.Kafka">
       <HintPath>./Microsoft.Azure.WebJobs.Extensions.Kafka.dll</HintPath>
     </Reference>
+    <PackageReference Include="Confluent.Kafka" Version="1.0.0" />
+      <PackageReference Include="Confluent.SchemaRegistry.Serdes" Version="1.0.0" />
+      <PackageReference Include="Google.Protobuf" Version="3.7.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
