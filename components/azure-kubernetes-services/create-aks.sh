@@ -1,5 +1,10 @@
 #!/bin/bash
 
+AKS_CLUSTER_NAME='test-cluster'
+RESOURCE_GROUP='test-cluster'
+NODE_COUNT='3'
+VM_SIZE='Standard_DS2_v2'
+
 # creating aks cluster
 az aks create -n $AKS_CLUSTER_NAME -g $RESOURCE_GROUP --node-count $NODE_COUNT --node-vm-size $VM_SIZE
 
@@ -29,4 +34,4 @@ kubectl create -n kafka -f azure-kafka-kubernetes/kafka-operator-strimzi/kafka-u
 kubectl create -n kafka -f azure-kafka-kubernetes/kafka-operator-strimzi/kafkaclient.yaml
 
 # Cleaning up local resources we downloaded
-rm -rf kafka-operator-strimzi
+rm -rf azure-kafka-kubernetes
