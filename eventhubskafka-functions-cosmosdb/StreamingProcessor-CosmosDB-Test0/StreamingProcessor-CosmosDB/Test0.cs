@@ -24,7 +24,7 @@ namespace StreamingProcessor
             Protocol = BrokerProtocol.SaslSsl, 
             AuthenticationMode = BrokerAuthenticationMode.Plain, 
             Username = "$ConnectionString", 
-            Password = "EventHubsConnectionString")] KafkaEventData[] kafkaEvents, 
+            Password = "EventHubsConnectionString")] KafkaEventData<string>[] kafkaEvents, 
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
             ILogger log)
         {
@@ -38,9 +38,8 @@ namespace StreamingProcessor
             {
                 try
                 {
-                    var messageData = data.Value as byte[];
-                    string message = Encoding.UTF8.GetString(messageData);
-                    len += messageData.Length;
+                    string message = data.Value;
+                    len += message.Length;
 
 
                     var document = JObject.Parse(message);

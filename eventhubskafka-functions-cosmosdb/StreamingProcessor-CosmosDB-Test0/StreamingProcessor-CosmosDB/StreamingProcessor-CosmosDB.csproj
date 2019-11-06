@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.9.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.5" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Kafka" Version="1.0.0-alpha" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Kafka" Version="1.0.1-alpha" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
   </ItemGroup>
   <!-- Next ItemGroup section is because we don't have an updated Kafka Extensions package -->
