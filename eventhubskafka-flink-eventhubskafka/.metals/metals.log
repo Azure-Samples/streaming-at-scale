@@ -1,0 +1,11 @@
+INFO  time: initialize in 0.84s
+WARN  no build tool detected in workspace '/Users/azeltov/git/streaming-at-scale/eventhubskafka-flink-eventhubskafka'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+WARN  no build target: /Users/azeltov/git/streaming-at-scale/eventhubskafka-flink-eventhubskafka/flink-kafka-consumer/src/main/scala/SimpleRelayStreamingJob.scala
+INFO  shutting down Metals
+INFO  time: initialize in 3.24s
+WARN  no build tool detected in workspace '/Users/azeltov/git/streaming-at-scale/eventhubskafka-flink-eventhubskafka'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+WARN  no build target: /Users/azeltov/git/streaming-at-scale/eventhubskafka-flink-eventhubskafka/flink-kafka-consumer/src/main/scala/SimpleRelayStreamingJob.scala
+INFO  shutting down Metals
+INFO  time: initialize in 0.4s
+WARN  no build tool detected in workspace '/Users/azeltov/git/streaming-at-scale/eventhubskafka-flink-eventhubskafka'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+INFO  shutting down Metals

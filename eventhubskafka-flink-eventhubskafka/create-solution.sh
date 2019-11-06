@@ -156,11 +156,13 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
-
+    export AZURE_KEY_VAULT=$PREFIX"keyvault"
+    
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
+        source ../components/azure-key-vault/create-key-vault.sh
     fi
 echo
 
@@ -175,6 +177,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
+        source ./create-secrets-keyvaults.sh
         source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo

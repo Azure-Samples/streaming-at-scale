@@ -1,0 +1,5 @@
+INFO  time: initialize in 0.61s
+WARN  no build tool detected in workspace '/Users/azeltov/git/streaming-at-scale'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+INFO  shutting down Metals
+INFO  time: initialize in 0.7s
+WARN  no build tool detected in workspace '/Users/azeltov/git/streaming-at-scale'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
