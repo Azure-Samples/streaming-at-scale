@@ -8,6 +8,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.Kafka;
+using System.IO;
 
 namespace StreamingProcessor
 {
@@ -23,6 +24,7 @@ namespace StreamingProcessor
             EventHubConnectionString = "EventHubsConnectionString", 
             Protocol = BrokerProtocol.SaslSsl, 
             AuthenticationMode = BrokerAuthenticationMode.Plain, 
+            SslCaLocation = "%WEBROOT_PATH%\\cacert.pem",
             Username = "$ConnectionString", 
             Password = "EventHubsConnectionString")] KafkaEventData<string>[] kafkaEvents, 
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
