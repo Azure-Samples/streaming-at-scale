@@ -3,6 +3,8 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
+source ../_common/utils.sh
+
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
@@ -12,7 +14,7 @@ export FLINK_PLATFORM='aks'
 export FLINK_JOBTYPE='simple-relay'
 
 usage() {
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>] [-i <ingestion>] [-p <platform>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
