@@ -20,7 +20,7 @@ namespace StreamingProcessor
         public static async Task RunAsync(
             [KafkaTrigger("%EventHubName%", "default",
             ConsumerGroup = "%ConsumerGroup%",
-            EventHubConnectionString = "EventHubsConnectionString")] KafkaEventData<string>[] kafkaEvents,
+            EventHubConnectionString = "EventHubsConnectionString")] KafkaEventData[] kafkaEvents,
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
             ILogger log)
         {
@@ -34,8 +34,10 @@ namespace StreamingProcessor
             {
                 try
                 {
-                    string message = data.Value;
-                    len += message.Length;
+                    var messageData = data.Value as byte[];
+                    string message = Encoding.UTF8.GetString(messageData);
+                    len += messageData.Length;
+
 
                     var document = JObject.Parse(message);
                     document["id"] = document["eventId"];
