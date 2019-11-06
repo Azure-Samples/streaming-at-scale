@@ -56,4 +56,13 @@ public class SampleStateTest {
 
         assertFalse(state.equivalentTagExists(tag4));
     }
+
+    @Test
+    public void tagsSize01() {
+        SampleState state = new SampleState();
+        state.addTag(tag1);
+        state.addTag(tag2);
+
+        assertTrue(state.tagsSize() == 2);
+    }
 }
