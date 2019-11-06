@@ -23,7 +23,8 @@ namespace StreamingProcessor
             EventHubConnectionString = "EventHubsConnectionString", 
             Protocol = BrokerProtocol.SaslSsl, 
             AuthenticationMode = BrokerAuthenticationMode.Plain, 
-            SslKeyLocation = null)] KafkaEventData[] kafkaEvents, 
+            Username = "$ConnectionString", 
+            Password = "EventHubsConnectionString")] KafkaEventData[] kafkaEvents, 
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
             ILogger log)
         {
