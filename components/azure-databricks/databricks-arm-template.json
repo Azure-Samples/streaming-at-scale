@@ -285,7 +285,15 @@
               "addressPrefix": "[parameters('publicSubnetCidr')]",
               "networkSecurityGroup": {
                 "id": "[variables('nsgId')]"
-              }
+              },
+              "delegations": [
+                {
+                  "name": "databricks-delegation-public",
+                  "properties": {
+                    "serviceName": "Microsoft.Databricks/workspaces"
+                  }
+                }
+              ]
             }
           },
           {
@@ -294,7 +302,15 @@
               "addressPrefix": "[parameters('privateSubnetCidr')]",
               "networkSecurityGroup": {
                 "id": "[variables('nsgId')]"
-              }
+              },
+              "delegations": [
+                {
+                  "name": "databricks-delegation-private",
+                  "properties": {
+                    "serviceName": "Microsoft.Databricks/workspaces"
+                  }
+                }
+              ]
             }
           }
         ]
