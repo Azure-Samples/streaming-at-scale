@@ -183,6 +183,7 @@ echo "***** [P] Setting up PROCESSING"
     export PROC_PACKAGE_TARGET=CosmosDB    
     export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
     export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
+    export KAFKA_TOPIC="$EVENTHUB_NAME"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
