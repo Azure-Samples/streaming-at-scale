@@ -3,10 +3,13 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name RootManageSharedAccessKey --query "primaryConnectionString" -o tsv)
+namespace=$1
+policy=$2
 
-eh_resource=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.EventHub/namespaces -n "$EVENTHUB_NAMESPACE" --query id -o tsv)
-export KAFKA_BROKERS="$EVENTHUB_NAMESPACE.servicebus.windows.net:9093"
+EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name "$namespace" --name "$policy" --query "primaryConnectionString" -o tsv)
+
+eh_resource=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.EventHub/namespaces -n "$namespace" --query id -o tsv)
+export KAFKA_BROKERS="$namespace.servicebus.windows.net:9093"
 export KAFKA_SECURITY_PROTOCOL=SASL_SSL
 export KAFKA_SASL_MECHANISM=PLAIN
 

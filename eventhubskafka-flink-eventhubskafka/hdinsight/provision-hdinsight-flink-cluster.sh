@@ -28,7 +28,7 @@ script_uri=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT 
 
 echo 'running script action'
 
-az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_NAME \
+az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_YARN_NAME \
   --name StartFlinkCluster \
   --script-uri "$script_uri" \
   --script-parameters "'$FLINK_VERSION' '$FLINK_SCALA_VERSION'" \
@@ -36,12 +36,12 @@ az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_
   -o tsv >> log.txt
 
 tmpfile=$(mktemp)
-az storage blob download --account-name $AZURE_STORAGE_ACCOUNT -c $HDINSIGHT_NAME -n apps/flink/flink_master.txt -f $tmpfile -o none
+az storage blob download --account-name $AZURE_STORAGE_ACCOUNT -c $HDINSIGHT_YARN_NAME -n apps/flink/flink_master.txt -f $tmpfile -o none
 flink_master=$(cat $tmpfile)
 rm $tmpfile
 
-user=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --query 'properties.computeProfile.roles[0].osProfile.linuxOperatingSystemProfile.username')
-endpoint=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_NAME -o tsv --query 'properties.connectivityEndpoints[?name==`SSH`].location')
+user=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_YARN_NAME -o tsv --query 'properties.computeProfile.roles[0].osProfile.linuxOperatingSystemProfile.username')
+endpoint=$(az hdinsight show -g $RESOURCE_GROUP -n $HDINSIGHT_YARN_NAME -o tsv --query 'properties.connectivityEndpoints[?name==`SSH`].location')
 
 echo ""
 echo "To open the Flink JobManager Web UI, create an SSH tunnel such as:"
