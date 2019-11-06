@@ -18,7 +18,7 @@ namespace StreamingProcessor
          */
         [FunctionName("Test0")]
         public static async Task RunAsync(
-            [KafkaTrigger("%EventHubName%", "default",
+            [KafkaTrigger("%EventHubName%", "%EventHubName%",
             ConsumerGroup = "%ConsumerGroup%",
             EventHubConnectionString = "EventHubsConnectionString", 
             Protocol = BrokerProtocol.SaslSsl, 
