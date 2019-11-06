@@ -3,8 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-source ../_common/utils.sh
-
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
