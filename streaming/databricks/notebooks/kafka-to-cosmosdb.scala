@@ -9,12 +9,15 @@ dbutils.widgets.text("cosmosdb-collection", "rawdata", "Cosmos DB collection")
 
 // COMMAND ----------
 
+import java.util.UUID.randomUUID
+
 val data = spark.readStream
   .format("kafka")
   .option("kafka.bootstrap.servers", dbutils.widgets.get("kafka-servers"))
   .option("kafka.sasl.mechanism", dbutils.widgets.get("kafka-sasl-mechanism"))
   .option("kafka.security.protocol", dbutils.widgets.get("kafka-security-protocol"))
   .option("kafka.sasl.jaas.config", dbutils.secrets.get(scope = "MAIN", key = "kafka-sasl-jaas-config"))
+  .option("kafka.group.id", randomUUID().toString)
   .option("subscribe", dbutils.widgets.get("kafka-topics"))
   .option("startingOffsets", "earliest")
   .load()
