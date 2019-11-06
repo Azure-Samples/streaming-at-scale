@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.EventHubs;
+using Microsoft.Azure.WebJobs.Extensions.Kafka;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents;
 
@@ -19,26 +19,37 @@ namespace StreamingProcessor
          * Cosmos DB output without using binding
          */
         [FunctionName("Test1")]
-        public static async Task RunAsync([EventHubTrigger("%EventHubName%", Connection = "EventHubsConnectionString", ConsumerGroup="%ConsumerGroup%")]EventData[] eventHubData, ILogger log)
-        {
+        public static async Task RunAsync(
+            [KafkaTrigger("%EventHubName%", "default",
+            ConsumerGroup = "%ConsumerGroup%",
+            EventHubConnectionString = "EventHubsConnectionString", 
+            Protocol = BrokerProtocol.SaslSsl, 
+            AuthenticationMode = BrokerAuthenticationMode.Plain, 
+            SslKeyLocation = null)] KafkaEventData[] kafkaEvents, 
+            [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
+            ILogger log)
+        {   
             var client = await CosmosDBClient.GetClient();
 
             var tasks = new List<Task<ResourceResponse<Document>>>();
+            long len = 0;
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
             double totalRUbyBatch = 0;
             int positionInBatch = 1;
-            foreach (var data in eventHubData)
+            foreach (var data in kafkaEvents)
             {
                 try
                 {
-                    string message = Encoding.UTF8.GetString(data.Body.Array);
+                    var messageData = data.Value as byte[];
+                    string message = Encoding.UTF8.GetString(messageData);
+                    len += messageData.Length;
 
                     var document = JObject.Parse(message);
                     document["id"] = document["eventId"];
-                    document["enqueuedAt"] = data.SystemProperties.EnqueuedTimeUtc;
+                    document["enqueuedAt"] = data.Timestamp;
                     document["processedAt"] = DateTime.UtcNow;
                     document["positionInBatch"] = positionInBatch;
 
@@ -61,11 +72,11 @@ namespace StreamingProcessor
 
             sw.Stop();
 
-            string logMessage = $"[Test1] T:{eventHubData.Length} doc - E:{sw.ElapsedMilliseconds} msec";
-            if (eventHubData.Length > 0)
+            string logMessage = $"[Test1] T:{len} doc - E:{sw.ElapsedMilliseconds} msec";
+            if (len > 0)
             {
-                logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / eventHubData.Length):N3} msec";
-                logMessage += Environment.NewLine + $"RU:{totalRUbyBatch}. AVG RU:{(totalRUbyBatch / eventHubData.Length):N3}";                
+                logMessage += Environment.NewLine + $"AVG:{(sw.ElapsedMilliseconds / len):N3} msec";
+                logMessage += Environment.NewLine + $"RU:{totalRUbyBatch}. AVG RU:{(totalRUbyBatch / len):N3}";                
             }
 
             log.LogInformation(logMessage);

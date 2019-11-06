@@ -21,9 +21,9 @@
       <PackageReference Include="Google.Protobuf" Version="3.7.0" />
   </ItemGroup>-->
   <ItemGroup>
-    <None Update="cacert.pem">
+    <!-- <None Update="cacert.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </None> -->
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
