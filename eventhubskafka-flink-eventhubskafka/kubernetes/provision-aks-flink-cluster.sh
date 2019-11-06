@@ -29,6 +29,7 @@ set -x
     --service-principal $appId --client-secret $password \
     --vnet-subnet-id $subnet_id \
     --network-plugin kubenet \
+    --enable-addons monitoring \
     --service-cidr 192.168.0.0/16 \
     --dns-service-ip 192.168.0.10 \
     --pod-cidr 10.244.0.0/16 \
@@ -76,7 +77,7 @@ tmpdir=$(mktemp -d)
 cp -R docker/flink-job $tmpdir
 cp ../flink-kafka-consumer/target/assembly/flink-kafka-consumer-$1.jar $tmpdir/flink-job
 az acr build --registry $ACR_NAME --resource-group $RESOURCE_GROUP \
-  --image $ACR_NAME.azurecr.io/flink-job-$1:latest \
+  --image $ACR_NAME.azurecr.io/flink-job-$1:$IMAGE_TAG \
   --build-arg job_jar=flink-kafka-consumer-$1.jar \
   --build-arg flink_version=$FLINK_VERSION \
   $tmpdir/flink-job
@@ -86,13 +87,14 @@ rm -r $tmpdir
 helm upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
   --set service.type=LoadBalancer \
   --set image=$ACR_NAME.azurecr.io/flink-job-$1 \
-  --set imageTag=latest \
+  --set imageTag=$IMAGE_TAG \
   --set resources.jobmanager.serviceportpatcher.image=$ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
   --set flink.num_taskmanagers=$FLINK_PARALLELISM \
   --set persistence.storageClass=azure-file \
   --set flink.secrets.KAFKA_IN_LISTEN_JAAS_CONFIG="$KAFKA_IN_LISTEN_JAAS_CONFIG" \
   --set flink.secrets.KAFKA_OUT_SEND_JAAS_CONFIG="$KAFKA_OUT_SEND_JAAS_CONFIG" \
   --set flink.secrets.KAFKA_OUT_LISTEN_JAAS_CONFIG="$KAFKA_OUT_LISTEN_JAAS_CONFIG" \
+  --set flink.secrets.APPINSIGHTS_INSTRUMENTATIONKEY=$APPINSIGHTS_INSTRUMENTATIONKEY \
   --set resources.jobmanager.args="{--parallelism , $FLINK_PARALLELISM , $2}"
 
 echo "To get the Flink Job manager UI, run:"

@@ -4,6 +4,7 @@
 set -euo pipefail
 
 echo 'building Flink job'
+mvn clean install -f flink-application-insights
 mvn clean package -f flink-kafka-consumer -P package-$FLINK_JOBTYPE
 
 echo 'retrieving Flink version from build'
@@ -52,6 +53,7 @@ else
   # Run as early as possible in script, as principal takes time to become available for RBAC operations.
   source ../components/azure-common/create-service-principal.sh
 
+  source monitoring/provision-applicationinsights.sh
   pushd kubernetes > /dev/null
     source provision-aks-flink-cluster.sh
   popd

@@ -107,6 +107,7 @@ if [ -z ${SIMULATOR_INSTANCES+x} ]; then
 fi
 
 export RESOURCE_GROUP=$PREFIX
+export IMAGE_TAG=$PREFIX$(date +%s)
 
 # remove log.txt if exists
 rm -f log.txt
@@ -184,9 +185,9 @@ echo "***** [I] Setting up INGESTION"
     export KAFKA_OUT_TOPIC="out"
 
       if [ "$INGESTION_PLATFORM" == "hdinsightkafka" ]; then
-    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
-    export HDINSIGHT_KAFKA_NAME=$PREFIX"hdikafka"    
-    export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
+    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
+    export HDINSIGHT_KAFKA_NAME=$PREFIX"hdikafka"
+    export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
       else
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"
     export EVENTHUB_NAMESPACE_OUT=$PREFIX"eventhubsout"
@@ -209,8 +210,9 @@ echo
 
 echo "***** [P] Setting up PROCESSING"
 
+    export APPINSIGHTS_NAME=$PREFIX"appmon"
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
-    # Creating multiple HDInsight clusters in the same Virtual Network requires each cluster to have unique first six characters. 
+    # Creating multiple HDInsight clusters in the same Virtual Network requires each cluster to have unique first six characters.
     export HDINSIGHT_YARN_NAME="yarn"$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
     export AKS_CLUSTER=$PREFIX"aks"

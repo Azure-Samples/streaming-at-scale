@@ -9,6 +9,7 @@ data:
     blob.server.port: 6124
     jobmanager.rpc.address: {{ template "fullname" . }}-jobmanager
     jobmanager.rpc.port: 6123
+    metrics.reporter.ai.factory.class: com.microsoft.samples.flink.ApplicationInsightsReporterFactory
     taskmanager.numberOfTaskSlots: {{ .Values.flink.num_slots_per_taskmanager }}
     # important: customize per cluster
     high-availability.cluster-id: cluster-{{ template "fullname" . }}
