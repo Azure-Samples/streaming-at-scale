@@ -155,13 +155,15 @@ echo "***** [P] Setting up PROCESSING"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+    export KAFKA_TOPIC=$PREFIX"topic"    
+
     
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        # TODO: Fix this section
+        # TODO: Create get-aks-kafka-brokers.sh
         # source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh 
-        # source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
+        source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo
 
@@ -169,20 +171,20 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        # TODO: Fix this section
+        # TODO: Create get-aks-kafka-brokers.sh
         # source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
-        # source ../simulator/run-generator-kafka.sh
+        source ../simulator/run-generator-kafka.sh
     fi
 echo
 
-# TODO: Do we need this section?
-# echo "***** [M] Starting METRICS reporting"
+echo "***** [M] Starting METRICS reporting"
 
-#     RUN=`echo $STEPS | grep M -o || true`
-#     if [ ! -z "$RUN" ]; then
-#         source ../components/azure-event-hubs/report-throughput.sh
-#     fi
-# echo
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z "$RUN" ]; then
+        # TODO: Create aks report-throughput.sh
+        # source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
 
 echo "***** [V] Starting deployment VERIFICATION"
 
