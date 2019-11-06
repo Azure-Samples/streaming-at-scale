@@ -29,19 +29,11 @@ kubectl create namespace kafka
 helm repo add strimzi http://strimzi.io/charts/
 helm install strimzi/strimzi-kafka-operator --namespace kafka --name kafka-operator
 
-# clone the repo in order to deploy kafka on aks
-git clone https://github.com/cnadolny/azure-kafka-kubernetes.git
-
 echo 'Creating kafka inside kubernetes'
 
 # installing all the yaml files from the repo inside aks
-kubectl create -n kafka -f azure-kafka-kubernetes/kafka-operator-strimzi/tls-kafka.yaml
-kubectl create -n kafka -f azure-kafka-kubernetes/kafka-operator-strimzi/kafka-topics.yaml
-kubectl create -n kafka -f azure-kafka-kubernetes/kafka-operator-strimzi/kafka-users.yaml
-kubectl create -n kafka -f azure-kafka-kubernetes/kafka-operator-strimzi/kafkaclient.yaml
-
-# Cleaning up local resources we downloaded
-rm -rf azure-kafka-kubernetes
+kubectl create -n kafka -f simple-kafka.yaml
+kubectl create -n kafka -f kafka-topics.yaml
 
 # finish all the steps
 echo 'Done creating kafka inside aks'
