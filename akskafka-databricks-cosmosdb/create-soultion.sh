@@ -161,8 +161,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        # TODO: Create get-aks-kafka-brokers.sh
-        # source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh 
+        source ../components/azure-kubernetes-services/get-aks-kafka-brokers.sh 
         source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo
@@ -171,8 +170,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        # TODO: Create get-aks-kafka-brokers.sh
-        # source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../components/azure-kubernetes-services/get-aks-kafka-brokers.sh
         source ../simulator/run-generator-kafka.sh
     fi
 echo
