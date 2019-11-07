@@ -93,6 +93,7 @@ rm -f log.txt
 
 echo "Checking pre-requisites..."
 
+source ../assert/has-local-kubectl.sh
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
 source ../assert/has-local-databrickscli.sh
