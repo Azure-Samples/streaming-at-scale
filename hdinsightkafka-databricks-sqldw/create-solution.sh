@@ -164,7 +164,7 @@ echo
 echo "***** [I] Setting up INGESTION"
     
     export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
-    export HDINSIGHT_NAME=$PREFIX"hdi"    
+    export HDINSIGHT_KAFKA_NAME=$PREFIX"hdi"    
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
 
     RUN=`echo $STEPS | grep I -o || true`

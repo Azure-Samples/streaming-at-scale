@@ -3,27 +3,37 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-echo 'getting EH connection strings'
-EVENTHUB_CS_IN_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv)
-EVENTHUB_CS_OUT_SEND=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Send --query "primaryConnectionString" -o tsv)
-EVENTHUB_CS_OUT_LISTEN=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE_OUT --name Listen --query "primaryConnectionString" -o tsv)
-
 echo 'creating ACR instance'
 echo ". name: $ACR_NAME"
 
 az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --sku Basic -o tsv >> log.txt
 
-echo 'creating AKS cluster'
+echo 'creating AKS cluster, if not already existing'
 echo ". name: $AKS_CLUSTER"
 
 if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null 2>&1; then
-  # if SP vars are set and not empty
-  if [[ -n ${AD_SP_APP_ID:-} && -n ${AD_SP_SECRET:-} ]]; then
-    echo ". service-principal: $AD_SP_APP_ID"
-    az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES -s $AKS_VM_SIZE -k $AKS_KUBERNETES_VERSION --generate-ssh-keys --service-principal $AD_SP_APP_ID  --client-secret $AD_SP_SECRET -o tsv >> log.txt
-  else
-    az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --node-count $AKS_NODES -s $AKS_VM_SIZE -k $AKS_KUBERNETES_VERSION --generate-ssh-keys -o tsv >> log.txt
-  fi
+  echo "getting Subnet ID"
+  subnet_id=$(az network vnet subnet show -g $RESOURCE_GROUP -n streaming-subnet --vnet-name $VNET_NAME --query id -o tsv)
+
+  echo "getting Service Principal ID and password"
+  appId=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-id --query value -o tsv)
+  password=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-password --query value -o tsv)
+
+set -x
+  echo 'creating AKS cluster'
+  echo ". name: $AKS_CLUSTER"
+  az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP \
+    --node-count $AKS_NODES -s $AKS_VM_SIZE \
+    -k $AKS_KUBERNETES_VERSION \
+    --generate-ssh-keys \
+    --service-principal $appId --client-secret $password \
+    --vnet-subnet-id $subnet_id \
+    --network-plugin kubenet \
+    --service-cidr 192.168.0.0/16 \
+    --dns-service-ip 192.168.0.10 \
+    --pod-cidr 10.244.0.0/16 \
+    --docker-bridge-address 172.17.0.1/16 \
+    -o tsv >> log.txt
 fi
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
@@ -80,9 +90,9 @@ helm upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
   --set resources.jobmanager.serviceportpatcher.image=$ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
   --set flink.num_taskmanagers=$FLINK_PARALLELISM \
   --set persistence.storageClass=azure-file \
-  --set flink.secrets.KAFKA_CS_IN_LISTEN="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS_IN_LISTEN\";" \
-  --set flink.secrets.KAFKA_CS_OUT_SEND="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS_OUT_SEND\";" \
-  --set flink.secrets.KAFKA_CS_OUT_LISTEN="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"$EVENTHUB_CS_OUT_LISTEN\";" \
+  --set flink.secrets.KAFKA_IN_LISTEN_JAAS_CONFIG="$KAFKA_IN_LISTEN_JAAS_CONFIG" \
+  --set flink.secrets.KAFKA_OUT_SEND_JAAS_CONFIG="$KAFKA_OUT_SEND_JAAS_CONFIG" \
+  --set flink.secrets.KAFKA_OUT_LISTEN_JAAS_CONFIG="$KAFKA_OUT_LISTEN_JAAS_CONFIG" \
   --set resources.jobmanager.args="{--parallelism , $FLINK_PARALLELISM , $2}"
 
 echo "To get the Flink Job manager UI, run:"
@@ -94,8 +104,8 @@ echo
 
 if [ "$FLINK_JOBTYPE" == "stateful" ]; then
 
-  deploy_helm "stateful-relay" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_IN_LISTEN)' , --kafka.out.topic , \"$EVENTHUB_NAME\" , --kafka.out.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , PLAIN , --kafka.out.security.protocol , SASL_SSL , --kafka.out.sasl.jaas.config , '\$(KAFKA_CS_OUT_SEND)'"
-  deploy_helm "consistency-checker" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE_OUT.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_OUT_LISTEN)'"
+  deploy_helm "stateful-relay" "--kafka.in.topic , \"$KAFKA_TOPIC\" , --kafka.in.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_IN_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_IN_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_IN_LISTEN_JAAS_CONFIG)' , --kafka.out.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.out.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , $KAFKA_OUT_SEND_SASL_MECHANISM , --kafka.out.security.protocol , $KAFKA_OUT_SEND_SECURITY_PROTOCOL , --kafka.out.sasl.jaas.config , '\$(KAFKA_OUT_SEND_JAAS_CONFIG)'"
+  deploy_helm "consistency-checker" "--kafka.in.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE_OUT.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_OUT_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_OUT_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_OUT_LISTEN_JAAS_CONFIG)'"
 
   echo "- To view message throughput per Task Manager, run:"
   echo "    kubectl logs -l release=flink-consistency-checker,component=taskmanager -c flink"
@@ -103,7 +113,7 @@ if [ "$FLINK_JOBTYPE" == "stateful" ]; then
 
 else #simple job
 
-  deploy_helm "$FLINK_JOBTYPE" "--kafka.in.topic , \"$EVENTHUB_NAME\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , PLAIN , --kafka.in.security.protocol , SASL_SSL , --kafka.in.sasl.jaas.config , '\$(KAFKA_CS_IN_LISTEN)' , --kafka.out.topic , \"$EVENTHUB_NAME\" , --kafka.out.bootstrap.servers , \"$EVENTHUB_NAMESPACE.servicebus.windows.net:9093\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , PLAIN , --kafka.out.security.protocol , SASL_SSL , --kafka.out.sasl.jaas.config , '\$(KAFKA_CS_OUT_SEND)'"
+  deploy_helm "$FLINK_JOBTYPE" "--kafka.in.topic , \"$KAFKA_TOPIC\" , --kafka.in.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_IN_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_IN_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_IN_LISTEN_JAAS_CONFIG)' , --kafka.out.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.out.bootstrap.servers , \"$KAFKA_OUT_LISTEN_BROKERS\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , $KAFKA_OUT_SEND_SASL_MECHANISM , --kafka.out.security.protocol , $KAFKA_OUT_SEND_SECURITY_PROTOCOL , --kafka.out.sasl.jaas.config , '\$(KAFKA_OUT_SEND_JAAS_CONFIG)'"
 
 fi
 
