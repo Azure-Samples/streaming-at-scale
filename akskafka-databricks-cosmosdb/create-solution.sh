@@ -131,7 +131,8 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export KAFKA_TOPIC=$PREFIX"topic"    
+    export KAFKA_TOPIC=$PREFIX"topic"
+    export AKS_CLUSTER_NAME=$PREFIX"aks" 
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
@@ -157,11 +158,10 @@ echo "***** [P] Setting up PROCESSING"
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
     export KAFKA_TOPIC=$PREFIX"topic"    
 
-    
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../components/azure-kubernetes-services/get-aks-kafka-brokers.sh 
+        source ../components/azure-kubernetes-service/get-aks-kafka-brokers.sh 
         source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo
@@ -170,18 +170,18 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-kubernetes-services/get-aks-kafka-brokers.sh
+        source ../components/azure-kubernetes-service/get-aks-kafka-brokers.sh
         source ../simulator/run-generator-kafka.sh
     fi
 echo
 
 echo "***** [M] Starting METRICS reporting"
 
-    RUN=`echo $STEPS | grep M -o || true`
-    if [ ! -z "$RUN" ]; then
-        # TODO: Create aks report-throughput.sh
-        # source ../components/azure-event-hubs/report-throughput.sh
-    fi
+    # RUN=`echo $STEPS | grep M -o || true`
+    # if [ ! -z "$RUN" ]; then
+    #     # TODO: Create aks report-throughput.sh
+    #     # source ../components/azure-event-hubs/report-throughput.sh
+    # fi
 echo
 
 echo "***** [V] Starting deployment VERIFICATION"

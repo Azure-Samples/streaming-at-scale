@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# set up service principal
+read -p $'Please enter your service principal client ID.\n' SERVICE_PRINCIPAL
+read -p $'Please enter your service principal password.\n' SERVICE_PRINCIPAL_SECRET
+echo
+#TODO: VALIDATE INPUT
+
 echo 'Creating aks cluster'
 
 # creating aks cluster
@@ -32,8 +38,8 @@ helm install strimzi/strimzi-kafka-operator --namespace kafka --name kafka-opera
 echo 'Creating kafka inside kubernetes'
 
 # installing all the yaml files from the repo inside aks
-kubectl create -n kafka -f simple-kafka.yaml
-kubectl create -n kafka -f kafka-topics.yaml
+kubectl create -n kafka -f ../components/azure-kubernetes/simple-kafka.yaml
+kubectl create -n kafka -f ../components/azure-kubernetes/kafka-topics.yaml
 
 # finish all the steps
 echo 'Done creating kafka inside aks'
