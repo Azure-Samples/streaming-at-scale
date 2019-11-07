@@ -68,7 +68,7 @@ cp ../flink-kafka-consumer/target/assembly/flink-kafka-consumer-$1.jar $tmpdir/f
 az acr build --registry $ACR_NAME --resource-group $RESOURCE_GROUP \
   --image $ACR_NAME.azurecr.io/flink-job-$1:latest \
   --build-arg job_jar=flink-kafka-consumer-$1.jar \
-  --build-arg flink_version=$FLINK_VERSION \
+  --build-arg flink_version=$FLINK_VERSION-scala_$FLINK_SCALA_VERSION \
   $tmpdir/flink-job
 rm -r $tmpdir
 
