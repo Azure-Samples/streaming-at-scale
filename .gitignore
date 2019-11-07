@@ -5,3 +5,8 @@ test-output.txt
 *.json-e
 .vscode/
 slnx.sqlite
+simulator/generator/dependencies/.classpath
+simulator/generator/dependencies/.project
+simulator/generator/dependencies/.settings/org.eclipse.jdt.apt.core.prefs
+simulator/generator/dependencies/.settings/org.eclipse.jdt.core.prefs
+simulator/generator/dependencies/.settings/org.eclipse.m2e.core.prefs

@@ -5,7 +5,7 @@ set -euo pipefail
 
 PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 
-echo 'creating app service plan'
+echo 'creating function app plan'
 echo ". name: $PLAN_NAME"
 az functionapp plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
     --max-burst $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
