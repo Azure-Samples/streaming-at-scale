@@ -16,7 +16,7 @@ statusNotificationTargets:
   - algattik@microsoft.com
 ---
 
-# Streaming at Scale with Azure Event Hubs with Kafka, Functions and Cosmos DB
+# Streaming at Scale with Azure Event Hubs with Kafka producer, Functions with Kafka trigger and Cosmos DB
 
 This sample uses Cosmos DB as database to store JSON data
 

@@ -27,7 +27,7 @@ namespace StreamingProcessor
             EventHubConnectionString = "EventHubsConnectionString", 
             Protocol = BrokerProtocol.SaslSsl, 
             AuthenticationMode = BrokerAuthenticationMode.Plain, 
-            SslCaLocation =  "D:\\home\\site\\wwwroot\\cacert.pem",
+            SslCaLocation =  "D:\\home\\site\\wwwroot\\cacert.pem", // TODO: come with a better way to specify the path in KafkaTrigger
             Username = "$ConnectionString", 
             Password = "EventHubsConnectionString")] KafkaEventData<string>[] kafkaEvents, 
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
