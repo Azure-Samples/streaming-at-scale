@@ -10,7 +10,7 @@ echo $kafka_hostnames
 
 kafka_brokers=""
 for host in $kafka_hostnames; do
-    kafka_brokers="$kafka_brokers,$host:9092"
+    kafka_brokers="$kafka_brokers,$host:9094"
     echo $kafka_brokers
 done
 
