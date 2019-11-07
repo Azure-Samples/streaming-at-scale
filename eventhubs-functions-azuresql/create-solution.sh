@@ -67,7 +67,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
     export PROC_FUNCTION=Test0
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=16
     export SQL_SKU=P6
     export SIMULATOR_INSTANCES=5
@@ -78,7 +78,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export PROC_FUNCTION=Test0
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=8
     export SQL_SKU=P4
     export SIMULATOR_INSTANCES=3
@@ -89,7 +89,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export PROC_FUNCTION=Test0
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
     export SQL_SKU=P1
     export SIMULATOR_INSTANCES=1
