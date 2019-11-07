@@ -94,4 +94,33 @@ public class SampleStateTest {
 
         assertTrue(state.getLastRecord() == sampleRecord2);
     }
+
+    @Test
+    public void recordsSize01() {
+        SampleRecord sampleRecord1 = new SampleRecord();
+        sampleRecord1.eventId = "4fa25e6c-50d3-4189-9613-d486b71412df";
+        sampleRecord1.value = 45.80967678165356d;
+        sampleRecord1.type = "CO2";
+        sampleRecord1.deviceId = "contoso://device-id-428";
+        sampleRecord1.deviceSequenceNumber = 3L;
+        sampleRecord1.createdAt = Instant.parse("2019-10-15T12:43:27.748Z");
+        sampleRecord1.enqueuedAt = Instant.parse("2019-10-16T12:43:27.748Z");
+        sampleRecord1.processedAt = Instant.parse("2019-10-17T12:43:27.748Z");
+
+        SampleRecord sampleRecord2 = new SampleRecord();
+        sampleRecord2.eventId = "4fa25e6c-50d3-4189-9613-d486b71412df";
+        sampleRecord2.value = 45.80967678165356d;
+        sampleRecord2.type = "CO2";
+        sampleRecord2.deviceId = "contoso://device-id-428";
+        sampleRecord2.deviceSequenceNumber = 3L;
+        sampleRecord2.createdAt = Instant.parse("2019-10-15T12:43:27.748Z");
+        sampleRecord2.enqueuedAt = Instant.parse("2019-10-16T12:43:27.748Z");
+        sampleRecord2.processedAt = Instant.parse("2019-10-17T12:43:27.748Z");
+        
+        SampleState state = new SampleState();
+        state.addRecord(sampleRecord1);
+        state.addRecord(sampleRecord2);
+
+        assertTrue(state.recordsSize() == 2);
+    }
 }
