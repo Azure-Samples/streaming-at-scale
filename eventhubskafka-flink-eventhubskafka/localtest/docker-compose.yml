@@ -1,0 +1,82 @@
+---
+version: '3.3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    expose:
+      - "2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    expose:
+      - "9092"
+    ports:
+      - "19092:19092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: L1://0.0.0.0:9092,L2://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: L1://kafka:9092,L2://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: L1:PLAINTEXT,L2:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: L1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      #KAFKA_BROKER_ID: 1
+
+  tools:
+    container_name: tools
+    hostname: tools
+    image: 00init:1.0
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_INPUT_TOPIC: afinput
+      KAFKA_OUTPUT_TOPIC: afoutput
+      
+  inject:
+    image: 01inject:1.0
+    depends_on:
+      - kafka
+      - tools
+    environment:
+      EXECUTORS: 1
+      EVENTS_PER_SECOND: 3
+      COMPLEX_DATA_COUNT: 0
+      DUPLICATE_EVERY_N_EVENTS: 0
+      OUTPUT_FORMAT: kafka
+      OUTPUT_OPTIONS: "{ \"kafka.bootstrap.servers\": \"kafka:9092\", \"kafka.sasl.mechanism\": \"PLAIN\", \"kafka.security.protocol\": \"PLAINTEXT\", \"topic\": \"afinput\" }"
+      SECURE_OUTPUT_OPTIONS: "{}"
+
+  flinkjobmanager:
+    image: 02process:1.0
+    depends_on:
+      - kafka
+    expose:
+      - "6123"
+    ports:
+      - "8081:8081"
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flinkjobmanager
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_INPUT_TOPIC: afinput
+      KAFKA_GROUP_ID: grp001
+      KAFKA_OUTPUT_TOPIC: afoutput
+    command: jobmanager
+
+  flinktaskmanager:
+    image: 02process:1.0
+    depends_on:
+      - kafka
+      - flinkjobmanager
+    expose:
+      - "6121"
+      - "6122"
+    links:
+      - "flinkjobmanager:jobmanager"
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flinkjobmanager
+    command: taskmanager
