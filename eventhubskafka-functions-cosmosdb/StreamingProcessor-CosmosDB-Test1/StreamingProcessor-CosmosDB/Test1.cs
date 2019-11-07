@@ -15,17 +15,19 @@ namespace StreamingProcessor
 {
     public static class Test1
     {
+        public static string wwwRootFolder;
         /*
          * Cosmos DB output without using binding
          */
         [FunctionName("Test1")]
         public static async Task RunAsync(
+            ExecutionContext ctx, 
             [KafkaTrigger("%KafkaBrokers%", "%EventHubName%",
             ConsumerGroup = "%ConsumerGroup%",
             EventHubConnectionString = "EventHubsConnectionString", 
             Protocol = BrokerProtocol.SaslSsl, 
             AuthenticationMode = BrokerAuthenticationMode.Plain, 
-            SslCaLocation =  "https://curl.haxx.se/ca/cacert.pem",
+            SslCaLocation =  "D:\\home\\site\\wwwroot\\cacert.pem",
             Username = "$ConnectionString", 
             Password = "EventHubsConnectionString")] KafkaEventData<string>[] kafkaEvents, 
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,
@@ -83,4 +85,6 @@ namespace StreamingProcessor
             log.LogInformation(logMessage);
         }
     }
+
+    
 }
