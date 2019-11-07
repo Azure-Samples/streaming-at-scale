@@ -20,11 +20,12 @@ namespace StreamingProcessor
          */
         [FunctionName("Test1")]
         public static async Task RunAsync(
-            [KafkaTrigger("%EventHubName%", "%EventHubName%",
+            [KafkaTrigger("%KafkaBrokers%", "%EventHubName%",
             ConsumerGroup = "%ConsumerGroup%",
             EventHubConnectionString = "EventHubsConnectionString", 
             Protocol = BrokerProtocol.SaslSsl, 
             AuthenticationMode = BrokerAuthenticationMode.Plain, 
+            SslCaLocation =  "https://curl.haxx.se/ca/cacert.pem",
             Username = "$ConnectionString", 
             Password = "EventHubsConnectionString")] KafkaEventData<string>[] kafkaEvents, 
             [CosmosDB(databaseName: "%CosmosDBDatabaseName%", collectionName: "%CosmosDBCollectionName%", ConnectionStringSetting = "CosmosDBConnectionString")] IAsyncCollector<JObject> cosmosMessage,

@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.5" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Kafka" Version="1.0.1-alpha" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
+    <PackageReference Include="Confluent.Kafka" Version="1.2.0" />
   </ItemGroup>
   <!-- Next ItemGroup section is because we don't have an updated Kafka Extensions package -->
   <!--<ItemGroup>
