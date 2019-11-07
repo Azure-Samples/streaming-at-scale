@@ -26,7 +26,7 @@ dotnet build $FUNCTION_SRC_PATH --configuration Release >> log.txt
 
 echo 'creating zip file'
 CURDIR=$PWD
-ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1/"
+ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1"
 echo " .zipped folder: $ZIPFOLDER"
 rm -f $PROC_PACKAGE_PATH
 cd $ZIPFOLDER
@@ -66,3 +66,11 @@ az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
     --settings ConsumerGroup=$EVENTHUB_CG \
     -o tsv >> log.txt
 
+if [[ -v KAFKA_BROKERS ]];
+then
+echo ". Kafka Brokers: $KAFKA_BROKERS"
+az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
+    --resource-group $RESOURCE_GROUP \
+    --settings KafkaBrokers=$KAFKA_BROKERS \
+    -o tsv >> log.txt
+fi 
