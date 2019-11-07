@@ -38,8 +38,8 @@ helm install strimzi/strimzi-kafka-operator --namespace kafka --name kafka-opera
 echo 'Creating kafka inside kubernetes'
 
 # installing all the yaml files from the repo inside aks
-kubectl create -n kafka -f ../components/azure-kubernetes/simple-kafka.yaml
-kubectl create -n kafka -f ../components/azure-kubernetes/kafka-topics.yaml
+kubectl create -n kafka -f ../components/azure-kubernetes-service/simple-kafka.yaml
+kubectl create -n kafka -f ../components/azure-kubernetes-service/kafka-topics.yaml
 
 # finish all the steps
 echo 'Done creating kafka inside aks'
