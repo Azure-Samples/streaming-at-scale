@@ -10,14 +10,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SampleStateTest {
-    Instant dt1, dt2, dt3;
-    SampleTag tag1, tag2, tag3, tag4;
+    private SampleTag tag1, tag2, tag3, tag4;
 
     @Before
     public void initObjects() {
-        dt1 = Instant.now();
-        dt2 = Instant.now().minus(ofMinutes(2));
-        dt3 = Instant.now().minus(ofMinutes(10));
+        Instant dt1 = Instant.now();
+        Instant dt2 = Instant.now().minus(ofMinutes(2));
+        Instant dt3 = Instant.now().minus(ofMinutes(10));
 
         tag1 = new SampleTag("device1", dt1, dt3, "eventId1", "tag1");
         tag2 = new SampleTag("device1", dt1, dt3, "eventId1", "tag1");
