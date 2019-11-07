@@ -186,9 +186,9 @@ echo "***** [P] Setting up PROCESSING"
     export KAFKA_TOPIC="$EVENTHUB_NAME"
 
     RUN=`echo $STEPS | grep P -o || true`
-    if [ ! -z "$RUN" ]; then
-        source ../components/azure-functions/create-processing-function.sh
+    if [ ! -z "$RUN" ]; then    
 	    source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../components/azure-functions/create-processing-function.sh
         source ../components/azure-functions/configure-processing-function-cosmosdb.sh
     fi
 echo
