@@ -20,7 +20,7 @@ az storage blob upload --account-name $AZURE_STORAGE_ACCOUNT -c $HDINSIGHT_YARN_
 
 echo 'running script action'
 
-script_param=$(printf "\"wasbs:///%q\" --kafka.in.topic %q --kafka.in.bootstrap.servers %q --kafka.in.request.timeout.ms %q --kafka.in.sasl.mechanism %q --kafka.in.security.protocol %q --kafka.in.sasl.jaas.config %q --kafka.out.topic %q --kafka.out.bootstrap.servers %q --kafka.out.request.timeout.ms %q --kafka.out.sasl.mechanism %q --kafka.out.security.protocol %q --kafka.out.sasl.jaas.config %q" "$jarname" "$KAFKA_TOPIC" "$KAFKA_IN_LISTEN_BROKERS" "60000" "$KAFKA_IN_LISTEN_SASL_MECHANISM" "$KAFKA_IN_LISTEN_SECURITY_PROTOCOL" "$KAFKA_IN_LISTEN_JAAS_CONFIG" "$KAFKA_OUT_TOPIC" "$KAFKA_OUT_LISTEN_BROKERS" "60000" "$KAFKA_OUT_SEND_SASL_MECHANISM" "$KAFKA_OUT_SEND_SECURITY_PROTOCOL" "$KAFKA_OUT_SEND_JAAS_CONFIG")
+script_param=$(printf "\"wasbs:///%q\" --kafka.in.topic %q --kafka.in.bootstrap.servers %q --kafka.in.request.timeout.ms %q --kafka.in.sasl.mechanism %q --kafka.in.security.protocol %q --kafka.in.sasl.jaas.config %q --kafka.out.topic %q --kafka.out.bootstrap.servers %q --kafka.out.request.timeout.ms %q --kafka.out.sasl.mechanism %q --kafka.out.security.protocol %q --kafka.out.sasl.jaas.config %q" "$jarname" "$KAFKA_TOPIC" "$KAFKA_IN_LISTEN_BROKERS" "60000" "$KAFKA_IN_LISTEN_SASL_MECHANISM" "$KAFKA_IN_LISTEN_SECURITY_PROTOCOL" "$KAFKA_IN_LISTEN_JAAS_CONFIG" "$KAFKA_OUT_TOPIC" "$KAFKA_OUT_SEND_BROKERS" "60000" "$KAFKA_OUT_SEND_SASL_MECHANISM" "$KAFKA_OUT_SEND_SECURITY_PROTOCOL" "$KAFKA_OUT_SEND_JAAS_CONFIG")
  
 az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_YARN_NAME \
   --name RunFlinkJob \
