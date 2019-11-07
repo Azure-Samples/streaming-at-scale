@@ -2,7 +2,6 @@ package com.microsoft.samples.flink;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
@@ -56,7 +55,6 @@ public class StreamingJobCommon {
         if (topicOut == null) throw new IllegalArgumentException("Missing configuration value kafka.topic.out");
         LOG.info("Writing into Kafka topic: {}", topicOut);
 
-        ObjectMapper mapper = new ObjectMapper();
         FlinkKafkaProducer011<T> kafkaOut = new FlinkKafkaProducer011(
                 topicOut,
                 schema,
