@@ -1,0 +1,48 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: kafkaclient
+spec:
+  replicas: 3
+  serviceName: kafkaclient
+  selector:
+    matchLabels:
+      app: kafkaclient
+  template:
+    metadata:
+      labels:
+        app: kafkaclient
+    spec:
+      containers:
+      - name: kafka
+        image: solsson/kafka:0.11.0.0
+        command:
+        - sh
+        - -c
+        - exec tail -f /dev/null
+        env:
+        - name: CA_CRT
+          valueFrom:
+            secretKeyRef:
+              name: my-cluster-cluster-ca-cert
+              key: ca.crt
+        - name: USER_CRT
+          valueFrom:
+            secretKeyRef:
+              name: my-user
+              key: user.crt
+        - name: USER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: my-user
+              key: user.key
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - kafka
