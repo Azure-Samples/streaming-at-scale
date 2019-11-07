@@ -187,8 +187,8 @@ echo "***** [P] Setting up PROCESSING"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-functions/create-processing-function.sh
-	source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../components/azure-functions/create-processing-function.sh	    
         source ../components/azure-functions/configure-processing-function-cosmosdb.sh
     fi
 echo
