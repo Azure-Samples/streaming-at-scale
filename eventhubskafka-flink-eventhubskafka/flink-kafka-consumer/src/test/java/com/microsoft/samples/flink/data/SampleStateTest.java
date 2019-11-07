@@ -123,4 +123,32 @@ public class SampleStateTest {
 
         assertTrue(state.recordsSize() == 2);
     }
+
+    @Test
+    public void addRecord01() {
+        SampleRecord lastRecord = null;
+        SampleState state = new SampleState();
+
+        for (int i = 0; i < SampleState.maxRecords+1; i++) {
+            SampleRecord sampleRecord = new SampleRecord();
+            sampleRecord.eventId = Integer.toString(i);
+            sampleRecord.value = 45.80967678165356d;
+            sampleRecord.type = "CO2";
+            sampleRecord.deviceId = "contoso://device-id-428";
+            sampleRecord.deviceSequenceNumber = 3L;
+            sampleRecord.createdAt = Instant.parse("2019-10-15T12:43:27.748Z");
+            sampleRecord.enqueuedAt = Instant.parse("2019-10-16T12:43:27.748Z");
+            sampleRecord.processedAt = Instant.parse("2019-10-17T12:43:27.748Z");
+
+            state.addRecord(sampleRecord);
+
+            if (i == SampleState.maxRecords) {
+                lastRecord = sampleRecord;
+            }
+        }
+
+        assertTrue(lastRecord == state.getLastRecord() && state.recordsSize() == SampleState.maxRecords);
+    }
+
+    
 }
