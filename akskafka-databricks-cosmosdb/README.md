@@ -41,6 +41,8 @@ The following tools/languages are also needed:
   - Install: `pip install --upgrade databricks-cli`
 - [helm](https://helm.sh/)
   - Install: `https://github.com/helm/helm`
+- [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
+  - Install: `sudo apt-get install -y kubectl`
 
 ## Setup Solution
 
