@@ -39,6 +39,8 @@ The following tools/languages are also needed:
   - Install: `sudo apt install python python-pip`
 - [databricks-cli](https://github.com/databricks/databricks-cli)
   - Install: `pip install --upgrade databricks-cli`
+- [helm](https://helm.sh/)
+  - Install: `https://github.com/helm/helm`
 
 ## Setup Solution
 
@@ -127,14 +129,6 @@ If you want to change some setting of the solution, like the number of load test
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
-
-## Monitor performance
-
-In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
-
-Performance will be monitored and displayed on the console for 30 minutes also. More specifically Inputs and Outputs performance of Azure Kubernetes Service (AKS) will be monitored. If everything is working correctly, the number of reported ****** TODO ******
-
-![Console Performance Report](../_doc/_images/console-performance-monitor.png)
 
 ## Azure Databricks
 
