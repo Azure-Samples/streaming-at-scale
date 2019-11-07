@@ -43,4 +43,4 @@ if [ -z "$flink_master" ]; then
 fi
 
 # Write Flink master host and port to HDFS (Azure Storage), so the caller can use them to set up an SSH tunnel
-echo "$flink_master" | hdfs dfs -put - /apps/flink/flink_master.txt
+echo "$flink_master" | hdfs dfs -put -f - /apps/flink/flink_master.txt

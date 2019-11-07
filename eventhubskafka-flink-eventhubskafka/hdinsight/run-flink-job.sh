@@ -15,7 +15,7 @@ echo 'uploading Flink job jar'
 
 jarname="apps/flink/jobs/$(uuidgen).jar"
 az storage blob upload --account-name $AZURE_STORAGE_ACCOUNT -c $HDINSIGHT_YARN_NAME \
-    -n $jarname -f flink-kafka-consumer/target/assembly/flink-kafka-consumer-simple-relay.jar \
+    -n $jarname -f flink-kafka-consumer/target/assembly/flink-kafka-consumer-$FLINK_JOBTYPE.jar \
     -o tsv >> log.txt
 
 echo 'running script action'
