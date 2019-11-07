@@ -92,7 +92,7 @@ public class SampleStateTest {
         state.addRecord(sampleRecord1);
         state.addRecord(sampleRecord2);
 
-        assertTrue(state.getLastRecord() == sampleRecord2);
+        assertTrue(state.getLastRecord().equals(sampleRecord2));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class SampleStateTest {
             }
         }
 
-        assertTrue(lastRecord == state.getLastRecord() && state.recordsSize() == SampleState.maxRecords);
+        assertTrue(lastRecord.equals(state.getLastRecord()) && state.recordsSize() == SampleState.maxRecords);
     }
 
     
