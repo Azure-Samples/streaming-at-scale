@@ -3,7 +3,7 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-echo "reading Kafka Broker IPs from HDInsight Ambari..."
+echo "reading Kafka Broker IPs from AKS"
 kafka_hostnames=$(kubectl get services -n kafka --no-headers | awk '{print $4}')
 
 echo $kafka_hostnames

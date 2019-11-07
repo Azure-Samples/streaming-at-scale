@@ -131,11 +131,12 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export KAFKA_TOPIC=$PREFIX"topic"    
+    export KAFKA_TOPIC=$PREFIX"topic"
+    export AKS_CLUSTER_NAME=$PREFIX"aks" 
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-kubernetes-service/create-aks.sh
+        source ../components/azure-kubernetes/create-aks.sh
     fi
 echo
 
@@ -161,7 +162,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../components/azure-kubernetes-services/get-aks-kafka-brokers.sh 
+        source ../components/azure-kubernetes/get-aks-kafka-brokers.sh 
         source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo
@@ -170,7 +171,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-kubernetes-services/get-aks-kafka-brokers.sh
+        source ../components/azure-kubernetes/get-aks-kafka-brokers.sh
         source ../simulator/run-generator-kafka.sh
     fi
 echo
