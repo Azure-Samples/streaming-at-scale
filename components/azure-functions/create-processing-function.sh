@@ -66,3 +66,9 @@ az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
     --settings ConsumerGroup=$EVENTHUB_CG \
     -o tsv >> log.txt
 
+echo ". DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=false"
+echo "(this is set because of this https://github.com/Azure/Azure-Functions/issues/1067)"
+az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
+    --resource-group $RESOURCE_GROUP \
+    --settings DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=false \
+    -o tsv >> log.txt
