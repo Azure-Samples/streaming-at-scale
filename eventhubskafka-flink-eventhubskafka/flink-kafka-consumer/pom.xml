@@ -18,6 +18,13 @@
     </properties>
 
     <dependencies>
+        <!-- Monitoring dependencies -->
+        <dependency>
+            <groupId>com.microsoft.samples</groupId>
+            <artifactId>flink-application-insights</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    
         <!-- Apache Flink dependencies -->
         <!-- These dependencies are provided, because they should not be packaged into the JAR file. -->
         <dependency>

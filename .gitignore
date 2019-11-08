@@ -12,3 +12,5 @@ slnx.sqlite
 .classpath
 .project
 .settings
+target/
+bin/
