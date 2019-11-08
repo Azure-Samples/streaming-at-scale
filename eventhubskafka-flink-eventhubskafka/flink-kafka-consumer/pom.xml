@@ -189,55 +189,6 @@
             </build>
         </profile>
         <profile>
-            <id>package-stateful</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>stateful-relay</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-                                <configuration>
-                                    <outputFile>
-                                        ${project.build.directory}/assembly/${project.artifactId}-stateful-relay.jar
-                                    </outputFile>
-                                    <transformers>
-                                        <transformer
-                                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>com.microsoft.samples.flink.StatefulRelayStreamingJob</mainClass>
-                                        </transformer>
-                                    </transformers>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>consistency-checker</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-                                <configuration>
-                                    <outputFile>
-                                        ${project.build.directory}/assembly/${project.artifactId}-consistency-checker.jar
-                                    </outputFile>
-                                    <transformers>
-                                        <transformer
-                                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>com.microsoft.samples.flink.ConsistencyCheckerStreamingJob</mainClass>
-                                        </transformer>
-                                    </transformers>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>package-complex-processing</id>
             <build>
                 <plugins>

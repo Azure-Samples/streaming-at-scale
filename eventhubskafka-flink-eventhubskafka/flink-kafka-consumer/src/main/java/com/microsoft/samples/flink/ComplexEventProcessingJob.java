@@ -7,10 +7,13 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +25,9 @@ public class ComplexEventProcessingJob {
         ParameterTool params = ParameterTool.fromArgs(args);
 
         StreamExecutionEnvironment env = StreamingJobCommon.createStreamExecutionEnvironment(params);
-        JsonMapperSchema schema = new JsonMapperSchema(SampleRecord.class);
-        FlinkKafkaConsumer011<SampleRecord> consumer = StreamingJobCommon.createKafkaConsumer(params, schema);
-        JsonMapperSchema schema2 = new JsonMapperSchema(SampleTag.class);
+        JsonMapperSchema<SampleRecord> schema = new JsonMapperSchema(SampleRecord.class);
+        FlinkKafkaConsumer011<ConsumerRecord<byte[], SampleRecord>> consumer = StreamingJobCommon.createKafkaConsumer(params, schema);
+        JsonMapperSchema<SampleTag> schema2 = new JsonMapperSchema(SampleTag.class);
         FlinkKafkaProducer011<SampleTag> producer = StreamingJobCommon.createKafkaProducer(params, schema2);
 
         // setup streaming execution environment
@@ -38,25 +41,33 @@ public class ComplexEventProcessingJob {
         consumer.setStartFromEarliest();
 
         // create a data stream
-        DataStream<SampleTag> stream = env.addSource(consumer)
-                .rebalance()
-                .keyBy(r -> r.deviceId)
-                .process(new ComplexEventProcessingLogic());
-
-        stream.addSink(producer);
+        ComplexEventProcessingLogic logic = new ComplexEventProcessingLogic();
+        DataStream<ConsumerRecord<byte[], SampleRecord>> s = env.addSource(consumer);
+        buildStream(s, producer, logic);
 
         env.execute("complex event processing");
 
     }
 
-    public static class SampleRecordTSExtractor extends BoundedOutOfOrdernessTimestampExtractor<SampleRecord> {
+
+    static void buildStream(DataStream<ConsumerRecord<byte[], SampleRecord>> source, SinkFunction<SampleTag> producer, KeyedProcessFunction<String, SampleRecord, SampleTag> logic) {
+        DataStream<SampleTag> stream = source
+                .rebalance()
+                .map(c -> c.value())
+                .keyBy(r -> r.deviceId)
+                .process(logic);
+        stream.addSink(producer);
+    }
+
+    public static class SampleRecordTSExtractor extends BoundedOutOfOrdernessTimestampExtractor<ConsumerRecord<byte[], SampleRecord>> {
+
         public SampleRecordTSExtractor() {
             super(Time.seconds(MAX_EVENT_DELAY));
         }
 
         @Override
-        public long extractTimestamp(SampleRecord sampleRecord) {
-            return sampleRecord.createdAt.toEpochMilli();
+        public long extractTimestamp(ConsumerRecord<byte[], SampleRecord> element) {
+            return element.timestamp();
         }
     }
 }
