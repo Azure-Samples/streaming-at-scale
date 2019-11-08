@@ -4,6 +4,7 @@ set -euo pipefail
 
 EVENTHUB_CAPTURE=${EVENTHUB_CAPTURE:-False}
 EVENTHUB_NAMESPACES=${EVENTHUB_NAMESPACES:-$EVENTHUB_NAMESPACE}
+EVENTHUB_NAMES=${EVENTHUB_NAMES:-$EVENTHUB_NAME}
 
 for eventHubsNamespace in $EVENTHUB_NAMESPACES; do
 
@@ -21,11 +22,13 @@ if ! az eventhubs namespace show -n $eventHubsNamespace -g $RESOURCE_GROUP -o no
     -o tsv >> log.txt
 fi
 
+for eventHubName in $EVENTHUB_NAMES; do
+
 echo 'creating eventhub instance'
-echo ". name: $EVENTHUB_NAME"
+echo ". name: $eventHubName"
 echo ". partitions: $EVENTHUB_PARTITIONS"
 
-az eventhubs eventhub create -n $EVENTHUB_NAME -g $RESOURCE_GROUP \
+az eventhubs eventhub create -n $eventHubName -g $RESOURCE_GROUP \
     --message-retention 1 --partition-count $EVENTHUB_PARTITIONS --namespace-name $eventHubsNamespace \
     --enable-capture "$EVENTHUB_CAPTURE" --capture-interval 300 --capture-size-limit 314572800 \
     --archive-name-format '{Namespace}/{EventHub}/{Year}_{Month}_{Day}_{Hour}_{Minute}_{Second}_{PartitionId}' \
@@ -49,8 +52,9 @@ if [ -n "${EVENTHUB_CG:-}" ]; then
     echo ". name: $EVENTHUB_CG"
 
     az eventhubs eventhub consumer-group create -n $EVENTHUB_CG -g $RESOURCE_GROUP \
-        --eventhub-name $EVENTHUB_NAME --namespace-name $eventHubsNamespace \
+        --eventhub-name $eventHubName --namespace-name $eventHubsNamespace \
         -o tsv >> log.txt
     fi
 done
 
+done
