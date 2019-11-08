@@ -93,8 +93,7 @@ helm upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
   --set persistence.storageClass=azure-file \
   --set flink.secrets.KAFKA_IN_LISTEN_JAAS_CONFIG="$KAFKA_IN_LISTEN_JAAS_CONFIG" \
   --set flink.secrets.KAFKA_OUT_SEND_JAAS_CONFIG="$KAFKA_OUT_SEND_JAAS_CONFIG" \
-  --set flink.secrets.KAFKA_OUT_LISTEN_JAAS_CONFIG="$KAFKA_OUT_LISTEN_JAAS_CONFIG" \
-  --set flink.secrets.APPINSIGHTS_INSTRUMENTATIONKEY=$APPINSIGHTS_INSTRUMENTATIONKEY \
+  --set flink.secrets.APPINSIGHTS_INSTRUMENTATIONKEY="$APPINSIGHTS_INSTRUMENTATIONKEY" \
   --set resources.jobmanager.args="{--parallelism , $FLINK_PARALLELISM , $2}"
 
 echo "To get the Flink Job manager UI, run:"
@@ -104,20 +103,7 @@ echo
 }
 
 
-if [ "$FLINK_JOBTYPE" == "stateful" ]; then
-
-  deploy_helm "stateful-relay" "--kafka.in.topic , \"$KAFKA_TOPIC\" , --kafka.in.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_IN_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_IN_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_IN_LISTEN_JAAS_CONFIG)' , --kafka.out.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.out.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , $KAFKA_OUT_SEND_SASL_MECHANISM , --kafka.out.security.protocol , $KAFKA_OUT_SEND_SECURITY_PROTOCOL , --kafka.out.sasl.jaas.config , '\$(KAFKA_OUT_SEND_JAAS_CONFIG)'"
-  deploy_helm "consistency-checker" "--kafka.in.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.in.bootstrap.servers , \"$EVENTHUB_NAMESPACE_OUT.servicebus.windows.net:9093\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_OUT_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_OUT_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_OUT_LISTEN_JAAS_CONFIG)'"
-
-  echo "- To view message throughput per Task Manager, run:"
-  echo "    kubectl logs -l release=flink-consistency-checker,component=taskmanager -c flink"
-  echo "  you should see lines similar to '1> [2019-06-16T07:25:13Z] 956 events/s, avg end-to-end latency 661 ms; 0 non-sequential events []', with the task number and events ingested per second."
-
-else #simple job
-
-  deploy_helm "$FLINK_JOBTYPE" "--kafka.in.topic , \"$KAFKA_TOPIC\" , --kafka.in.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_IN_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_IN_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_IN_LISTEN_JAAS_CONFIG)' , --kafka.out.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.out.bootstrap.servers , \"$KAFKA_OUT_LISTEN_BROKERS\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , $KAFKA_OUT_SEND_SASL_MECHANISM , --kafka.out.security.protocol , $KAFKA_OUT_SEND_SECURITY_PROTOCOL , --kafka.out.sasl.jaas.config , '\$(KAFKA_OUT_SEND_JAAS_CONFIG)'"
-
-fi
+deploy_helm "$FLINK_JOBTYPE" "--kafka.in.topic , \"$KAFKA_TOPIC\" , --kafka.in.bootstrap.servers , \"$KAFKA_IN_LISTEN_BROKERS\" , --kafka.in.request.timeout.ms , \"15000\" , --kafka.in.sasl.mechanism , $KAFKA_IN_LISTEN_SASL_MECHANISM , --kafka.in.security.protocol , $KAFKA_IN_LISTEN_SECURITY_PROTOCOL , --kafka.in.sasl.jaas.config , '\$(KAFKA_IN_LISTEN_JAAS_CONFIG)' , --kafka.out.topic , \"$KAFKA_OUT_TOPIC\" , --kafka.out.bootstrap.servers , \"$KAFKA_OUT_SEND_BROKERS\" , --kafka.out.request.timeout.ms , \"15000\" , --kafka.out.sasl.mechanism , $KAFKA_OUT_SEND_SASL_MECHANISM , --kafka.out.security.protocol , $KAFKA_OUT_SEND_SECURITY_PROTOCOL , --kafka.out.sasl.jaas.config , '\$(KAFKA_OUT_SEND_JAAS_CONFIG)'"
 
 echo "- To list deployed pods, run:"
 echo "    kubectl get pods"

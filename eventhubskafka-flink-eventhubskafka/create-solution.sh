@@ -24,7 +24,7 @@ usage() {
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-i: ingestion: eventhubskafka or hdinsightkafka. Default=$INGESTION_PLATFORM"
     echo "-p: platform: aks or hdinsight. Default=$FLINK_PLATFORM"
-    echo "-a: type of job: 'simple-relay', 'stateful' or 'complex-processing'. Default=$FLINK_JOBTYPE"
+    echo "-a: type of job: 'simple-relay' or 'complex-processing'. Default=$FLINK_JOBTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1;
 }
