@@ -13,4 +13,3 @@ if ! az spring-cloud app show -g $RESOURCE_GROUP -s $SPRING_CLOUD_NAME -n $SPRIN
   az spring-cloud app create -g $RESOURCE_GROUP -s $SPRING_CLOUD_NAME -n $SPRING_CLOUD_APP \
     -o tsv >> log.txt
 fi
-  -D spring.cloud.azure.eventhub.namespace=$EVENTHUB_NAMESPACE \
