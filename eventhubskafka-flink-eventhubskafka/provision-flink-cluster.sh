@@ -45,6 +45,7 @@ else
   # Run as early as possible in script, as principal takes time to become available for RBAC operations.
   source ../components/azure-common/create-service-principal.sh
 
+  source ../components/azure-monitor/create-log-analytics.sh
   source monitoring/provision-applicationinsights.sh
   pushd kubernetes > /dev/null
     source provision-aks-flink-cluster.sh
