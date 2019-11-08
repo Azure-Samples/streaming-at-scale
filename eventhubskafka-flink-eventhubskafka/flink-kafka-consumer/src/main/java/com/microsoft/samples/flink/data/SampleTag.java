@@ -22,4 +22,29 @@ public class SampleTag {
         this.triggerEventId = triggerEventId;
         this.tag = tag;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!SampleTag.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        final SampleTag other = (SampleTag) obj;
+        return this.tag.equals(other.tag) &&
+            this.triggerEventId.equals(other.triggerEventId) &&
+            this.deviceId.equals(other.deviceId);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 17;
+        hash = 31 * hash + (this.tag != null ? this.tag.hashCode() : 0);
+        hash = 31 * hash + (this.triggerEventId != null ? this.triggerEventId.hashCode(): 0);
+        hash = 31 * hash + (this.deviceId != null ? this.deviceId.hashCode(): 0);
+        return hash;
+    }
 }

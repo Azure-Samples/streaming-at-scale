@@ -46,7 +46,7 @@ public class ComplexEventProcessingLogic extends KeyedProcessFunction<String, Sa
         }
 
         Integer nbRecords = state.recordsSize();
-        if (nbRecords > 1 && nbRecords < 10) {
+        if (nbRecords > 1 && nbRecords < SampleState.maxRecords) {
             SampleTag tag = new SampleTag(receivedRecord.deviceId, Instant.now(), receivedRecord.createdAt, receivedRecord.eventId,
                     String.format("%dRecordsForThisKey", nbRecords));
             state.addTag(tag);

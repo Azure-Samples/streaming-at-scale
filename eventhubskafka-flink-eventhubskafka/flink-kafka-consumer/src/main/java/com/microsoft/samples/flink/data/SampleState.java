@@ -39,16 +39,7 @@ public class SampleState implements Serializable {
     }
 
     public Boolean equivalentTagExists(SampleTag tag) {
-        Iterator<SampleTag> iterator = tags.iterator();
-        while (iterator.hasNext()) {
-            SampleTag t = iterator.next();
-            if (tag.tag.equals(t.tag)
-                    && tag.triggerEventId.equals(t.triggerEventId)
-                    && tag.deviceId.equals(t.deviceId)) {
-                return true;
-            }
-        }
-        return false;
+        return tags.contains(tag);
     }
 
     public void addTag(SampleTag tag) {
