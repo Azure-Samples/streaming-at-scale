@@ -8,3 +8,4 @@ slnx.sqlite
 *.azureauth
 .idea
 target
+*.iml

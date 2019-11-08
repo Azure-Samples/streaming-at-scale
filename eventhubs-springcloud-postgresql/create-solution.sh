@@ -57,6 +57,7 @@ if [[ -z "$PREFIX" ]]; then
 fi
 
 export SPRING_CLOUD_NAME=$PREFIX"spring"
+export SPRING_CLOUD_APP="streamingatscale"
 export POSTGRESQL_SKU=GP_Gen5_2
 
 # 10000 messages/sec
@@ -155,6 +156,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-spring-cloud/create-spring-cloud.sh
+        source ./deploy-spring-app.sh
     fi
 echo
 

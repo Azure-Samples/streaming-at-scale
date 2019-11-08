@@ -5,17 +5,11 @@ set -euo pipefail
 echo "retrieving storage account key"
 AZURE_STORAGE_KEY=$(az storage account keys list -g $RESOURCE_GROUP -n $AZURE_STORAGE_ACCOUNT -o tsv --query "[0].value")
 
-echo "retrieving server FQDN"
-server_fqdn=$(az postgres server show -g $RESOURCE_GROUP -n $POSTGRESQL_SERVER_NAME --query fullyQualifiedDomainName -o tsv)
-jdbcUrl="jdbc:postgresql://$server_fqdn/$POSTGRESQL_DATABASE_NAME"
-
-
 echo "deploying azure postgres"
 echo ". server: $POSTGRESQL_SERVER_NAME"
 echo ". database: $POSTGRESQL_DATABASE_NAME"
 
 # Create a logical server in the resource group
-if false; then
 az postgres server create \
     --name $POSTGRESQL_SERVER_NAME \
     --resource-group $RESOURCE_GROUP \
@@ -42,7 +36,10 @@ az postgres db create --resource-group "$RESOURCE_GROUP" \
 echo 'creating file share'
 az storage share create -n dbprovision --account-name $AZURE_STORAGE_ACCOUNT \
     -o tsv >> log.txt
-fi
+
+echo "retrieving server FQDN"
+server_fqdn=$(az postgres server show -g $RESOURCE_GROUP -n $POSTGRESQL_SERVER_NAME --query fullyQualifiedDomainName -o tsv)
+jdbcUrl="jdbc:postgresql://$server_fqdn/$POSTGRESQL_DATABASE_NAME"
 
 echo 'uploading provisioning scripts'
 az storage file upload-batch --source ../components/azure-postgresql/provision/ \
