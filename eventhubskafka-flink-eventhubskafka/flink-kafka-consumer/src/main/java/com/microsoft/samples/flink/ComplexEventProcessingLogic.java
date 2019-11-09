@@ -11,7 +11,6 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Iterator;
 
@@ -21,9 +20,9 @@ public class ComplexEventProcessingLogic extends KeyedProcessFunction<String, Sa
     private transient ValueState<SampleState> valueState;
 
     @Override
-    public void open(Configuration configuration) throws IOException {
+    public void open(Configuration configuration) {
         valueState = getRuntimeContext().getState(
-                new ValueStateDescriptor<SampleState>("records and tags", SampleState.class));
+                new ValueStateDescriptor<>("records and tags", SampleState.class));
     }
 
     @Override
@@ -54,8 +53,8 @@ public class ComplexEventProcessingLogic extends KeyedProcessFunction<String, Sa
         }
 
         // do some computation on the state
-        Integer nbTemperaturesInThe70s = 0;
-        Boolean someCO2IsGreaterThan80 = false;
+        int nbTemperaturesInThe70s = 0;
+        boolean someCO2IsGreaterThan80 = false;
         Iterator<SampleRecord> iterator = state.recordsIterator();
         while (iterator.hasNext()) {
             SampleRecord r = iterator.next();

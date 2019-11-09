@@ -1,6 +1,8 @@
-package com.microsoft.samples.flink.data;
+package com.microsoft.samples.flink;
 
-import com.microsoft.samples.flink.ComplexEventProcessingLogic;
+import com.microsoft.samples.flink.data.SampleData;
+import com.microsoft.samples.flink.data.SampleRecord;
+import com.microsoft.samples.flink.data.SampleTag;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.operators.KeyedProcessOperator;
@@ -11,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -111,7 +114,7 @@ public class ComplexEventJobProcessingLogicTest {
         testHarness.setProcessingTime(time);
 
         //retrieve list of emitted records for assertions
-        Iterator<StreamElement> vi = testHarness.getOutput().iterator();
+        Iterator<StreamElement> vi = (Iterator) testHarness.getOutput().iterator();
 
         // verify results
         SampleTag tag;
@@ -133,7 +136,7 @@ public class ComplexEventJobProcessingLogicTest {
         tag = vi.next().<SampleTag>asRecord().getValue();
         assertEquals(sampleRecord1.deviceId, tag.deviceId);
         assertEquals("NoNewsForAtLeast45000ms", tag.tag);
-        Watermark w = vi.next().asWatermark();
+        vi.next().asWatermark();
 
         assertFalse(vi.hasNext());
     }
