@@ -6,7 +6,7 @@ set -euo pipefail
 databricksResourceGroup=${DATABRICKS_VNET_RESOURCE_GROUP:-$RESOURCE_GROUP}
 
 echo "Getting VNET ids"
-databricks_vnet_name="databricks-vnet"
+databricks_vnet_name="${DATABRICKS_VNET:-databricks-vnet}"
 databricks_vnet_id=$(az network vnet show -g $databricksResourceGroup -n $databricks_vnet_name --query id --out tsv)
 hdinsight_vnet_id=$(az network vnet show -g $RESOURCE_GROUP -n $VNET_NAME --query id --out tsv)
 hdinsight_peering_name="HDInsightToDatabricks-$databricksResourceGroup-$databricks_vnet_name"

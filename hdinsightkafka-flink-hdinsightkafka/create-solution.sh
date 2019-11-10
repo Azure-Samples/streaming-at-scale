@@ -7,7 +7,6 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTM"
-export INGESTION_PLATFORM='eventhubskafka'
 export FLINK_PLATFORM='aks'
 export FLINK_JOBTYPE='simple-relay'
 
@@ -142,7 +141,7 @@ echo
 echo "Configuration: "
 echo ". Resource Group      => $RESOURCE_GROUP"
 echo ". Region              => $LOCATION"
-echo ". EventHubs           => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo ". HDInsight Kafka     => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS"
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
   echo ". HDInsight YARN      => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS"
 else
@@ -175,16 +174,14 @@ echo "***** [I] Setting up INGESTION"
 
     export KAFKA_TOPIC="in"
     export KAFKA_OUT_TOPIC="out"
-    export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"
-    export EVENTHUB_NAMESPACE_OUT=$PREFIX"eventhubsout"
-    export EVENTHUB_NAMESPACES="$EVENTHUB_NAMESPACE $EVENTHUB_NAMESPACE_OUT"
-    export EVENTHUB_NAMES="$KAFKA_TOPIC $KAFKA_OUT_TOPIC"
-    export EVENTHUB_CG="verify"
-    export EVENTHUB_ENABLE_KAFKA="true"
+    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
+    export HDINSIGHT_KAFKA_NAME=$PREFIX"hdikafka"
+    export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/create-event-hub.sh
+        source ../components/azure-monitor/create-log-analytics.sh
+        source ../components/azure-hdinsight/create-hdinsight-kafka.sh
     fi
 echo
 
@@ -203,8 +200,8 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/apache-flink/build-flink-jobs.sh
-        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers-in-listen.sh
-        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers-out-send.sh
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers-in-listen.sh
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers-out-send.sh
         source ../components/apache-flink/$FLINK_PLATFORM/run-flink.sh 
     fi
 echo
@@ -213,7 +210,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh "$EVENTHUB_NAMESPACE" "Send"
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
         source ../simulator/run-generator-kafka.sh
     fi
 echo
@@ -222,7 +219,8 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/report-throughput.sh
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
+        source ../components/azure-hdinsight/report-throughput.sh
     fi
 echo
 
@@ -235,8 +233,8 @@ echo "***** [V] Starting deployment VERIFICATION"
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        export EVENTHUB_NAME="$KAFKA_OUT_TOPIC"
-        source ../streaming/databricks/runners/verify-eventhubs.sh
+        source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
+        source ../streaming/databricks/runners/verify-kafka.sh
     fi
 echo
 
