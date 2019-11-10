@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-source ../components/azure-monitor/create-log-analytics.sh
-
 echo 'creating storage container'
 echo ". name: $HDINSIGHT_YARN_NAME"
 

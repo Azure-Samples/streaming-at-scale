@@ -115,10 +115,6 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 The solution does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in the destination Event Hub.
 
-The Flink job performs event deduplication thanks to an in-memory idempotent repository with a fixed size. This deduplicates events coming in short succession, but does not guarantee exactly-once delivery as Flink may resend events that have been received by the destination Event Hub, but for which the acknowledgement did not reach Flink because of a transient failure (e.g. in the network). Furthermore, following the failure and restarting of a Task Manager, Flink may reprocess events in the window since the last checkpoint (500 milliseconds).
-
-In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). In a typical test run of the solution, no transient failures occur, therefore no duplicates are observed in the destination Event Hubs.
-
 ## Solution customization
 
 If you want to change some setting of the solution, like number of load test clients, event hubs TU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:

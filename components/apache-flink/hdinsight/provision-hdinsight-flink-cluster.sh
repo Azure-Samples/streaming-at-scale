@@ -3,8 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-source hdinsight/create-hdinsight.sh
-
 container=flinkscriptaction
 
 echo 'creating script action storage container'
@@ -31,7 +29,7 @@ echo 'running script action'
 az hdinsight script-action execute -g $RESOURCE_GROUP --cluster-name $HDINSIGHT_YARN_NAME \
   --name StartFlinkCluster \
   --script-uri "$script_uri" \
-  --script-parameters "'$FLINK_VERSION' '$FLINK_SCALA_VERSION'" \
+  --script-parameters "'$FLINK_VERSION' '2.12'" \
   --roles workernode \
   -o tsv >> log.txt
 

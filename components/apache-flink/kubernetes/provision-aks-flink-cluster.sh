@@ -44,6 +44,9 @@ AKS_CLIENT_ID=$(az aks show --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER
 # Get the ACR registry resource id
 ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "id" --output tsv)
 
+# Get the Application insights key
+APPINSIGHTS_INSTRUMENTATIONKEY=$(az monitor app-insights component show --app $APPINSIGHTS_NAME -g $RESOURCE_GROUP --query instrumentationKey -o tsv)
+
 # Create role assignment
 existing_role=$(az role assignment list --assignee $AKS_CLIENT_ID --role acrpull --scope $ACR_ID -o tsv)
 if [ -z "$existing_role" ]; then
