@@ -6,7 +6,7 @@ set -euo pipefail
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
-export STEPS="CIDPTMV"
+export STEPS="CIDPTV"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -48,10 +48,12 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
+export AKS_VM_SIZE=Standard_D2s_v3
+export AKS_KUBERNETES_VERSION=1.14.7
+
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export NODE_COUNT=9
-    export VM_SIZE=Standard_DS2_v2
+    export AKS_NODES=9
     export COSMOSDB_RU=100000
     export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
@@ -61,8 +63,7 @@ fi
 
 # 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export NODE_COUNT=6
-    export VM_SIZE=Standard_DS2_v2
+    export AKS_NODES=6
     export COSMOSDB_RU=50000
     export SIMULATOR_INSTANCES=3
     export DATABRICKS_NODETYPE=Standard_DS3_v2
@@ -72,10 +73,9 @@ fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export NODE_COUNT=3
-    export VM_SIZE=Standard_DS2_v2
+    export AKS_NODES=3
     export COSMOSDB_RU=20000
-    export SIMULATOR_INSTANCES=1 
+    export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
@@ -110,7 +110,7 @@ echo
 echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
-echo ". AKS Kafka       => Node Count: $NODE_COUNT, VM: $VM_SIZE"
+echo ". AKS Kafka       => Node Count: $AKS_NODES, VM: $AKS_VM_SIZE"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
 echo ". CosmosDB        => RU: $COSMOSDB_RU"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
@@ -121,11 +121,18 @@ echo
 
 echo "***** [C] Setting up COMMON resources"
 
+    export AKS_CLUSTER=$PREFIX"aks" 
+    export SERVICE_PRINCIPAL_KV_NAME=$AKS_CLUSTER
+    export SERVICE_PRINCIPAL_KEYVAULT=$PREFIX"spkv"
+    export ACR_NAME=$PREFIX"acr"
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
+    export VNET_NAME=$PREFIX"-vnet"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
+        source ../components/azure-common/create-service-principal.sh
+        source ../components/azure-common/create-virtual-network.sh
         source ../components/azure-storage/create-storage-account.sh
     fi
 echo 
@@ -133,7 +140,6 @@ echo
 echo "***** [I] Setting up INGESTION"
     
     export KAFKA_TOPIC=$PREFIX"topic"
-    export AKS_CLUSTER_NAME=$PREFIX"aks" 
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
@@ -174,15 +180,6 @@ echo "***** [T] Starting up TEST clients"
         source ../components/azure-kubernetes-service/get-aks-kafka-brokers.sh
         source ../simulator/run-generator-kafka.sh
     fi
-echo
-
-echo "***** [M] Starting METRICS reporting"
-
-    # RUN=`echo $STEPS | grep M -o || true`
-    # if [ ! -z "$RUN" ]; then
-    #     # TODO: Create aks report-throughput.sh
-    #     # source ../components/azure-event-hubs/report-throughput.sh
-    # fi
 echo
 
 echo "***** [V] Starting deployment VERIFICATION"

@@ -2,7 +2,7 @@
   {
     "enabled": true,
     "stage": "2",
-    "short": "efc1",
+    "short": "ekfc1",
     "steps": "CIDPTMV",
     "minutes": "10",
     "throughput": "1",

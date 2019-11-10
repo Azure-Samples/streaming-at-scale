@@ -122,8 +122,8 @@ In order to illustrate the effect of this, the event simulator is configured to 
 
 If you want to change some setting of the solution, like the number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
-    export NODE_COUNT=9
-    export VM_SIZE=Standard_DS2_v2
+    export AKS_NODES=3
+    export AKS_VM_SIZE=Standard_DS2_v2
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2

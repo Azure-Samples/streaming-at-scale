@@ -2,8 +2,8 @@
     {
       "enabled": true,
       "stage": "2",
-      "short": "kdc1",
-      "steps": "CIDPTMV",
+      "short": "kkdc1",
+      "steps": "CIDPTV",
       "minutes": "20",
       "throughput": "1",
       "extra_args": []

@@ -4,7 +4,7 @@ The simulator is written using PySpark library that uses pre-compiled Apache Spa
 
 The simulator can only be used with `create-solution.sh` bash  integration script under every folder in this repo. 
 
-The following steps need to be performed to run it standalone
+To run the simulator in a development environment, perform the following steps.
 
 ## Prerequisites
 

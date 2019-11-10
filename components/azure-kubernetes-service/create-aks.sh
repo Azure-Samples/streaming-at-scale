@@ -1,45 +1,41 @@
 #!/bin/bash
 
-# set up service principal
-read -p $'Please enter your service principal client ID.\n' SERVICE_PRINCIPAL
-read -p $'Please enter your service principal password.\n' SERVICE_PRINCIPAL_SECRET
-echo
-#TODO: VALIDATE INPUT
+# Strict mode, fail on any error
+set -euo pipefail
 
-echo 'Creating aks cluster'
+echo 'creating AKS cluster, if not already existing'
+echo ". name: $AKS_CLUSTER"
 
-# creating aks cluster
-az aks create --name $AKS_CLUSTER_NAME --resource-group $RESOURCE_GROUP --node-count $NODE_COUNT --node-vm-size $VM_SIZE --generate-ssh-keys --service-principal $SERVICE_PRINCIPAL --client-secret $SERVICE_PRINCIPAL_SECRET
+if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null 2>&1; then
+  echo "getting Subnet ID"
+  subnet_id=$(az network vnet subnet show -g $RESOURCE_GROUP -n streaming-subnet --vnet-name $VNET_NAME --query id -o tsv)
 
-echo 'Getting credentials'
+  echo "getting Service Principal ID and password"
+  appId=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-id --query value -o tsv)
+  password=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-password --query value -o tsv)
 
-# get credentials for kubernetes
-az aks get-credentials -n $AKS_CLUSTER_NAME -g $RESOURCE_GROUP
+  echo 'creating AKS cluster'
+  echo ". name: $AKS_CLUSTER"
+  az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP \
+    --node-count $AKS_NODES -s $AKS_VM_SIZE \
+    -k $AKS_KUBERNETES_VERSION \
+    --generate-ssh-keys \
+    --service-principal $appId --client-secret $password \
+    --vnet-subnet-id $subnet_id \
+    --network-plugin kubenet \
+    --enable-addons monitoring \
+    --service-cidr 192.168.0.0/16 \
+    --dns-service-ip 192.168.0.10 \
+    --pod-cidr 10.244.0.0/16 \
+    --docker-bridge-address 172.17.0.1/16 \
+    -o tsv >> log.txt
+fi
+az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
-echo 'Initing helm inside the cluster'
+# Get the id of the service principal configured for AKS
+AKS_CLIENT_ID=$(az aks show --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --query "servicePrincipalProfile.clientId" --output tsv)
 
-# installing helm inside cluster
-helm init
+echo 'deploying Helm'
 
-echo 'Fixing permission problems for tiller'
-
-# fixing authorizations for tiller inside aks
-kubectl create serviceaccount --namespace kube-system tiller
-kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
-
-echo 'Creating kubectl namespace'
-
-# following the repo instructions, this deploys the operator with helm
-kubectl create namespace kafka
-helm repo add strimzi http://strimzi.io/charts/
-helm install strimzi/strimzi-kafka-operator --namespace kafka --name kafka-operator
-
-echo 'Creating kafka inside kubernetes'
-
-# installing all the yaml files from the repo inside aks
-kubectl create -n kafka -f ../components/azure-kubernetes-service/simple-kafka.yaml
-kubectl create -n kafka -f ../components/azure-kubernetes-service/kafka-topics.yaml
-
-# finish all the steps
-echo 'Done creating kafka inside aks'
+kubectl apply -f ../../components/azure-kubernetes-service/helm-rbac.yaml
+helm init --service-account tiller --wait
