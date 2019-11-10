@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Create service principal for consumer clients to read Data Explorer data (used by Databricks verification job).
+# Create service principal for RBAC and store it in Key Vault, so that it can be reused in idempotent script runs.
 # Run as early as possible in scripts, as principal takes time to become available for RBAC operations.
 
 set -euo pipefail
