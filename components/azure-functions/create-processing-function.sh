@@ -5,10 +5,10 @@ set -euo pipefail
 
 PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 
-echo 'creating app service plan'
+echo 'creating function app plan'
 echo ". name: $PLAN_NAME"
-az appservice plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
-    --number-of-workers $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
+az functionapp plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
+    --max-burst $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
     -o tsv >> log.txt
 
 echo 'creating function app'
@@ -43,5 +43,9 @@ az functionapp deployment source config-zip \
 echo 'removing local zip file'
 rm -f $PROC_PACKAGE_PATH
 
-echo 'getting shared access key'
-EVENTHUB_CS=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv`
+echo ". DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=false"
+echo "(this is set because of this https://github.com/Azure/Azure-Functions/issues/1067)"
+az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
+    --resource-group $RESOURCE_GROUP \
+    --settings DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=false \
+    -o tsv >> log.txt
