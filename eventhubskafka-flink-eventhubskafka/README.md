@@ -134,20 +134,26 @@ The deployment script will report performance, by default every minute for 30 mi
 ***** [M] Starting METRICS reporting
 Event Hub capacity: 2 throughput units (this determines MAX VALUE below).
 Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
-                        Event Hub #   IncomingMessages  IncomingBytes  OutgoingMessages   OutgoingBytes  ThrottledRequests
-                        -----------   ----------------  -------------  ----------------   -------------  -----------------
-              MAX VALUE                         120000      120000000            491520       240000000                  -
-                        -----------   ----------------  -------------  ----------------   -------------  -----------------
-    2019-10-03T07:57:00           1                  0              0                 0               0                  0
-    2019-10-03T07:57:00           2                  0              0                 0               0                  0
-    2019-10-03T07:58:00           1              24050       22809797             24050        22809797                  0
-    2019-10-03T07:58:00           2                  0              0                 0               0                  0
-    2019-10-03T07:59:01           1              60037       56940526             60037        56940526                  0
-    2019-10-03T07:59:01           2                341       62393762                 0               0                  0
-    2019-10-03T08:00:00           1              60090       56989878             60090        56989878                  0
-    2019-10-03T08:00:00           2                375       65683281                 0               0                  0
-    2019-10-03T08:01:00           1              60036       56940643             60036        56940643                  0
-    2019-10-03T08:01:00           2                376       65708824                 0               0                  0
+                         Event Hub #  IncomingMessages  IncomingBytes  OutgoingMessages  OutgoingBytes  ThrottledRequests
+                         -----------  ----------------  -------------  ----------------  -------------  -----------------
+              MAX VALUE                         120000      120000000            491520      240000000                  -
+                         -----------  ----------------  -------------  ----------------  -------------  -----------------
+    2019-11-10T08:17:44            1                 0              0                 0              0                  0
+    2019-11-10T08:17:44            2                 0              0                 0              0                  0
+    2019-11-10T08:18:00            1                 0              0                 0              0                  0
+    2019-11-10T08:18:00            2                 0              0                 0              0                  0
+    2019-11-10T08:19:00            1                 0              0                 0              0                  0
+    2019-11-10T08:19:00            2                 0              0                 0              0                  0
+    2019-11-10T08:22:37            1                 0              0                 0              0                  0
+    2019-11-10T08:22:37            2                 0              0                 0              0                  0
+    2019-11-10T08:23:00            1             43163       40022882             43163       40365390                  0
+    2019-11-10T08:23:00            2             37007       37332787                 0              0                  0
+    2019-11-10T08:24:00            1             59966       55621703             59966       56097577                  0
+    2019-11-10T08:24:00            2             59943       60488690                 0              0                  0
+    2019-11-10T08:25:00            1             60258       55947759             60258       56425866                  0
+    2019-11-10T08:25:00            2             60117       60728670                 0              0                  0
+    2019-11-10T08:26:00            1             60027       55738691             60027       56214951                  0
+    2019-11-10T08:26:00            2             60003       60612850                 0              0                  0
 ```
 
 In column "Event Hub #", 1 refers to the Event Hub used as input to
@@ -165,14 +171,16 @@ The solution includes a custom monitoring library to log Flink events and metric
 
 The Flink Job Manager UI shows information about the current running job. The IP address of the Job Manager UI is reported by the deployment script. Note that the solution deploys the Job Manager on a public IP address without any security. In a production deployment, you should disable public IP endpoints.
 
-## Flink deployment on AKS
+![Flink Job Manager Web UI](../_doc/_images/flink-job-manager.png)
+
+### Flink deployment on AKS
 
 Deployment on Azure Kubernetes Service is done in single-job, highly available mode. The deployment includes:
 * A Zookeeper cluster for maintaining quorum
 * A pod for the (per-job) Flink Job Manager
 * A pod for each Flink Task Manager deployed as part of the job
 
-## Flink deployment on HDInsight
+### Flink deployment on HDInsight
 
 Deployment on HDInsight is done in job server, highly available mode. The deployment runs a YARN job for the Flink Job Manager, then submits a JAR job to the Job Manager. The Job Manager creates a YARN application per job.
 
