@@ -19,7 +19,6 @@ if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null
   appId=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-id --query value -o tsv)
   password=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-password --query value -o tsv)
 
-set -x
   echo 'creating AKS cluster'
   echo ". name: $AKS_CLUSTER"
   az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP \
