@@ -3,6 +3,9 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
+echo 'getting shared access key'
+source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$EVENTHUB_NAMESPACE" "Listen"
+
 echo 'adding app settings for connection strings'
 
 echo ". EventHubsConnectionString"

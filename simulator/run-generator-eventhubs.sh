@@ -17,7 +17,7 @@ if [ "$mode" == "kafka" ]; then
 fi
 
 echo 'getting Event Hub connection string'
-EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Send --query "primaryConnectionString" -o tsv)
+source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$EVENTHUB_NAMESPACE" "Send"
 
 OUTPUT_FORMAT="eventhubs"
 OUTPUT_OPTIONS="{}"

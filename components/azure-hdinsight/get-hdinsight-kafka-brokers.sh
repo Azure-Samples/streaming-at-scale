@@ -16,6 +16,11 @@ for host in $kafka_hostnames; do
     kafka_brokers="$kafka_brokers,$host_ip:9092"
 done
 
+if [ -z "$kafka_brokers" ]; then
+  echo "No Kafka brokers found"
+  exit 1
+fi
+
 #remove initial comma from string
 export KAFKA_BROKERS=${kafka_brokers:1}
 export KAFKA_SECURITY_PROTOCOL=PLAINTEXT

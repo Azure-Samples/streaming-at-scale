@@ -144,6 +144,7 @@ echo "***** [I] Setting up INGESTION"
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-kubernetes-service/create-aks.sh
+        source ../components/azure-kubernetes-service/deploy-aks-kafka.sh
     fi
 echo
 
@@ -167,8 +168,8 @@ echo "***** [P] Setting up PROCESSING"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-databricks/create-databricks.sh
         source ../components/azure-kubernetes-service/get-aks-kafka-brokers.sh 
+        source ../components/azure-databricks/create-databricks.sh
         source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo

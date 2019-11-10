@@ -37,5 +37,5 @@ AKS_CLIENT_ID=$(az aks show --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER
 
 echo 'deploying Helm'
 
-kubectl apply -f ../../components/azure-kubernetes-service/helm-rbac.yaml
+kubectl apply -f ../components/azure-kubernetes-service/helm-rbac.yaml
 helm init --service-account tiller --wait
