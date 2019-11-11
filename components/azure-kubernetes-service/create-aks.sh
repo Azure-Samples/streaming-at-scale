@@ -14,6 +14,9 @@ if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null
   appId=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-id --query value -o tsv)
   password=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-password --query value -o tsv)
 
+  echo "getting Log Analytics workspace ID"
+  analytics_ws_resourceId=$(az resource show -g $RESOURCE_GROUP -n $LOG_ANALYTICS_WORKSPACE --resource-type Microsoft.OperationalInsights/workspaces --query id -o tsv)
+
   echo 'creating AKS cluster'
   echo ". name: $AKS_CLUSTER"
   az aks create --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP \
@@ -28,6 +31,7 @@ if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null
     --dns-service-ip 192.168.0.10 \
     --pod-cidr 10.244.0.0/16 \
     --docker-bridge-address 172.17.0.1/16 \
+    --workspace-resource-id $analytics_ws_resourceId \
     -o tsv >> log.txt
 fi
 
