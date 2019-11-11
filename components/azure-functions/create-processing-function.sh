@@ -7,8 +7,17 @@ PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 
 echo 'creating function app plan'
 echo ". name: $PLAN_NAME"
+
+if [ "${PROC_FUNCTION_SKU:0:1}" == "E" ]; then
+  echo ". max burst: $PROC_FUNCTION_WORKERS"
+  workers_argname="max-burst"
+else
+  echo ". workers: $PROC_FUNCTION_WORKERS"
+  workers_argname="number-of-workers"
+fi
+
 az functionapp plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
-    --max-burst $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
+    --$workers_argname $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
     -o tsv >> log.txt
 
 echo 'creating function app'
