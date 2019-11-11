@@ -42,8 +42,8 @@ az storage share create -n sqlprovision --connection-string $AZURE_STORAGE_CONNE
 
 echo 'uploading provisioning scripts'
 az storage file upload --source ../components/azure-sql/provision/provision.sh \
-    --share-name sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING #\
-    ##-o tsv >> log.txt
+    --share-name sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
+    -o tsv >> log.txt
 az storage file upload-batch --source ../components/azure-sql/provision/$SQL_TYPE \
     --destination sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
     -o tsv >> log.txt
@@ -58,8 +58,8 @@ az container create -g $RESOURCE_GROUP -n "$instanceName" \
     --environment-variables SQL_SERVER_NAME=$SQL_SERVER_NAME SQL_DATABASE_NAME=$SQL_DATABASE_NAME \
     --secure-environment-variables SQL_ADMIN_PASS="$SQL_ADMIN_PASS" \
     --cpu 1 --memory 1 \
-    --restart-policy Never \
-    -o tsv >> log.txt
+    --restart-policy Never 
+    ##-o tsv >> log.txt
 
 TIMEOUT=60
 for i in $(seq 1 $TIMEOUT); do
@@ -74,13 +74,12 @@ if [ "$containerState" != "Succeeded" ]; then
   az container logs  -g $RESOURCE_GROUP -n "$instanceName"
 fi
 
-az container logs  -g $RESOURCE_GROUP -n "$instanceName"
+echo "SQL provisioning: $containerState"
 
 echo 'deleting container instance'
 az container delete -g $RESOURCE_GROUP -n "$instanceName" --yes \
     -o tsv >> log.txt
 
-if [ "$containerState" != "Succeeded" ]; then
-  echo "SQL provisioning FAILED"
+if [ "$containerState" != "Succeeded" ]; then  
   exit 1
 fi

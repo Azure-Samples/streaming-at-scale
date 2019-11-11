@@ -1,7 +1,5 @@
 DROP TABLE IF EXISTS [dbo].[rawdata];
-DROP TABLE IF EXISTS [dbo].[rawdata_cs];
 DROP PROCEDURE IF EXISTS [dbo].[stp_WriteData];
-DROP PROCEDURE IF EXISTS [dbo].[stp_WriteData_cs];
 DROP TYPE IF EXISTS [dbo].[payloadType];
 BEGIN TRY
 	DROP PARTITION SCHEME [ps_af];
@@ -56,79 +54,44 @@ CREATE TABLE [dbo].[rawdata]
 	[EnqueuedAt] [datetime2](7) NOT NULL,
 	[ProcessedAt] [datetime2](7) NOT NULL,
 	[StoredAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
-	CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED 
-	(
-		[EventId] ASC,
-		[PartitionId] ASC
-	) 
+	[PartitionId] [int] NOT NULL
 ) ON [ps_af]([PartitionId])
 GO
 
 ALTER TABLE [dbo].[rawdata]  WITH NOCHECK ADD CHECK  ((isjson([ComplexData])=1))
 GO
 
-CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] (CreatedAt, PartitionId) ON [ps_af]([PartitionId])
+CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
-CREATE TABLE [dbo].[rawdata_cs]
-(
-	[BatchId] [uniqueidentifier] NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	[Type] [varchar](10) NOT NULL,
-	[DeviceId] [varchar](100) NOT NULL,
-	[DeviceSequenceNumber] [bigint] NOT NULL,
-	[CreatedAt] [datetime2](7) NOT NULL,
-	[Value] [numeric](18, 0) NOT NULL,
-	[ComplexData] [nvarchar](max) NOT NULL,
-	[EnqueuedAt] [datetime2](7) NOT NULL,
-	[ProcessedAt] [datetime2](7) NOT NULL,
-	[StoredAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
- 	CONSTRAINT [pk__rawdata_cs] PRIMARY KEY NONCLUSTERED 
+ALTER TABLE dbo.[rawdata] 
+ADD CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED 
 	(
 		[EventId] ASC,
 		[PartitionId] ASC
-	)
-) ON [ps_af]([PartitionId])
+	)  WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
-ALTER TABLE [dbo].[rawdata_cs]  WITH CHECK ADD CHECK ((isjson([ComplexData])=1))
+CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId], [DeviceSequenceNumber]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
-CREATE CLUSTERED COLUMNSTORE INDEX [ixccs] ON [dbo].[rawdata_cs] ON [ps_af]([PartitionId])
+CREATE NONCLUSTERED INDEX ix2 ON [dbo].[rawdata] ([BatchId]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
-create procedure [dbo].[stp_WriteData] 
-@payload as dbo.payloadType readonly
-as
+CREATE OR ALTER PROCEDURE [dbo].[stp_WriteData] 
+@payload AS dbo.payloadType READONLY
+AS
+BEGIN
+	declare @buid uniqueidentifier = newId() 
 
-declare @buid uniqueidentifier = newId() 
-
-insert into dbo.rawdata 
-	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
-select
-	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
-	sysutcdatetime() as StoredAt
-from
-	@payload
+	insert into dbo.rawdata 
+		([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	select
+		@buid as BatchId, 	
+		[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+		sysutcdatetime() as StoredAt
+	from
+		@payload
+	;
+END
 GO
-
-create procedure [dbo].[stp_WriteData_cs] 
-@payload as dbo.payloadType readonly
-as
-
-declare @buid uniqueidentifier = newId() 
-
-insert into dbo.rawdata_cs
-	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
-select
-	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
-	sysutcdatetime() as StoredAt
-from
-	@payload
-GO
-
-
