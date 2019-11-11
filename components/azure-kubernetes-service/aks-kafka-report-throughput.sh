@@ -19,7 +19,7 @@ for i in $(seq 1 $REPORT_THROUGHPUT_MINUTES) ; do
   InsightsMetrics 
   | where Namespace == 'prometheus'
   | extend tags = parse_json(Tags)
-  | filter tags.topic == 'algattik01atopic'
+  | filter tags.topic == '$KAFKA_TOPIC'
   | partition by Name (
    sort by TimeGenerated 
   | project 

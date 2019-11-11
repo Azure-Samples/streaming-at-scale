@@ -132,6 +132,40 @@ If you want to change some setting of the solution, like the number of load test
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
+## Monitor performance
+
+In order to monitor performance of created solution you just have to open the created Application Insight resource and then open the "Live Metric Streams" and you'll be able to see in the "incoming request" the number of processed request per second. The number you'll see here is very likely to be lower than the number of messages/second sent by test clients since the Azure Function is configured to use batching".
+
+Performance will be monitored and displayed on the console for 30 minutes also. The script queries Log Analytics for the latest metrics from Kafka (note that because of ingestion latency in Log Analytics, the data may be updated at a less frequent interval.
+If everything is working correctly, the number of reported `IncomingBytes` and `OutgoingBytes` should be roughly the same, after a few minutes of ramp-up.
+
+```
+***** [M] Starting METRICS reporting
+Extension 'log-analytics' is already installed.
+Reporting aggregate metrics per minute, for 30 minutes.
+                        IncomingMessages  IncomingBytes  OutgoingBytes
+                        ----------------  -------------  -------------
+  2019-11-11T17:01:02Z             60061       55892402              0
+  2019-11-11T17:01:02Z             60061       55892402              0
+  2019-11-11T17:01:02Z             60061       55892402              0
+  2019-11-11T17:01:02Z             60061       55892402              0
+  2019-11-11T17:08:02Z             60062       55897441              0
+  2019-11-11T17:10:03Z             59076       55906449              0
+  2019-11-11T17:10:03Z             59076       55906449              0
+  2019-11-11T17:12:02Z             60057       56852803              0
+  2019-11-11T17:14:03Z             59072       55886626              0
+  2019-11-11T17:14:03Z             59072       55886626              0
+  2019-11-11T17:14:03Z             59072       55886626              0
+  2019-11-11T17:16:01Z             61059       56801943       43583270
+  2019-11-11T17:16:01Z             61059       56801943       43583270
+  2019-11-11T17:17:02Z             59084       55415913       43583270
+  2019-11-11T17:17:02Z             59084       55415913       43583270
+  2019-11-11T17:17:02Z             59084       55415913       43583270
+  2019-11-11T17:19:02Z             60045       55884654       51995504
+  2019-11-11T17:19:02Z             60045       55884654       51995504
+  2019-11-11T17:19:02Z             60045       55884654       51995504
+```
+
 ## Azure Databricks
 
 At present time the Cosmos DB Spark Connector *does not* suport `timestamp` data type. If you try to send to Cosmos DB a dataframe containing a timestamp, in fact, you'll get the followin error:
@@ -152,7 +186,7 @@ When scaling up you may have noticed that you need more RU that would you could 
 
 Look at the details of the [Azure Functions sample](../eventhubs-functions-cosmosdb#cosmos-db) to see a detailed description of mentioned concepts.
 
-## Strimzi Operator
+## Strimzi Kafka Operator
 
 This sample is using the strimzi operator to deploy Kafka on top of Kubernetes. To learn
 more about this operator, you can go to the [official website](https://strimzi.io/), which
