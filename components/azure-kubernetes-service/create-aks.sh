@@ -37,8 +37,8 @@ fi
 
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
-# Get the id of the service principal configured for AKS
-AKS_CLIENT_ID=$(az aks show --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --query "servicePrincipalProfile.clientId" --output tsv)
+# Enable Prometheus metrics collection
+kubectl --context $AKS_CLUSTER apply -f ../components/azure-kubernetes-service/container-azm-ms-agentconfig.yaml 
 
 echo 'deploying Helm'
 

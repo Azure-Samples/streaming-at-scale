@@ -6,7 +6,7 @@ set -euo pipefail
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
-export STEPS="CIDPTV"
+export STEPS="CIDPTMV"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -182,6 +182,14 @@ echo "***** [T] Starting up TEST clients"
     if [ ! -z "$RUN" ]; then
         source ../components/azure-kubernetes-service/get-aks-kafka-brokers.sh
         source ../simulator/run-generator-kafka.sh
+    fi
+echo
+
+echo "***** [M] Starting METRICS reporting"
+
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-kubernetes-service/aks-kafka-report-throughput.sh
     fi
 echo
 
