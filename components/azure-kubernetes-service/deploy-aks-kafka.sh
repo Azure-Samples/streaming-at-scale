@@ -3,12 +3,14 @@
 echo 'Creating kubectl namespace'
 
 # following the repo instructions, this deploys the operator with helm
-kubectl create namespace kafka
+if ! kubectl --context $AKS_CLUSTER get namespace kafka; then
+  kubectl --context $AKS_CLUSTER create namespace kafka
+fi
 helm repo add strimzi http://strimzi.io/charts/
-helm install strimzi/strimzi-kafka-operator --namespace kafka --name kafka-operator
+
+#"helm upgrade --install" is the idempotent version of "helm install --name"
+helm --kube-context $AKS_CLUSTER upgrade --install --namespace kafka kafka-operator strimzi/strimzi-kafka-operator
 
 echo 'Creating kafka inside kubernetes'
 
-# installing all the yaml files from the repo inside aks
-kubectl create -n kafka -f ../components/azure-kubernetes-service/simple-kafka.yaml
-kubectl create -n kafka -f ../components/azure-kubernetes-service/kafka-topics.yaml
+helm --kube-context $AKS_CLUSTER upgrade --install --namespace kafka kafka-cluster ../components/azure-kubernetes-service/helm/strimzi-kafka-cluster/

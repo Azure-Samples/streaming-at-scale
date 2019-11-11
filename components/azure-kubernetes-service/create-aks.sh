@@ -30,6 +30,7 @@ if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null
     --docker-bridge-address 172.17.0.1/16 \
     -o tsv >> log.txt
 fi
+
 az aks get-credentials --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP --overwrite-existing
 
 # Get the id of the service principal configured for AKS
@@ -37,5 +38,5 @@ AKS_CLIENT_ID=$(az aks show --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER
 
 echo 'deploying Helm'
 
-kubectl apply -f ../components/azure-kubernetes-service/helm-rbac.yaml
-helm init --service-account tiller --wait
+kubectl --context $AKS_CLUSTER apply -f ../components/azure-kubernetes-service/helm/helm-rbac.yaml
+helm --kube-context $AKS_CLUSTER init --service-account tiller --wait

@@ -1,0 +1,53 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: Kafka
+metadata:
+  name: kcluster
+spec:
+  kafka:
+    version: 2.2.1
+    replicas: 3
+    logging:
+      type: inline
+      loggers:
+        kafka.root.logger.level: INFO, kafkaAppender
+        log4j.logger.org.I0Itec.zkclient.ZkClient: INFO
+        log4j.logger.org.apache.zookeeper: INFO
+        log4j.logger.kafka: INFO
+        log4j.logger.org.apache.kafka: INFO
+        log4j.logger.kafka.request.logger: INFO
+        log4j.logger.kafka.network.Processor: INFO
+        log4j.logger.kafka.server.KafkaApis: INFO
+        log4j.logger.kafka.controller: INFO
+        log4j.logger.kafka.log.LogCleaner: INFO
+        log4j.logger.state.change.logger: INFO
+        log4j.logger.kafka.authorizer.logger: INFO
+        # log4j server.log
+        log4j.appender.kafkaAppender: org.apache.log4j.DailyRollingFileAppender
+        log4j.appender.kafkaAppender.DatePattern: "'.'yyyy-MM-dd-HH"
+        log4j.appender.kafkaAppender.File: {{ .Values.kafkaLogDirs }}/server.log
+        log4j.appender.kafkaAppender.layout: org.apache.log4j.PatternLayout
+        log4j.appender.kafkaAppender.layout.ConversionPattern: '[%d] %p %m (%c)%n'
+    listeners:
+      external:
+        type: loadbalancer
+        tls: false
+    config:
+      log.message.format.version: "2.2"
+    storage:
+      type: jbod
+      volumes:
+      - id: 0
+        class: managed-premium
+        type: persistent-claim
+        size: 64Gi
+        deleteClaim: false
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      class: managed-premium
+      size: 32Gi
+      deleteClaim: false
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
