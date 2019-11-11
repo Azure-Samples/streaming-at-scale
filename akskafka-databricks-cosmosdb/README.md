@@ -152,6 +152,14 @@ When scaling up you may have noticed that you need more RU that would you could 
 
 Look at the details of the [Azure Functions sample](../eventhubs-functions-cosmosdb#cosmos-db) to see a detailed description of mentioned concepts.
 
+## Strimzi Operator
+
+This sample is using the strimzi operator to deploy Kafka on top of Kubernetes. To learn
+more about this operator, you can go to the [official website](https://strimzi.io/), which
+has documentation, tutorials and etc.
+Also, there is the [Fabrikate Repo](https://github.com/microsoft/fabrikate-definitions/tree/master/samples/kafka-strimzi-portworx) that has an end to end example of running
+a secure stateful workload using kafka.
+
 ## Query Data
 
 Data is available in the created Cosmos DB database. You can query it from the portal, for example:
