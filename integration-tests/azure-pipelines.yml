@@ -24,6 +24,9 @@ jobs:
     DATABRICKS_HOST: https://$(LOCATION).azuredatabricks.net
   steps:
 
+  - task: KubectlInstaller@0
+    displayName: 'Install kubectl'
+
   - task: HelmInstaller@1
     displayName: 'Install helm'
 
