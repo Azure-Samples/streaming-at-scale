@@ -7,7 +7,6 @@ echo 'creating ACR instance'
 echo ". name: $ACR_NAME"
 
 az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --sku Basic -o tsv >> log.txt
-
 echo 'creating AKS cluster, if not already existing'
 echo ". name: $AKS_CLUSTER"
 
@@ -20,7 +19,7 @@ if ! az aks show --name $AKS_CLUSTER --resource-group $RESOURCE_GROUP >/dev/null
   password=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-password --query value -o tsv)
 
   echo "getting Log Analytics workspace ID"
-  analytics_ws_resourceId=$(az monitor log-analytics workspace show --resource-group $RESOURCE_GROUP --workspace-name $LOG_ANALYTICS_WORKSPACE --query id -o tsv)
+  analytics_ws_resourceId=$(az resource show -g $RESOURCE_GROUP -n $LOG_ANALYTICS_WORKSPACE --resource-type Microsoft.OperationalInsights/workspaces --query id -o tsv)
 
   echo 'creating AKS cluster'
   echo ". name: $AKS_CLUSTER"
