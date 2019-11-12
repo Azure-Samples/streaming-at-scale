@@ -139,7 +139,8 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
+    source ../components/azure-monitor/generate-workspace-name.sh
+
     export KAFKA_TOPIC=$PREFIX"topic"
 
     RUN=`echo $STEPS | grep I -o || true`
