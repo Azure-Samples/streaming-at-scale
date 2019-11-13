@@ -5,10 +5,19 @@ set -euo pipefail
 
 PLAN_NAME=$PROC_FUNCTION_APP_NAME"plan"
 
-echo 'creating app service plan'
+echo 'creating function app plan'
 echo ". name: $PLAN_NAME"
-az appservice plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
-    --number-of-workers $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
+
+if [ "${PROC_FUNCTION_SKU:0:1}" == "E" ]; then
+  echo ". max burst: $PROC_FUNCTION_WORKERS"
+  workers_argname="max-burst"
+else
+  echo ". workers: $PROC_FUNCTION_WORKERS"
+  workers_argname="number-of-workers"
+fi
+
+az functionapp plan create -g $RESOURCE_GROUP -n $PLAN_NAME \
+    --$workers_argname $PROC_FUNCTION_WORKERS --sku $PROC_FUNCTION_SKU --location $LOCATION \
     -o tsv >> log.txt
 
 echo 'creating function app'
@@ -26,7 +35,7 @@ dotnet build $FUNCTION_SRC_PATH --configuration Release >> log.txt
 
 echo 'creating zip file'
 CURDIR=$PWD
-ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1/"
+ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1"
 echo " .zipped folder: $ZIPFOLDER"
 rm -f $PROC_PACKAGE_PATH
 cd $ZIPFOLDER
@@ -43,26 +52,9 @@ az functionapp deployment source config-zip \
 echo 'removing local zip file'
 rm -f $PROC_PACKAGE_PATH
 
-echo 'getting shared access key'
-EVENTHUB_CS=`az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv`
-
-echo 'adding app settings for connection strings'
-
-echo ". EventHubsConnectionString"
+echo ". DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=false"
+echo "(this is set because of this https://github.com/Azure/Azure-Functions/issues/1067)"
 az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
     --resource-group $RESOURCE_GROUP \
-    --settings EventHubsConnectionString=$EVENTHUB_CS \
+    --settings DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=false \
     -o tsv >> log.txt
-
-echo ". EventHubPath: $EVENTHUB_NAME"
-az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --settings EventHubName=$EVENTHUB_NAME \
-    -o tsv >> log.txt
-
-echo ". ConsumerGroup: $EVENTHUB_CG"
-az functionapp config appsettings set --name $PROC_FUNCTION_APP_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --settings ConsumerGroup=$EVENTHUB_CG \
-    -o tsv >> log.txt
-

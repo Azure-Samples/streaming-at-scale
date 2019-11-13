@@ -17,9 +17,10 @@ export LOCATION="eastus"
 export TESTTYPE="1"
 export PROC_FUNCTION="Test0"
 export STEPS="CIDPTM"
+export GENERATOR_MODE="eventhubs"
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-f <function-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-f <function-type>] [-l <location>] [-g <generator-mode>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
@@ -32,11 +33,12 @@ usage() {
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-f: function to test. Default=$PROC_FUNCTION"
     echo "-l: where to create the resources. Default=$LOCATION"
+    echo "-g: Protocol used by event generator: 'eventhubs' or 'kafka'. Default=$GENERATOR_MODE"
     exit 1; 
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:f:" arg; do
+while getopts ":d:s:t:l:f:g:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -53,6 +55,9 @@ while getopts ":d:s:t:l:f:" arg; do
                 f)
 			PROC_FUNCTION=${OPTARG}
 			;;
+                g)
+			GENERATOR_MODE=${OPTARG}
+			;;
 		esac
 done
 shift $((OPTIND-1))
@@ -66,7 +71,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=20
     export EVENTHUB_CAPACITY=12
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=20
     export COSMOSDB_RU=100000 
     export SIMULATOR_INSTANCES=5
@@ -76,7 +81,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=10
     export COSMOSDB_RU=50000
     export SIMULATOR_INSTANCES=3
@@ -86,7 +91,7 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
@@ -187,6 +192,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-functions/create-processing-function.sh
+        source ../components/azure-functions/configure-processing-function-eventhubs.sh
         source ../components/azure-functions/configure-processing-function-cosmosdb.sh
     fi
 echo
