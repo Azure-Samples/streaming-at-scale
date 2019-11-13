@@ -4,7 +4,7 @@
 set -euo pipefail
 
 echo 'getting shared access key'
-EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAMESPACE --name Listen --query "primaryConnectionString" -o tsv)
+source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$EVENTHUB_NAMESPACE" "Listen"
 
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"

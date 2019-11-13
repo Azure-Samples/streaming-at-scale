@@ -51,9 +51,12 @@ Code should be self-explanatory; if not, just ask.
 once you have created your file, make sure you rename it so that it will be clear which technology is using.
 
 ### source ../components/azure-functions/create-processing-function.sh
+### source ../components/azure-functions/configure-processing-function-eventhubs.sh
 ### source ../components/azure-functions/configure-processing-function-cosmosdb.sh
 
 `create-processing-function.sh`: this script creates an Azure Function for stream processing, again you can use another component instead, such as Databricks, or provide your own script.
+
+`configure-processing-function-eventhubs.sh`: this script configures the Azure Function for input from Event Hubs, here too you can change to another variant, e.g. to input from Kafka.
 
 `configure-processing-function-cosmosdb.sh`: this script configures the Azure Function for output to Cosmos DB, here too you can change to another variant, e.g. to output to Azure SQL.
 

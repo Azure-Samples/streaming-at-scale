@@ -1,3 +1,4 @@
+local-settings.json
 log.txt
 test-output.txt
 *.pyc

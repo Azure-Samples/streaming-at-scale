@@ -163,7 +163,8 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
+    source ../components/azure-monitor/generate-workspace-name.sh
+
     export HDINSIGHT_KAFKA_NAME=$PREFIX"hdi"    
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
 

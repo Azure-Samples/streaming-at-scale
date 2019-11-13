@@ -8,21 +8,23 @@ languages:
 products:
   - azure
   - azure-container-instances
+  - azure-cosmos-db
   - azure-event-hubs
   - azure-functions  
-  - azure-sql-database
   - azure-storage
 statusNotificationTargets:
   - algattik@microsoft.com
 ---
 
-# Streaming at Scale with Azure Event Hubs, Functions and Azure SQL
+# Streaming at Scale with Azure Event Hubs with Kafka producer, Functions with Kafka trigger and Cosmos DB
 
-This sample uses Azure SQL as database to store processed data. This is especially useful when you need to create a *Near-Real Time Operational Analytics*, where streaming data has to be ingested at scale and, at the same time, also queried to execute analytical queries. The ability to ingest data into a columnstore is vital to have expected query performances:
+This sample uses Cosmos DB as database to store JSON data
 
-[Get started with Columnstore for real time operational analytics](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/get-started-with-columnstore-for-real-time-operational-analytics?view=sql-server-2017)
+The provided scripts will create an end-to-end solution complete with load test client. A detailed discussion on the scenario and the technical details is available here:
 
-The provided scripts will create an end-to-end solution complete with load test client.  
+[Serverless Streaming At Scale with Cosmos DB](https://medium.com/@mauridb/serverless-streaming-at-scale-with-cosmos-db-e0e26cacd27d)
+
+The sample has been updated from when the article (and also Cosmos DB is constantly improved) was written so the values you'll measure may be a little different than the one documented in the article. Still the concepts explanied are still valid and valuable.
 
 ## Running the Scripts
 
@@ -81,7 +83,7 @@ The script will create the following resources:
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
 - **Azure Function**: to process data incoming from Event Hubs as a stream
 - **Application Insight**: to monitor Azure Function performances
-- **Azure SQL** Server and Database: to store and serve processed data
+- **Cosmos DB** Server, Database and Collection: to store and serve processed data
 
 The Azure Function is created using .Net Core 2.1, so it can be compiled on any supported platform. I only tested compilation on Windows 10, though.
 
@@ -115,19 +117,19 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 ## Duplicate event handling
 
-The solution currently does not perform event deduplication.  As there is a unique ID on the eventId field in Azure SQL Database, function invocations will fail for those duplicates and entire event batches would be discarded. Therefore, the solution is only suitable when the upstream event generation pipeline up to Event Hubs has at-most once delivery guarantees (i.e. fire and forget message delivery, where messages are not redelivered even if the Event Hub does not acknowledge reception).
+As a result of transient errors, events could be processed more than once (at-least-once event delivery guarantee). In case the infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Function binding logic to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
 
+In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicates will not be present in Cosmos DB.
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Azure SQL Databsae tier and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION=Test0
-    export PROC_FUNCTION_SKU=EP2
+    export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
-    export SQL_SKU=P1
+    export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
@@ -142,62 +144,26 @@ Performance will be monitored and displayed on the console for 30 minutes also. 
 
 ## Azure Functions
 
-The deployed Azure Function solution contains one function
+The deployed Azure Function solution contains two functions
 
 - Test0
+- Test1
 
-The function read the data incoming from Even Hub, augment the received JSON by injecting a few additional elements and then send it to Azure SQL using Dapper (https://github.com/StackExchange/Dapper). Dapper has been chooses as it provides the best performance and is widespreadly used.
+The first one uses Cosmos DB binding for Azure Function, while the second one uses the SDK. Only one solution will be activated during deployment. By default the activated one is "Test0"
 
-## Azure SQL
+As mentioned in the article [Serverless Streaming At Scale with Cosmos DB](https://medium.com/streaming-at-scale-in-azure/serverless-streaming-at-scale-with-cosmos-db-e0e26cacd27d) with Azure Functions 2.0 there is no performance difference between the two options. Usage of SDK is recommended only when you need to get more information out of Cosmos DB response, for example consumed RU, that you can't get using the native binding.
 
-The solution allows you to test both row-store and column-store options. The deployed database has four tables
+## Cosmos DB
 
-- `rawdata`
-- `rawdata_cs`
-- `rawdata_cs_mo`
-- `rawdata_mo`
+As you'll notice when using funciont "Test1", Cosmos DB reports something a bit more than 8 RU used for each written document. This is due to the fact that 1Kb document is ingested, but in the sample Azure Functions are used to augment the incoming JSON by adding some additional data, making the document a little bit bigger than 1Kb.
 
-The suffix indicates which kind of storage is used for the table:
+Cosmos DB index policy has been set up in order to index only the meaninful properties to avoid to waste RU in properties that will never be searched for and thus indexing won't help in any way. Keeping the indexing enabled for all properties, would raise the RU usage, per document, to 19 (100% more!). On the other hand, removing indexing from all properties will bring down RU usage to 6.
 
-- No suffix: classic row-store table
-- `cs`: column-store via clustered columnstore index
-- `mo`: memory-optimized table
-- `cs_mo`: memory-optimized clustered columnstore
+Both the decision were taken as they reflect common real-world scenarios; but if you want to play with document size, you can chance the setting `COMPLEX_DATA_COUNT` in the `run-clients.sh` script. That values sets how many `moreData` properties will be created in the generated sample document, and therefore how big the document will be. By default 23 `moreData` elements are created, so that the document sent into EventHub is around 1Kb. If you want to make sure that the document sent to Cosmos DB is within the 1 Kb limit, lower the number to 8. If you make this change while solution has been already deployed and running, make sure to deploy the Test client only but running the script with the `-s` option:
 
-Use the `-k` option and set it to `rowstore`, `columnstore`, `rowstore-inmemory` or `columnstore-inmemory` to run the solution against the table you are interested in testing.
+    ./create-solution.sh -d <solution_name> -t <test_type> -s T
 
-Table Value Parameters are used to make sure data is sent to Azure SQL in the most efficient way, while keeping the latency as low as possibile
-
-Be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from P4 to P6 is needed. The Premium level provides much more I/Os which are needed to allow backup to happen without impacting performances.
-
-If you want to connect to Azure SQL to query data and/or check resources usages, here's the login and passoword:
-
-```
-User ID = serveradmin
-Password = Strong_Passw0rd!
-```
-
-A note on in-memory tables: as mentioned in the documentation:
-
-[Data size and storage cap for In-Memory OLTP](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-in-memory#data-size-and-storage-cap-for-in-memory-oltp)
-
-there is a quota on the in-memory table size. In order to keep the quota below the maximum, a script that moves data from the in-memory table to disk-table is needed. The sample doesn't provide any automation to move data between table, but it would be easily implemented using a Azure Function with a Timer Trigger and a T-SQL like the following:
-
-```sql
-with cte as (
-    select top (10000) * from dbo.rawdata_mo with (snapshot) order by ProcessedAt desc
-)
-insert into 
-    dbo.rawdata
-select * from 
-(
-    delete c output deleted.* from cte c
-) d
-```
-
-A more detailed discussion of this tecnique along with source code is available here:
-
-[Azure SQL Database: Ingesting 1.4 million sustained rows per second with In-Memory OLTP & Columnstore Index](https://techcommunity.microsoft.com/t5/Azure-SQL-Database/Azure-SQL-Database-Ingesting-1-4-million-sustained-rows-per/ba-p/386162)
+Having said that, you may be wondering why, for 5K msgs/sec, up to 50K RU are needed or why for 10K msgs/sec up to 100K RU are needed. If you do that math, in fact, for 5K msgs/sec, you can find that 5000 * 8.5 = 42500 RU should be needed for the 5K msgs/sec scenario. If you analyze how many partitions are created behind the scenes (you can do that via the "Metrics" pane in Cosmos DB Azure Portal page) you'll that some partitions are more used than others and they quickly hit the alloted RU capacity. Documents are generated with a random `deviceId` that goes from `001` to `999` using a uniform distribution. Depending on how Cosmos DB decided to group partition keys into physical partitions and how the document are generated, received and processed, one partition (or more than one) can be used more than others. So some room for movement is needed, and thus the need of having a bit more of allocated RU to make sure performance are never throttled.
 
 ## Exceptions
 
@@ -207,11 +173,13 @@ Just after starting the Azure Function, if you immediately go to the Application
 
 You can safely ignore it since it happens just during startup time when EventProcessors are created. After couple of seconds the no more exception like that one will be thrown. No messages will be lost while these exceptions are fired.
 
-## Additional References
+## Query Data
 
-- [Column-oriented DBMS](https://en.wikipedia.org/wiki/Column-oriented_DBMS)
-- [Columnstore indexes - Design guidance](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-design-guidance?view=sql-server-2017)
-- [Azure Stream Analytics output to Azure SQL Database](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-sql-output-perf)
+Data is available in the created Cosmos DB database. You can query it from the portal, for example:
+
+```sql
+SELECT * FROM c WHERE c.type = 'CO2'
+```
 
 ## Clean up
 

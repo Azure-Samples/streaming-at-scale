@@ -127,7 +127,7 @@ If you want to change some setting of the solution, like number of load test cli
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1

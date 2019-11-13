@@ -6,7 +6,7 @@ set -euo pipefail
 namespace=$1
 policy=$2
 
-EVENTHUB_CS=$(az eventhubs namespace authorization-rule keys list -g $RESOURCE_GROUP --namespace-name "$namespace" --name "$policy" --query "primaryConnectionString" -o tsv)
+source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$namespace" "$policy"
 
 eh_resource=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.EventHub/namespaces -n "$namespace" --query id -o tsv)
 export KAFKA_BROKERS="$namespace.servicebus.windows.net:9093"
