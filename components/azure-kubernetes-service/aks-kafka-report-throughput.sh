@@ -34,11 +34,11 @@ for i in $(seq 1 $REPORT_THROUGHPUT_MINUTES) ; do
   | sort by Name
   ")
   ts=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_messagesin_total").latest_timestamp' <<< "$stats")
-  messagesIn=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_messagesin_total").increment_per_second | tonumber | floor' <<< "$stats")
-  bytesIn=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_bytesin_total").increment_per_second | tonumber | floor' <<< "$stats")
-  bytesOut=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_bytesout_total").increment_per_second | tonumber | floor' <<< "$stats")
+  messagesIn=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_messagesin_total").increment_per_second | if . == "None" then 0 else tonumber end | floor' <<< "$stats")
+  bytesIn=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_bytesin_total").increment_per_second | if . == "None" then 0 else tonumber end | floor' <<< "$stats")
+  bytesOut=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_bytesout_total").increment_per_second | if . == "None" then 0 else tonumber end | floor' <<< "$stats")
 
-  printf "$fmt" "$ts" "$messagesIn" "$bytesIn" "$bytesOut"
+  printf "$fmt" "${ts:--}" "$messagesIn" "$bytesIn" "$bytesOut"
 
   # sleep until next full minute. "10#" is to force base 10 if string is e.g. "09"
   sleep "$((60 - 10#$(date +%S) ))"
