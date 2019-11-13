@@ -146,7 +146,7 @@ echo "***** [I] Setting up INGESTION"
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-monitor/create-log-analytics.sh
-        source ../components/azure-kubernetes-service/create-aks.sh
+        source ../components/azure-kubernetes-service/create-kubernetes-service.sh
         source ../components/azure-kubernetes-service/deploy-aks-kafka.sh
     fi
 echo
