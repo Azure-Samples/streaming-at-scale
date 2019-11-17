@@ -20,7 +20,7 @@ az hdinsight create -t kafka -g $RESOURCE_GROUP -n $HDINSIGHT_KAFKA_NAME \
   --version 3.6 --component-version Kafka=1.1 \
   --zookeepernode-size Standard_D2_V2 \
   --headnode-size Standard_E2_V3 \
-  --workernode-size $HDINSIGHT_WORKER_SIZE --workernode-count $HDINSIGHT_WORKERS \
+  --workernode-size $HDINSIGHT_KAFKA_WORKER_SIZE --workernode-count $HDINSIGHT_KAFKA_WORKERS \
   --workernode-data-disks-per-node 2 \
   --vnet-name $VNET_NAME --subnet ingestion-subnet \
   --cluster-configurations "$config" \

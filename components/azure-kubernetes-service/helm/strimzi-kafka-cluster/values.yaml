@@ -1,1 +1,11 @@
-kafkaLogDirs: /var/lib/kafka/data-0
+zookeeper:
+  replicas: 3
+kafka:
+  LogDirs: /var/lib/kafka/data-0
+  version: 2.2.1
+  brokers: 4
+  clusterName: kafkacluster
+topic:
+  name: sampletopic
+  partitions: 1
+  replicas: 3

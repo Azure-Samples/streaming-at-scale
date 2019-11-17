@@ -123,11 +123,12 @@ In order to illustrate the effect of this, the event simulator is configured to 
 If you want to change some setting of the solution, like the number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export AKS_NODES=3
-    export AKS_VM_SIZE=Standard_DS2_v2
+    export KAFKA_BROKERS=4
+    export KAFKA_PARTITIONS=4
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=2
+    export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
@@ -140,16 +141,6 @@ Performance will be monitored and displayed on the console for 30 minutes also. 
 If everything is working correctly, the number of reported `IncomingBytes` and `OutgoingBytes` should be roughly the same, after a few minutes of ramp-up.
 
 ```
-***** [M] Starting METRICS reporting
-Reporting aggregate metrics per minute, for 30 minutes.
-                                IncomingMessages       IncomingBytes       OutgoingBytes
-                                ----------------       -------------       -------------
-                           -                   0                   0                   0
-                           -                   0                   0                   0
-                           -                   0                   0                   0
-                           -                   0                   0                   0
-                           -                   0                   0                   0
-                           -                   0                   0                   0
         2019-11-13T20:03:07Z               60127                   0                   0
         2019-11-13T20:03:07Z               60127                   0                   0
         2019-11-13T20:03:07Z               60127                   0                   0

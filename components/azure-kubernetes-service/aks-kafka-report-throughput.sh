@@ -16,21 +16,35 @@ printf "${fmt//.f/s}" "" ---------------- ------------- -------------
 for i in $(seq 1 $REPORT_THROUGHPUT_MINUTES) ; do
   stats=$(
   az monitor log-analytics query -w "$analytics_ws_id" --analytics-query "
-  InsightsMetrics 
+  InsightsMetrics
   | where Namespace == 'prometheus'
   | extend tags = parse_json(Tags)
   | filter tags.topic == '$KAFKA_TOPIC'
-  | partition by Name (
-   sort by TimeGenerated 
-  | project 
-    Name,
-    latest_timestamp = TimeGenerated,
-    previous_timestamp = next(TimeGenerated),
-    latest_value = Val,
-    previous_value = next(Val),
-    increment_per_second = (Val - next(Val)) / datetime_diff('Millisecond', TimeGenerated, next(TimeGenerated)) * 60000
-  | limit 1
+  | filter Name in (
+      'kafka_server_brokertopicmetrics_messagesin_total',
+      'kafka_server_brokertopicmetrics_messagesin_total',
+      'kafka_server_brokertopicmetrics_bytesin_total',
+      'kafka_server_brokertopicmetrics_bytesout_total')
+  // NB only up to 64 different partition key values are supported, so this query will only scale to 64/4=16 nodes
+  | extend partition_key = strcat(Name, tags.pod_name)
+  | partition by partition_key (
+    sort by TimeGenerated
+    | project
+      Name,
+      latest_timestamp = TimeGenerated,
+      previous_timestamp = next(TimeGenerated),
+      latest_value = Val,
+      previous_value = next(Val),
+      increment_per_second = (Val - next(Val)) / datetime_diff('Millisecond', TimeGenerated, next(TimeGenerated)) * 60000
+    | limit 1
   )
+  | summarize
+    latest_timestamp = max(latest_timestamp),
+    previous_timestamp = max(previous_timestamp),
+    latest_value = sum(latest_value),
+    previous_value = sum(previous_value),
+    increment_per_second = sum(increment_per_second)
+    by Name
   | sort by Name
   ")
   ts=$(jq -r '.[] | select(.Name == "kafka_server_brokertopicmetrics_messagesin_total").latest_timestamp' <<< "$stats")

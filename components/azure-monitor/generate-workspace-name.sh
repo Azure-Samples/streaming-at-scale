@@ -8,13 +8,13 @@ set -euo pipefail
 
 source ../components/utils/create-local-settings.sh
 
-LOG_ANALYTICS_WORKSPACE=$(jq -r .LOG_ANALYTICS_WORKSPACE local-settings.json)
+LOG_ANALYTICS_WORKSPACE=$(jq -r .'"'$PREFIX'"'.LOG_ANALYTICS_WORKSPACE local-settings.json)
 
 if [ "$LOG_ANALYTICS_WORKSPACE" == "" ] || [ "$LOG_ANALYTICS_WORKSPACE" == "null" ]; then
   echo 'generate Log Analytics workspace name'
   export LOG_ANALYTICS_WORKSPACE=$PREFIX$(( $(date +%s) % 1000000 ))
   echo ". name: $LOG_ANALYTICS_WORKSPACE"
-  jq '.LOG_ANALYTICS_WORKSPACE="'$LOG_ANALYTICS_WORKSPACE'"' local-settings.json > local-settings.json.tmp
+  jq '."'$PREFIX'".LOG_ANALYTICS_WORKSPACE="'$LOG_ANALYTICS_WORKSPACE'"' local-settings.json > local-settings.json.tmp
   mv local-settings.json.tmp local-settings.json
 else
   echo "Reusing Log Analytics workspace name stored in local-settings.json"

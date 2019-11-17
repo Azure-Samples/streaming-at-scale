@@ -118,8 +118,8 @@ The Azure Databricks connector for Azure SQL Data Warehouse offers [end-to-end e
 If you want to change some setting of the solution, like number of load test clients, Azure SQL Data Warehouse tier and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
 ```bash
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export HDINSIGHT_KAFKA_WORKERS="4"  
+    export HDINSIGHT_KAFKA_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=4
     export SQL_SKU=DW100c
     export SIMULATOR_INSTANCES=1 

@@ -48,12 +48,14 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
-export AKS_VM_SIZE=Standard_D2s_v3
+export AKS_VM_SIZE=Standard_D4s_v3
 export AKS_KUBERNETES_VERSION=1.14.7
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export AKS_NODES=9
+    export KAFKA_BROKERS=16
+    export KAFKA_PARTITIONS=16
     export COSMOSDB_RU=100000
     export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
@@ -64,20 +66,24 @@ fi
 # 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
     export AKS_NODES=6
+    export KAFKA_BROKERS=10
+    export KAFKA_PARTITIONS=10
     export COSMOSDB_RU=50000
     export SIMULATOR_INSTANCES=3
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=8
+    export DATABRICKS_WORKERS=10
     export DATABRICKS_MAXEVENTSPERTRIGGER=50000
 fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
     export AKS_NODES=3
+    export KAFKA_BROKERS=4
+    export KAFKA_PARTITIONS=4
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=2
+    export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 fi
 
