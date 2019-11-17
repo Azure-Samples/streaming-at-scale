@@ -123,6 +123,7 @@ In order to illustrate the effect of this, the event simulator is configured to 
 If you want to change some setting of the solution, like the number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export AKS_NODES=3
+    export KAFKA_BROKERS=4
     export KAFKA_PARTITIONS=4
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
