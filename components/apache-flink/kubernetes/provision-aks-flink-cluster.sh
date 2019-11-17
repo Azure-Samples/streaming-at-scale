@@ -3,11 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-source ../components/azure-kubernetes-service/create-kubernetes-service.sh
-
-source ../components/azure-kubernetes-service/create-container-registry.sh
-
-
 # Get the Application insights key
 APPINSIGHTS_INSTRUMENTATIONKEY=$(az monitor app-insights component show --app $APPINSIGHTS_NAME -g $RESOURCE_GROUP --query instrumentationKey -o tsv)
 
@@ -32,10 +27,10 @@ echo ". release: $release_name"
 echo 'building flink job image'
 tmpdir=$(mktemp -d)
 cp -R docker/flink-job $tmpdir
-cp ../flink-kafka-consumer/target/assembly/flink-kafka-consumer-$1.jar $tmpdir/flink-job
+cp ../flink-kafka-consumer/target/assembly/flink-kafka-consumer-$FLINK_JOBTYPE.jar $tmpdir/flink-job
 az acr build --registry $ACR_NAME --resource-group $RESOURCE_GROUP \
-  --image $ACR_NAME.azurecr.io/flink-job-$1:$IMAGE_TAG \
-  --build-arg job_jar=flink-kafka-consumer-$1.jar \
+  --image $ACR_NAME.azurecr.io/flink-job-$FLINK_JOBTYPE:$IMAGE_TAG \
+  --build-arg job_jar=flink-kafka-consumer-$FLINK_JOBTYPE.jar \
   --build-arg flink_version=$FLINK_VERSION \
   $tmpdir/flink-job
 rm -r $tmpdir
@@ -43,7 +38,7 @@ rm -r $tmpdir
 #"helm upgrade --install" is the idempotent version of "helm install --name"
 helm --kube-context $AKS_CLUSTER upgrade --install --recreate-pods "$release_name" helm/flink-standalone \
   --set service.type=LoadBalancer \
-  --set image=$ACR_NAME.azurecr.io/flink-job-$1 \
+  --set image=$ACR_NAME.azurecr.io/flink-job-$FLINK_JOBTYPE \
   --set imageTag=$IMAGE_TAG \
   --set resources.jobmanager.serviceportpatcher.image=$ACR_NAME.azurecr.io/flink-service-port-patcher:latest \
   --set flink.num_taskmanagers=$FLINK_PARALLELISM \

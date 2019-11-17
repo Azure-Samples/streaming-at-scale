@@ -7,7 +7,6 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTM"
-export INGESTION_PLATFORM='eventhubskafka'
 export FLINK_PLATFORM='aks'
 export FLINK_JOBTYPE='simple-relay'
 
@@ -58,43 +57,48 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
-export AKS_VM_SIZE=Standard_D4s_v3
 export AKS_KUBERNETES_VERSION=1.14.7
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export KAFKA_PARTITIONS=16
-    export AKS_NODES=3
-    export HDINSIGHT_WORKERS="4"
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"
-    export FLINK_PARALLELISM=2
+    export EVENTHUB_PARTITIONS=8
+    export FLINK_PARALLELISM=8
     export SIMULATOR_INSTANCES=5
+    # settings for AKS (-p aks)
+    export AKS_NODES=4
+    export AKS_VM_SIZE=Standard_D4s_v3
+    # settings for HDInsight YARN (-p hdinsight)
+    export HDINSIGHT_HADOOP_WORKERS=3
+    export HDINSIGHT_HADOOP_WORKER_SIZE=Standard_D3_V2
 fi
 
 # 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export KAFKA_PARTITIONS=10
-    export AKS_NODES=3
-    export HDINSIGHT_WORKERS="4"
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"
-    export FLINK_PARALLELISM=2
+    export EVENTHUB_PARTITIONS=4
+    export FLINK_PARALLELISM=4
     export SIMULATOR_INSTANCES=3
+    # settings for AKS (-p aks)
+    export AKS_NODES=5
+    export AKS_VM_SIZE=Standard_D2s_v3
+    # settings for HDInsight YARN (-p hdinsight)
+    export HDINSIGHT_HADOOP_WORKERS=3
+    export HDINSIGHT_HADOOP_WORKER_SIZE=Standard_D3_V2
 fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export KAFKA_PARTITIONS=4
-    export HDINSIGHT_WORKERS="4"
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"
-    export AKS_NODES=3
-    export FLINK_PARALLELISM=2
+    export EVENTHUB_PARTITIONS=1
+    export FLINK_PARALLELISM=1
     export SIMULATOR_INSTANCES=1
+    # settings for AKS (-p aks)
+    export AKS_NODES=3
+    export AKS_VM_SIZE=Standard_D2s_v3
+    # settings for HDInsight YARN (-p hdinsight)
+    export HDINSIGHT_HADOOP_WORKERS=3
+    export HDINSIGHT_HADOOP_WORKER_SIZE=Standard_D3_V2
 fi
 
 # last checks and variables setup
@@ -144,7 +148,7 @@ echo ". Resource Group      => $RESOURCE_GROUP"
 echo ". Region              => $LOCATION"
 echo ". EventHubs           => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
-  echo ". HDInsight YARN      => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS"
+  echo ". HDInsight YARN      => VM: $HDINSIGHT_HADOOP_WORKER_SIZE, Workers: $HDINSIGHT_HADOOP_WORKERS"
 else
   echo ". AKS                 => VM: $AKS_VM_SIZE, Workers: $AKS_NODES"
 fi
@@ -191,7 +195,6 @@ echo
 echo "***** [P] Setting up PROCESSING"
 
     export APPINSIGHTS_NAME=$PREFIX"appmon"
-    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"
     # Creating multiple HDInsight clusters in the same Virtual Network requires each cluster to have unique first six characters.
     export HDINSIGHT_YARN_NAME="yarn"$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
@@ -199,6 +202,8 @@ echo "***** [P] Setting up PROCESSING"
     export SERVICE_PRINCIPAL_KV_NAME=$AKS_CLUSTER
     export SERVICE_PRINCIPAL_KEYVAULT=$PREFIX"spkv"
     export ACR_NAME=$PREFIX"acr"
+
+    source ../components/azure-monitor/generate-workspace-name.sh
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then

@@ -16,7 +16,7 @@ az hdinsight create -t hadoop -g $RESOURCE_GROUP -n $HDINSIGHT_YARN_NAME \
   --version 4.0 \
   --zookeepernode-size Standard_D2_V2 \
   --headnode-size Standard_E2_V3 \
-  --workernode-size $HDINSIGHT_WORKER_SIZE --workernode-count $HDINSIGHT_WORKERS \
+  --workernode-size $HDINSIGHT_HADOOP_WORKER_SIZE --workernode-count $HDINSIGHT_HADOOP_WORKERS \
   --vnet-name $VNET_NAME --subnet ingestion-subnet \
   --storage-account $AZURE_STORAGE_ACCOUNT \
   --storage-container $HDINSIGHT_YARN_NAME \
