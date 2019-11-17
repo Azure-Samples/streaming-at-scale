@@ -1,0 +1,50 @@
+image: flink
+imageTag: 1.8.0
+
+resources:
+  jobmanager:
+    limits:
+      cpu: 1000m
+      memory: 1280Mi
+    requests:
+      cpu: 1000m
+      memory: 1280Mi
+    serviceportpatcher:
+      image: MYREPO.azurecr.io/flink-service-port-patcher:latest
+  taskmanager:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1280Mi
+
+persistence:
+  size: 5Gi
+  ## zookeeper data Persistent Volume Storage Class
+  # must support accessMode: ReadWriteMany
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (Disk on Azure, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  #  storageClass: "-"
+
+flink:
+  num_taskmanagers: 1
+  num_slots_per_taskmanager: 1
+  # can be in format "zookeeper:2181" or "zookeeper-0.zookeeper-headless:2181,zookeeper-1.zookeeper-headless:2181,..."
+  zookeeper_address: zookeeper:2181
+
+  ## config options for flink-conf.yaml
+  config:
+    jobmanager.heap.mb: 1024
+    taskmanager.heap.mb: 1024
+    state.backend: filesystem
+    # Directory for storing checkpoints
+    state.checkpoints.dir: file:///mnt/fileshare/flink/checkpoints
+    high-availability: zookeeper
+    high-availability.zookeeper.path.root: /flink
+    high-availability.storageDir: file:///mnt/fileshare/flink/recovery
+
+service:
+  type: ClusterIP

@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}-taskmanager
+spec:
+  replicas: {{ .Values.flink.num_taskmanagers }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
+        component: taskmanager
+    spec:
+      initContainers:
+      - name: check-jobmanager-ready
+        image: docker.io/busybox:1.28
+        command: ['sh', '-c', 
+          'until wget -T2 -O- http://{{ template "fullname" . }}-jobmanager:8081/jobmanager/config ; do echo waiting for jobmanager; sleep 2; done;']
+      containers:
+      - name: flink
+        image: {{ .Values.image }}:{{ .Values.imageTag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        args:
+        - taskmanager
+        ports:
+        - name: data
+          containerPort: 6121
+        - name: rpc
+          containerPort: 6122
+        - name: query
+          containerPort: 6125
+        env:
+        - name: FLINK_CONF_DIR
+          value: /etc/flink
+        resources:
+          limits:
+            cpu: {{ .Values.flink.num_slots_per_taskmanager }}
+            memory: {{ .Values.resources.taskmanager.limits.memory }}
+          requests:
+            cpu: {{ .Values.flink.num_slots_per_taskmanager }}
+            memory: {{ .Values.resources.taskmanager.requests.memory }}
+        volumeMounts:
+        - name: {{ template "fullname" . }}-config
+          mountPath: /etc/flink
+        - name: flink-fileshare
+          mountPath: /mnt/fileshare
+      volumes:
+        - name: {{ template "fullname" . }}-config
+          configMap:
+            name: {{ template "fullname" . }}-config
+        - name: flink-fileshare
+          persistentVolumeClaim:
+           claimName: {{ template "fullname" . }}-fileshare-pv-claim

@@ -123,11 +123,12 @@ In order to illustrate the effect of this, the event simulator is configured to 
 If you want to change some setting of the solution, like the number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export AKS_NODES=3
-    export AKS_VM_SIZE=Standard_DS2_v2
+    export KAFKA_BROKERS=4
+    export KAFKA_PARTITIONS=4
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=2
+    export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
@@ -140,30 +141,21 @@ Performance will be monitored and displayed on the console for 30 minutes also. 
 If everything is working correctly, the number of reported `IncomingBytes` and `OutgoingBytes` should be roughly the same, after a few minutes of ramp-up.
 
 ```
-***** [M] Starting METRICS reporting
-Extension 'log-analytics' is already installed.
-Reporting aggregate metrics per minute, for 30 minutes.
-                        IncomingMessages  IncomingBytes  OutgoingBytes
-                        ----------------  -------------  -------------
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:08:02Z             60062       55897441              0
-  2019-11-11T17:10:03Z             59076       55906449              0
-  2019-11-11T17:10:03Z             59076       55906449              0
-  2019-11-11T17:12:02Z             60057       56852803              0
-  2019-11-11T17:14:03Z             59072       55886626              0
-  2019-11-11T17:14:03Z             59072       55886626              0
-  2019-11-11T17:14:03Z             59072       55886626              0
-  2019-11-11T17:16:01Z             61059       56801943       43583270
-  2019-11-11T17:16:01Z             61059       56801943       43583270
-  2019-11-11T17:17:02Z             59084       55415913       43583270
-  2019-11-11T17:17:02Z             59084       55415913       43583270
-  2019-11-11T17:17:02Z             59084       55415913       43583270
-  2019-11-11T17:19:02Z             60045       55884654       51995504
-  2019-11-11T17:19:02Z             60045       55884654       51995504
-  2019-11-11T17:19:02Z             60045       55884654       51995504
+        2019-11-13T20:03:07Z               60127                   0                   0
+        2019-11-13T20:03:07Z               60127                   0                   0
+        2019-11-13T20:03:07Z               60127                   0                   0
+        2019-11-13T20:05:05Z               59456            55872597            39192676
+        2019-11-13T20:07:05Z               61095            55859006            39454893
+        2019-11-13T20:05:05Z               59456            55872597            39192676
+        2019-11-13T20:08:06Z               58667            54928162            38560536
+        2019-11-13T20:08:06Z               58667            54928162            38560536
+        2019-11-13T20:08:06Z               58667            54928162            38560536
+        2019-11-13T20:08:06Z               58667            54928162            38560536
+        2019-11-13T20:13:06Z               59077            54944942            39192676
+        2019-11-13T20:13:06Z               59077            54944942            39192676
+        2019-11-13T20:13:06Z               59077            54944942            39192676
+        2019-11-13T20:14:05Z               60825            54954506            39845888
+        2019-11-13T20:14:05Z               60825            54954506            39845888
 ```
 
 ## Azure Databricks

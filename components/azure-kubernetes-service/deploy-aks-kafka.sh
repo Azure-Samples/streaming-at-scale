@@ -13,4 +13,12 @@ helm --kube-context $AKS_CLUSTER upgrade --install --namespace kafka kafka-opera
 
 echo 'Creating kafka inside kubernetes'
 
-helm --kube-context $AKS_CLUSTER upgrade --install --namespace kafka kafka-cluster ../components/azure-kubernetes-service/helm/strimzi-kafka-cluster/
+helm --kube-context $AKS_CLUSTER upgrade --install --namespace kafka kafka-cluster \
+  ../components/azure-kubernetes-service/helm/strimzi-kafka-cluster/ \
+  --set kafka.clusterName=$PREFIX \
+  --set kafka.brokers=$KAFKA_BROKERS \
+  --set topic.name=$KAFKA_TOPIC \
+  --set topic.partitions=$KAFKA_PARTITIONS
+
+echo "- To list deployed pods, run:"
+echo "    kubectl --context $AKS_CLUSTER --namespace kafka get pods"
