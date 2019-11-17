@@ -123,11 +123,11 @@ In order to illustrate the effect of this, the event simulator is configured to 
 If you want to change some setting of the solution, like the number of load test clients, Cosmos DB RU and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export AKS_NODES=3
-    export AKS_VM_SIZE=Standard_DS2_v2
+    export KAFKA_PARTITIONS=4
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=2
+    export DATABRICKS_WORKERS=4
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
@@ -141,29 +141,31 @@ If everything is working correctly, the number of reported `IncomingBytes` and `
 
 ```
 ***** [M] Starting METRICS reporting
-Extension 'log-analytics' is already installed.
 Reporting aggregate metrics per minute, for 30 minutes.
-                        IncomingMessages  IncomingBytes  OutgoingBytes
-                        ----------------  -------------  -------------
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:01:02Z             60061       55892402              0
-  2019-11-11T17:08:02Z             60062       55897441              0
-  2019-11-11T17:10:03Z             59076       55906449              0
-  2019-11-11T17:10:03Z             59076       55906449              0
-  2019-11-11T17:12:02Z             60057       56852803              0
-  2019-11-11T17:14:03Z             59072       55886626              0
-  2019-11-11T17:14:03Z             59072       55886626              0
-  2019-11-11T17:14:03Z             59072       55886626              0
-  2019-11-11T17:16:01Z             61059       56801943       43583270
-  2019-11-11T17:16:01Z             61059       56801943       43583270
-  2019-11-11T17:17:02Z             59084       55415913       43583270
-  2019-11-11T17:17:02Z             59084       55415913       43583270
-  2019-11-11T17:17:02Z             59084       55415913       43583270
-  2019-11-11T17:19:02Z             60045       55884654       51995504
-  2019-11-11T17:19:02Z             60045       55884654       51995504
-  2019-11-11T17:19:02Z             60045       55884654       51995504
+                                IncomingMessages       IncomingBytes       OutgoingBytes
+                                ----------------       -------------       -------------
+                           -                   0                   0                   0
+                           -                   0                   0                   0
+                           -                   0                   0                   0
+                           -                   0                   0                   0
+                           -                   0                   0                   0
+                           -                   0                   0                   0
+        2019-11-17T10:27:04Z               59816            56480751                   0
+        2019-11-17T10:27:04Z               59816            56480751                   0
+        2019-11-17T10:29:04Z               60265            56318831                   0
+        2019-11-17T10:29:04Z               60265            56318831                   0
+        2019-11-17T10:31:03Z               60253            56310284                   0
+        2019-11-17T10:31:03Z               60253            56310284                   0
+        2019-11-17T10:33:03Z               59934            56550363                   0
+        2019-11-17T10:35:02Z               60187            56633237                   0
+        2019-11-17T10:35:02Z               60187            56633237                   0
+        2019-11-17T10:37:04Z               59818            56466759            37601415
+        2019-11-17T10:37:04Z               59818            56466759            37601415
+        2019-11-17T10:39:03Z               60005            56804555            73413846
+        2019-11-17T10:39:03Z               60189            56803977            73669491
+        2019-11-17T10:41:03Z               60318            56548823            71135682
+        2019-11-17T10:41:03Z               60318            56548823            71135682
+
 ```
 
 ## Azure Databricks

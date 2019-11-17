@@ -7,7 +7,7 @@ echo "reading Kafka Broker IP from AKS"
 echo "NB: the service may take up to around 10 minutes to start."
 TIMEOUT=120
 for i in $(seq 1 $TIMEOUT); do
-  if kafka_ip=$(kubectl --context $AKS_CLUSTER get services -n kafka kcluster-kafka-external-bootstrap -o=jsonpath='{.status.loadBalancer.ingress[0].ip}{"\n"}'); then
+  if kafka_ip=$(kubectl --context $AKS_CLUSTER get services -n kafka $PREFIX-kafka-external-bootstrap -o=jsonpath='{.status.loadBalancer.ingress[0].ip}{"\n"}'); then
     if [ "$kafka_ip" != "" ]; then
       break
     fi

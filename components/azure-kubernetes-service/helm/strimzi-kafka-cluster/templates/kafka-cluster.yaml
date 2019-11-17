@@ -1,11 +1,11 @@
 apiVersion: kafka.strimzi.io/v1beta1
 kind: Kafka
 metadata:
-  name: kcluster
+  name: {{ .Values.kafka.clusterName }}
 spec:
   kafka:
-    version: 2.2.1
-    replicas: 3
+    version: {{ .Values.kafka.version }}
+    replicas: {{ .Values.kafka.brokers }}
     template:
       pod:
         metadata:
@@ -30,7 +30,7 @@ spec:
         # log4j server.log
         log4j.appender.kafkaAppender: org.apache.log4j.DailyRollingFileAppender
         log4j.appender.kafkaAppender.DatePattern: "'.'yyyy-MM-dd-HH"
-        log4j.appender.kafkaAppender.File: {{ .Values.kafkaLogDirs }}/server.log
+        log4j.appender.kafkaAppender.File: {{ .Values.kafka.LogDirs }}/server.log
         log4j.appender.kafkaAppender.layout: org.apache.log4j.PatternLayout
         log4j.appender.kafkaAppender.layout.ConversionPattern: '[%d] %p %m (%c)%n'
     listeners:
@@ -145,7 +145,7 @@ spec:
         labels:
           quantile: "0.$4"
   zookeeper:
-    replicas: 3
+    replicas: {{ .Values.zookeeper.replicas }}
     template:
       pod:
         metadata:
