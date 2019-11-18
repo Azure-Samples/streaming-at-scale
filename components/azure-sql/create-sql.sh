@@ -17,7 +17,7 @@ az sql server create \
     --resource-group $RESOURCE_GROUP \
     --admin-user serveradmin \
     --admin-password "$SQL_ADMIN_PASS" \
-    -o tsv >> log.txt
+    -o json >> log.txt
 
 echo "enabling access from Azure"
 # Configure a firewall rule for the server
@@ -27,26 +27,26 @@ az sql server firewall-rule create \
     -n AllowAllWindowsAzureIps \
     --start-ip-address 0.0.0.0 \
     --end-ip-address 0.0.0.0 \
-    -o tsv >> log.txt
+    -o json >> log.txt
 
 echo "deploying database $SQL_TYPE"
 az sql $SQL_TYPE create --resource-group "$RESOURCE_GROUP" \
     --server $SQL_SERVER_NAME \
     --name $SQL_DATABASE_NAME \
     --service-objective $SQL_SKU \
-    -o tsv >> log.txt
+    -o json >> log.txt
 
 echo 'creating file share'
 az storage share create -n sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
-    -o tsv >> log.txt
+    -o json >> log.txt
 
 echo 'uploading provisioning scripts'
 az storage file upload --source ../components/azure-sql/provision/provision.sh \
     --share-name sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
-    -o tsv >> log.txt
+    -o json >> log.txt
 az storage file upload-batch --source ../components/azure-sql/provision/$SQL_TYPE \
     --destination sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
-    -o tsv >> log.txt
+    -o json >> log.txt
 
 echo 'running provisioning scripts in container instance'
 instanceName="sqlprovision-$(uuidgen | tr A-Z a-z)"
@@ -58,27 +58,29 @@ az container create -g $RESOURCE_GROUP -n "$instanceName" \
     --environment-variables SQL_SERVER_NAME=$SQL_SERVER_NAME SQL_DATABASE_NAME=$SQL_DATABASE_NAME \
     --secure-environment-variables SQL_ADMIN_PASS="$SQL_ADMIN_PASS" \
     --cpu 1 --memory 1 \
-    --restart-policy Never 
-    ##-o tsv >> log.txt
+    --restart-policy Never \
+    -o json >> log.txt
+
+echo "waiting for sql provisioning to finish..."
 
 TIMEOUT=60
 for i in $(seq 1 $TIMEOUT); do
-  containerState=$(az container show  -g $RESOURCE_GROUP -n "$instanceName" --query instanceView.state -o tsv)
+  containerState=$(az container show -g $RESOURCE_GROUP -n "$instanceName" --query instanceView.state -o tsv)
   case "state_$containerState" in
     state_Pending|state_Running) : ;;
     *) break;;
   esac
 done
 
+echo "sql provisioning state: $containerState"
+
 if [ "$containerState" != "Succeeded" ]; then
   az container logs  -g $RESOURCE_GROUP -n "$instanceName"
 fi
 
-echo "SQL provisioning: $containerState"
-
 echo 'deleting container instance'
 az container delete -g $RESOURCE_GROUP -n "$instanceName" --yes \
-    -o tsv >> log.txt
+    -o json >> log.txt
 
 if [ "$containerState" != "Succeeded" ]; then  
   exit 1
