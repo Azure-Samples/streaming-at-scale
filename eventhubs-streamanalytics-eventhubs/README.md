@@ -97,10 +97,15 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
+
+## Duplicate event handling
+
+The solution does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in the destination Event Hub.
 
 ## Anomaly detection
 
@@ -124,7 +129,7 @@ If you want to change some setting of the solution, like number of load test cli
     export PROC_STREAMING_UNITS=3
     export SIMULATOR_INSTANCES=1
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
 ## Monitor performance
 

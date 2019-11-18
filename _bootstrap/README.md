@@ -51,9 +51,12 @@ Code should be self-explanatory; if not, just ask.
 once you have created your file, make sure you rename it so that it will be clear which technology is using.
 
 ### source ../components/azure-functions/create-processing-function.sh
+### source ../components/azure-functions/configure-processing-function-eventhubs.sh
 ### source ../components/azure-functions/configure-processing-function-cosmosdb.sh
 
 `create-processing-function.sh`: this script creates an Azure Function for stream processing, again you can use another component instead, such as Databricks, or provide your own script.
+
+`configure-processing-function-eventhubs.sh`: this script configures the Azure Function for input from Event Hubs, here too you can change to another variant, e.g. to input from Kafka.
 
 `configure-processing-function-cosmosdb.sh`: this script configures the Azure Function for output to Cosmos DB, here too you can change to another variant, e.g. to output to Azure SQL.
 
@@ -99,6 +102,7 @@ Each client generates up to 2000 msgs/sec. Each generated message is close to 1K
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-1554",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }

@@ -26,12 +26,13 @@ import java.time.Instant
 import java.sql.Timestamp
 
 val schema = StructType(
-  StructField("eventId", StringType) ::
-  StructField("complexData", StructType((1 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
-  StructField("value", StringType) ::
-  StructField("type", StringType) ::
-  StructField("deviceId", StringType) ::
-  StructField("createdAt", TimestampType) :: Nil)
+  StructField("eventId", StringType, false) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType, false)))) ::
+  StructField("value", StringType, false) ::
+  StructField("type", StringType, false) ::
+  StructField("deviceId", StringType, false) ::
+  StructField("deviceSequenceNumber", LongType, false) ::
+  StructField("createdAt", TimestampType, false) :: Nil)
 
 var streamData = eventhubs
   .select(from_json(decode($"body", "UTF-8"), schema).as("eventData"), $"*")
@@ -59,7 +60,7 @@ streamData
   .withColumn("storedAt", current_timestamp)
   .writeStream
   .outputMode("append")
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-delta/" + dbutils.widgets.get("delta-table"))
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/eventhubs-to-delta/" + dbutils.widgets.get("delta-table"))
   .format("delta")
   .option("path", s"abfss://streamingatscale@$gen2account.dfs.core.windows.net/" + dbutils.widgets.get("delta-table"))
   .table(dbutils.widgets.get("delta-table"))

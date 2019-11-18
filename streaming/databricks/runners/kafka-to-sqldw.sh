@@ -10,7 +10,7 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "sqldw-pass" --string-value "$SQL_ADMIN_PASS"
 databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$AZURE_STORAGE_KEY"
 
-checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/streaming-sqldw
+checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/kafka-to-sqldw
 echo "Deleting checkpoints directory $checkpoints_dir"
 databricks fs rm -r "$checkpoints_dir"
 

@@ -2,45 +2,6 @@
 
 set -euo pipefail
 
-echo "checking Key Vault exists"
-if ! az keyvault show -g $RESOURCE_GROUP -n $DATAEXPLORER_KEYVAULT -o none 2>/dev/null ; then
-  echo "creating KeyVault $DATAEXPLORER_KEYVAULT"
-  az keyvault create -g $RESOURCE_GROUP -n $DATAEXPLORER_KEYVAULT -o tsv >>log.txt
-fi
-
-# Create service principal for consumer clients to read Data Explorer data (used by Databricks verification job).
-# Run as early as possible in script, as principal takes time to become available for RBAC operation below.
-echo "checking service principal exists"
-if ! az keyvault secret show --vault-name $DATAEXPLORER_KEYVAULT --name $DATAEXPLORER_CLIENT_NAME-password -o none 2>/dev/null ; then
-  # When running in Azure DevOps pipeline (AzureCLI task with "addSpnToEnvironment: true"), use the provided service principal
-  if [ -n "${servicePrincipalId:-}" ]; then
-    appId="$servicePrincipalId"
-    password="$servicePrincipalKey"
-  # Otherwise create a new service principal
-  else
-    echo "creating service principal"
-    password=$(az ad sp create-for-rbac \
-                  --skip-assignment \
-                  --name http://$DATAEXPLORER_CLIENT_NAME \
-                  --query password \
-                  --output tsv)
-    echo "getting service principal"
-    appId=$(az ad sp show --id http://$DATAEXPLORER_CLIENT_NAME --query appId --output tsv)
-  fi
-
-  echo "storing service principal in Key Vault"
-  az keyvault secret set \
-    --vault-name $DATAEXPLORER_KEYVAULT \
-    --name $DATAEXPLORER_CLIENT_NAME-id \
-    --value "$appId" \
-    -o tsv >>log.txt
-  az keyvault secret set \
-    --vault-name $DATAEXPLORER_KEYVAULT \
-    --name $DATAEXPLORER_CLIENT_NAME-password \
-    --value "$password" \
-    -o tsv >>log.txt
-fi
-
 echo 'creating Data Explorer cluster'
 echo ". name: $DATAEXPLORER_CLUSTER"
 if ! az kusto cluster show -g $RESOURCE_GROUP -n $DATAEXPLORER_CLUSTER -o none 2>/dev/null; then
@@ -73,15 +34,16 @@ az rest --method "POST" \
 }
 
 echo 'creating Data Explorer table'
-kustoQuery "/v1/rest/mgmt" ".create table EventTable ( eventId: string, complexData: dynamic, value: string, type: string, deviceId: string, createdAt: datetime)"
+kustoQuery "/v1/rest/mgmt" ".create table EventTable ( eventId: string, complexData: dynamic, value: string, type: string, deviceId: string, deviceSequenceNumber: long, createdAt: datetime)"
 echo 'creating Data Explorer table mapping'
 if ! kustoQuery "/v1/rest/mgmt" ".show table EventTable ingestion json mapping \\\"EventMapping\\\"" 2>/dev/null; then
-  kustoQuery "/v1/rest/mgmt" ".create table EventTable ingestion json mapping 'EventMapping' '[ { \\\"column\\\": \\\"eventId\\\", \\\"path\\\": \\\"$.eventId\\\" }, { \\\"column\\\": \\\"complexData\\\", \\\"path\\\": \\\"$.complexData\\\" }, { \\\"column\\\": \\\"value\\\", \\\"path\\\": \\\"$.value\\\" }, { \\\"column\\\": \\\"type\\\", \\\"path\\\": \\\"$.type\\\" }, { \\\"column\\\": \\\"deviceId\\\", \\\"path\\\": \\\"$.deviceId\\\" }, { \\\"column\\\": \\\"createdAt\\\", \\\"path\\\": \\\"$.createdAt\\\" } ]'"
+  kustoQuery "/v1/rest/mgmt" ".create table EventTable ingestion json mapping 'EventMapping' '[ { \\\"column\\\": \\\"eventId\\\", \\\"path\\\": \\\"$.eventId\\\" }, { \\\"column\\\": \\\"complexData\\\", \\\"path\\\": \\\"$.complexData\\\" }, { \\\"column\\\": \\\"value\\\", \\\"path\\\": \\\"$.value\\\" }, { \\\"column\\\": \\\"type\\\", \\\"path\\\": \\\"$.type\\\" }, { \\\"column\\\": \\\"deviceId\\\", \\\"path\\\": \\\"$.deviceId\\\" }, { \\\"column\\\": \\\"deviceSequenceNumber\\\", \\\"path\\\": \\\"$.deviceSequenceNumber\\\" }, { \\\"column\\\": \\\"createdAt\\\", \\\"path\\\": \\\"$.createdAt\\\" } ]'"
 fi
 
 echo "getting Service Principal ID"
-appId=$(az keyvault secret show --vault-name $DATAEXPLORER_KEYVAULT -n $DATAEXPLORER_CLIENT_NAME-id --query value -o tsv)
+appId=$(az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT -n $SERVICE_PRINCIPAL_KV_NAME-id --query value -o tsv)
 
+# Grant service principal permissions to read Data Explorer data (used by Databricks verification job).
 echo "granting service principal Data Explorer database Viewer permissions"
 MAXRETRY=60
 for i in $(seq 1 $MAXRETRY); do

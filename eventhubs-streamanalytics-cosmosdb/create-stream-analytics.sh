@@ -26,6 +26,6 @@ az group deployment create \
     cosmosdbDatabase=$COSMOSDB_DATABASE_NAME \
     cosmosdbCollectionName=$COSMOSDB_COLLECTION_NAME \
     cosmosdbPartitionKey=deviceId \
-    cosmosdbDocumentId='id' \
+    cosmosdbDocumentId=eventId \
   -o tsv >> log.txt
 

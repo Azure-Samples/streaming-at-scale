@@ -1,11 +1,15 @@
 // Databricks notebook source
 dbutils.widgets.text("kafka-servers", "")
 dbutils.widgets.text("kafka-topics", "streaming")
+dbutils.widgets.text("kafka-sasl-mechanism", "")
+dbutils.widgets.text("kafka-security-protocol", "")
 dbutils.widgets.text("cosmosdb-endpoint", "https://MYACCOUNT.documents.azure.com", "Cosmos DB endpoint")
 dbutils.widgets.text("cosmosdb-database", "streaming", "Cosmos DB database")
 dbutils.widgets.text("cosmosdb-collection", "rawdata", "Cosmos DB collection")
 
 // COMMAND ----------
+
+import java.util.UUID.randomUUID
 
 val data = spark.readStream
   .format("kafka")
@@ -13,6 +17,7 @@ val data = spark.readStream
   .option("kafka.sasl.mechanism", dbutils.widgets.get("kafka-sasl-mechanism"))
   .option("kafka.security.protocol", dbutils.widgets.get("kafka-security-protocol"))
   .option("kafka.sasl.jaas.config", dbutils.secrets.get(scope = "MAIN", key = "kafka-sasl-jaas-config"))
+  .option("kafka.group.id", randomUUID().toString)
   .option("subscribe", dbutils.widgets.get("kafka-topics"))
   .option("startingOffsets", "earliest")
   .load()
@@ -25,17 +30,20 @@ import java.time.Instant
 import java.sql.Timestamp
 
 val schema = StructType(
-  StructField("eventId", StringType) ::
-  StructField("complexData", StructType((1 to 22).map(i => StructField(s"moreData$i", DoubleType)))) ::
-  StructField("value", DoubleType) ::
-  StructField("type", StringType) ::
-  StructField("deviceId", StringType) ::
-  StructField("createdAt", TimestampType) :: Nil)
+  StructField("eventId", StringType, false) ::
+  StructField("complexData", StructType((0 to 22).map(i => StructField(s"moreData$i", DoubleType, false)))) ::
+  StructField("value", DoubleType, false) ::
+  StructField("type", StringType, false) ::
+  StructField("deviceId", StringType, false) ::
+  StructField("deviceSequenceNumber", LongType, false) ::
+  StructField("createdAt", TimestampType, false) :: Nil)
 
 val streamData = data
   .select(from_json(decode($"value", "UTF-8"), schema).as("eventData"), $"*")
   .select($"eventData.*", $"timestamp".as("enqueuedAt"))
   .withColumn("processedAt", lit(Timestamp.from(Instant.now)))
+  // Unique ID column for Upsert
+  .withColumn("id", 'eventId)
 
 // COMMAND ----------
 
@@ -44,6 +52,8 @@ val streamData = data
 // for the description of the available configurations.
 val cosmosDbConfig = Map(
   "Endpoint" -> dbutils.widgets.get("cosmosdb-endpoint"),
+  "ConnectionMode" -> "DirectHttps",
+  "Upsert" -> "true",
   "Masterkey" -> dbutils.secrets.get(scope = "MAIN", key = "cosmosdb-write-master-key"),
   "Database" -> dbutils.widgets.get("cosmosdb-database"),
   "Collection" -> dbutils.widgets.get("cosmosdb-collection")
@@ -64,7 +74,7 @@ import com.microsoft.azure.cosmosdb.spark.streaming.CosmosDBSinkProvider
 streamDataMutated
   .writeStream
   .format(classOf[CosmosDBSinkProvider].getName)
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/streaming-cosmosdb")
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/kafka-to-cosmosdb")
   .outputMode("append")
   .options(cosmosDbConfig)
   .start()

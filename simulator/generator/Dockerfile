@@ -29,7 +29,7 @@ WORKDIR /project
 FROM mcr.microsoft.com/java/jre:8u192-zulu-alpine AS production
 
 # Install Python
-RUN apk add --no-cache python3=3.6.8-r0 bash
+RUN apk add --no-cache python3 bash
 
 COPY --from=build /venv /venv
 

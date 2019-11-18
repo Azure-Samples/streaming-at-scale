@@ -2,29 +2,19 @@
 
 set -euo pipefail
 
-echo 'creating cosmosdb account'
-echo ". name: $COSMOSDB_SERVER_NAME"
-SERVER_EXISTS=`az cosmosdb check-name-exists -n $COSMOSDB_SERVER_NAME -o tsv`
-if [ $SERVER_EXISTS == "false" ]; then
-    az cosmosdb create -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME \
-        -o tsv >> log.txt
-fi
+# Using ARM template as AZ CLI does not allow setting unique keys, https://github.com/Azure/azure-cli/issues/6206
 
-echo 'creating cosmosdb database'
-echo ". name: $COSMOSDB_DATABASE_NAME"
-DB_EXISTS=`az cosmosdb database exists -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --db-name $COSMOSDB_DATABASE_NAME -o tsv`
-if [ $DB_EXISTS == "false" ]; then
-    az cosmosdb database create -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --db-name $COSMOSDB_DATABASE_NAME \
-        -o tsv >> log.txt
-fi
+echo 'creating Cosmos DB instance'
+echo ". account name: $COSMOSDB_SERVER_NAME"
+echo ". database name: $COSMOSDB_DATABASE_NAME"
+echo ". collection name: $COSMOSDB_COLLECTION_NAME"
 
-echo 'creating cosmosdb collection'
-echo ". name: $COSMOSDB_COLLECTION_NAME"
-COLLECTION_EXISTS=`az cosmosdb collection exists -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --db-name $COSMOSDB_DATABASE_NAME --collection-name $COSMOSDB_COLLECTION_NAME -o tsv`
-if [ $COLLECTION_EXISTS == "false" ]; then
-    az cosmosdb collection create -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME \
-        -d $COSMOSDB_DATABASE_NAME --collection-name $COSMOSDB_COLLECTION_NAME \
-        --partition-key-path "/deviceId" --throughput $COSMOSDB_RU \
-        --indexing-policy @../components/azure-cosmosdb/index-policy.json \
-        -o tsv >> log.txt
-fi
+az group deployment create \
+  --resource-group $RESOURCE_GROUP \
+  --template-file ../components/azure-cosmosdb/cosmosdb-arm-template.json \
+  --parameters \
+    accountName=$COSMOSDB_SERVER_NAME \
+    databaseName=$COSMOSDB_DATABASE_NAME \
+    containerName=$COSMOSDB_COLLECTION_NAME \
+    throughput=$COSMOSDB_RU \
+  -o tsv >> log.txt

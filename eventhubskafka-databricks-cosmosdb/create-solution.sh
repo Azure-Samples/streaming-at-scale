@@ -3,15 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-on_error() {
-    set +e
-    echo "There was an error, execution halted" >&2
-    echo "Error at line $1"
-    exit 1
-}
-
-trap 'on_error $LINENO' ERR
-
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
@@ -171,7 +162,7 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh "$EVENTHUB_NAMESPACE" "Listen"
         source ../streaming/databricks/runners/kafka-to-cosmosdb.sh
     fi
 echo
@@ -180,7 +171,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh
+        source ../components/azure-event-hubs/get-eventhubs-kafka-brokers.sh "$EVENTHUB_NAMESPACE" "Send"
         source ../simulator/run-generator-kafka.sh
     fi
 echo

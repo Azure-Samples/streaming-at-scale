@@ -102,12 +102,13 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
 
-## Duplicate handling
+## Duplicate event handling
 
 In case the Databricks job fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Azure SQL Database. The solution implements an ETL process to make this operation idempotent, so that events are not duplicated in Azure SQL Database (based on the eventId attribute). The process has been engineered for performance at high throughput.
 
@@ -126,7 +127,7 @@ The stored procedure code is as follows:
 CREATE PROCEDURE [dbo].[stp_WriteDataBatch] 
 as
   -- Move events from staging_table to rawdata table.
-  -- WARNING: This procedure is non transaction to optimize performance, and
+  -- WARNING: This procedure is non-transactional to optimize performance, and
   --          assumes no concurrent writes into the staging_table during its execution.
   declare @buid uniqueidentifier = newId();
 
@@ -151,10 +152,10 @@ MERGE dbo.rawdata AS t
         ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
 
     WHEN NOT MATCHED THEN
-        INSERT (PartitionId, EventId, Type, DeviceId, CreatedAt, Value, ComplexData, 
-	                EnqueuedAt, ProcessedAt, BatchId, StoredAt) 
-        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.CreatedAt, s.Value, s.ComplexData,
-	                s.EnqueuedAt, s.ProcessedAt, @buid, sysutcdatetime())
+        INSERT (PartitionId, EventId, Type, DeviceId, DeviceSequenceNumber, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
+			BatchId, StoredAt) 
+        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+			@buid, sysutcdatetime())
         ;
 
 TRUNCATE TABLE dbo.staging_table;
@@ -174,7 +175,7 @@ If you want to change some setting of the solution, like number of load test cli
     export DATABRICKS_MAXEVENTSPERTRIGGER=10000
 ```
 
-The above settings has been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
 ## Monitor performance
 

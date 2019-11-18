@@ -113,10 +113,14 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
+## Duplicate event handling
+
+The solution currently does not perform event deduplication. As there is a unique ID on the eventId field in Azure SQL Database, the solution is only suitable when the upstream event generation pipeline up to Event Hubs has at-most once delivery guarantees (i.e. fire and forget message delivery, where messages are not redelivered even if the Event Hub does not acknowledge reception).
 
 ## Solution customization
 
@@ -132,7 +136,7 @@ export SQL_TABLE_KIND="rowstore" # or "columnstore"
 export SIMULATOR_INSTANCES=1
 ```
 
-The above settings has been chosen to sustain a 1000 msg/sec stream.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
 ## Scaling the solution
 

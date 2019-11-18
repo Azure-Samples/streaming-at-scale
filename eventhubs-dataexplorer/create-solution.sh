@@ -135,11 +135,12 @@ echo "***** [D] Setting up DATABASE"
 
     export DATAEXPLORER_CLUSTER=$PREFIX"adx" 
     export DATAEXPLORER_DATABASE="streaming"
-    export DATAEXPLORER_CLIENT_NAME=$DATAEXPLORER_CLUSTER"-reader"
-    export DATAEXPLORER_KEYVAULT=$DATAEXPLORER_CLUSTER"kv"
+    export SERVICE_PRINCIPAL_KV_NAME=$DATAEXPLORER_CLUSTER"-reader"
+    export SERVICE_PRINCIPAL_KEYVAULT=$PREFIX"spkv"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
+        source ../components/azure-common/create-service-principal.sh
         source ../components/azure-dataexplorer/create-dataexplorer.sh
     fi
 echo
@@ -164,6 +165,7 @@ echo "***** [V] Starting deployment VERIFICATION"
 
     export ADB_WORKSPACE=$PREFIX"databricks" 
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
+    export ALLOW_DUPLICATES=1
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then

@@ -58,8 +58,7 @@ sudo apt-get install dotnet-sdk-2.2
 * Create a Databricks workspace in the Azure region of your choice:
   * tier: standard
   * make sure the workspace is deployed with a custom VNET (as the HDInsight
-    Kafka setup will need to peer VNETs). The custom VNET must be named
-    'databricks-vnet'.
+    Kafka setup will need to peer VNETs).
   * You can use the [Databricks VNET
   template](https://azure.microsoft.com/en-us/resources/templates/101-databricks-all-in-one-template-for-vnet-injection/),
   changing the tier to standard on the deployment screen.
@@ -77,6 +76,7 @@ sudo apt-get install dotnet-sdk-2.2
 | --------------------   | ---------------------------------------------- | --------- | ---------- |
 | LOCATION               | Azure region in which to deploy infrastructure | required  | eastus     |
 | DATABRICKS_PAT_TOKEN   | (secret variable) Databricks PAT token for a Databricks workspace deployed in $LOCATION | required | dapi012345... |
+| DATABRICKS_VNET | Databricks VNET name (default value: 'databricks-vnet') | optional | databricks-vnet |
 | DATABRICKS_VNET_RESOURCE_GROUP | Resource Group containing the Databricks VNET | required | streamingitests |
 | RESOURCE_GROUP_PREFIX  | Prefix used to name deployed resources. Must be globally unique, use a sufficiently unique string  | required | xyzzy0x4 |
 | AGENT_VM_RESOURCE_GROUP | Resource group of the build agent VM  | required | streamingitests |

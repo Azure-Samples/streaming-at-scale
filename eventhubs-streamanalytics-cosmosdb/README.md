@@ -97,14 +97,17 @@ Streamed data simulates an IoT device sending the following JSON data:
     },
     "value": 49.02278128887753,
     "deviceId": "contoso://device-id-154",
+    "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
 
-## Duplicate handling
+## Duplicate event handling
 
 In case the Azure Stream Analytics infrastructure fails and recovers, it could process a second time an event from Event Hubs that has already been stored in Cosmos DB. The solution uses Stream Analytics functionality to [upsert into Cosmos DB](https://docs.microsoft.com/en-us/azure/stream-analytics/stream-analytics-documentdb-output#upserts-from-stream-analytics) to make this operation idempotent, so that events are not duplicated in Cosmos DB (based on the eventId attribute).
+
+In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicates will not be present in Cosmos DB.
 
 ## Solution customization
 
@@ -116,7 +119,9 @@ If you want to change some setting of the solution, like number of load test cli
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1
 
-The above settings has been chosen to sustain a 1000 msg/sec stream. Likewise, below settings has been chosen to sustain at least 10,000 msg/sec stream. Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
+The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
+
+The below settings are used to sustain at least 10,000 msg/sec stream. Each input event is about 1KB, so this translates to 10MB/sec throughput or higher.
 
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
