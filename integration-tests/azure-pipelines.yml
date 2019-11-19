@@ -29,6 +29,8 @@ jobs:
 
   - task: HelmInstaller@1
     displayName: 'Install helm'
+    inputs: 
+      helmVersionToInstall: 2.15.1
 
   - bash: |
       set -e

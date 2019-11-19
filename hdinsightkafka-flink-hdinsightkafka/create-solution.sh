@@ -119,24 +119,9 @@ echo "Checking pre-requisites..."
 
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
-
-HAS_HELM=$(command -v helm || true)
-if [ -z "$HAS_HELM" ]; then
-    echo "helm not found"
-    exit 1
-fi
-
-HAS_KUBECTL=$(command -v kubectl || true)
-if [ -z "$HAS_KUBECTL" ]; then
-    echo "kubectl not found"
-    exit 1
-fi
-
-HAS_MAVEN=$(command -v mvn || true)
-if [ -z "$HAS_MAVEN" ]; then
-    echo "mvn not found"
-    exit 1
-fi
+source ../assert/has-local-helm.sh
+source ../assert/has-local-kubectl.sh
+source ../assert/has-local-mvn.sh
 
 echo
 echo "Streaming at Scale with Flink"
