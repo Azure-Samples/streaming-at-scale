@@ -65,10 +65,15 @@ sudo apt install maven
   template](https://azure.microsoft.com/en-us/resources/templates/101-databricks-all-in-one-template-for-vnet-injection/),
   changing the tier to standard on the deployment screen.
 * Install a build agent (instructions below).
+* In Azure AD, create a service principal. Grant the service principal
+  *Owner* permission on your subscription (we can't use the automatic
+  service connection dialog in Azure DevOps, as that would only grant
+  *Contributor* permissions. We need *Owner* in order to grant Azure Kubernetes
+  Service permissions to pull containers from Azure Container Registry).
 * In your Azure DevOps project settings, navigate to service connection and
   create an ARM service connection to your Azure subscription named
-  'ARMConnection'. Do not restrict the connection to a particular resource
-  group.
+  'ARMConnection'. *Use the full version* of the dialog to use your service
+  principal.
 * Create a build pipeline:
   * As pipeline source, use https://github.com/Azure-Samples/streaming-at-scale.git.
   * As pipeline content, reference integration-tests/azure-pipelines.yaml.
