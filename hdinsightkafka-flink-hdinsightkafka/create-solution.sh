@@ -226,6 +226,7 @@ echo "***** [V] Starting deployment VERIFICATION"
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
+        source ../components/azure-databricks/peer-databricks-vnet.sh
         source ../components/azure-hdinsight/get-hdinsight-kafka-brokers.sh
         source ../streaming/databricks/runners/verify-kafka.sh
     fi
