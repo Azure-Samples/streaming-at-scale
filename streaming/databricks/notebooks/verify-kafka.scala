@@ -59,12 +59,20 @@ var query = streamingData
 
 // COMMAND ----------
 
+import java.util.Calendar
+
+
 println("Waiting while stream collects data")
 while (query.isActive) {
   if (!query.status.isDataAvailable) {
+    println(Calendar.getInstance().getTime())
     println("No more data available")
     // https://stackoverflow.com/questions/45717433/stop-structured-streaming-query-gracefully
-    while (query.status.isTriggerActive) {}
+    while (query.status.isTriggerActive) {
+      println(Calendar.getInstance().getTime())
+      println("Trigger is active")
+      Thread.sleep(1000)
+    }
     query.stop
   }
   Thread.sleep(1000)
