@@ -147,7 +147,7 @@
                                 "binding": {
                                     "type": "Microsoft.StreamAnalytics/JavascriptUdf",
                                     "properties": {
-                                        "script": "// Generate new UUID4 based on time\nfunction newUUID4(dummy) {\n    var d = new Date().toISOString().replace(/[-:TZ/.]/g, \"\");\n    var uuid4 = \"00000000-\" + d.substr(0, 4) + \"-00\" + d.substr(5, 2) + \"-00\" + d.substr(6, 2) + \"-000\" + d.substr(8, 9);\n    return uuid4;\n}"
+                                        "script": "// Generate new UUID4 based on time\nfunction newUUID4(dummy) {\n    var d = new Date().toISOString().replace(/[-:TZ/.]/g, \"\");\n    var uuid4 = \"00000000-\" + d.substr(0, 4) + \"-00\" + d.substr(4, 2) + \"-00\" + d.substr(6, 2) + \"-000\" + d.substr(8, 9);\n    return uuid4;\n}"
                                     }
                                 }
                             }
