@@ -44,7 +44,7 @@ GO
 CREATE TABLE [dbo].[rawdata]
 (
 	[BatchId] [uniqueidentifier] NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL DEFAULT NEWSEQUENTIALID(),
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
 	[DeviceSequenceNumber] [bigint] NOT NULL,
