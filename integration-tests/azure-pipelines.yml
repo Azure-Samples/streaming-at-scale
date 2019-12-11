@@ -29,6 +29,8 @@ jobs:
 
   - task: HelmInstaller@1
     displayName: 'Install helm'
+    inputs: 
+      helmVersionToInstall: 2.15.1
 
   - bash: |
       set -e
@@ -53,6 +55,7 @@ jobs:
       azureSubscription: ARMConnection
       scriptLocation: 'inlineScript'
       inlineScript: cd integration-tests && python3 -m pytest -s --stage 1
+      addSpnToEnvironment: true
     displayName: 'pytest stage 1'
 
   - task: AzureCLI@1
