@@ -24,6 +24,14 @@ jobs:
     DATABRICKS_HOST: https://$(LOCATION).azuredatabricks.net
   steps:
 
+  - task: KubectlInstaller@0
+    displayName: 'Install kubectl'
+
+  - task: HelmInstaller@1
+    displayName: 'Install helm'
+    inputs: 
+      helmVersionToInstall: 2.15.1
+
   - bash: |
       set -e
       while ps -opid= -C dpkg > /dev/null; do
@@ -47,6 +55,7 @@ jobs:
       azureSubscription: ARMConnection
       scriptLocation: 'inlineScript'
       inlineScript: cd integration-tests && python3 -m pytest -s --stage 1
+      addSpnToEnvironment: true
     displayName: 'pytest stage 1'
 
   - task: AzureCLI@1

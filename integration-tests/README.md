@@ -50,6 +50,8 @@ sudo add-apt-repository universe
 sudo apt-get install apt-transport-https
 sudo apt-get update
 sudo apt-get install dotnet-sdk-2.2
+# Install maven
+sudo apt install maven
 ```
 
 
@@ -58,16 +60,20 @@ sudo apt-get install dotnet-sdk-2.2
 * Create a Databricks workspace in the Azure region of your choice:
   * tier: standard
   * make sure the workspace is deployed with a custom VNET (as the HDInsight
-    Kafka setup will need to peer VNETs). The custom VNET must be named
-    'databricks-vnet'.
+    Kafka setup will need to peer VNETs).
   * You can use the [Databricks VNET
   template](https://azure.microsoft.com/en-us/resources/templates/101-databricks-all-in-one-template-for-vnet-injection/),
   changing the tier to standard on the deployment screen.
 * Install a build agent (instructions below).
+* In Azure AD, create a service principal. Grant the service principal
+  *Owner* permission on your subscription (we can't use the automatic
+  service connection dialog in Azure DevOps, as that would only grant
+  *Contributor* permissions. We need *Owner* in order to grant Azure Kubernetes
+  Service permissions to pull containers from Azure Container Registry).
 * In your Azure DevOps project settings, navigate to service connection and
   create an ARM service connection to your Azure subscription named
-  'ARMConnection'. Do not restrict the connection to a particular resource
-  group.
+  'ARMConnection'. *Use the full version* of the dialog to use your service
+  principal.
 * Create a build pipeline:
   * As pipeline source, use https://github.com/Azure-Samples/streaming-at-scale.git.
   * As pipeline content, reference integration-tests/azure-pipelines.yaml.
@@ -77,6 +83,7 @@ sudo apt-get install dotnet-sdk-2.2
 | --------------------   | ---------------------------------------------- | --------- | ---------- |
 | LOCATION               | Azure region in which to deploy infrastructure | required  | eastus     |
 | DATABRICKS_PAT_TOKEN   | (secret variable) Databricks PAT token for a Databricks workspace deployed in $LOCATION | required | dapi012345... |
+| DATABRICKS_VNET | Databricks VNET name (default value: 'databricks-vnet') | optional | databricks-vnet |
 | DATABRICKS_VNET_RESOURCE_GROUP | Resource Group containing the Databricks VNET | required | streamingitests |
 | RESOURCE_GROUP_PREFIX  | Prefix used to name deployed resources. Must be globally unique, use a sufficiently unique string  | required | xyzzy0x4 |
 | AGENT_VM_RESOURCE_GROUP | Resource group of the build agent VM  | required | streamingitests |

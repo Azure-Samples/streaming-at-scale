@@ -64,8 +64,8 @@ fi
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export HDINSIGHT_KAFKA_WORKERS="4"  
+    export HDINSIGHT_KAFKA_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=16
     export SQL_SKU=DW100c
     export SIMULATOR_INSTANCES=5
@@ -76,8 +76,8 @@ fi
 
 # 5000 messages/sec
 if [ "$TESTTYPE" == "5" ]; then
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export HDINSIGHT_KAFKA_WORKERS="4"  
+    export HDINSIGHT_KAFKA_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=10
     export SQL_SKU=DW100c
     export SIMULATOR_INSTANCES=3 
@@ -88,8 +88,8 @@ fi
 
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
-    export HDINSIGHT_WORKERS="4"  
-    export HDINSIGHT_WORKER_SIZE="Standard_D3_V2"  
+    export HDINSIGHT_KAFKA_WORKERS="4"  
+    export HDINSIGHT_KAFKA_WORKER_SIZE="Standard_D3_V2"  
     export KAFKA_PARTITIONS=4
     export SQL_SKU=DW100c
     export SIMULATOR_INSTANCES=1 
@@ -139,7 +139,7 @@ echo
 echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
-echo ". HDInsight Kafka => VM: $HDINSIGHT_WORKER_SIZE, Workers: $HDINSIGHT_WORKERS, Partitions: $KAFKA_PARTITIONS"
+echo ". HDInsight Kafka => VM: $HDINSIGHT_KAFKA_WORKER_SIZE, Workers: $HDINSIGHT_KAFKA_WORKERS, Partitions: $KAFKA_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
 echo ". Azure SQL DW    => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
@@ -163,8 +163,9 @@ echo
 
 echo "***** [I] Setting up INGESTION"
     
-    export LOG_ANALYTICS_WORKSPACE=$PREFIX"mon"    
-    export HDINSIGHT_NAME=$PREFIX"hdi"    
+    source ../components/azure-monitor/generate-workspace-name.sh
+
+    export HDINSIGHT_KAFKA_NAME=$PREFIX"hdi"    
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"  
 
     RUN=`echo $STEPS | grep I -o || true`

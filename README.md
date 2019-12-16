@@ -14,6 +14,7 @@ products:
   - azure-data-explorer
   - azure-event-hubs
   - azure-functions  
+  - azure-kubernetes-service
   - azure-sql-database
   - azure-stream-analytics
   - azure-storage
@@ -101,6 +102,14 @@ End-to-end integration tests are configured to run. You can check the [latest cl
 
 At present time the available solutions are
 
+### [Kafka on AKS + Azure Databricks + Cosmos DB](akskafka-databricks-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Kafka on Azure Kubernetes Service (AKS) (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- Cosmos DB (Serve)
+
 ### [Event Hubs Capture Sample](eventhubs-capture)
 
 Implement stream processing architecture using:
@@ -181,6 +190,30 @@ Implement a stream processing architecture using:
 - Event Hubs (Ingest / Immutable Log)
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
+
+### [HDInsight Kafka + Flink + HDInsight Kafka](hdinsightkafka-flink-hdinsightkafka)
+
+Implement a stream processing architecture using:
+
+- HDInsight Kafka (Ingest / Immutable Log)
+- Flink on HDInsight or Azure Kubernetes Service (Stream Process)
+- HDInsight Kafka (Serve)
+
+### [Event Hubs Kafka + Flink + Event Hubs Kafka](eventhubskafka-flink-eventhubskafka)
+
+Implement a stream processing architecture using:
+
+- Event Hubs Kafka (Ingest / Immutable Log)
+- Flink on HDInsight or Azure Kubernetes Service (Stream Process)
+- Event Hubs Kafka (Serve)
+
+### [Event Hubs Kafka + Azure Functions + Cosmos DB](eventhubskafka-functions-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Event Hubs Kafka (Ingest / Immutable Log)
+- Azure Functions (Stream Process)
+- Cosmos DB (Serve)
 
 ### [HDInsight Kafka + Azure Databricks + Azure SQL](hdinsightkafka-databricks-sqldw)
 

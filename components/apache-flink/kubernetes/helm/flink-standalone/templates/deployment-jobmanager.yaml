@@ -1,0 +1,77 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}-jobmanager
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
+        component: jobmanager
+    spec:
+      serviceAccountName: {{ template "fullname" . }}-service-port-patcher
+      initContainers:
+      - name: check-zookeeper-ready
+        image: docker.io/busybox:1.28
+        # zookeeper_address can be in format "zookeeper:2181" or "zookeeper-0.zookeeper-headless:2181,zookeeper-1.zookeeper-headless:2181,..."
+        command: ['sh', '-c', 
+          'IFS=,; while true; do echo waiting for zookeeper; for zk in "{{ .Values.flink.zookeeper_address }}"; do echo stats | nc -w2 $zk | grep Mode: && exit; done; sleep 1; done;']
+      containers:
+      - name: flink
+        image: {{ .Values.image }}:{{ .Values.imageTag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        args:
+        - /opt/flink/bin/standalone-job.sh
+        - start-foreground
+        {{-  range .Values.resources.jobmanager.args }}
+        - !!str {{ . }}
+        {{- end }}
+        ports:
+        - containerPort: 6123
+          name: rpc
+        - containerPort: 6124
+          name: blob
+        - containerPort: 8081
+          name: ui
+        env:
+        - name: FLINK_CONF_DIR
+          value: /etc/flink
+        {{- range $key, $val := .Values.flink.secrets }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" $ }}-secret
+              key: {{ $key }}
+        {{- end }} 
+        livenessProbe:
+          httpGet:
+            path: /overview
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: {{ .Values.resources.jobmanager.limits.cpu }}
+            memory: {{ .Values.resources.jobmanager.limits.memory }}
+          requests:
+            cpu: {{ .Values.resources.jobmanager.requests.cpu }}
+            memory: {{ .Values.resources.jobmanager.requests.memory }}
+        volumeMounts:
+        - name: {{ template "fullname" . }}-config
+          mountPath: /etc/flink
+        - name: flink-fileshare
+          mountPath: /mnt/fileshare
+      - name: service-port-patcher
+        image: {{ .Values.resources.jobmanager.serviceportpatcher.image }}
+        args:
+        - {{ .Release.Namespace }}
+        - {{ template "fullname" . }}-jobmanager
+      volumes:
+        - name: {{ template "fullname" . }}-config
+          configMap:
+            name: {{ template "fullname" . }}-config
+        - name: flink-fileshare
+          persistentVolumeClaim:
+           claimName: {{ template "fullname" . }}-fileshare-pv-claim
