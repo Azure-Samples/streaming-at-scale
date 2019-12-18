@@ -41,11 +41,13 @@ az storage share create -n sqlprovision --connection-string $AZURE_STORAGE_CONNE
     -o json >> log.txt
 
 echo 'uploading provisioning scripts'
+echo 'uploading provision.sh...'
 az storage file upload --source ../components/azure-sql/provision/provision.sh \
     --share-name sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
     -o json >> log.txt
-az storage file upload-batch --source ../components/azure-sql/provision/$SQL_TYPE \
-    --destination sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
+echo "uploading $SQL_TYPE/provision.sql..."
+az storage file upload --source ../components/azure-sql/provision/$SQL_TYPE/provision.sql \
+    --share-name sqlprovision --connection-string $AZURE_STORAGE_CONNECTION_STRING \
     -o json >> log.txt
 
 echo 'running provisioning scripts in container instance'
@@ -63,11 +65,12 @@ az container create -g $RESOURCE_GROUP -n "$instanceName" \
 
 echo "waiting for sql provisioning to finish..."
 
-TIMEOUT=60
+TIMEOUT=180
 for i in $(seq 1 $TIMEOUT); do
   containerState=$(az container show -g $RESOURCE_GROUP -n "$instanceName" --query instanceView.state -o tsv)
+  echo "container state: $containerState"
   case "state_$containerState" in
-    state_Pending|state_Running) : ;;
+    state_Pending|state_Running): sleep 5s;;
     *) break;;
   esac
 done

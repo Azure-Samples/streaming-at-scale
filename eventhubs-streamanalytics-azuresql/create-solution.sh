@@ -62,19 +62,15 @@ done
 shift $((OPTIND-1))
 
 if [[ -z "$PREFIX" ]]; then
-	echo "Enter a name for this deployment."
+    printf "\nError: Enter a name for this deployment.\n\n"   
 	usage
 fi
 
 case $AZURE_SQL_TIER in
-    HS)
-        echo "Test will be using Hyperscale tier."
-        ;;
-    BC)
-        echo "Test will be using Business Critical tier."
+    HS|BC)
         ;;
     *)
-        echo "'-o' param must be set to 'HS' or 'BC'"        
+        printf "\nError: '-o' param must be set to 'HS' or 'BC'\n\n"   
         usage
         ;;
 esac
