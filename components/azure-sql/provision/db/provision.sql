@@ -90,10 +90,10 @@ BEGIN
 	declare @buid uniqueidentifier = newId() 
 
 	insert into dbo.rawdata 
-		([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+		([BatchId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
 	select
 		@buid as BatchId, 	
-		[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+		[Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
 		sysutcdatetime() as StoredAt
 	from
 		@payload

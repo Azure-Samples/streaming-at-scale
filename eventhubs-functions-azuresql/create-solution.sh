@@ -82,7 +82,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=16
-    export SQL_SKU=BC_Gen5_8
+    export SQL_SKU=HS_Gen5_16
     export SIMULATOR_INSTANCES=5
 fi
 
@@ -93,7 +93,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=8
-    export SQL_SKU=P4
+    export SQL_SKU=HS_Gen5_8
     export SIMULATOR_INSTANCES=3
 fi
 
@@ -104,7 +104,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
-    export SQL_SKU=P1
+    export SQL_SKU=HS_Gen5_4
     export SIMULATOR_INSTANCES=1
 fi
 
