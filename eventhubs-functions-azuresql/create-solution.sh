@@ -104,7 +104,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
-    export SQL_SKU=HS_Gen5_4
+    export SQL_SKU=HS_Gen5_2
     export SIMULATOR_INSTANCES=1
 fi
 

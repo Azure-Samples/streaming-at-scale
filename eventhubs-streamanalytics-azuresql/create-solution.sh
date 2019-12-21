@@ -101,7 +101,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_4
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_2
     export SIMULATOR_INSTANCES=1
 fi
 

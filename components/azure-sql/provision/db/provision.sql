@@ -158,3 +158,95 @@ BEGIN
 	;
 END
 GO
+
+/*
+Batch Processing Objects
+*/
+CREATE TABLE [dbo].[staging_table]
+(
+	[EventId] [uniqueidentifier] NOT NULL DEFAULT NEWSEQUENTIALID(),
+	[Type] [varchar](10) NOT NULL,
+	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[Value] [numeric](18, 0) NOT NULL,
+	[ComplexData] [nvarchar](max) NOT NULL,
+	[EnqueuedAt] [datetime2](7) NOT NULL,
+	[ProcessedAt] [datetime2](7) NOT NULL,
+	[PartitionId] [int] NOT NULL
+) ON [ps_af]([PartitionId])
+GO
+
+CREATE PROCEDURE [dbo].[stp_WriteDataBatch] 
+as
+  -- Move events from staging_table to rawdata table.
+  -- WARNING: This procedure is non-transactional to optimize performance, and
+  --          assumes no concurrent writes into the staging_table during its execution.
+  declare @buid uniqueidentifier = newId();
+
+  -- ETL logic: insert events if they do not already exist in destination table
+WITH staging_data_with_partition AS
+(
+	SELECT * 
+	FROM dbo.staging_table
+)
+MERGE dbo.rawdata AS t
+    USING (
+
+      -- Deduplicate events from staging table
+      SELECT  *
+      FROM (SELECT *,
+	    ROW_NUMBER() OVER (PARTITION BY PartitionId, EventId ORDER BY EnqueuedAt) AS RowNumber
+        FROM staging_data_with_partition
+        ) AS StagingDedup
+      WHERE StagingDedup.RowNumber = 1
+
+    ) AS s
+        ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
+
+    WHEN NOT MATCHED THEN
+        INSERT (PartitionId, [Type], DeviceId, DeviceSequenceNumber, CreatedAt, [Value], ComplexData, EnqueuedAt, ProcessedAt, 
+			BatchId, StoredAt) 
+        VALUES (s.PartitionId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+			@buid, sysutcdatetime())
+        ;
+
+TRUNCATE TABLE dbo.staging_table;
+GO
+
+CREATE procedure [dbo].[stp_WriteDataBatch_cs] 
+as
+  -- Move events from staging_table to rawdata table.
+  -- WARNING: This procedure is non-transactional to optimize performance, and
+  --          assumes no concurrent writes into the staging_table during its execution.
+  declare @buid uniqueidentifier = newId();
+
+  -- ETL logic: insert events if they do not already exist in destination table
+WITH staging_data_with_partition AS
+(
+	SELECT * 
+	FROM dbo.staging_table
+)
+MERGE dbo.rawdata_cs AS t
+    USING (
+
+      -- Deduplicate events from staging table
+      SELECT  *
+      FROM (SELECT *,
+	    ROW_NUMBER() OVER (PARTITION BY PartitionId, EventId ORDER BY EnqueuedAt) AS RowNumber
+        FROM staging_data_with_partition
+        ) AS StagingDedup
+      WHERE StagingDedup.RowNumber = 1
+
+    ) AS s
+        ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
+
+    WHEN NOT MATCHED THEN
+        INSERT (PartitionId, [Type], DeviceId, DeviceSequenceNumber, CreatedAt, [Value], ComplexData, EnqueuedAt, ProcessedAt, 
+			BatchId, StoredAt) 
+        VALUES (s.PartitionId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+			@buid, sysutcdatetime())
+        ;
+
+TRUNCATE TABLE dbo.staging_table;
+GO
