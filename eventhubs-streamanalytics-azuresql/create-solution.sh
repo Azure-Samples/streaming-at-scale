@@ -16,6 +16,7 @@ export LOCATION="eastus"
 export TESTTYPE="1"
 export SQL_TABLE_KIND="rowstore"
 export STEPS="CIDPTM"
+export AZURE_SQL_TIER="HS"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
@@ -30,12 +31,13 @@ usage() {
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-k: test rowstore or columnstore. Default=rowstore"
+    echo "-o: test Hyperscale (HS) or Business Critical (BC). Default=HS"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:k:" arg; do
+while getopts ":d:s:t:l:k:o:" arg; do
 	case "${arg}" in
 		d)
 			PREFIX=${OPTARG}
@@ -49,17 +51,29 @@ while getopts ":d:s:t:l:k:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-                k)
+        k)
 			SQL_TABLE_KIND=${OPTARG}
 			;;
+        o)
+            AZURE_SQL_TIER=${OPTARG}
+            ;;
 		esac
 done
 shift $((OPTIND-1))
 
 if [[ -z "$PREFIX" ]]; then
-	echo "Enter a name for this deployment."
+    printf "\nError: Enter a name for this deployment.\n\n"   
 	usage
 fi
+
+case $AZURE_SQL_TIER in
+    HS|BC)
+        ;;
+    *)
+        printf "\nError: '-o' param must be set to 'HS' or 'BC'\n\n"   
+        usage
+        ;;
+esac
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
@@ -67,7 +81,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_CAPACITY=12
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P6
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_16
     export SIMULATOR_INSTANCES=5
 fi
 
@@ -77,7 +91,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_CAPACITY=6
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=18 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P4
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_8
     export SIMULATOR_INSTANCES=3
 fi
 
@@ -87,7 +101,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_CAPACITY=2
     export PROC_JOB_NAME=streamingjob
     export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
-    export SQL_SKU=P1
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_2
     export SIMULATOR_INSTANCES=1
 fi
 

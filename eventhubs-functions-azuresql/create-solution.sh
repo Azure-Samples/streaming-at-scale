@@ -50,7 +50,7 @@ while getopts ":d:s:t:l:k:" arg; do
 		l)
 			LOCATION=${OPTARG}
 			;;
-                k)
+        k)
 			SQL_TABLE_KIND=${OPTARG}
 			;;
 		esac
@@ -62,6 +62,19 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
+# 20000 messages/sec
+# more messages but smaller
+if [ "$TESTTYPE" == "20" ]; then
+    export EVENTHUB_PARTITIONS=16
+    export EVENTHUB_CAPACITY=20
+    export PROC_FUNCTION=Test0
+    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_WORKERS=16
+    export SQL_SKU=HS_Gen5_24
+    export SIMULATOR_INSTANCES=10
+    export SIMULATOR_COMPLEX_DATA_COUNT=10
+fi
+
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
@@ -69,7 +82,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=16
-    export SQL_SKU=P6
+    export SQL_SKU=HS_Gen5_16
     export SIMULATOR_INSTANCES=5
 fi
 
@@ -80,7 +93,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=8
-    export SQL_SKU=P4
+    export SQL_SKU=HS_Gen5_8
     export SIMULATOR_INSTANCES=3
 fi
 
@@ -91,7 +104,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
-    export SQL_SKU=P1
+    export SQL_SKU=HS_Gen5_2
     export SIMULATOR_INSTANCES=1
 fi
 

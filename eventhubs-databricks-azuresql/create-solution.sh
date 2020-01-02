@@ -66,7 +66,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=12
-    export SQL_SKU=P6
+    export SQL_SKU=HS_Gen5_16
     export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=16
@@ -77,7 +77,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
-    export SQL_SKU=P4
+    export SQL_SKU=HS_Gen5_8
     export SIMULATOR_INSTANCES=3 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=10
@@ -88,7 +88,7 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=4
     export EVENTHUB_CAPACITY=2
-    export SQL_SKU=P2
+    export SQL_SKU=HS_Gen5_2
     export SIMULATOR_INSTANCES=1 
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=4

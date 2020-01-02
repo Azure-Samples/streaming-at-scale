@@ -1,11 +1,31 @@
-/****** Object:  PartitionFunction [pf_af]     ******/
-CREATE PARTITION FUNCTION [pf_af](int) AS RANGE LEFT FOR VALUES (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)
+DROP TABLE IF EXISTS [dbo].[rawdata];
+DROP TABLE IF EXISTS [dbo].[rawdata_cs];
+DROP PROCEDURE IF EXISTS [dbo].[stp_WriteData];
+DROP PROCEDURE IF EXISTS [dbo].[stp_WriteData_cs];
+DROP TYPE IF EXISTS [dbo].[payloadType];
+BEGIN TRY
+	DROP PARTITION SCHEME [ps_af];
+END TRY
+BEGIN CATCH
+END CATCH;
+BEGIN TRY
+	DROP PARTITION FUNCTION [pf_af];
+END TRY
+BEGIN CATCH
+END CATCH;
 GO
-/****** Object:  PartitionScheme [ps_af]     ******/
-CREATE PARTITION SCHEME [ps_af] AS PARTITION [pf_af] TO ([PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY])
+
+ALTER DATABASE [streaming] SET AUTO_UPDATE_STATISTICS_ASYNC ON
 GO
-/****** Object:  UserDefinedTableType [dbo].[payloadType]     ******/
-CREATE TYPE [dbo].[payloadType] AS TABLE(
+
+CREATE PARTITION FUNCTION [pf_af](int) AS RANGE LEFT FOR VALUES (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+GO
+
+CREATE PARTITION SCHEME [ps_af] AS PARTITION [pf_af] ALL TO ([PRIMARY])
+GO
+
+CREATE TYPE [dbo].[payloadType] AS TABLE
+(
 	[EventId] [uniqueidentifier] NOT NULL,
 	[ComplexData] [nvarchar](max) NOT NULL,
 	[Value] [numeric](18, 0) NOT NULL,
@@ -17,126 +37,19 @@ CREATE TYPE [dbo].[payloadType] AS TABLE(
 	[ProcessedAt] [datetime2](7) NOT NULL,
 	[PartitionId] [int] NOT NULL,
 	PRIMARY KEY NONCLUSTERED 
-(
-	[EventId] ASC
-)WITH (IGNORE_DUP_KEY = OFF)
+	(
+		[EventId] ASC
+	) 
 )
 GO
-/****** Object:  UserDefinedTableType [dbo].[payloadType_mo]     ******/
-CREATE TYPE [dbo].[payloadType_mo] AS TABLE(
-	[EventId] [uniqueidentifier] NOT NULL,
-	[ComplexData] [nvarchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[Value] [numeric](18, 0) NOT NULL,
-	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[DeviceSequenceNumber] [bigint] NOT NULL,
-	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[CreatedAt] [datetime2](7) NOT NULL,
-	[EnqueuedAt] [datetime2](7) NOT NULL,
-	[ProcessedAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
-	 PRIMARY KEY NONCLUSTERED HASH 
-(
-	[EventId]
-)WITH ( BUCKET_COUNT = 128)
-)
-WITH ( MEMORY_OPTIMIZED = ON )
-GO
-/****** Object:  Table [dbo].[rawdata_cs_mo]     ******/
-CREATE TABLE [dbo].[rawdata_cs_mo]
+
+/*
+	ROWSTORE
+*/
+CREATE TABLE [dbo].[rawdata]
 (
 	[BatchId] [uniqueidentifier] NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[DeviceSequenceNumber] [bigint] NOT NULL,
-	[CreatedAt] [datetime2](7) NOT NULL,
-	[Value] [numeric](18, 0) NOT NULL,
-	[ComplexData] [nvarchar](1000) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[EnqueuedAt] [datetime2](7) NOT NULL,
-	[ProcessedAt] [datetime2](7) NOT NULL,
-	[StoredAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
-
-/****** Object:  Index [ixcc]     ******/
-INDEX [ixcc] CLUSTERED COLUMNSTORE WITH (COMPRESSION_DELAY = 0),
- CONSTRAINT [pk__rawdata_cs_mo]  PRIMARY KEY NONCLUSTERED HASH 
-(
-	[EventId]
-)WITH ( BUCKET_COUNT = 1048576)
-)WITH ( MEMORY_OPTIMIZED = ON , DURABILITY = SCHEMA_AND_DATA )
-GO
-/****** Object:  StoredProcedure [dbo].[stp_WriteData_cs_mo]     ******/
-create procedure [dbo].[stp_WriteData_cs_mo] 
-@payload as dbo.payloadType_mo readonly
-with native_compilation, schemabinding, execute as owner  
-as 
-begin atomic with (transaction isolation level = snapshot,  language = 'english')  
- 
-declare @buid uniqueidentifier = newId() 
-
-insert into dbo.rawdata_cs_mo
-	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
-select
-	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
-	sysutcdatetime() as StoredAt
-from
-	@payload
-
-end
-GO
-/****** Object:  Table [dbo].[rawdata_mo]     ******/
-CREATE TABLE [dbo].[rawdata_mo]
-(
-	[BatchId] [uniqueidentifier] NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[DeviceSequenceNumber] [bigint] NOT NULL,
-	[CreatedAt] [datetime2](7) NOT NULL,
-	[Value] [numeric](18, 0) NOT NULL,
-	[ComplexData] [nvarchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-	[EnqueuedAt] [datetime2](7) NOT NULL,
-	[ProcessedAt] [datetime2](7) NOT NULL,
-	[StoredAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
-
-INDEX [ixnc1] NONCLUSTERED 
-(
-	[ProcessedAt] DESC
-),
- CONSTRAINT [pk__rawdata_mo]  PRIMARY KEY NONCLUSTERED HASH 
-(
-	[EventId]
-)WITH ( BUCKET_COUNT = 1048576)
-)WITH ( MEMORY_OPTIMIZED = ON , DURABILITY = SCHEMA_AND_DATA )
-GO
-/****** Object:  StoredProcedure [dbo].[stp_WriteData_mo]     ******/
-
-
-create procedure [dbo].[stp_WriteData_mo] 
-@payload as dbo.payloadType_mo readonly
-with native_compilation, schemabinding, execute as owner  
-as 
-begin atomic with (transaction isolation level = snapshot,  language = 'english')  
- 
-declare @buid uniqueidentifier = newId() 
-
-insert into dbo.rawdata_mo
-	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
-select
-	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
-	sysutcdatetime() as StoredAt
-from
-	@payload
-
-end
-GO
-/****** Object:  Table [dbo].[rawdata]     ******/
-CREATE TABLE [dbo].[rawdata](
-	[BatchId] [uniqueidentifier] NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL DEFAULT NEWSEQUENTIALID(),
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
 	[DeviceSequenceNumber] [bigint] NOT NULL,
@@ -146,18 +59,55 @@ CREATE TABLE [dbo].[rawdata](
 	[EnqueuedAt] [datetime2](7) NOT NULL,
 	[ProcessedAt] [datetime2](7) NOT NULL,
 	[StoredAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
- CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED 
-(
-	[EventId] ASC,
-	[PartitionId] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [ps_af]([PartitionId])
+	[PartitionId] [int] NOT NULL
 ) ON [ps_af]([PartitionId])
 GO
-/****** Object:  Table [dbo].[rawdata_cs]     ******/
-CREATE TABLE [dbo].[rawdata_cs](
+
+ALTER TABLE [dbo].[rawdata]  WITH NOCHECK ADD CHECK  ((isjson([ComplexData])=1))
+GO
+
+CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+ALTER TABLE dbo.[rawdata] 
+ADD CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED 
+	(
+		[EventId] ASC,
+		[PartitionId] ASC
+	)  WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId], [DeviceSequenceNumber]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE NONCLUSTERED INDEX ix2 ON [dbo].[rawdata] ([BatchId]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[stp_WriteData] 
+@payload AS dbo.payloadType READONLY
+AS
+BEGIN
+	declare @buid uniqueidentifier = newId() 
+
+	insert into dbo.rawdata 
+		([BatchId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	select
+		@buid as BatchId, 	
+		[Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+		sysutcdatetime() as StoredAt
+	from
+		@payload
+	;
+END
+GO
+
+/*
+	COLUMNSTORE
+*/
+CREATE TABLE [dbo].[rawdata_cs]
+(
 	[BatchId] [uniqueidentifier] NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL DEFAULT NEWSEQUENTIALID(),
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
 	[DeviceSequenceNumber] [bigint] NOT NULL,
@@ -167,17 +117,54 @@ CREATE TABLE [dbo].[rawdata_cs](
 	[EnqueuedAt] [datetime2](7) NOT NULL,
 	[ProcessedAt] [datetime2](7) NOT NULL,
 	[StoredAt] [datetime2](7) NOT NULL,
-	[PartitionId] [int] NOT NULL,
- CONSTRAINT [pk__rawdata_cs] PRIMARY KEY NONCLUSTERED 
-(
-	[EventId] ASC,
-	[PartitionId] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [ps_af]([PartitionId])
+	[PartitionId] [int] NOT NULL
 ) ON [ps_af]([PartitionId])
 GO
-/****** Object:  Table [dbo].[staging_table]     ******/
-CREATE TABLE [dbo].[staging_table](
-	[EventId] [uniqueidentifier] NOT NULL,
+
+ALTER TABLE [dbo].[rawdata_cs]  WITH CHECK ADD CHECK  ((isjson([ComplexData])=(1)))
+GO
+
+CREATE CLUSTERED COLUMNSTORE INDEX [ixccs] ON [dbo].[rawdata_cs] WITH (DROP_EXISTING = OFF, COMPRESSION_DELAY = 0) ON [ps_af]([PartitionId])
+GO
+
+ALTER TABLE dbo.[rawdata_cs] 
+ADD CONSTRAINT [pk__rawdata_cs] PRIMARY KEY NONCLUSTERED 
+	(
+		[EventId] ASC,
+		[PartitionId] ASC
+	)  WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata_cs] ([DeviceId], [DeviceSequenceNumber]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE NONCLUSTERED INDEX ix2 ON [dbo].[rawdata_cs] ([BatchId]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[stp_WriteData_cs] 
+@payload AS dbo.payloadType READONLY
+AS
+BEGIN
+	declare @buid uniqueidentifier = NEWID() 
+
+	insert into dbo.rawdata_cs
+		([BatchId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	select
+		@buid as BatchId, 	
+		[Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+		sysutcdatetime() as StoredAt
+	from
+		@payload
+	;
+END
+GO
+
+/*
+Batch Processing Objects
+*/
+CREATE TABLE [dbo].[staging_table]
+(
+	[EventId] [uniqueidentifier] NOT NULL DEFAULT NEWSEQUENTIALID(),
 	[Type] [varchar](10) NOT NULL,
 	[DeviceId] [varchar](100) NOT NULL,
 	[DeviceSequenceNumber] [bigint] NOT NULL,
@@ -189,57 +176,7 @@ CREATE TABLE [dbo].[staging_table](
 	[PartitionId] [int] NOT NULL
 ) ON [ps_af]([PartitionId])
 GO
-/****** Object:  Index [ixccs]     ******/
-CREATE CLUSTERED COLUMNSTORE INDEX [ixccs] ON [dbo].[rawdata_cs] WITH (DROP_EXISTING = OFF, COMPRESSION_DELAY = 0) ON [ps_af]([PartitionId])
-GO
-/****** Object:  Index [ixcc]     ******/
-GO
-ALTER TABLE [dbo].[rawdata]  WITH NOCHECK ADD CHECK  ((isjson([ComplexData])=(1)))
-GO
-ALTER TABLE [dbo].[rawdata_cs]  WITH CHECK ADD CHECK  ((isjson([ComplexData])=(1)))
-GO
-ALTER TABLE [dbo].[rawdata_cs_mo]  WITH CHECK ADD CHECK  ((isjson([ComplexData])=(1)))
-GO
-ALTER TABLE [dbo].[rawdata_mo]  WITH CHECK ADD CHECK  ((isjson([ComplexData])=(1)))
-GO
-/****** Object:  StoredProcedure [dbo].[stp_WriteData]     ******/
 
-
-create procedure [dbo].[stp_WriteData] 
-@payload as dbo.payloadType readonly
-as
-
-declare @buid uniqueidentifier = newId() 
-
-insert into dbo.rawdata 
-	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
-select
-	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
-	sysutcdatetime() as StoredAt
-from
-	@payload
-GO
-/****** Object:  StoredProcedure [dbo].[stp_WriteData_cs]     ******/
-
-
-
-create procedure [dbo].[stp_WriteData_cs] 
-@payload as dbo.payloadType readonly
-as
-
-declare @buid uniqueidentifier = newId() 
-
-insert into dbo.rawdata_cs
-	([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
-select
-	@buid as BatchId, 	
-	[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
-	sysutcdatetime() as StoredAt
-from
-	@payload
-GO
-/****** Object:  StoredProcedure [dbo].[stp_WriteDataBatch]     ******/
 CREATE PROCEDURE [dbo].[stp_WriteDataBatch] 
 as
   -- Move events from staging_table to rawdata table.
@@ -268,15 +205,15 @@ MERGE dbo.rawdata AS t
         ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
 
     WHEN NOT MATCHED THEN
-        INSERT (PartitionId, EventId, Type, DeviceId, DeviceSequenceNumber, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
+        INSERT (PartitionId, [Type], DeviceId, DeviceSequenceNumber, CreatedAt, [Value], ComplexData, EnqueuedAt, ProcessedAt, 
 			BatchId, StoredAt) 
-        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+        VALUES (s.PartitionId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
 			@buid, sysutcdatetime())
         ;
 
 TRUNCATE TABLE dbo.staging_table;
 GO
-/****** Object:  StoredProcedure [dbo].[stp_WriteDataBatch_cs]     ******/
+
 CREATE procedure [dbo].[stp_WriteDataBatch_cs] 
 as
   -- Move events from staging_table to rawdata table.
@@ -305,13 +242,11 @@ MERGE dbo.rawdata_cs AS t
         ON s.PartitionId = t.PartitionId AND s.EventId = t.EventId
 
     WHEN NOT MATCHED THEN
-        INSERT (PartitionId, EventId, Type, DeviceId, DeviceSequenceNumber, CreatedAt, Value, ComplexData, EnqueuedAt, ProcessedAt, 
+        INSERT (PartitionId, [Type], DeviceId, DeviceSequenceNumber, CreatedAt, [Value], ComplexData, EnqueuedAt, ProcessedAt, 
 			BatchId, StoredAt) 
-        VALUES (s.PartitionId, s.EventId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
+        VALUES (s.PartitionId, s.Type, s.DeviceId, s.DeviceSequenceNumber, s.CreatedAt, s.Value, s.ComplexData, s.EnqueuedAt, s.ProcessedAt,
 			@buid, sysutcdatetime())
         ;
 
 TRUNCATE TABLE dbo.staging_table;
 GO
-
-

@@ -71,7 +71,7 @@ fi
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=20
     export EVENTHUB_CAPACITY=12
-    export PROC_FUNCTION_SKU=EP2
+    export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=20
     export COSMOSDB_RU=100000 
     export SIMULATOR_INSTANCES=5
@@ -81,7 +81,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=10
     export EVENTHUB_CAPACITY=6
-    export PROC_FUNCTION_SKU=EP2
+    export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=10
     export COSMOSDB_RU=50000
     export SIMULATOR_INSTANCES=3
@@ -91,7 +91,7 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION_SKU=EP2
+    export PROC_FUNCTION_SKU=P2v2
     export PROC_FUNCTION_WORKERS=2
     export COSMOSDB_RU=20000
     export SIMULATOR_INSTANCES=1

@@ -191,6 +191,30 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
 
+### [HDInsight Kafka + Flink + HDInsight Kafka](hdinsightkafka-flink-hdinsightkafka)
+
+Implement a stream processing architecture using:
+
+- HDInsight Kafka (Ingest / Immutable Log)
+- Flink on HDInsight or Azure Kubernetes Service (Stream Process)
+- HDInsight Kafka (Serve)
+
+### [Event Hubs Kafka + Flink + Event Hubs Kafka](eventhubskafka-flink-eventhubskafka)
+
+Implement a stream processing architecture using:
+
+- Event Hubs Kafka (Ingest / Immutable Log)
+- Flink on HDInsight or Azure Kubernetes Service (Stream Process)
+- Event Hubs Kafka (Serve)
+
+### [Event Hubs Kafka + Azure Functions + Cosmos DB](eventhubskafka-functions-cosmosdb)
+
+Implement a stream processing architecture using:
+
+- Event Hubs Kafka (Ingest / Immutable Log)
+- Azure Functions (Stream Process)
+- Cosmos DB (Serve)
+
 ### [HDInsight Kafka + Azure Databricks + Azure SQL](hdinsightkafka-databricks-sqldw)
 
 Implement a stream processing architecture using:

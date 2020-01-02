@@ -1,0 +1,199 @@
+DROP TABLE IF EXISTS [dbo].[device_status];
+DROP TABLE IF EXISTS [dbo].[rawdata];
+DROP TABLE IF EXISTS [dbo].[rawdata_cs];
+DROP PROCEDURE IF EXISTS [dbo].[stp_WriteData];
+DROP PROCEDURE IF EXISTS [dbo].[stp_WriteData_cs];
+DROP TYPE IF EXISTS [dbo].[payloadType];
+DROP TYPE IF EXISTS [dbo].[payloadType_mo];
+BEGIN TRY
+	DROP PARTITION SCHEME [ps_af];
+END TRY
+BEGIN CATCH
+END CATCH;
+BEGIN TRY
+	DROP PARTITION FUNCTION [pf_af];
+END TRY
+BEGIN CATCH
+END CATCH;
+GO
+
+ALTER DATABASE [streaming] SET AUTO_UPDATE_STATISTICS_ASYNC ON
+GO
+ 
+CREATE PARTITION FUNCTION [pf_af](int) AS RANGE LEFT FOR VALUES (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+GO
+
+CREATE PARTITION SCHEME [ps_af] AS PARTITION [pf_af] ALL TO ([PRIMARY])
+GO
+
+CREATE TYPE [dbo].[payloadType] AS TABLE
+(
+	[EventId] [uniqueidentifier] NOT NULL,
+	[ComplexData] [nvarchar](max) NOT NULL,
+	[Value] [numeric](18, 0) NOT NULL,
+	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
+	[Type] [varchar](10) NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[EnqueuedAt] [datetime2](7) NOT NULL,
+	[ProcessedAt] [datetime2](7) NOT NULL,
+	[PartitionId] [int] NOT NULL,
+	PRIMARY KEY NONCLUSTERED 
+	(
+		[EventId] ASC
+	) 
+)
+GO
+
+CREATE TABLE [dbo].[rawdata]
+(
+	[BatchId] [uniqueidentifier] NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL,
+	[Type] [varchar](10) NOT NULL,
+	[DeviceId] [varchar](100) NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[Value] [numeric](18, 0) NOT NULL,
+	[ComplexData] [nvarchar](max) NOT NULL,
+	[EnqueuedAt] [datetime2](7) NOT NULL,
+	[ProcessedAt] [datetime2](7) NOT NULL,
+	[StoredAt] [datetime2](7) NOT NULL,
+	[PartitionId] [int] NOT NULL
+) ON [ps_af]([PartitionId])
+GO
+
+ALTER TABLE [dbo].[rawdata]  WITH NOCHECK ADD CHECK  ((isjson([ComplexData])=1))
+GO
+
+CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+ALTER TABLE dbo.[rawdata] 
+ADD CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED 
+	(
+		[EventId] ASC,
+		[PartitionId] ASC
+	)  WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId], [DeviceSequenceNumber]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+CREATE NONCLUSTERED INDEX ix2 ON [dbo].[rawdata] ([BatchId]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+GO
+
+ALTER TABLE [dbo].[rawdata]
+ADD MoreData5 AS CAST(JSON_VALUE([ComplexData], '$.moreData5') AS [numeric](18, 4))
+GO
+
+CREATE NONCLUSTERED INDEX ixj5 ON [dbo].[rawdata] (MoreData5) ON [ps_af]([PartitionId])
+GO
+
+CREATE TABLE [dbo].[device_status]
+(
+	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL,
+	[BatchId] [uniqueidentifier] NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[Value] [numeric](18, 0) NOT NULL,
+	[MoreData1] [numeric](18, 4) NOT NULL,
+	[MoreData2] [numeric](18, 4) NOT NULL,
+	[MoreData3] [numeric](18, 4) NOT NULL,
+	[MoreData4] [numeric](18, 4) NOT NULL,
+	[MoreData5] [numeric](18, 4) NOT NULL,
+	[ComplexData] [nvarchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[PartitionId] [int] NOT NULL	
+	CONSTRAINT [pk__rawdata_mo]  PRIMARY KEY NONCLUSTERED HASH 
+	(
+		[DeviceId]
+	) WITH ( BUCKET_COUNT = 1024)
+	) WITH ( MEMORY_OPTIMIZED = ON , DURABILITY = SCHEMA_ONLY )
+GO
+
+CREATE TYPE [dbo].[payloadType_mo] AS TABLE(
+	[EventId] [uniqueidentifier] NOT NULL,
+	[BatchId] [uniqueidentifier] NOT NULL,
+	[ComplexData] [nvarchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[Value] [numeric](18, 0) NOT NULL,
+	[DeviceId] [varchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[DeviceSequenceNumber] [bigint] NOT NULL,
+	[Type] [varchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[EnqueuedAt] [datetime2](7) NOT NULL,
+	[ProcessedAt] [datetime2](7) NOT NULL,
+	[PartitionId] [int] NOT NULL,
+	PRIMARY KEY NONCLUSTERED HASH 
+	(
+		[EventId]
+	) WITH ( BUCKET_COUNT = 1024 )
+)
+WITH ( MEMORY_OPTIMIZED = ON )
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[stp_UpdateDeviceStatus] 
+@payload AS dbo.payloadType_mo READONLY
+as 
+DELETE FROM dbo.[device_status] WHERE [DeviceId] IN (SELECT [DeviceId] FROM @payload);
+
+WITH cte AS
+(
+	SELECT
+		ROW_NUMBER() OVER (PARTITION BY DeviceId ORDER BY [DeviceSequenceNumber] DESC) AS i,
+		*
+	FROM
+		@payload
+),
+cte2 AS
+(
+	SELECT
+		*
+	FROM
+		[cte]
+	WHERE
+		i = 1
+)
+INSERT INTO dbo.[device_status]
+	( [DeviceId], [EventId], [BatchId], [DeviceSequenceNumber], [CreatedAt], [Value], [MoreData1], [MoreData2], [MoreData3], [MoreData4], [MoreData5], [ComplexData], [PartitionId] )
+SELECT 
+	DeviceId,
+	[EventId],
+	[BatchId],
+	[DeviceSequenceNumber],
+	[CreatedAt],
+	[Value],
+	CAST(JSON_VALUE([ComplexData], '$.moreData1') AS [numeric](18, 4)),
+	CAST(JSON_VALUE([ComplexData], '$.moreData2') AS [numeric](18, 4)),
+	CAST(JSON_VALUE([ComplexData], '$.moreData3') AS [numeric](18, 4)),
+	CAST(JSON_VALUE([ComplexData], '$.moreData4') AS [numeric](18, 4)),
+	CAST(JSON_VALUE([ComplexData], '$.moreData5') AS [numeric](18, 4)),
+	[ComplexData],
+	[PartitionId] 
+FROM cte2			
+;
+
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[stp_WriteData] 
+@payload AS dbo.payloadType READONLY
+AS
+BEGIN
+	declare @buid uniqueidentifier = newId() 
+
+	insert into dbo.rawdata 
+		([BatchId], [EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId], [StoredAt])
+	select
+		@buid as BatchId, 	
+		[EventId], [Type], [DeviceId], [DeviceSequenceNumber], [CreatedAt], [Value], [ComplexData], [ProcessedAt], [EnqueuedAt], [PartitionId],
+		sysutcdatetime() as StoredAt
+	from
+		@payload
+	;
+
+	DECLARE @t AS [dbo].[payloadType_mo];
+	INSERT INTO @t
+	SELECT EventId, @buid, [ComplexData], [Value], [DeviceId], [DeviceSequenceNumber], [Type], [CreatedAt], [EnqueuedAt], [ProcessedAt], [PartitionId] FROM @payload 
+
+	EXEC [dbo].[stp_UpdateDeviceStatus] @t
+END
+GO
