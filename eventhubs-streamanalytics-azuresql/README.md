@@ -120,7 +120,7 @@ Streamed data simulates an IoT device sending the following JSON data:
 ```
 ## Duplicate event handling
 
-The solution currently does not perform event deduplication. As there is a unique ID on the eventId field in Azure SQL Database, the solution is only suitable when the upstream event generation pipeline up to Event Hubs has at-most once delivery guarantees (i.e. fire and forget message delivery, where messages are not redelivered even if the Event Hub does not acknowledge reception).
+The solution currently does not perform event de-duplication in-flight. 
 
 ## Solution customization
 
@@ -130,8 +130,8 @@ If you want to change some setting of the solution, like number of load test cli
 export EVENTHUB_PARTITIONS=2
 export EVENTHUB_CAPACITY=2
 export PROC_JOB_NAME=streamingjob
-export PROC_STREAMING_UNITS=3 # must be 1, 3, 6 or a multiple or 6
-export SQL_SKU=S3
+export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
+export SQL_SKU=HS_Gen5_2
 export SQL_TABLE_KIND="rowstore" # or "columnstore"
 export SIMULATOR_INSTANCES=1
 ```
@@ -171,7 +171,7 @@ The solution allows you to test both row-store and column-store options. The dep
 
 The `rawdata_cs` table is then one using a clustered column-store index. Both tables also have a non-clustered primary key on the eventId column. Use the `-k` option and set it to `rowstore` or `columnstore` to run the solution against the table you are interested in testing.
 
-Be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from P4 to P6 is needed. The Premium level provides much more I/Os which are needed to allow backup to happen without impacting performances.
+IF you are not using the Hyperscale tier, be aware that database log backup happens every 10 minutes circa, as described here: [Automated backups](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-automated-backups#how-often-do-backups-happen). This means that additional IO overhead needs to be taken into account, which is proportional to the amount of ingested rows. That's why to move from 5000 msgs/sec to 10000 msgs/sec a bump from P4 to P6 is needed. The Premium/Business Critical level provides much more I/Os which are needed to allow backup to happen without impacting performances. [Hyperscale](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-service-tier-hyperscale) does not suffer of this issue due to the different and distributed storage architecture.
 
 ## Additional References
 
