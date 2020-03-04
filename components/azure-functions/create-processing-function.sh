@@ -27,15 +27,25 @@ az functionapp create -g $RESOURCE_GROUP -n $PROC_FUNCTION_APP_NAME \
     --storage-account $AZURE_STORAGE_ACCOUNT \
     -o tsv >> log.txt
 
-echo 'building function app'
+echo 'generating build path'
 ACTIVE_TEST=$PROC_FUNCTION
 FUNCTION_SRC_PATH="$PROC_PACKAGE_FOLDER/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET-$ACTIVE_TEST/$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET"
 echo ". path: $FUNCTION_SRC_PATH"
+
+echo 'cleaning build path'
+if [ -d "$FUNCTION_SRC_PATH/bin" ]; then rm -Rf "$FUNCTION_SRC_PATH/bin"; fi
+if [ -d "$FUNCTION_SRC_PATH/obj" ]; then rm -Rf "$FUNCTION_SRC_PATH/obj"; fi
+
+echo 'building function app'
 dotnet build $FUNCTION_SRC_PATH --configuration Release >> log.txt
+
+echo 'finding release folder'
+RELFOLDER=`ls $FUNCTION_SRC_PATH/bin/Release | grep .`
+echo ". release folder: $RELFOLDER"
 
 echo 'creating zip file'
 CURDIR=$PWD
-ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/netcoreapp2.1"
+ZIPFOLDER="$FUNCTION_SRC_PATH/bin/Release/$RELFOLDER"
 echo " .zipped folder: $ZIPFOLDER"
 rm -f $PROC_PACKAGE_PATH
 cd $ZIPFOLDER
