@@ -72,9 +72,9 @@ echo "***** [I] setting up INGESTION"
     fi
 echo
 
-echo "***** [T] starting up TEST clients"
-
+echo "***** [T] starting up TEST clients"    
     RUN=`echo $STEPS | grep T -o || true`
+    export TESTTYPE=$SIMULATOR_INSTANCES
     if [ ! -z "$RUN" ]; then
         source ../simulator/run-generator-eventhubs.sh
     fi
