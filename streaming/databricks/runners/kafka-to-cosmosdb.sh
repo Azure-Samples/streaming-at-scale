@@ -20,14 +20,15 @@ databricks fs rm -r "$checkpoints_dir"
 echo 'importing Spark library'
 # Cosmos DB must be imported as Uber JAR and not resolved through maven coordinates,
 # see https://kb.databricks.com/data-sources/cosmosdb-connector-lib-conf.html
-cosmosdb_spark_jar=azure-cosmosdb-spark_2.4.0_2.11-1.4.1-uber.jar
+cosmosdb_spark_jar_version=1.5.0
+cosmosdb_spark_jar=azure-cosmosdb-spark_2.4.0_2.11-$cosmosdb_spark_jar_version-uber.jar
 jar_tempfile=$(mktemp)
-curl -fsL -o "$jar_tempfile" "http://central.maven.org/maven2/com/microsoft/azure/azure-cosmosdb-spark_2.4.0_2.11/1.4.1/$cosmosdb_spark_jar"
+curl -fsL -o "$jar_tempfile" "https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.4.0_2.11/$cosmosdb_spark_jar_version/$cosmosdb_spark_jar"
 databricks fs cp --overwrite "$jar_tempfile" "dbfs:/mnt/streaming-at-scale/$cosmosdb_spark_jar"
 rm $jar_tempfile
 
 source ../streaming/databricks/job/run-databricks-job.sh kafka-to-cosmosdb false "$(cat <<JQ
-  .libraries += [{"jar": "dbfs:/mnt/streaming-at-scale/azure-cosmosdb-spark_2.4.0_2.11-1.4.1-uber.jar"}]
+  .libraries += [{"jar": "dbfs:/mnt/streaming-at-scale/$cosmosdb_spark_jar"}]
   | .notebook_task.base_parameters."kafka-servers" = "$KAFKA_BROKERS"
   | .notebook_task.base_parameters."kafka-sasl-mechanism" = "$KAFKA_SASL_MECHANISM"
   | .notebook_task.base_parameters."kafka-security-protocol" = "$KAFKA_SECURITY_PROTOCOL"

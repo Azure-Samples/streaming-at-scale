@@ -11,8 +11,11 @@ COSMOSDB_MASTER_KEY=$(az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERV
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "cosmosdb-write-master-key" --string-value "$COSMOSDB_MASTER_KEY"
 
+cosmosdb_spark_jar_version=1.5.0
+cosmosdb_spark_jar=azure-cosmosdb-spark_2.4.0_2.11-$cosmosdb_spark_jar_version-uber.jar
+
 source ../streaming/databricks/job/run-databricks-job.sh verify-cosmosdb true "$(cat <<JQ
-  .libraries += [{"jar": "dbfs:/mnt/streaming-at-scale/azure-cosmosdb-spark_2.4.0_2.11-1.4.1-uber.jar"}]
+  .libraries += [{"jar": "dbfs:/mnt/streaming-at-scale/$cosmosdb_spark_jar"}]
   | .notebook_task.base_parameters."test-output-path" = "$DATABRICKS_TESTOUTPUTPATH"
   | .notebook_task.base_parameters."cosmosdb-endpoint" = "https://$COSMOSDB_SERVER_NAME.documents.azure.com:443"
   | .notebook_task.base_parameters."cosmosdb-database" = "$COSMOSDB_DATABASE_NAME"
