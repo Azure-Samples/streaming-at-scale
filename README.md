@@ -102,7 +102,7 @@ End-to-end integration tests are configured to run. You can check the [latest cl
 
 At present time the available solutions are
 
-### [Kafka on AKS + Azure Databricks + Cosmos DB](akskafka-databricks-cosmosdb)
+### [Kafka on AKS + Azure Databricks + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/akskafka-databricks-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -110,7 +110,7 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs Capture Sample](eventhubs-capture)
+### [Event Hubs Capture Sample](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-capture)
 
 Implement stream processing architecture using:
 
@@ -119,7 +119,7 @@ Implement stream processing architecture using:
 - Azure Blob Store (Data Lake)
 - Apache Drill (Query/Serve)
 
-### [Event Hubs + Azure Databricks + Azure SQL](eventhubs-databricks-azuresql)
+### [Event Hubs + Azure Databricks + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-databricks-azuresql)
 
 Implement a stream processing architecture using:
 
@@ -127,7 +127,7 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Azure SQL (Serve)
 
-### [Event Hubs + Azure Databricks + Cosmos DB](eventhubs-databricks-cosmosdb)
+### [Event Hubs + Azure Databricks + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-databricks-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -135,7 +135,7 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs Kafka + Azure Databricks + Cosmos DB](eventhubskafka-databricks-cosmosdb)
+### [Event Hubs Kafka + Azure Databricks + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubskafka-databricks-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -143,7 +143,7 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs + Azure Databricks + Delta](eventhubs-databricks-delta)
+### [Event Hubs + Azure Databricks + Delta](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-databricks-delta)
 
 Implement a stream processing architecture using:
 
@@ -151,7 +151,7 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - [Delta Tables](https://delta.io/) (Serve)
 
-### [Event Hubs + Azure Functions + Azure SQL](eventhubs-functions-azuresql)
+### [Event Hubs + Azure Functions + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-functions-azuresql)
 
 Implement a stream processing architecture using:
 
@@ -159,7 +159,7 @@ Implement a stream processing architecture using:
 - Azure Functions (Stream Process)
 - Azure SQL (Serve)
 
-### [Event Hubs + Azure Functions + Cosmos DB](eventhubs-functions-cosmosdb)
+### [Event Hubs + Azure Functions + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-functions-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -167,7 +167,7 @@ Implement a stream processing architecture using:
 - Azure Functions (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs + Stream Analytics + Cosmos DB](eventhubs-streamanalytics-cosmosdb)
+### [Event Hubs + Stream Analytics + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-streamanalytics-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -175,7 +175,7 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs + Stream Analytics + Azure SQL](eventhubs-streamanalytics-azuresql)
+### [Event Hubs + Stream Analytics + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-streamanalytics-azuresql)
 
 Implement a stream processing architecture using:
 
@@ -183,7 +183,7 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Azure SQL (Serve)
 
-### [Event Hubs + Stream Analytics + Event Hubs](eventhubs-streamanalytics-eventhubs)
+### [Event Hubs + Stream Analytics + Event Hubs](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-streamanalytics-eventhubs)
 
 Implement a stream processing architecture using:
 
@@ -191,7 +191,7 @@ Implement a stream processing architecture using:
 - Stream Analytics (Stream Process)
 - Event Hubs (Serve)
 
-### [HDInsight Kafka + Flink + HDInsight Kafka](hdinsightkafka-flink-hdinsightkafka)
+### [HDInsight Kafka + Flink + HDInsight Kafka](https://github.com/Azure-Samples/streaming-at-scale/tree/master/hdinsightkafka-flink-hdinsightkafka)
 
 Implement a stream processing architecture using:
 
@@ -199,7 +199,7 @@ Implement a stream processing architecture using:
 - Flink on HDInsight or Azure Kubernetes Service (Stream Process)
 - HDInsight Kafka (Serve)
 
-### [Event Hubs Kafka + Flink + Event Hubs Kafka](eventhubskafka-flink-eventhubskafka)
+### [Event Hubs Kafka + Flink + Event Hubs Kafka](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubskafka-flink-eventhubskafka)
 
 Implement a stream processing architecture using:
 
@@ -207,7 +207,7 @@ Implement a stream processing architecture using:
 - Flink on HDInsight or Azure Kubernetes Service (Stream Process)
 - Event Hubs Kafka (Serve)
 
-### [Event Hubs Kafka + Azure Functions + Cosmos DB](eventhubskafka-functions-cosmosdb)
+### [Event Hubs Kafka + Azure Functions + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubskafka-functions-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -215,7 +215,7 @@ Implement a stream processing architecture using:
 - Azure Functions (Stream Process)
 - Cosmos DB (Serve)
 
-### [HDInsight Kafka + Azure Databricks + Azure SQL](hdinsightkafka-databricks-sqldw)
+### [HDInsight Kafka + Azure Databricks + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/master/hdinsightkafka-databricks-sqldw)
 
 Implement a stream processing architecture using:
 
@@ -223,14 +223,14 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Azure SQL Data Warehouse (Serve)
 
-### [Event Hubs + Azure Data Explorer](eventhubs-dataexplorer)
+### [Event Hubs + Azure Data Explorer](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-dataexplorer)
 
 Implement a stream processing architecture using:
 
 - Event Hubs (Ingest / Immutable Log)
 - Azure Data Explorer (Stream Process / Serve)
 
-### [Event Hubs + Data Accelerator + Cosmos DB](eventhubs-dataaccelerator-cosmosdb)
+### [Event Hubs + Data Accelerator + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-dataaccelerator-cosmosdb)
 
 Implement a stream processing architecture using:
 
@@ -238,7 +238,7 @@ Implement a stream processing architecture using:
 - Microsoft Data Accelerator on HDInsight and Service Fabric (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs + Time Series Insights](eventhubs-timeseriesinsights)
+### [Event Hubs + Time Series Insights](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-timeseriesinsights)
 
 Implement a stream processing architecture using:
 
