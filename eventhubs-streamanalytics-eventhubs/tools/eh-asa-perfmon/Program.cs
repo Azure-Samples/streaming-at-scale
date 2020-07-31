@@ -1,14 +1,12 @@
 ﻿using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Consumer;
-using Azure.Messaging.EventHubs.Producer;
 using CommandLine;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,56 +18,57 @@ namespace StreamingAtScale
         public string EventHubConnectionString { get; set; }
     }
 
-    class MyPartitionReceiver
+    class ReceiverProcessor
     {
         private readonly object _lock = new object();
-        private readonly string _partitionId = string.Empty;
         private readonly StreamWriter _csvOutput = null;
 
-        private int _maxBatchSize = 3;
-
-        public int MaxBatchSize { get => _maxBatchSize; set => _maxBatchSize = value; }
-
-        public MyPartitionReceiver(string partitionId, StreamWriter csvOutput)
+        public ReceiverProcessor(StreamWriter csvOutput)
         {
-            this._partitionId = partitionId;
             this._csvOutput = csvOutput;
         }
 
-        public Task ProcessEventsAsync(IEnumerable<EventData> events)
+        public async Task ProcessEventsAsync(IAsyncEnumerable<PartitionEvent> events)
         {
-            int eventCount = 0;
+            await foreach (PartitionEvent currentEvent in events)
+            { 
+                await ProcessEventsAsync(currentEvent);
+            }
+        }
 
+        public Task ProcessEventsAsync(PartitionEvent item)
+        {
+            var eventData = item.Data;
+            
+            if (eventData == null) return Task.CompletedTask;
+            int eventCount = 0;
             var listTS = new List<TimeSpan>();
             var listDT = new List<DateTimeOffset>();
+            
+            var eventBody = Encoding.UTF8.GetString(eventData.Body.ToArray()).Split('\n');
 
-            foreach (var e in events)
+            foreach (var b in eventBody)
             {
-                var eventBody = Encoding.UTF8.GetString(e.Body.ToArray()).Split('\n');
-
-                foreach (var b in eventBody)
+                try
                 {
-                    try
-                    {
-                        var message = JsonConvert.DeserializeObject<JObject>(b, new JsonSerializerSettings() { DateParseHandling = DateParseHandling.None });
-                        eventCount += 1;
+                    var message = JsonSerializer.Deserialize<Dictionary<string, object>>(b);
+                    eventCount += 1;
 
-                        var timeCreated = DateTime.Parse(message["createdAt"].ToString());
-                        var timeIn = DateTime.Parse(message["EventEnqueuedUtcTime"].ToString());
-                        var timeProcessed = DateTime.Parse(message["EventProcessedUtcTime"].ToString());
-                        var timeASAProcessed = DateTime.Parse(message["ASAProcessedUtcTime"].ToString());
-                        var timeOut = e.EnqueuedTime.UtcDateTime.ToLocalTime();
+                    var timeCreated = DateTime.Parse(message["createdAt"].ToString());
+                    var timeIn = DateTime.Parse(message["EventEnqueuedUtcTime"].ToString());
+                    var timeProcessed = DateTime.Parse(message["EventProcessedUtcTime"].ToString());
+                    var timeASAProcessed = DateTime.Parse(message["ASAProcessedUtcTime"].ToString());
+                    var timeOut = eventData.EnqueuedTime.UtcDateTime.ToLocalTime();
 
-                        listDT.Add(timeIn);
-                        var elapsed = timeOut - timeIn;
-                        listTS.Add(elapsed);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error while parsing event body.");
-                        Console.WriteLine("Error:" + ex.Message);
-                        Console.WriteLine("Message:" + b);
-                    }
+                    listDT.Add(timeIn);
+                    var elapsed = timeOut - timeIn;
+                    listTS.Add(elapsed);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error while parsing event body.");
+                    Console.WriteLine("Error:" + ex.Message);
+                    Console.WriteLine("Message:" + b);
                 }
             }
 
@@ -81,66 +80,50 @@ namespace StreamingAtScale
 
             lock (_lock)
             {
-                Console.Write($"[{this._partitionId}] Received {eventCount} events in {events.Count()} batch(es).");
+                Console.Write($"Received {eventCount} events.");
                 Console.Write($"\tBatch (From/To): {batchFrom.ToString("HH:mm:ss.ffffff")}/{batchTo.ToString("HH:mm:ss.ffffff")}");
                 Console.Write($"\tElapsed msec (Min/Max/Avg): {minLatency}/{maxLatency}/{avgLatency}");
                 Console.WriteLine();
 
-                _csvOutput.WriteLine($"{this._partitionId},{events.Count()},{eventCount},{batchFrom.ToString("o")},{batchTo.ToString("o")},{minLatency},{maxLatency},{avgLatency}");
+                _csvOutput.WriteLine($"{eventCount},{eventCount},{batchFrom.ToString("o")},{batchTo.ToString("o")},{minLatency},{maxLatency},{avgLatency}");
             }
-
             return Task.CompletedTask;
+
         }
     }
 
     public class EventReceiver
     {
-        public async Task Receive(string connectionString, CancellationTokenSource cancellationSource)
+        public async Task Receive(string connectionString, CancellationToken _cancellationToken)
         {
-            Console.WriteLine("The application will now start to listen for incoming message.");
-
-            var csvOutput = File.CreateText("./result.csv");
-            csvOutput.WriteLine("PartitionId,EventCount,BatchCount,BatchFrom,BatchTo,MinLatency,MaxLatency,AvgLatency");
-
             await using (var consumerClient = new EventHubConsumerClient(EventHubConsumerClient.DefaultConsumerGroupName, connectionString))
             {
-                string[] partitions = await consumerClient.GetPartitionIdsAsync();
+                Console.WriteLine("The application will now start to listen for incoming message.");
 
                 ReadEventOptions readOptions = new ReadEventOptions
                 {
                     MaximumWaitTime = TimeSpan.FromMilliseconds(150)
                 };
 
-                cancellationSource.CancelAfter(TimeSpan.FromSeconds(60));
-
-                List<EventData> receivedEvents = new List<EventData>();
-
-                foreach (string partitionId in partitions)
+                var csvOutput = File.CreateText("./resulttest.csv");
+                csvOutput.WriteLine("EventCount,BatchCount,BatchFrom,BatchTo,MinLatency,MaxLatency,AvgLatency");
+                try
                 {
-                    var myPartitionReceiver = new MyPartitionReceiver(partitionId, csvOutput);
-                    int eventBatchSize = myPartitionReceiver.MaxBatchSize;
-
-                    Console.WriteLine("Receive events from partion '{0}'.", partitionId);
-
-                    await foreach (PartitionEvent currentEvent in consumerClient.ReadEventsFromPartitionAsync(partitionId, EventPosition.FromEnqueuedTime(DateTime.UtcNow), readOptions, cancellationSource.Token))
-                    {
-                        if (currentEvent.Data != null)
-                        {
-                            receivedEvents.Add(currentEvent.Data);
-
-                            if (receivedEvents.Count >= eventBatchSize)
-                            {
-                                break;
-                            }
-                        }
-                    }
-
-                    await myPartitionReceiver.ProcessEventsAsync(receivedEvents);
+                    var events = consumerClient.ReadEventsAsync(startReadingAtEarliestEvent: false, readOptions, _cancellationToken);
+                    var receiverProcessor = new ReceiverProcessor(csvOutput);
+                    await receiverProcessor.ProcessEventsAsync(events);
+                }
+                catch (TaskCanceledException)
+                {
+                    // This is okay because the task was cancelled. :)
+                }
+                finally
+                {
+                    csvOutput.Close();
                 }
             }
         }
     }
-
     public class Program
     {
         static async Task Main(string[] args)
@@ -154,30 +137,23 @@ namespace StreamingAtScale
                 });
 
             if (options == null) return;
-
+ 
             var check = new string[] { options.EventHubConnectionString };
 
             if (check.Where(e => string.IsNullOrEmpty(e)).ToList().Count() != 0)
             {
                 Console.WriteLine("No parameters passed or environment variables set.");
                 Console.WriteLine("Please use --help to learn how to use the application.");
-                Console.WriteLine("  dotnet run -- --help");
+                Console.WriteLine("dotnet run -- --help");
                 return;
             }
 
-            var receiver = new EventReceiver();
-
-            try
-            {
-                await receiver.Receive(options.EventHubConnectionString, new CancellationTokenSource());
-            }
-            catch (TaskCanceledException)
-            {
-                Console.WriteLine("Task is cancelled, exiting...");
-            }
+            using CancellationTokenSource cancellationSource = new CancellationTokenSource();
+            cancellationSource.CancelAfter(TimeSpan.FromSeconds(60));
+            var reciver = new EventReceiver();
+            await reciver.Receive(options.EventHubConnectionString, cancellationSource.Token);
 
             Console.WriteLine("Done.");
         }
-
     }
 }
