@@ -24,9 +24,10 @@ If you don't have an Azure subscription, create a [free account] before you begi
 Go to [Azure portal], sign in with your account. You can find how to [create event hub service] from here. 
 
 Get the EventHubConnectionString for the `Listen` or `Manage` Shared Access Policy for the eventhub.
-	
-Run git clone https://github.com/Azure-Samples/streaming-at-scale.git
 
+```bash	
+git clone https://github.com/Azure-Samples/streaming-at-scale.git
+```
 From within the `eh-asa-perform` folder run:
 
 ```bash
