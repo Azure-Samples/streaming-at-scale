@@ -12,14 +12,12 @@ namespace StreamingAtScale
 {
     public class EventReceiver
     {
-        private readonly object _lock = new object();
-
         public async Task Receive(string connectionString, CancellationToken cancellationToken)
         {
             // In here, our consumer will read from the latest position instead of the earliest.  As a result, it won't see events that
             // have previously been published. 
             //
-            // Each partition of an Event Hub represents potentially infinite stream of events.  When a consumer is reading, there is no definitive
+            // Each partition of an Event Hub represents a potentially infinite stream of events.  When a consumer is reading, there is no definitive
             // point where it can assess that all events have been read and no more will be available.  As a result, when the consumer reaches the end of
             // the available events for a partition, it will continue to wait for new events to arrive so that it can surface them to be processed. During this
             // time, the iterator will block.
@@ -45,12 +43,9 @@ namespace StreamingAtScale
                     csvOutput.WriteLine("EventCount,BatchCount,BatchFrom,BatchTo,MinLatency,MaxLatency,AvgLatency");
                     try
                     {
-                        // The client is safe and intend to be long-lived; in order to begin reading at the
-                        // latest event, we'll need to specify that reading should not start at earliest.
+                        // The client is safe and intend to be long-lived.
 
-                        var events = consumerClient.ReadEventsAsync(startReadingAtEarliestEvent: false, readOptions, cancellationToken);
-
-                        await foreach (PartitionEvent currentEvent in events)
+                        await foreach (PartitionEvent currentEvent in consumerClient.ReadEventsAsync(readOptions, cancellationToken))
                         {
                             var eventData = currentEvent.Data;
 
@@ -95,15 +90,12 @@ namespace StreamingAtScale
                             var maxLatency = listTimeSpan.Max().TotalMilliseconds;
                             var avgLatency = Math.Round(listTimeSpan.Average(ts => ts.TotalMilliseconds), 0);
 
-                            lock (_lock)
-                            {
-                                Console.Write($"Received {eventCount} events.");
-                                Console.Write($"\tBatch (From/To): {batchFrom.ToString("HH:mm:ss.ffffff")}/{batchTo.ToString("HH:mm:ss.ffffff")}");
-                                Console.Write($"\tElapsed msec (Min/Max/Avg): {minLatency}/{maxLatency}/{avgLatency}");
-                                Console.WriteLine();
+                            Console.Write($"Received {eventCount} events.");
+                            Console.Write($"\tBatch (From/To): {batchFrom.ToString("HH:mm:ss.ffffff")}/{batchTo.ToString("HH:mm:ss.ffffff")}");
+                            Console.Write($"\tElapsed msec (Min/Max/Avg): {minLatency}/{maxLatency}/{avgLatency}");
+                            Console.WriteLine();
 
-                                csvOutput.WriteLine($"{eventCount},{eventCount},{batchFrom.ToString("o")},{batchTo.ToString("o")},{minLatency},{maxLatency},{avgLatency}");
-                            }
+                            csvOutput.WriteLine($"{eventCount},{eventCount},{batchFrom.ToString("o")},{batchTo.ToString("o")},{minLatency},{maxLatency},{avgLatency}");
                         }
                     }
                     catch (TaskCanceledException)

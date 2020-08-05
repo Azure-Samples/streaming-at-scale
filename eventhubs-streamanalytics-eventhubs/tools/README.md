@@ -4,17 +4,18 @@ languages:
 - csharp
 products:
 - azure
-- azure eventhubs 
+- azure-event-hubs 
 extensions:
 - platforms: dotnet
 ---
 
 # Getting started on processing received message from Event Hubs #
 
-Azure eventhubs-streamanalytics-eventhubs sample for processing received message from Event Hubs -
- - Create an EventHubConsumerClient based on Event Hub-level connection string.
- - Read events from EventHubConsumerClient.
- - Processing received message and write to a .csv file.
+The `eventhubs-streamanalytics-eventhubs` sample demonstrates processing messages from Event Hubs. The `EventReceiver` will:
+
+ - Connect to an existing event hub.
+ - Read events from all partitions using the `EventHubConsumerClient`.
+ - Process each received message and output to a `.csv` file.
 
 # Running this Sample #
 To run this sample:
