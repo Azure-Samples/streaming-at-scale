@@ -43,7 +43,7 @@ namespace StreamingAtScale
                     csvOutput.WriteLine("EventCount,BatchCount,BatchFrom,BatchTo,MinLatency,MaxLatency,AvgLatency");
                     try
                     {
-                        // The client is safe and intend to be long-lived.
+                        // The client is safe and intended to be long-lived.
 
                         await foreach (PartitionEvent currentEvent in consumerClient.ReadEventsAsync(readOptions, cancellationToken))
                         {

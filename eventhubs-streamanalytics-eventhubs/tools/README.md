@@ -30,6 +30,9 @@ After creating an event hub within the Event Hubs namespace, you can get the Eve
 	3. Add a policy with appropriate permissions(Listen or Manage).
 	4. Click on added policy.
 
+Hints:While running this sample, You should have an existing Azure Stream Analytics configuration(a producer sends events)
+that publishes events to this event hub.
+
 Run the following command.
 ```bash	
 git clone https://github.com/Azure-Samples/streaming-at-scale.git
