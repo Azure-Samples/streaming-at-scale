@@ -46,5 +46,5 @@ The application will read from the event hub and will measure latency (differenc
 
 <!-- LINKS -->
 [free account]: https://azure.microsoft.com/free/?WT.mc_id=A261C142F
-[Azure portal]: https://ms.portal.azure.com/#home
+[Azure portal]: https://portal.azure.com/
 [create event hub]: https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-create

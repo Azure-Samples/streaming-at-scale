@@ -37,7 +37,7 @@ namespace StreamingAtScale
             }
 
             // As a preventative measure, we'll specify that cancellation should occur after 60 seconds, 
-            // so that we don't iterate indefinitely in the event.
+            // so that we don't hold indefinitely in the event receiving.
 
             using CancellationTokenSource cancellationSource = new CancellationTokenSource();
             cancellationSource.CancelAfter(TimeSpan.FromSeconds(60));
