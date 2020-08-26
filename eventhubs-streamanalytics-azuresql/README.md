@@ -20,7 +20,9 @@ This sample uses Stream Analytics to process streaming data from EventHub and us
 
 [Get started with Columnstore for real time operational analytics](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/get-started-with-columnstore-for-real-time-operational-analytics?view=sql-server-2017)
 
-The provided scripts will create an end-to-end solution complete with load test client.  
+The provided scripts will create an end-to-end solution complete with load test client. 
+
+![./iot-with-azure-sql-youtube.png](https://www.youtube.com/watch?v=vVrqa0H_rQA)
 
 ## Purpose of this solution
 
