@@ -22,7 +22,7 @@ This sample uses Stream Analytics to process streaming data from EventHub and us
 
 The provided scripts will create an end-to-end solution complete with load test client. 
 
-![./iot-with-azure-sql-youtube.png](https://www.youtube.com/watch?v=vVrqa0H_rQA)
+[![IoT with Azure SQL YouTube Video](./iot-with-azure-sql-youtube.png)](https://www.youtube.com/watch?v=vVrqa0H_rQA)
 
 ## Purpose of this solution
 
