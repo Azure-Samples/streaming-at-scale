@@ -260,6 +260,12 @@ The following technologies could also be used in the end-to-end sample solution.
 
 ### Stream Processing
 
+Add done
+
 ### Batch Processing
 
+Add done
+
 ### Serving Layer
+
+Add done
