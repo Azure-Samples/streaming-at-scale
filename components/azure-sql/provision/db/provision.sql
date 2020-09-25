@@ -66,7 +66,7 @@ GO
 ALTER TABLE [dbo].[rawdata]  WITH NOCHECK ADD CHECK  ((isjson([ComplexData])=1))
 GO
 
-CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt] DESC) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
 ALTER TABLE dbo.[rawdata] 
