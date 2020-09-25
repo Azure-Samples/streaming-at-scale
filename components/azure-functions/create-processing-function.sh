@@ -25,6 +25,7 @@ echo ". name: $PROC_FUNCTION_APP_NAME"
 az functionapp create -g $RESOURCE_GROUP -n $PROC_FUNCTION_APP_NAME \
     --plan $PLAN_NAME \
     --storage-account $AZURE_STORAGE_ACCOUNT \
+    --functions-version 2 \
     -o tsv >> log.txt
 
 echo 'generating build path'
