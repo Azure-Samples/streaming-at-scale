@@ -77,7 +77,7 @@ ADD CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED
 	)  WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
-CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId], [DeviceSequenceNumber]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId] ASC, [DeviceSequenceNumber] DESC) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
 CREATE NONCLUSTERED INDEX ix2 ON [dbo].[rawdata] ([BatchId]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
