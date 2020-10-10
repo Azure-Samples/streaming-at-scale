@@ -6,6 +6,7 @@ languages:
   - json
   - sql
   - scala
+  - json
 products:
   - azure
   - azure-container-instances
@@ -25,6 +26,8 @@ description: "How to setup an end-to-end solution to implement a streaming at sc
 ---
 
 # Streaming at Scale
+
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 The samples shows how to setup an end-to-end solution to implement a streaming at scale scenario using a choice of different Azure technologies. There are *many* possible way to implement such solution in Azure, following [Kappa](https://milinda.pathirage.org/kappa-architecture.com/) or [Lambda](http://lambda-architecture.net/) architectures, a variation of them, or even custom ones. Each architectural solution can also be implemented with different technologies, each one with its own pros and cons.
 
