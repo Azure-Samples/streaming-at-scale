@@ -6,7 +6,6 @@ languages:
   - json
   - sql
   - scala
-  - json
 products:
   - azure
   - azure-container-instances
