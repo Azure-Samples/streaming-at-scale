@@ -145,3 +145,36 @@ To remove all the created resource, you can just delete the related resource gro
 ```bash
 az group delete -n <resource-group-name>
 ```
+
+## Next steps
+
+Retaining long-term data in Azure Data Explorer can drive up costs. You can set up [continuous data export](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-export/continuous-data-export) to save derivations from ingested data into storage. In conjunction with a [retention policy](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/retentionpolicy), this allows data tiering, serving hot data from Data Explorer's own storage, and colder data through the external table. 
+
+The sample statements below use CSV files in storage blob for simplicity. Use Parquet instead to improve file size and access performance, especially if planning to query data from the external table. Use Azure Data Lake Storage Gen2 instead of blob for improved performance and to avoid the need for hard-coded credentials.
+
+
+```kql
+.create external table SummarizedEvents (deviceId: string, type: string, count:long, from:datetime, to:datetime)  
+kind=blob 
+dataformat=csv
+(
+h@'https://<SOLUTION_NAME>storage.blob.core.windows.net/export;<STORAGE_KEY>'
+)
+
+.create function 
+EventSummary()
+{
+    EventTable
+    | summarize count=count(), from=min(createdAt), to=max(createdAt) by deviceId, type
+}
+
+// Create the target table (if it doesn't already exist)
+.set-or-append SummarizedEvents <| EventSummary() | limit 0
+
+.create-or-alter continuous-export SummarizedEventsExport
+to table SummarizedEvents
+with
+(intervalBetweenRuns=5m)
+<|  EventSummary()
+
+```

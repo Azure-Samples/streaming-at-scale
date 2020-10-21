@@ -39,6 +39,7 @@ wait_for_run () {
 cluster_jq_command="$(cat <<JQ
   .name = "Streaming at scale job $notebook_name"
   | .notebook_task.notebook_path = "/Shared/streaming-at-scale/$notebook_name"
+  | .new_cluster.spark_version = "$DATABRICKS_SPARKVERSION"
   | .new_cluster.node_type_id = "$DATABRICKS_NODETYPE"
   | .new_cluster.num_workers = $DATABRICKS_WORKERS
   | .timeout_seconds = $((${REPORT_THROUGHPUT_MINUTES:-30} * 60))

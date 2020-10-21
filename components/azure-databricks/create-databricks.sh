@@ -28,6 +28,9 @@ fi
 
 databricks_metainfo=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.Databricks/workspaces -n $ADB_WORKSPACE -o json)
 
+# Databricks CLI automatically picks up configuration from $DATABRICKS_HOST and $DATABRICKS_TOKEN.
+export DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"' <<<"$databricks_metainfo")
+
 echo 'creating Key Vault to store Databricks PAT token'
 az keyvault create -g $RESOURCE_GROUP -n $ADB_TOKEN_KEYVAULT -o tsv >>log.txt
 
@@ -35,54 +38,30 @@ echo 'checking PAT token secret presence in Key Vault'
 databricks_token_secret_name="DATABRICKS-TOKEN"
 pat_token_secret=$(az keyvault secret list --vault-name $ADB_TOKEN_KEYVAULT --query "[?ends_with(id, '/$databricks_token_secret_name')].id" -o tsv)
 if [[ -z "$pat_token_secret" ]]; then
-  echo 'PAT token secret not present. Creating dummy entry for user to fill in manually'
-  az keyvault secret set --vault-name $ADB_TOKEN_KEYVAULT -n "$databricks_token_secret_name" --file /dev/null -o tsv >>log.txt
+  echo 'generating PAT token'
+  wsId=$(jq -r .id <<<"$databricks_metainfo")
+
+  # Get a token for the global Databricks application.
+  # The resource name is fixed and never changes.
+  token_response=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d)
+  token=$(jq .accessToken -r <<< "$token_response")
+
+  # Get a token for the Azure management API
+  token_response=$(az account get-access-token --resource https://management.core.windows.net/)
+  azToken=$(jq .accessToken -r <<< "$token_response")
+
+  api_response=$(curl -sf "$DATABRICKS_HOST/api/2.0/token/create" \
+    -H "Authorization: Bearer $token" \
+    -H "X-Databricks-Azure-SP-Management-Token:$azToken" \
+    -H "X-Databricks-Azure-Workspace-Resource-Id:$wsId" \
+    -d '{ "lifetime_seconds": 864000, "comment": "streaming-at-scale generated token" }')
+  pat_token=$(jq .token_value -r <<< "$api_response")
+
+  az keyvault secret set --vault-name "$ADB_TOKEN_KEYVAULT" --name "$databricks_token_secret_name" --value "$pat_token"
 fi
 
-echo 'checking PAT token presence in Key Vault'
-pat_token=$(az keyvault secret show --vault-name $ADB_TOKEN_KEYVAULT -n "$databricks_token_secret_name" --query value -o tsv)
-
-if [[ -z "$pat_token" ]]; then
-  echo 'PAT token not present. Requesting user to fill in manually'
-  databricks_login_url=$(jq -r '"https://" + .location + ".azuredatabricks.net/aad/auth?has=&Workspace=" + .id + "&WorkspaceResourceGroupUri="+ .properties.managedResourceGroupId' <<<"$databricks_metainfo")
-
-  kv_info=$(az resource show -g $RESOURCE_GROUP --resource-type Microsoft.KeyVault/vaults -n $ADB_TOKEN_KEYVAULT -o json)
-  kv_secrets_url=$(jq -r '"https://portal.azure.com/#@" + .properties.tenantId + "/resource" + .id + "/secrets"' <<<$kv_info)
-
-  cat <<EOM
-  ERROR: Missing PAT token in Key Vault (this is normal the first time you run this script).
-
-  You need to manually create a Databricks PAT token and register it into the Key Vault as follows,
-  then rerun this script or pipeline.
-
-  - Navigate to:
-      $databricks_login_url
-    Create a PAT token and copy it to the clipboard:
-      https://docs.azuredatabricks.net/api/latest/authentication.html#generate-a-token
-  - Navigate to:
-      $kv_secrets_url
-    Click $databricks_token_secret_name
-    Click "+ New Version"
-    As value, enter the PAT token you copied
-    Click Create
-  - The script will wait for the PAT to be copied into the Key Vault
-    If you stop the script, you can resume it running the following command:
-      ./create-solution.sh -d "$PREFIX" -t $TESTTYPE -s PT
-
-EOM
-  
-  echo 'waiting for PAT (polling every 5 secs)...'
-  while : ; do
-    pat_token=$(az keyvault secret show --vault-name "$ADB_TOKEN_KEYVAULT" --name "$databricks_token_secret_name" --query value -o tsv | grep dapi || true)	
-    if [ ! -z "$pat_token" ]; then break; fi
-	  sleep 5
-  done
-  echo 'PAT detected'
-fi
-
-# Databricks CLI automatically picks up configuration from these two environment variables.
-export DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"' <<<"$databricks_metainfo")
-export DATABRICKS_TOKEN="$pat_token"
+echo 'getting PAT token from Key Vault'
+export DATABRICKS_TOKEN=$(az keyvault secret show --vault-name $ADB_TOKEN_KEYVAULT -n "$databricks_token_secret_name" --query value -o tsv)
 
 fi
 echo 'checking Databricks secrets scope exists'
