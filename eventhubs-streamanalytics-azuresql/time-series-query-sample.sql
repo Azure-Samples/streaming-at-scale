@@ -1,5 +1,5 @@
 /*
-	database: streaming@dmiot002sql
+	database: streaming
 */
 declare @p table (pid int);
 insert into @p values (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16);
