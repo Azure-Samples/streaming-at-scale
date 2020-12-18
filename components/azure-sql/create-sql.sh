@@ -51,7 +51,7 @@ az storage file upload --source ../components/azure-sql/provision/$SQL_TYPE/prov
     -o json >> log.txt
 
 echo 'running provisioning scripts in container instance'
-instanceName="sqlprovision-$(uuidgen | tr A-Z a-z)"
+instanceName="sqlprovision-$(openssl rand -base64 8 | cut -c1-8 | tr '[:upper:]' '[:lower:]' | tr -cd '[[:alnum:]]._-')"
 az container create -g $RESOURCE_GROUP -n "$instanceName" \
     --image mcr.microsoft.com/mssql-tools:v1 \
     --azure-file-volume-account-name $AZURE_STORAGE_ACCOUNT --azure-file-volume-account-key $AZURE_STORAGE_KEY \
