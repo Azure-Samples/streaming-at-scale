@@ -15,7 +15,7 @@ if [ "$userType" == "user" ]; then
 fi
 
 echo 'creating TSI'
-az group deployment create \
+az deployment group create \
   --resource-group $RESOURCE_GROUP \
   --template-file ../components/azure-timeseriesinsights/tsi-eventhubs-arm-template.json \
   --parameters \
