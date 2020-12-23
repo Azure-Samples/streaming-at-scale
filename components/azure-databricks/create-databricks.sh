@@ -57,7 +57,7 @@ if [[ -z "$pat_token_secret" ]]; then
     -d '{ "lifetime_seconds": 864000, "comment": "streaming-at-scale generated token" }')
   pat_token=$(jq .token_value -r <<< "$api_response")
 
-  az keyvault secret set --vault-name "$ADB_TOKEN_KEYVAULT" --name "$databricks_token_secret_name" --value "$pat_token"
+  az keyvault secret set --vault-name "$ADB_TOKEN_KEYVAULT" --name "$databricks_token_secret_name" --value "$pat_token" -o tsv >>log.txt
 fi
 
 echo 'getting PAT token from Key Vault'
@@ -73,4 +73,3 @@ fi
 
 echo 'importing Databricks notebooks'
 databricks workspace import_dir ../streaming/databricks/notebooks /Shared/streaming-at-scale --overwrite
-
