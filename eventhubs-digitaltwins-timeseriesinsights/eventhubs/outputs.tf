@@ -12,6 +12,6 @@ output "send_secondary_connection_string" {
 
 output "listen_primary_connection_string" {
   value       = azurerm_eventhub_authorization_rule.listen.primary_connection_string
-  description = "The primary connection string to receive bvents."
+  description = "The primary connection string to receive events."
   sensitive   = true
 }
