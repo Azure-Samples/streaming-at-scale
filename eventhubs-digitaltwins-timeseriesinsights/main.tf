@@ -3,6 +3,14 @@ resource "azurerm_resource_group" "main" {
   location = var.location
 }
 
+module "simulator" {
+  source                    = "./simulator"
+  basename                  = var.appname
+  resource_group            = azurerm_resource_group.main.name
+  location                  = azurerm_resource_group.main.location
+  eventhub_connectionstring = module.eventhubs_in.send_primary_connection_string
+}
+
 module "eventhubs_in" {
   source         = "./eventhubs"
   basename       = "${var.appname}in"
