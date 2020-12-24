@@ -13,3 +13,13 @@ slnx.sqlite
 .classpath
 .project
 .settings
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+override.tf
+override.tf.json
+.terraformrc
+terraform.rc
+.terraform.lock.hcl
