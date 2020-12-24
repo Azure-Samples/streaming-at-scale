@@ -40,8 +40,13 @@ resource "null_resource" "functionapp" {
   }
 
   provisioner "local-exec" {
-    command     = "dotnet publish --configuration ${var.configuration} && cd bin/${var.configuration}/*/publish && mkdir -p ${local.build} && zip -r -X ${local.build}/${local.function_zip_name} *"
-    interpreter = ["bash", "-c"]
+    command = <<-EOT
+      dotnet publish --configuration ${var.configuration}
+      cd bin/${var.configuration}/*/publish
+      mkdir -p ${local.build}
+      zip -r -X ${local.build}/${local.function_zip_name} *
+      EOT
+    interpreter = ["bash", "-cex"]
     working_dir = var.source_path
   }
 }
