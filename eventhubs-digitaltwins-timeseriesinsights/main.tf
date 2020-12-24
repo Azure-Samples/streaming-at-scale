@@ -49,6 +49,7 @@ module "digital_twins" {
   location                             = azurerm_resource_group.main.location
   eventhub_primary_connection_string   = module.eventhubs_adt.send_primary_connection_string
   eventhub_secondary_connection_string = module.eventhubs_adt.send_secondary_connection_string
+  owner_principal_object_id            = data.azurerm_client_config.current.object_id
 }
 
 module "eventhubs_adt" {
@@ -67,8 +68,8 @@ module "function_tsi" {
   instrumentation_key = module.application_insights.instrumentation_key
 
   appsettings = {
-    EVENT_HUB_ADT   = module.eventhubs_adt.listen_primary_connection_string
-    EVENT_HUB_TSI   = module.eventhubs_tsi.send_primary_connection_string
+    EVENT_HUB_ADT = module.eventhubs_adt.listen_primary_connection_string
+    EVENT_HUB_TSI = module.eventhubs_tsi.send_primary_connection_string
   }
 }
 

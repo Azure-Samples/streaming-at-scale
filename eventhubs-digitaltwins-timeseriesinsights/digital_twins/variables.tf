@@ -22,3 +22,8 @@ variable "eventhub_secondary_connection_string" {
   type        = string
   description = "Secondary connection string of the Event Hub to which ADT data is sent. Requires Send permission."
 }
+
+variable "owner_principal_object_id" {
+  type        = string
+  description = "Azure AD Object ID of the user to be assigned Azure Digital Twins Data Owner role to."
+}
