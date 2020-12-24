@@ -63,8 +63,13 @@ module "function_tsi" {
   basename            = "${var.appname}ts"
   resource_group      = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
-  source_path         = abspath("functions/EventHubToDigitalTwins")
+  source_path         = abspath("functions/DigitalTwinsToTSI")
   instrumentation_key = module.application_insights.instrumentation_key
+
+  appsettings = {
+    EVENT_HUB_ADT   = module.eventhubs_adt.listen_primary_connection_string
+    EVENT_HUB_TSI   = module.eventhubs_tsi.send_primary_connection_string
+  }
 }
 
 module "eventhubs_tsi" {
