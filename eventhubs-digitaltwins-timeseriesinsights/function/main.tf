@@ -19,6 +19,9 @@ resource "azurerm_app_service_plan" "main" {
   }
 }
 
+# Build a ZIP file for the sole purpose of detecting changes in the source directory and triggering recompilation and upload.
+# The ZIP file is not otherwise used.
+# https://stackoverflow.com/questions/51138667/can-terraform-watch-a-directory-for-changes
 data "archive_file" "source_code" {
   type        = "zip"
   source_dir  = var.source_path
@@ -27,7 +30,7 @@ data "archive_file" "source_code" {
 }
 
 locals {
-  build             = abspath("target")
+  build             = abspath("${path.module}/target")
   function_zip_name = "functionapp-${sha1(var.source_path)}-${data.archive_file.source_code.output_sha}.zip"
 }
 

@@ -43,6 +43,8 @@ resource "azurerm_eventhub_authorization_rule" "listen" {
   manage              = false
 }
 
+# Create Event Source for event hubs ingestion with Azure CLI
+# https://github.com/terraform-providers/terraform-provider-azurerm/issues/7053
 resource "null_resource" "tsi_eventhubs_ingestion" {
   provisioner "local-exec" {
     command = "az extension add -n timeseriesinsights; az timeseriesinsights event-source eventhub create -g ${var.resource_group} --environment-name ${azurerm_iot_time_series_insights_gen2_environment.main.name} -n es1 --key-name ${azurerm_eventhub_authorization_rule.listen.name} --shared-access-key ${azurerm_eventhub_authorization_rule.listen.primary_key} --event-source-resource-id ${azurerm_eventhub_authorization_rule.listen.id} --consumer-group-name '${azurerm_eventhub_consumer_group.main.name}' --timestamp-property-name '${var.timestamp_property_name}'"
