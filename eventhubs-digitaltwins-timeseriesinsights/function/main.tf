@@ -115,3 +115,10 @@ data "azurerm_storage_account_sas" "funcdeploy" {
     process = false
   }
 }
+
+resource "azurerm_role_assignment" "main" {
+  for_each = var.role_assignments
+  scope                = each.key
+  role_definition_name = each.value
+  principal_id         = azurerm_function_app.main.identity.0.principal_id
+}

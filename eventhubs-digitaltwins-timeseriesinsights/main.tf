@@ -39,6 +39,9 @@ module "function_adt" {
     ADT_SERVICE_URL = module.digital_twins.service_url
     EVENT_HUB       = module.eventhubs_in.listen_primary_connection_string
   }
+  role_assignments = {
+    (module.digital_twins.digital_twins_instance_resource_id) = "Azure Digital Twins Data Owner"
+  }
 
 }
 

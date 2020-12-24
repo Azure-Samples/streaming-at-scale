@@ -34,3 +34,8 @@ variable "instrumentation_key" {
   type        = string
   description = "The Application Insights instrumentation key."
 }
+
+variable "role_assignments" {
+  type        = map(string)
+  default     = {}
+}
