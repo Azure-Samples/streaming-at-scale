@@ -44,7 +44,7 @@ module "function_tsi" {
   basename       = "${var.appname}ts"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
-  source_path    = abspath("StreamingProcessor-DigitalTwins/StreamingProcessor-CosmosDB/")
+  source_path    = abspath("functions/EventHubToDigitalTwins")
 }
 
 module "eventhubs_tsi" {
