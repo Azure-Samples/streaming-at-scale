@@ -16,9 +16,9 @@ module "function_adt" {
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
   source_path    = abspath("functions/EventHubToDigitalTwins")
-  appsettings    = {
-   ADT_SERVICE_URL = module.digital_twins.service_url
-   EVENT_HUB = module.eventhubs_in.listen_primary_connection_string
+  appsettings = {
+    ADT_SERVICE_URL = module.digital_twins.service_url
+    EVENT_HUB       = module.eventhubs_in.listen_primary_connection_string
   }
 
 }
