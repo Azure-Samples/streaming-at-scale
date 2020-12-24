@@ -12,8 +12,8 @@
         "writable": true
       },
       {
-        "@type": ["Property", "ComplexData"],
-        "name": "ComplexData",
+        "@type": ["Property", "CO2Data"],
+        "name": "CO2Data",
         "schema": "string",
         "writable": true
       }

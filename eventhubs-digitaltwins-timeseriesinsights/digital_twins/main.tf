@@ -43,7 +43,7 @@ resource "null_resource" "upload_models" {
     command = <<-EOT
       az dt model create -n ${azurerm_digital_twins_instance.main.name} --models ./models/TemperatureSensorInterface.json
       az dt model create -n ${azurerm_digital_twins_instance.main.name} --models ./models/CO2SensorInterface.json
-      for i in $(seq 1 10); do 
+      for i in $(seq 1 5); do 
         az dt twin create -n ${azurerm_digital_twins_instance.main.name} --dtmi "dtmi:com:microsoft:azure:samples:streamingatscale:dt:tempsensor;1" --twin-id "device-id-$i-temp"
         az dt twin create -n ${azurerm_digital_twins_instance.main.name} --dtmi "dtmi:com:microsoft:azure:samples:streamingatscale:dt:co2sensor;1" --twin-id "device-id-$i-co2"
       done
