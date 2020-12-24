@@ -19,17 +19,16 @@ resource "azurerm_app_service_plan" "main" {
   }
 }
 
-data "archive_file" "init" {
+data "archive_file" "source_code" {
   type        = "zip"
   source_dir  = var.source_path
   output_path = "${local.build}/data-${sha1(var.source_path)}.zip"
   excludes    = ["bin", "obj"]
-
 }
 
 locals {
   build             = abspath("target")
-  function_zip_name = "functionapp-${data.archive_file.init.output_sha}.zip"
+  function_zip_name = "functionapp-${data.archive_file.source_code.output_sha}.zip"
 }
 
 resource "null_resource" "functionapp" {
