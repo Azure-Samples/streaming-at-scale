@@ -54,11 +54,11 @@ resource "azurerm_function_app" "main" {
   https_only                 = true
   version                    = "~3"
   os_type                    = "linux"
-  app_settings = {
+  app_settings = merge({
     WEBSITE_USE_ZIP          = "https://${azurerm_storage_account.main.name}.blob.core.windows.net/${azurerm_storage_container.funcdeploy.name}/${azurerm_storage_blob.functionzip.name}${data.azurerm_storage_account_sas.funcdeploy.sas}"
     FUNCTIONS_WORKER_RUNTIME = "dotnet"
 
-  }
+  }, var.appsettings)
   identity {
     type = "SystemAssigned"
   }

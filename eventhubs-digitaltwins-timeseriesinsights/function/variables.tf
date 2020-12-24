@@ -23,3 +23,9 @@ variable "configuration" {
   description = "Build configuration used to compile the Azure Function. Should be 'Debug' or 'Release'."
   default     = "Release"
 }
+
+variable "appsettings" {
+  type        = map
+  description = "App settings strings to add to function configuration."
+  default     = {}
+}

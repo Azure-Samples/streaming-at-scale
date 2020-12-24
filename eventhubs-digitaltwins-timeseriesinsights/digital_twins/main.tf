@@ -13,7 +13,7 @@ resource "azurerm_digital_twins_instance" "main" {
 }
 
 resource "azurerm_digital_twins_endpoint_eventhub" "main" {
-  name                                 = "EH"
+  name                                 = "EventHub"
   digital_twins_id                     = azurerm_digital_twins_instance.main.id
   eventhub_primary_connection_string   = var.eventhub_primary_connection_string
   eventhub_secondary_connection_string = var.eventhub_secondary_connection_string
