@@ -37,3 +37,19 @@ resource "null_resource" "tsi_eventhubs_ingestion" {
     azurerm_role_assignment.owner,
   ]
 }
+
+resource "null_resource" "upload_models" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      az dt model create -n ${azurerm_digital_twins_instance.main.name} --models ./models/TemperatureSensorInterface.json
+      az dt model create -n ${azurerm_digital_twins_instance.main.name} --models ./models/CO2SensorInterface.json
+      for i in $(seq 1 10); do 
+        az dt twin create -n ${azurerm_digital_twins_instance.main.name} --dtmi "dtmi:com:microsoft:azure:samples:streamingatscale:dt:tempsensor;1" --twin-id "device-id-$i-temp"
+        az dt twin create -n ${azurerm_digital_twins_instance.main.name} --dtmi "dtmi:com:microsoft:azure:samples:streamingatscale:dt:co2sensor;1" --twin-id "device-id-$i-co2"
+      done
+      EOT
+  }
+  depends_on = [
+    azurerm_role_assignment.owner,
+  ]
+}

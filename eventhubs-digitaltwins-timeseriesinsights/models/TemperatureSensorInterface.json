@@ -1,0 +1,23 @@
+[
+  {
+    "@id": "dtmi:com:microsoft:azure:samples:streamingatscale:dt:tempsensor;1",
+    "@type": "Interface",
+    "displayName": "Temperature Sensor - Interface Model",
+    "@context": "dtmi:dtdl:context;2",
+    "contents": [
+      {
+        "@type": ["Property", "Temperature"],
+        "name": "Temperature",
+        "schema": "double",
+        "unit": "degreeCelsius",
+        "writable": true
+      },
+      {
+        "@type": ["Property", "ComplexData"],
+        "name": "ComplexData",
+        "schema": "string",
+        "writable": true
+      }
+    ]
+  }
+]
