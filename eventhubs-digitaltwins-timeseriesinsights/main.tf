@@ -3,6 +3,13 @@ resource "azurerm_resource_group" "main" {
   location = var.location
 }
 
+module "application_insights" {
+  source         = "./application_insights"
+  basename       = var.appname
+  resource_group = azurerm_resource_group.main.name
+  location       = azurerm_resource_group.main.location
+}
+
 module "simulator" {
   source                    = "./simulator"
   basename                  = var.appname
@@ -19,11 +26,12 @@ module "eventhubs_in" {
 }
 
 module "function_adt" {
-  source         = "./function"
-  basename       = "${var.appname}in"
-  resource_group = azurerm_resource_group.main.name
-  location       = azurerm_resource_group.main.location
-  source_path    = abspath("functions/EventHubToDigitalTwins")
+  source              = "./function"
+  basename            = "${var.appname}in"
+  resource_group      = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  source_path         = abspath("functions/EventHubToDigitalTwins")
+  instrumentation_key = module.application_insights.instrumentation_key
   appsettings = {
     ADT_SERVICE_URL = module.digital_twins.service_url
     EVENT_HUB       = module.eventhubs_in.listen_primary_connection_string
@@ -48,11 +56,12 @@ module "eventhubs_adt" {
 }
 
 module "function_tsi" {
-  source         = "./function"
-  basename       = "${var.appname}ts"
-  resource_group = azurerm_resource_group.main.name
-  location       = azurerm_resource_group.main.location
-  source_path    = abspath("functions/EventHubToDigitalTwins")
+  source              = "./function"
+  basename            = "${var.appname}ts"
+  resource_group      = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  source_path         = abspath("functions/EventHubToDigitalTwins")
+  instrumentation_key = module.application_insights.instrumentation_key
 }
 
 module "eventhubs_tsi" {

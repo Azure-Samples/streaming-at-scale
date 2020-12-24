@@ -25,7 +25,12 @@ variable "configuration" {
 }
 
 variable "appsettings" {
-  type        = map(any)
+  type        = map(string)
   description = "App settings strings to add to function configuration."
   default     = {}
+}
+
+variable "instrumentation_key" {
+  type        = string
+  description = "The Application Insights instrumentation key."
 }

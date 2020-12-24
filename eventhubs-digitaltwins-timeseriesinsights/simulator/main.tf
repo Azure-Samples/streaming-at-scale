@@ -13,7 +13,7 @@ data "archive_file" "source_code" {
 }
 
 locals {
-  build = abspath("target")
+  build      = abspath("target")
   image_name = "generator"
 }
 
