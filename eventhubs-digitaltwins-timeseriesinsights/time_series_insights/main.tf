@@ -11,17 +11,40 @@ resource "azurerm_iot_time_series_insights_gen2_environment" "main" {
   location            = var.location
   resource_group_name = var.resource_group
   sku_name            = "L1"
-  id_properties       = ["id"]
+  id_properties       = var.id_properties
   storage {
     name = azurerm_storage_account.time_series_insights.name
     key  = azurerm_storage_account.time_series_insights.primary_access_key
   }
 }
 
-resource "azurerm_iot_time_series_insights_access_policy" "example" {
+resource "azurerm_iot_time_series_insights_access_policy" "name" {
   name                                = "deployer"
   time_series_insights_environment_id = azurerm_iot_time_series_insights_gen2_environment.main.id
 
   principal_object_id = var.reader_principal_object_id
   roles               = ["Reader"]
+}
+
+resource "azurerm_eventhub_consumer_group" "main" {
+  name                = "TSI"
+  namespace_name      = var.eventhub_namespace_name
+  eventhub_name       = var.eventhub_name
+  resource_group_name = var.resource_group
+}
+
+resource "azurerm_eventhub_authorization_rule" "listen" {
+  name                = "TSI-Listen"
+  namespace_name      = var.eventhub_namespace_name
+  eventhub_name       = var.eventhub_name
+  resource_group_name = var.resource_group
+  listen              = true
+  send                = false
+  manage              = false
+}
+
+resource "null_resource" "tsi_eventhubs_ingestion" {
+  provisioner "local-exec" {
+    command = "az extension add -n timeseriesinsights; az timeseriesinsights event-source eventhub create -g ${var.resource_group} --environment-name ${azurerm_iot_time_series_insights_gen2_environment.main.name} -n es1 --key-name ${azurerm_eventhub_authorization_rule.listen.name} --shared-access-key ${azurerm_eventhub_authorization_rule.listen.primary_key} --event-source-resource-id ${azurerm_eventhub_authorization_rule.listen.id} --consumer-group-name '${azurerm_eventhub_consumer_group.main.name}' --timestamp-property-name '${var.timestamp_property_name}'"
+  }
 }

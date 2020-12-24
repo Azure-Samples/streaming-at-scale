@@ -80,4 +80,6 @@ module "time_series_insights" {
   resource_group             = azurerm_resource_group.main.name
   location                   = azurerm_resource_group.main.location
   reader_principal_object_id = data.azurerm_client_config.current.object_id
+  eventhub_namespace_name    = module.eventhubs_tsi.eventhub_namespace_name
+  eventhub_name              = module.eventhubs_tsi.eventhub_name
 }

@@ -17,3 +17,21 @@ variable "reader_principal_object_id" {
   type        = string
   description = "Azure AD Object ID of the user to be assigned Reader role to."
 }
+
+variable "id_properties" {
+  type    = list(string)
+  default = ["deviceId"]
+}
+
+variable "timestamp_property_name" {
+  type    = string
+  default = "createdAt"
+}
+
+variable "eventhub_namespace_name" {
+  type = string
+}
+
+variable "eventhub_name" {
+  type = string
+}
