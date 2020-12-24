@@ -25,7 +25,7 @@ variable "configuration" {
 }
 
 variable "appsettings" {
-  type        = map
+  type        = map(any)
   description = "App settings strings to add to function configuration."
   default     = {}
 }
