@@ -28,7 +28,7 @@ data "archive_file" "source_code" {
 
 locals {
   build             = abspath("target")
-  function_zip_name = "functionapp-${data.archive_file.source_code.output_sha}.zip"
+  function_zip_name = "functionapp-${sha1(var.source_path)}-${data.archive_file.source_code.output_sha}.zip"
 }
 
 resource "null_resource" "functionapp" {

@@ -15,8 +15,3 @@ provider "azurerm" {
   skip_provider_registration = true
   features {}
 }
-
-# Data
-
-# Provides client_id, tenant_id, subscription_id and object_id variables
-data "azurerm_client_config" "current" {}

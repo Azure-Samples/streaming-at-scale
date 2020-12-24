@@ -1,3 +1,6 @@
+# Provides client_id, tenant_id, subscription_id and object_id variables
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group
   location = var.location
@@ -72,8 +75,9 @@ module "eventhubs_tsi" {
 }
 
 module "time_series_insights" {
-  source         = "./time_series_insights"
-  basename       = var.appname
-  resource_group = azurerm_resource_group.main.name
-  location       = azurerm_resource_group.main.location
+  source                     = "./time_series_insights"
+  basename                   = var.appname
+  resource_group             = azurerm_resource_group.main.name
+  location                   = azurerm_resource_group.main.location
+  reader_principal_object_id = data.azurerm_client_config.current.object_id
 }
