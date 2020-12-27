@@ -67,12 +67,12 @@ namespace EventHubToDigitalTwins
                 {
                     case "TEMP":
                         updateTwinData.AppendAdd("/Temperature", body.GetProperty("value").GetDouble());
-                        updateTwinData.AppendAdd("/TemperatureData", body.GetProperty("complexData").ToString());
+                        updateTwinData.AppendAdd("/TemperatureData", body.GetProperty("complexData"));
                         await Client.UpdateDigitalTwinAsync(twinId, updateTwinData);
                         break;
                     case "CO2":
                         updateTwinData.AppendAdd("/CO2", body.GetProperty("value").GetDouble());
-                        updateTwinData.AppendAdd("/CO2Data", body.GetProperty("complexData").ToString());
+                        updateTwinData.AppendAdd("/CO2Data", body.GetProperty("complexData"));
                         await Client.UpdateDigitalTwinAsync(twinId, updateTwinData);
                         break;
                 }
