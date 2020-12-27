@@ -24,7 +24,8 @@
           "mapValue": {
             "name": "value",
             "schema": "double"
-          },
+          }
+        },
         "writable": true
       }
     ]
