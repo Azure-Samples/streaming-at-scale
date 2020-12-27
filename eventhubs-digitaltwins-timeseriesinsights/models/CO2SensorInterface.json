@@ -14,7 +14,17 @@
       {
         "@type": ["Property", "CO2Data"],
         "name": "CO2Data",
-        "schema": "string",
+        "schema": {
+          "@type": "Map",
+          "mapKey": {
+            "name": "name",
+            "schema": "string"
+          },
+          "mapValue": {
+            "name": "value",
+            "schema": "double"
+          }
+        },
         "writable": true
       }
     ]

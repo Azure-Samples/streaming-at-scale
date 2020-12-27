@@ -15,7 +15,16 @@
       {
         "@type": ["Property", "TemperatureData"],
         "name": "TemperatureData",
-        "schema": "string",
+        "schema": {
+          "@type": "Map",
+          "mapKey": {
+            "name": "name",
+            "schema": "string"
+          },
+          "mapValue": {
+            "name": "value",
+            "schema": "double"
+          },
         "writable": true
       }
     ]

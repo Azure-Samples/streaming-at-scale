@@ -96,7 +96,7 @@ namespace EventHubToDigitalTwins
             }
 
             var idNumber = int.Parse(match.Groups[1].Value);
-            return $"device-id-{idNumber % 5}-{deviceType.ToLower()}";
+            return $"{deviceType.ToLower()}-sensor-{idNumber % 5}";
         }
     }
 }
