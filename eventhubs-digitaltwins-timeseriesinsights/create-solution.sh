@@ -69,6 +69,7 @@ echo "***** [D] Performing DEPLOYMENT"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
+        terraform init
         terraform plan -var appname=$RESOURCE_GROUP -var resource_group=$RESOURCE_GROUP -var location=$LOCATION -out tfplan
         terraform apply tfplan
     fi
