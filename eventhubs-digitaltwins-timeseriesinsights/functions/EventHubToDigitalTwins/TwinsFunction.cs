@@ -57,10 +57,10 @@ namespace EventHubToDigitalTwins
             try
             {
                 var body = JsonDocument.Parse(eventData.Body).RootElement;
+                var deviceId = body.GetProperty("deviceId").GetString();
                 // Avoid this error: {"error":{"code":"InvalidArgument","message":"Invalid twin ID specified. Twin ID must be less than 128 characters, and only include the following characters: A-Z a-z 0-9 - . +% _ # * ? ! ( ) , = @ $ '"}}
-                var deviceId = body.GetProperty("deviceId").GetString().Replace("://", "-");
+                var twinId = deviceId.Replace("://", "-");
                 var deviceType = body.GetProperty("type").GetString();
-                var twinId = ToTwinId(deviceId, deviceType);
                 log.LogInformation($"DeviceId:{deviceId}. TwinId:{twinId}. DeviceType:{deviceType}");
                 var updateTwinData = new JsonPatchDocument();
                 switch (deviceType)
@@ -81,22 +81,6 @@ namespace EventHubToDigitalTwins
             {
                 log.LogError(e, e.Message);
             }
-        }
-
-        /*
-         * Map deviceId to a valid twinId by distributing the incoming data among the 5 twins available
-         */
-        private static string ToTwinId(string deviceId, string deviceType)
-        {
-            var regex = new Regex(".*device-id-(\\d+)");
-            var match = regex.Match(deviceId);
-            if (!match.Success || match.Groups.Count <= 1)
-            {
-                throw new ArgumentException($"Invalid deviceId: {deviceId}");
-            }
-
-            var idNumber = int.Parse(match.Groups[1].Value);
-            return $"{deviceType.ToLower()}-sensor-{idNumber % 5}";
         }
     }
 }
