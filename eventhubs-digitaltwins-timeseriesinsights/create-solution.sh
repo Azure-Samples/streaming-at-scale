@@ -74,6 +74,12 @@ echo "***** [D] Performing DEPLOYMENT"
     fi
 echo
 
+echo "To run Explorer:"
+echo "    az container exec -g $RESOURCE_GROUP --name aci-${RESOURCE_GROUP}explorer --exec-command ./startup.sh"
+echo "    open $(terraform output -raw digital_twins_explorer_url)"
+echo "    Enter URL $(terraform output -raw digital_twins_service_url)"
+echo
+
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
@@ -97,8 +103,4 @@ echo "***** [V] Starting deployment VERIFICATION"
 echo
 
 echo "***** Done"
-
-echo "To run Explorer:"
-echo "    az container exec -g $RESOURCE_GROUP --name aci-${RESOURCE_GROUP}explorer --exec-command ./startup.sh"
-echo "    open $(terraform output -raw digital_twins_explorer_url)"
 

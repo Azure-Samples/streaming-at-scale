@@ -12,3 +12,8 @@ output "digital_twins_explorer_url" {
   value       = module.explorer.digital_twins_explorer_url
   description = "The URL of the Azure Digital Twins Explorer webapp."
 }
+
+output "digital_twins_service_url" {
+  value       = module.digital_twins.service_url
+  description = "The URL of the Azure Digital Twins instance service."
+}
