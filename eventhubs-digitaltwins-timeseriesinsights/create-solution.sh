@@ -76,7 +76,6 @@ echo "***** [D] Performing DEPLOYMENT"
 echo
 
 echo "To run Explorer:"
-echo "    az container exec -g $RESOURCE_GROUP --name aci-${RESOURCE_GROUP}explorer --exec-command ./startup.sh"
 echo "    open $(terraform output -raw digital_twins_explorer_url)"
 echo "    Enter URL $(terraform output -raw digital_twins_service_url)"
 echo

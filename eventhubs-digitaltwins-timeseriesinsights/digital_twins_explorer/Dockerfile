@@ -10,12 +10,10 @@ RUN git clone --depth 1 https://github.com/Azure-Samples/digital-twins-explorer 
 
 WORKDIR client/src
 RUN npm install
-RUN printf "#!/bin/sh\nnpm run start" > startup.sh
-RUN chmod 0755 startup.sh
-RUN printf "#!/bin/sh\nsleep infinity" > sleep.sh
-RUN chmod 0755 sleep.sh
+
+# prevent stdin to be closed https://github.com/facebook/create-react-app/commit/7e6d6cd05f3054723c8b015c813e13761659759e
+ENV CI="true" 
 
 ENV PORT=80
 
-#ENTRYPOINT ["./startup.sh"]
-ENTRYPOINT ["./sleep.sh"]
+CMD ["npm", "run", "start"]
