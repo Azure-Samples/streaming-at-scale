@@ -1,15 +1,8 @@
-resource "azurerm_container_registry" "main" {
-  name                = "acr${var.basename}"
-  location            = var.location
-  resource_group_name = var.resource_group
-  sku                 = "Basic"
-  admin_enabled       = true
-}
-
 data "archive_file" "source_code" {
   type        = "zip"
   source_dir  = var.source_path
   output_path = "${local.build}/data-${sha1(var.source_path)}.zip"
+  excludes    = ["log.txt"]
 }
 
 locals {
@@ -19,32 +12,31 @@ locals {
 
 resource "null_resource" "container_image" {
   triggers = {
+    registry = var.container_registry_login_server
     src_hash = data.archive_file.source_code.output_sha
   }
 
   provisioner "local-exec" {
-    command     = "az acr build --registry ${azurerm_container_registry.main.name} --image ${local.image_name}:latest . > log.txt"
+    command     = "az acr build --registry ${var.container_registry_name} --image ${local.image_name}:latest . > log.txt"
     working_dir = var.source_path
   }
 }
 
 resource "azurerm_container_group" "simulator" {
-  name                = "simulator"
+  name                = "aci-${var.basename}"
   location            = var.location
   resource_group_name = var.resource_group
   os_type             = "Linux"
-  ip_address_type     = "Public"
-  restart_policy      = "Never"
 
   image_registry_credential {
-    username = azurerm_container_registry.main.admin_username
-    password = azurerm_container_registry.main.admin_password
-    server   = azurerm_container_registry.main.login_server
+    username = var.container_registry_admin_username
+    password = var.container_registry_admin_password
+    server   = var.container_registry_login_server
   }
 
   container {
     name   = "simulator"
-    image  = "${azurerm_container_registry.main.login_server}/${local.image_name}"
+    image  = "${var.container_registry_login_server}/${local.image_name}"
     cpu    = "4.0"
     memory = "4.0"
     environment_variables = {

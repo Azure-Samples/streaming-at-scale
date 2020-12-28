@@ -1,0 +1,67 @@
+[
+  {
+    "@id": "dtmi:com:microsoft:azure:samples:streamingatscale:dt:device;1",
+    "@type": "Interface",
+    "displayName": "Simulated Device with Temperature and CO2 Sensors",
+    "@context": "dtmi:dtdl:context;2",
+    "contents": [
+      {
+        "@type": [
+          "Property",
+          "Temperature"
+        ],
+        "name": "Temperature",
+        "schema": "double",
+        "unit": "degreeCelsius",
+        "writable": true
+      },
+      {
+        "@type": [
+          "Property",
+          "TemperatureData"
+        ],
+        "name": "TemperatureData",
+        "schema": {
+          "@type": "Map",
+          "mapKey": {
+            "name": "dataKey",
+            "schema": "string"
+          },
+          "mapValue": {
+            "name": "dataValue",
+            "schema": "double"
+          }
+        },
+        "writable": true
+      },
+      {
+        "@type": [
+          "Property",
+          "CO2"
+        ],
+        "name": "CO2",
+        "schema": "double",
+        "writable": true
+      },
+      {
+        "@type": [
+          "Property",
+          "CO2Data"
+        ],
+        "name": "CO2Data",
+        "schema": {
+          "@type": "Map",
+          "mapKey": {
+            "name": "dataKey",
+            "schema": "string"
+          },
+          "mapValue": {
+            "name": "dataValue",
+            "schema": "double"
+          }
+        },
+        "writable": true
+      }
+    ]
+  }
+]

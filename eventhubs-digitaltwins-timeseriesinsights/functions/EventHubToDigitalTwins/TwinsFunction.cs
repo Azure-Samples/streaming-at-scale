@@ -25,6 +25,7 @@ namespace EventHubToDigitalTwins
 
         static EventHubToDigitalTwins()
         {
+            //Authenticate with Digital Twins
             var cred = new DefaultAzureCredential();
             Client = new DigitalTwinsClient(new Uri(AdtInstanceUrl), cred,
                 new DigitalTwinsClientOptions {Transport = new HttpClientTransport(HttpClient)});
@@ -36,15 +37,13 @@ namespace EventHubToDigitalTwins
         {
             try
             {
-                //Authenticate with Digital Twins
                 foreach (var eventData in events)
                 {
                     if (eventData == null || eventData.Body == null)
                     {
                         continue;
                     }
-
-                    await ProcessEvent(log, eventData);
+                    await ProcessEvent(eventData, log);
                 }
             }
             catch (Exception e)
@@ -53,12 +52,13 @@ namespace EventHubToDigitalTwins
             }
         }
 
-        private static async Task ProcessEvent(ILogger log, EventData eventData)
+        private static async Task ProcessEvent(EventData eventData, ILogger log)
         {
             try
             {
                 var body = JsonDocument.Parse(eventData.Body).RootElement;
-                var deviceId = body.GetProperty("deviceId").GetString();
+                // Avoid this error: {"error":{"code":"InvalidArgument","message":"Invalid twin ID specified. Twin ID must be less than 128 characters, and only include the following characters: A-Z a-z 0-9 - . +% _ # * ? ! ( ) , = @ $ '"}}
+                var deviceId = body.GetProperty("deviceId").GetString().Replace("://", "-");
                 var deviceType = body.GetProperty("type").GetString();
                 var twinId = ToTwinId(deviceId, deviceType);
                 log.LogInformation($"DeviceId:{deviceId}. TwinId:{twinId}. DeviceType:{deviceType}");

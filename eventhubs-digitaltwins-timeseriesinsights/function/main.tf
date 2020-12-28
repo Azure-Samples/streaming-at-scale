@@ -1,3 +1,8 @@
+locals {
+  build             = abspath("${path.module}/target")
+  function_zip_name = "functionapp-${sha1(var.source_path)}-${data.archive_file.source_code.output_sha}.zip"
+}
+
 resource "azurerm_storage_account" "main" {
   name                     = "st${var.basename}"
   location                 = var.location
@@ -29,18 +34,13 @@ data "archive_file" "source_code" {
   excludes    = ["bin", "obj"]
 }
 
-locals {
-  build             = abspath("${path.module}/target")
-  function_zip_name = "functionapp-${sha1(var.source_path)}-${data.archive_file.source_code.output_sha}.zip"
-}
-
 resource "null_resource" "functionapp" {
   triggers = {
     src_hash = local.function_zip_name
   }
 
   provisioner "local-exec" {
-    command = <<-EOT
+    command     = <<-EOT
       dotnet publish --configuration ${var.configuration}
       cd bin/${var.configuration}/*/publish
       mkdir -p ${local.build}
@@ -114,11 +114,4 @@ data "azurerm_storage_account_sas" "funcdeploy" {
     update  = false
     process = false
   }
-}
-
-resource "azurerm_role_assignment" "main" {
-  for_each = var.role_assignments
-  scope                = each.key
-  role_definition_name = each.value
-  principal_id         = azurerm_function_app.main.identity.0.principal_id
 }

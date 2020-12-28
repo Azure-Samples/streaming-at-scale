@@ -1,9 +1,11 @@
 output "eventhub_namespace_name" {
-  value = azurerm_eventhub_namespace.main.name
+  value       = azurerm_eventhub_namespace.main.name
+  description = "The event hub namespace."
 }
 
 output "eventhub_name" {
-  value = azurerm_eventhub.main.name
+  value       = azurerm_eventhub.main.name
+  description = "The event hub name."
 }
 
 output "send_primary_connection_string" {

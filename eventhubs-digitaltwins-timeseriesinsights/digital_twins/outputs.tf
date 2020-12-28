@@ -5,4 +5,5 @@ output "service_url" {
 
 output "digital_twins_instance_resource_id" {
   value       = azurerm_digital_twins_instance.main.id
+  description = "The ARM Resource ID of the Azure Digital Twins service."
 }

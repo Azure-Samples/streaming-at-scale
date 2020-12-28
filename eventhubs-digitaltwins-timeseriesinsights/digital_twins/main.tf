@@ -1,3 +1,7 @@
+locals {
+  build = abspath("${path.module}/target")
+}
+
 resource "azurerm_storage_account" "time_series_insights" {
   name                     = "st${var.basename}tsi"
   location                 = var.location
@@ -26,27 +30,22 @@ resource "azurerm_role_assignment" "owner" {
 }
 
 # Create ADT route to Event Hubs using Azure CLI (not currently supported in Terraform)
-resource "null_resource" "tsi_eventhubs_ingestion" {
+resource "null_resource" "tsi_eventhubs_ingestion_route" {
+  triggers = {
+    twins    = azurerm_digital_twins_instance.main.name
+    endpoint = azurerm_digital_twins_endpoint_eventhub.main.name
+  }
   provisioner "local-exec" {
     command = <<-EOT
       az extension add -n azure-iot
-      az dt route create -n ${azurerm_digital_twins_instance.main.name} --endpoint-name ${azurerm_digital_twins_endpoint_eventhub.main.name} --route-name EHRoute --filter "type = 'Microsoft.DigitalTwins.Twin.Update'"
+      az dt route create -n ${self.triggers.twins} --endpoint-name ${self.triggers.endpoint} --route-name EHRoute --filter "type = 'Microsoft.DigitalTwins.Twin.Update'" -o none
       EOT
   }
-  depends_on = [
-    azurerm_role_assignment.owner,
-  ]
-}
-
-resource "null_resource" "upload_models" {
   provisioner "local-exec" {
+    when    = destroy
     command = <<-EOT
-      az dt model create -n ${azurerm_digital_twins_instance.main.name} --models ./models/TemperatureSensorInterface.json
-      az dt model create -n ${azurerm_digital_twins_instance.main.name} --models ./models/CO2SensorInterface.json
-      for i in $(seq 0 4); do 
-        az dt twin create -n ${azurerm_digital_twins_instance.main.name} --dtmi "dtmi:com:microsoft:azure:samples:streamingatscale:dt:tempsensor;1" --twin-id "temp-sensor-$i"
-        az dt twin create -n ${azurerm_digital_twins_instance.main.name} --dtmi "dtmi:com:microsoft:azure:samples:streamingatscale:dt:co2sensor;1" --twin-id "co2-sensor-$i"
-      done
+      az extension add -n azure-iot
+      az dt route delete -n ${self.triggers.twins} --route-name EHRoute -o none
       EOT
   }
   depends_on = [

@@ -13,6 +13,26 @@ variable "resource_group" {
   description = "Resource group to deploy in."
 }
 
+variable "container_registry_name" {
+  type        = string
+  description = "Container registry to use for building image."
+}
+
+variable "container_registry_admin_username" {
+  type        = string
+  description = "The container registry admin username."
+}
+
+variable "container_registry_admin_password" {
+  type        = string
+  description = "The container registry admin password."
+}
+
+variable "container_registry_login_server" {
+  type        = string
+  description = "The container registry login server."
+}
+
 variable "eventhub_connectionstring" {
   type        = string
   description = "Connection string of the Event Hub to send data to. Requires Send permission."
@@ -35,4 +55,3 @@ variable "source_path" {
   default     = "../simulator/generator"
   description = "Local path to the Simulator source code."
 }
-
