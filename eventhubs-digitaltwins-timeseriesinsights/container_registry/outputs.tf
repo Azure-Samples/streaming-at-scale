@@ -3,6 +3,11 @@ output "name" {
   description = "The container registry name."
 }
 
+output "resource_id" {
+  value       = azurerm_container_registry.main.id
+  description = "The container registry ARM Resource ID."
+}
+
 output "admin_username" {
   value       = azurerm_container_registry.main.admin_username
   description = "The container registry admin username."

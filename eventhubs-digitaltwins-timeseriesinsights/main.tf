@@ -106,6 +106,20 @@ module "time_series_insights" {
   eventhub_name              = module.eventhubs_tsi.eventhub_name
 }
 
+module "explorer" {
+  source                             = "./digital_twins_explorer"
+  basename                           = "${var.appname}explorer"
+  resource_group                     = azurerm_resource_group.main.name
+  location                           = azurerm_resource_group.main.location
+  container_registry_name            = module.container_registry.name
+  container_registry_admin_username  = module.container_registry.admin_username
+  container_registry_admin_password  = module.container_registry.admin_password
+  container_registry_login_server    = module.container_registry.login_server
+  container_registry_resource_id     = module.container_registry.resource_id
+  instrumentation_key                = module.application_insights.instrumentation_key
+  digital_twins_instance_resource_id = module.digital_twins.digital_twins_instance_resource_id
+}
+
 resource "null_resource" "upload_models" {
   triggers = {
     adt_instance              = module.digital_twins.service_url
