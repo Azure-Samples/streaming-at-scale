@@ -47,6 +47,7 @@ echo "Checking pre-requisites..."
 
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
+source ../assert/has-local-terraform.sh
 
 echo
 echo "Streaming at Scale with Azure Time Series Insights"
