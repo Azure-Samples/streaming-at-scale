@@ -77,7 +77,7 @@ resource "azurerm_container_group" "simulator" {
         EOT
     }
     secure_environment_variables = {
-      EventHubConnectionString = var.eventhub_connectionstring
+      IotHubConnectionString = var.iothub_connectionstring
     }
 
     ports {

@@ -5,11 +5,17 @@ output "subscription_id" {
 
 output "eventhub_namespace_names" {
   description = "The list of Event Hub namespaces."
-  value       = "${module.eventhubs_in.eventhub_namespace_name} ${module.eventhubs_adt.eventhub_namespace_name} ${module.eventhubs_tsi.eventhub_namespace_name}"
+  value       = "${module.eventhubs_adt.eventhub_namespace_name} ${module.eventhubs_tsi.eventhub_namespace_name}"
+}
+
+output "iothub_registry_write_primary_connection_string" {
+  value       = module.iothub.registry_write_primary_connection_string
+  description = "The primary connection string to manage IoT Hub device registry."
+  sensitive   = true
 }
 
 output "digital_twins_explorer_url" {
-  value       = module.explorer.digital_twins_explorer_url
+  value       = ""
   description = "The URL of the Azure Digital Twins Explorer webapp."
 }
 

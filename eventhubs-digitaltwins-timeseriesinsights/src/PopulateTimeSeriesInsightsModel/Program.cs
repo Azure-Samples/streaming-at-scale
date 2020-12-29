@@ -108,6 +108,9 @@
                                   await File.ReadAllTextAsync(_timeSeriesHierarchiesFile),
                                   DeserializationSettings)
                               ?? throw new ArgumentException($"No hierarchies found in {_timeSeriesHierarchiesFile}");
+            
+            _log.LogInformation("Creating {n} hierarchies", hierarchies.Count);
+            
             var createHierarchiesResponse = await
                 _timeSeriesInsightsClient.TimeSeriesHierarchies.ExecuteBatchWithHttpMessagesAsync(
                     new HierarchiesBatchRequest(put: hierarchies));
@@ -122,6 +125,9 @@
                                       DeserializationSettings)
                                   ?? throw new ArgumentException(
                                       $"No types found in {_timeSeriesTypesFile}");
+            
+            _log.LogInformation("Creating {n} types", timeSeriesTypes.Count);
+            
             var createTypesResponse =
                 await _timeSeriesInsightsClient.TimeSeriesTypes.ExecuteBatchWithHttpMessagesAsync(
                     new TypesBatchRequest(put: timeSeriesTypes));
@@ -132,7 +138,7 @@
         private async Task CreateTimeSeriesInstancesAsync(List<TimeSeriesHierarchy> hierarchies,
             List<TimeSeriesType> types)
         {
-            var put =
+            var timeSeriesInstances =
                 Enumerable.Range(0, NumTwins)
                     .Select(i =>
                         new TimeSeriesInstance(
@@ -148,7 +154,10 @@
                                 {"vehicle", i % 2 == 0 ? "Car" : "Bus"},
                             })
                     ).ToList();
-            InstancesBatchRequest req = new InstancesBatchRequest(put: put);
+
+            _log.LogInformation("Creating {n} instances", timeSeriesInstances.Count);
+            
+            InstancesBatchRequest req = new InstancesBatchRequest(put: timeSeriesInstances);
             var createInstancesResponse =
                 await _timeSeriesInsightsClient.TimeSeriesInstances.ExecuteBatchWithHttpMessagesAsync(req);
             CheckErrors(createInstancesResponse, createInstancesResponse.Body.Put.Select(_ => _.Error));

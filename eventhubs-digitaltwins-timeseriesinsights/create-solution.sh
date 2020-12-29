@@ -14,15 +14,15 @@ trap 'on_error $LINENO' ERR
 
 export PREFIX=''
 export LOCATION="eastus"
-export STEPS="CIPM"
+export STEPS="IPDM"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
-    echo "      C=COMMON"
-    echo "      I=INGESTION"
+    echo "      I=INFRASTRUCTURE"
     echo "      P=PROCESSING"
+    echo "      D=DATA"
     echo "      M=METRICS reporting"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
@@ -77,9 +77,9 @@ echo
 echo "Deployment started..."
 echo
 
-echo "***** [C] Setting up COMMON resources"
+echo "***** [I] Deploying INFRASTRUCTURE"
 
-    RUN=`echo $STEPS | grep C -o || true`
+    RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
         terraform init
         terraform plan -var appname=$RESOURCE_GROUP -var resource_group=$RESOURCE_GROUP -var location=$LOCATION -out tfplan
@@ -87,9 +87,9 @@ echo "***** [C] Setting up COMMON resources"
     fi
 echo
 
-echo "***** [I] Setting up INGESTION"
+echo "***** [P] Setting up PROCESSING"
 
-    RUN=`echo $STEPS | grep I -o || true`
+    RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         function_name_event_hub_to_digital_twins=$(terraform output -raw function_name_event_hub_to_digital_twins)
         function_name_digital_twins_to_time_series_insights=$(terraform output -raw function_name_digital_twins_to_time_series_insights)
@@ -99,14 +99,16 @@ echo "***** [I] Setting up INGESTION"
     fi
 echo
 
-echo "***** [P] Setting up PROCESSING"
+echo "***** [D] Setting up DATA"
 
-    RUN=`echo $STEPS | grep P -o || true`
+    RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
+        iothub_registry_write_primary_connection_string=$(terraform output -raw iothub_registry_write_primary_connection_string)
         digital_twins_service_url=$(terraform output -raw digital_twins_service_url)
         digital_twins_explorer_url=$(terraform output -raw digital_twins_explorer_url || true)
         time_series_insights_data_access_fqdn=$(terraform output -raw time_series_insights_data_access_fqdn)
 
+        CONNECTION_STRING="$iothub_registry_write_primary_connection_string" dotnet run -p src/PopulateIoTHub
         dotnet run -p src/PopulateDigitalTwinsModel "$digital_twins_service_url" "models/digital_twin_types.json"
         dotnet run -p src/PopulateTimeSeriesInsightsModel "$time_series_insights_data_access_fqdn" "models/time_series_insights_types.json" "models/time_series_insights_hierarchies.json"
 
@@ -116,8 +118,6 @@ echo "***** [P] Setting up PROCESSING"
         echo
     fi
 echo
-
-
 
 echo "***** [M] Starting METRICS reporting"
 
