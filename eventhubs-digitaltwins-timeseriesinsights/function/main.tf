@@ -32,8 +32,16 @@ resource "azurerm_function_app" "main" {
   app_settings = merge({
     FUNCTIONS_WORKER_RUNTIME       = "dotnet"
     APPINSIGHTS_INSTRUMENTATIONKEY = var.instrumentation_key
+    WEBSITE_RUN_FROM_PACKAGE       = "" # Must be present for ignore_changes to work
+    WEBSITE_USE_ZIP                = "" # Must be present for ignore_changes to work
   }, var.appsettings)
   identity {
     type = "SystemAssigned"
   }
+
+  # Ignore blob URLs set by "func azure functionapp publish" 
+  lifecycle { ignore_changes = [
+    app_settings["WEBSITE_RUN_FROM_PACKAGE"],
+    app_settings["WEBSITE_USE_ZIP"],
+  ] }
 }
