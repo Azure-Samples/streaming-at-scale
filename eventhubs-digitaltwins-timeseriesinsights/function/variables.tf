@@ -13,17 +13,6 @@ variable "resource_group" {
   description = "Resource group to deploy in."
 }
 
-variable "source_path" {
-  type        = string
-  description = "Local path to the Azure Function source code."
-}
-
-variable "configuration" {
-  type        = string
-  description = "Build configuration used to compile the Azure Function. Should be 'Debug' or 'Release'."
-  default     = "Release"
-}
-
 variable "appsettings" {
   type        = map(string)
   description = "App settings strings to add to function configuration."

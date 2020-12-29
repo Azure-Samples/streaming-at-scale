@@ -3,15 +3,26 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
+on_error() {
+    set +e
+    echo "There was an error, execution halted" >&2
+    echo "Error at line $1"
+    exit 1
+}
+
+trap 'on_error $LINENO' ERR
+
 export PREFIX=''
 export LOCATION="eastus"
-export STEPS="DM"
+export STEPS="CIPM"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
-    echo "      D=DEPLOYMENT"
+    echo "      C=COMMON"
+    echo "      I=INGESTION"
+    echo "      P=PROCESSING"
     echo "      M=METRICS reporting"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
@@ -48,6 +59,7 @@ echo "Checking pre-requisites..."
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
 source ../assert/has-local-terraform.sh
+source ../assert/has-local-func.sh
 
 echo
 echo "Streaming at Scale with Azure Time Series Insights"
@@ -65,9 +77,9 @@ echo
 echo "Deployment started..."
 echo
 
-echo "***** [D] Performing DEPLOYMENT"
+echo "***** [C] Setting up COMMON resources"
 
-    RUN=`echo $STEPS | grep D -o || true`
+    RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         terraform init
         terraform plan -var appname=$RESOURCE_GROUP -var resource_group=$RESOURCE_GROUP -var location=$LOCATION -out tfplan
@@ -75,10 +87,36 @@ echo "***** [D] Performing DEPLOYMENT"
     fi
 echo
 
-echo "To run Explorer:"
-echo "    open $(terraform output -raw digital_twins_explorer_url)"
-echo "    Enter URL $(terraform output -raw digital_twins_service_url)"
+echo "***** [I] Setting up INGESTION"
+
+    RUN=`echo $STEPS | grep I -o || true`
+    if [ ! -z "$RUN" ]; then
+        function_name_event_hub_to_digital_twins=$(terraform output -raw function_name_event_hub_to_digital_twins)
+        function_name_digital_twins_to_time_series_insights=$(terraform output -raw function_name_digital_twins_to_time_series_insights)
+
+        (cd functions/EventHubToDigitalTwins; func azure functionapp publish $function_name_event_hub_to_digital_twins)
+        (cd functions/DigitalTwinsToTSI; func azure functionapp publish $function_name_digital_twins_to_time_series_insights)
+    fi
 echo
+
+echo "***** [P] Setting up PROCESSING"
+
+    RUN=`echo $STEPS | grep P -o || true`
+    if [ ! -z "$RUN" ]; then
+        digital_twins_service_url=$(terraform output -raw digital_twins_service_url)
+        digital_twins_explorer_url=$(terraform output -raw digital_twins_explorer_url || true)
+        time_series_insights_data_access_fqdn=$(terraform output -raw time_series_insights_data_access_fqdn)
+        
+        dotnet run -p functions/ModelGenerator "$digital_twins_service_url" "$time_series_insights_data_access_fqdn" "models/digital_twin_types.json" "models/time_series_insights_types.json" "models/time_series_insights_hierarchies.json"
+
+        echo "To run Explorer:"
+        echo "    open $digital_twins_explorer_url"
+        echo "    Enter URL $digital_twins_service_url"
+        echo
+    fi
+echo
+
+
 
 echo "***** [M] Starting METRICS reporting"
 
@@ -103,4 +141,3 @@ echo "***** [V] Starting deployment VERIFICATION"
 echo
 
 echo "***** Done"
-

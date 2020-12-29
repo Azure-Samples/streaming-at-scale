@@ -40,7 +40,6 @@ module "function_adt" {
   basename            = "${var.appname}in"
   resource_group      = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
-  source_path         = abspath("functions/EventHubToDigitalTwins")
   instrumentation_key = module.application_insights.instrumentation_key
   appsettings = {
     ADT_SERVICE_URL = module.digital_twins.service_url
@@ -76,7 +75,6 @@ module "function_tsi" {
   basename            = "${var.appname}ts"
   resource_group      = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
-  source_path         = abspath("functions/DigitalTwinsToTSI")
   instrumentation_key = module.application_insights.instrumentation_key
 
   appsettings = {
@@ -114,23 +112,4 @@ module "explorer" {
   container_registry_resource_id     = module.container_registry.resource_id
   instrumentation_key                = module.application_insights.instrumentation_key
   digital_twins_instance_resource_id = module.digital_twins.digital_twins_instance_resource_id
-}
-
-resource "null_resource" "upload_models" {
-  triggers = {
-    adt_instance              = module.digital_twins.service_url
-    tsi_instance              = module.time_series_insights.data_access_fqdn
-    adt_model_file            = abspath(var.adt_model_file)
-    adt_model_file_sha1       = filesha1(var.adt_model_file)
-    tsi_types_file            = abspath(var.tsi_types_file)
-    tsi_types_file_sha1       = filesha1(var.tsi_types_file)
-    tsi_hierarchies_file      = abspath(var.tsi_hierarchies_file)
-    tsi_hierarchies_file_sha1 = filesha1(var.tsi_hierarchies_file)
-  }
-  provisioner "local-exec" {
-    command     = <<-EOT
-      dotnet run "${self.triggers.adt_instance}" "${self.triggers.tsi_instance}" "${self.triggers.adt_model_file}" "${self.triggers.tsi_types_file}" "${self.triggers.tsi_hierarchies_file}"
-      EOT
-    working_dir = "functions/ModelGenerator"
-  }
 }
