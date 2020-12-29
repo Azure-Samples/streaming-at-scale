@@ -94,8 +94,8 @@ echo "***** [I] Setting up INGESTION"
         function_name_event_hub_to_digital_twins=$(terraform output -raw function_name_event_hub_to_digital_twins)
         function_name_digital_twins_to_time_series_insights=$(terraform output -raw function_name_digital_twins_to_time_series_insights)
 
-        (cd functions/EventHubToDigitalTwins; func azure functionapp publish $function_name_event_hub_to_digital_twins)
-        (cd functions/DigitalTwinsToTSI; func azure functionapp publish $function_name_digital_twins_to_time_series_insights)
+        (cd src/EventHubToDigitalTwins; func azure functionapp publish $function_name_event_hub_to_digital_twins)
+        (cd src/DigitalTwinsToTSI; func azure functionapp publish $function_name_digital_twins_to_time_series_insights)
     fi
 echo
 
@@ -106,8 +106,9 @@ echo "***** [P] Setting up PROCESSING"
         digital_twins_service_url=$(terraform output -raw digital_twins_service_url)
         digital_twins_explorer_url=$(terraform output -raw digital_twins_explorer_url || true)
         time_series_insights_data_access_fqdn=$(terraform output -raw time_series_insights_data_access_fqdn)
-        
-        dotnet run -p functions/ModelGenerator "$digital_twins_service_url" "$time_series_insights_data_access_fqdn" "models/digital_twin_types.json" "models/time_series_insights_types.json" "models/time_series_insights_hierarchies.json"
+
+        dotnet run -p src/PopulateDigitalTwinsModel "$digital_twins_service_url" "models/digital_twin_types.json"
+        dotnet run -p src/PopulateTimeSeriesInsightsModel "$time_series_insights_data_access_fqdn" "models/time_series_insights_types.json" "models/time_series_insights_hierarchies.json"
 
         echo "To run Explorer:"
         echo "    open $digital_twins_explorer_url"

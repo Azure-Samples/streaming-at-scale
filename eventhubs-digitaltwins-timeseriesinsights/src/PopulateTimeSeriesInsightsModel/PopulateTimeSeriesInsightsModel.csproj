@@ -4,12 +4,11 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <Nullable>enable</Nullable>
+        <RootNamespace>ModelGenerator</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Azure.DigitalTwins.Core" Version="1.2.0" />
       <PackageReference Include="Azure.Identity" Version="1.3.0" />
-      <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.5" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.10" />
       <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.22" />
