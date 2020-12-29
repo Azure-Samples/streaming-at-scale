@@ -62,7 +62,7 @@ resource "azurerm_function_app" "main" {
   version                    = "~3"
   os_type                    = "linux"
   app_settings = merge({
-    WEBSITE_USE_ZIP                = "https://${azurerm_storage_account.main.name}.blob.core.windows.net/${azurerm_storage_container.funcdeploy.name}/${azurerm_storage_blob.functionzip.name}${data.azurerm_storage_account_sas.funcdeploy.sas}"
+    WEBSITE_RUN_FROM_PACKAGE       = "https://${azurerm_storage_account.main.name}.blob.core.windows.net/${azurerm_storage_container.funcdeploy.name}/${azurerm_storage_blob.functionzip.name}${data.azurerm_storage_account_sas.funcdeploy.sas}"
     FUNCTIONS_WORKER_RUNTIME       = "dotnet"
     APPINSIGHTS_INSTRUMENTATIONKEY = var.instrumentation_key
   }, var.appsettings)

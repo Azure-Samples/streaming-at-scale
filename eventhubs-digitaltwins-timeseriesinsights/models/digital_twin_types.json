@@ -6,20 +6,21 @@
     "@context": "dtmi:dtdl:context;2",
     "contents": [
       {
+        "@type": "Property",
+        "name": "LastUpdate",
+        "schema": "dateTime"
+      },
+      {
         "@type": [
           "Property",
           "Temperature"
         ],
         "name": "Temperature",
         "schema": "double",
-        "unit": "degreeCelsius",
-        "writable": true
+        "unit": "degreeCelsius"
       },
       {
-        "@type": [
-          "Property",
-          "TemperatureData"
-        ],
+        "@type": "Property",
         "name": "TemperatureData",
         "schema": {
           "@type": "Map",
@@ -31,23 +32,19 @@
             "name": "dataValue",
             "schema": "double"
           }
-        },
-        "writable": true
+        }
       },
       {
         "@type": [
           "Property",
-          "CO2"
+          "Pressure"
         ],
         "name": "CO2",
         "schema": "double",
-        "writable": true
+        "unit": "pascal"
       },
       {
-        "@type": [
-          "Property",
-          "CO2Data"
-        ],
+        "@type": "Property",
         "name": "CO2Data",
         "schema": {
           "@type": "Map",
@@ -59,8 +56,7 @@
             "name": "dataValue",
             "schema": "double"
           }
-        },
-        "writable": true
+        }
       }
     ]
   }

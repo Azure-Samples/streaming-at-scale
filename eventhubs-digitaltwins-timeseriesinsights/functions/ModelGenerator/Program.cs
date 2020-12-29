@@ -176,7 +176,7 @@
                 MaxDegreeOfParallelism = 50
             }, i =>
             {
-                var deviceId = $"contoso-device-id-{i}";
+                var deviceId = $"contoso-device-id-{i.ToString("000000")}";
                 digitalTwinsClient.CreateOrReplaceDigitalTwin(deviceId, new BasicDigitalTwin
                 {
                     Metadata = twinMetadata
@@ -233,7 +233,7 @@
                 Enumerable.Range(0, NumTwins)
                     .Select(i =>
                         new TimeSeriesInstance(
-                            new object[] {$"contoso-device-id-{i}"},
+                            new object[] {$"contoso-device-id-{i.ToString("000000")}"},
                             types.First().Id,
                             $"Device #{i}",
                             "A simulated device",

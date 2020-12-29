@@ -21,15 +21,11 @@ module "container_registry" {
 }
 
 module "simulator" {
-  source                            = "./simulator"
-  basename                          = "${var.appname}simulator"
-  resource_group                    = azurerm_resource_group.main.name
-  location                          = azurerm_resource_group.main.location
-  container_registry_name           = module.container_registry.name
-  container_registry_admin_username = module.container_registry.admin_username
-  container_registry_admin_password = module.container_registry.admin_password
-  container_registry_login_server   = module.container_registry.login_server
-  eventhub_connectionstring         = module.eventhubs_in.send_primary_connection_string
+  source                    = "./simulator"
+  basename                  = "${var.appname}simulator"
+  resource_group            = azurerm_resource_group.main.name
+  location                  = azurerm_resource_group.main.location
+  eventhub_connectionstring = module.eventhubs_in.send_primary_connection_string
 }
 
 module "eventhubs_in" {

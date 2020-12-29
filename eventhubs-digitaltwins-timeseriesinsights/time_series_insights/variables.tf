@@ -26,7 +26,7 @@ variable "id_properties" {
 
 variable "timestamp_property_name" {
   type        = string
-  default     = "createdAt"
+  default     = "LastUpdate"
   description = "Inbound message property defining the Time Series Insights event timestamp."
 }
 

@@ -19,7 +19,7 @@ variable "container_registry_name" {
 }
 
 variable "container_registry_resource_id" {
-  type        = string
+  type = string
 }
 
 variable "container_registry_admin_username" {

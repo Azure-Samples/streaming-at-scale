@@ -21,6 +21,6 @@ variable "capacity" {
 
 variable "partition_count" {
   type        = number
-  default     = 1
+  default     = 2
   description = "Event hub partition count."
 }

@@ -3,7 +3,6 @@ namespace EventHubToDigitalTwins
     using System;
     using System.Net.Http;
     using System.Text.Json;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Azure;
     using Azure.Core.Pipeline;
@@ -39,10 +38,6 @@ namespace EventHubToDigitalTwins
             {
                 foreach (var eventData in events)
                 {
-                    if (eventData == null || eventData.Body == null)
-                    {
-                        continue;
-                    }
                     await ProcessEvent(eventData, log);
                 }
             }
@@ -58,24 +53,23 @@ namespace EventHubToDigitalTwins
             {
                 var body = JsonDocument.Parse(eventData.Body).RootElement;
                 var deviceId = body.GetProperty("deviceId").GetString();
-                // Avoid this error: {"error":{"code":"InvalidArgument","message":"Invalid twin ID specified. Twin ID must be less than 128 characters, and only include the following characters: A-Z a-z 0-9 - . +% _ # * ? ! ( ) , = @ $ '"}}
-                var twinId = deviceId.Replace("://", "-");
                 var deviceType = body.GetProperty("type").GetString();
-                log.LogInformation($"DeviceId:{deviceId}. TwinId:{twinId}. DeviceType:{deviceType}");
+                log.LogInformation($"DeviceId:{deviceId}. TwinId:{deviceId}. DeviceType:{deviceType}");
                 var updateTwinData = new JsonPatchDocument();
+                updateTwinData.AppendAdd("/LastUpdate", body.GetProperty("createdAt").GetDateTimeOffset());
                 switch (deviceType)
                 {
                     case "TEMP":
                         updateTwinData.AppendAdd("/Temperature", body.GetProperty("value").GetDouble());
                         updateTwinData.AppendAdd("/TemperatureData", body.GetProperty("complexData"));
-                        await Client.UpdateDigitalTwinAsync(twinId, updateTwinData);
                         break;
                     case "CO2":
                         updateTwinData.AppendAdd("/CO2", body.GetProperty("value").GetDouble());
                         updateTwinData.AppendAdd("/CO2Data", body.GetProperty("complexData"));
-                        await Client.UpdateDigitalTwinAsync(twinId, updateTwinData);
                         break;
                 }
+
+                await Client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
             }
             catch (Exception e)
             {
