@@ -3,6 +3,11 @@ output "subscription_id" {
   value       = data.azurerm_client_config.current.subscription_id
 }
 
+output "iothub_resource_id" {
+  value       = module.iothub.resource_id
+  description = "The ARM Resource ID of the IoT Hub."
+}
+
 output "eventhub_namespace_names" {
   description = "The list of Event Hub namespaces."
   value       = "${module.eventhubs_adt.eventhub_namespace_name} ${module.eventhubs_tsi.eventhub_namespace_name}"

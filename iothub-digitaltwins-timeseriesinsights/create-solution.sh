@@ -110,6 +110,7 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
+        export IOTHUB_RESOURCES=$(terraform output -raw iothub_resource_id)
         export EVENTHUB_NAMESPACES=$(terraform output -raw eventhub_namespace_names)
         source ../components/azure-event-hubs/report-throughput.sh
     fi
