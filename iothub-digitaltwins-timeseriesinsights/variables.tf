@@ -19,3 +19,8 @@ variable "IoTHubToDigitalTwins_function_name" {
   default = "IoTHubToDigitalTwins"
 }
 
+variable "iothub_sku" {
+  type        = string
+  default     = "S1"
+  description = "The IoT Hub SKU name."
+}

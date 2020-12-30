@@ -33,6 +33,7 @@ module "iothub" {
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
+  sku       = var.iothub_sku
 }
 
 module "function_adt" {

@@ -13,6 +13,11 @@ variable "resource_group" {
   description = "Resource group to deploy in."
 }
 
+variable "sku" {
+  type        = string
+  description = "The IoT Hub SKU name."
+}
+
 variable "capacity" {
   type        = number
   default     = 1

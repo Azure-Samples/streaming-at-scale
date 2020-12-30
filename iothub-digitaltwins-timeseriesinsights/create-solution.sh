@@ -15,6 +15,7 @@ trap 'on_error $LINENO' ERR
 export PREFIX=''
 export LOCATION="eastus"
 export STEPS="IDM"
+export TF_VAR_iothub_sku="S2"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"

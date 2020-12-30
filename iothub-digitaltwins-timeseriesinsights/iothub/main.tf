@@ -4,7 +4,7 @@ resource "azurerm_iothub" "main" {
   resource_group_name = var.resource_group
 
   sku {
-    name     = "S1"
+    name     = var.sku
     capacity = var.capacity
   }
 
