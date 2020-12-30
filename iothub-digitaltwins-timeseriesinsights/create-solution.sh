@@ -14,8 +14,8 @@ trap 'on_error $LINENO' ERR
 
 export PREFIX=''
 export LOCATION="eastus"
+export TESTTYPE="1"
 export STEPS="IDM"
-export TF_VAR_iothub_sku="S2"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -24,6 +24,7 @@ usage() {
     echo "      I=INFRASTRUCTURE"
     echo "      D=DATA"
     echo "      M=METRICS reporting"
+    echo "-t: test 1,2 thousands msgs/sec. Default=$TESTTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
@@ -49,6 +50,26 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
+
+# 1000 messages/sec
+if [ "$TESTTYPE" == "1" ]; then
+    export TF_VAR_iothub_sku="S2"
+    export TF_VAR_iothub_capacity=10
+    export TF_VAR_simulator_events_per_second=1000
+fi
+
+# 2000 messages/sec
+if [ "$TESTTYPE" == "2" ]; then
+    export TF_VAR_iothub_sku="S2"
+    export TF_VAR_iothub_capacity=20
+    export TF_VAR_simulator_events_per_second=2000
+fi
+
+# last checks and variables setup
+if [ -z ${TF_VAR_iothub_sku+x} ]; then
+    usage
+fi
+
 export RESOURCE_GROUP=$PREFIX
 
 # remove log.txt if exists
@@ -71,6 +92,10 @@ echo
 echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
+echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
+echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
+echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -113,19 +138,6 @@ echo "***** [M] Starting METRICS reporting"
         export IOTHUB_RESOURCES=$(terraform output -raw iothub_resource_id)
         export EVENTHUB_NAMESPACES=$(terraform output -raw eventhub_namespace_names)
         source ../components/azure-event-hubs/report-throughput.sh
-    fi
-echo
-
-echo "***** [V] Starting deployment VERIFICATION"
-
-    export ADB_WORKSPACE=$PREFIX"databricks" 
-    export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
-    export ALLOW_DUPLICATES=1
-
-    RUN=`echo $STEPS | grep V -o || true`
-    if [ ! -z "$RUN" ]; then
-        source ../components/azure-databricks/create-databricks.sh
-        source ../streaming/databricks/runners/verify-timeseriesinsights.sh
     fi
 echo
 

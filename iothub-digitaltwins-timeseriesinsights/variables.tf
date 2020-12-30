@@ -24,3 +24,15 @@ variable "iothub_sku" {
   default     = "S1"
   description = "The IoT Hub SKU name."
 }
+
+variable "iothub_capacity" {
+  type        = number
+  default     = 1
+  description = "The number of IoT hub units."
+}
+
+variable "simulator_events_per_second" {
+  type        = number
+  default     = 1000
+  description = "The number of events per second to generate."
+}

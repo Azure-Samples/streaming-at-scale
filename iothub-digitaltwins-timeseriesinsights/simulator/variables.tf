@@ -20,13 +20,11 @@ variable "iothub_connectionstring" {
 
 variable "device_count" {
   type        = number
-  default     = 1000
   description = "Number of simulated devices."
 }
 
 variable "interval" {
   type        = number
-  default     = 10000
   description = "Interval between events per device [milliseconds]."
 }
 

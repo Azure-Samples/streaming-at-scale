@@ -26,6 +26,8 @@ module "simulator" {
   resource_group          = azurerm_resource_group.main.name
   location                = azurerm_resource_group.main.location
   iothub_connectionstring = module.iothub.send_primary_connection_string
+  device_count            = 1000
+  interval                = floor(1000000 / var.simulator_events_per_second)
 }
 
 module "iothub" {
@@ -33,7 +35,8 @@ module "iothub" {
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
-  sku       = var.iothub_sku
+  sku            = var.iothub_sku
+  capacity       = var.iothub_capacity
 }
 
 module "function_adt" {
@@ -54,6 +57,8 @@ resource "azurerm_eventgrid_event_subscription" "iothub-to-function" {
 
   azure_function_endpoint {
     function_id = "${module.function_adt.resource_id}/functions/${var.IoTHubToDigitalTwins_function_name}"
+    max_events_per_batch              = 100
+    preferred_batch_size_in_kilobytes = 1024
   }
 
   included_event_types = [

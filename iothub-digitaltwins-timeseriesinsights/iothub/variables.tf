@@ -20,12 +20,11 @@ variable "sku" {
 
 variable "capacity" {
   type        = number
-  default     = 1
   description = "The number of provisioned IoT Hub units."
 }
 
 variable "partition_count" {
   type        = number
-  default     = 2
+  default     = 4
   description = "Backing event hub partition count."
 }
