@@ -40,12 +40,17 @@ module "iothub" {
 }
 
 module "function_adt" {
-  source              = "./function"
-  basename            = "${var.appname}in"
-  resource_group      = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  source_path         = abspath("src/IoTHubToDigitalTwins")
+  source         = "./function"
+  basename       = "${var.appname}in"
+  resource_group = azurerm_resource_group.main.name
+  location       = azurerm_resource_group.main.location
+  source_path    = abspath("src/IoTHubToDigitalTwins")
+  tier           = "ElasticPremium"
+  sku            = var.function_sku
+  workers        = var.function_workers
+
   instrumentation_key = module.application_insights.instrumentation_key
+
   appsettings = {
     ADT_SERVICE_URL = module.digital_twins.service_url
   }
@@ -56,7 +61,7 @@ resource "azurerm_eventgrid_event_subscription" "iothub-to-function" {
   scope = module.iothub.resource_id
 
   azure_function_endpoint {
-    function_id = "${module.function_adt.resource_id}/functions/${var.IoTHubToDigitalTwins_function_name}"
+    function_id                       = "${module.function_adt.resource_id}/functions/${var.IoTHubToDigitalTwins_function_name}"
     max_events_per_batch              = 100
     preferred_batch_size_in_kilobytes = 1024
   }
@@ -90,11 +95,15 @@ module "eventhubs_adt" {
 }
 
 module "function_tsi" {
-  source              = "./function"
-  basename            = "${var.appname}ts"
-  resource_group      = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  source_path         = abspath("src/DigitalTwinsToTSI")
+  source         = "./function"
+  basename       = "${var.appname}ts"
+  resource_group = azurerm_resource_group.main.name
+  location       = azurerm_resource_group.main.location
+  source_path    = abspath("src/DigitalTwinsToTSI")
+  tier           = "ElasticPremium"
+  sku            = var.function_sku
+  workers        = var.function_workers
+
   instrumentation_key = module.application_insights.instrumentation_key
 
   appsettings = {

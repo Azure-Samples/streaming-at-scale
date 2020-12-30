@@ -19,8 +19,9 @@ resource "azurerm_app_service_plan" "main" {
   reserved            = true
 
   sku {
-    tier = "Dynamic"
-    size = "Y1"
+    tier     = var.tier
+    size     = var.sku
+    capacity = var.workers
   }
 }
 

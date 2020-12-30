@@ -18,6 +18,21 @@ variable "source_path" {
   description = "Local path to the Azure Function source code."
 }
 
+variable "tier" {
+  type        = string
+  description = "The Azure Function tier."
+}
+
+variable "sku" {
+  type        = string
+  description = "The Azure Function SKU."
+}
+
+variable "workers" {
+  type        = number
+  description = "The number of Azure Function workers."
+}
+
 variable "configuration" {
   type        = string
   description = "Build configuration used to compile the Azure Function. Should be 'Debug' or 'Release'."

@@ -36,3 +36,15 @@ variable "simulator_events_per_second" {
   default     = 1000
   description = "The number of events per second to generate."
 }
+
+variable "function_sku" {
+  type        = string
+  default     = "EP1"
+  description = "The Azure Function SKU."
+}
+
+variable "function_workers" {
+  type        = number
+  default     = 1
+  description = "The number of Azure Function workers."
+}

@@ -56,6 +56,8 @@ if [ "$TESTTYPE" == "1" ]; then
     export TF_VAR_iothub_sku="S2"
     export TF_VAR_iothub_capacity=10
     export TF_VAR_simulator_events_per_second=1000
+    export TF_VAR_function_sku=EP2
+    export TF_VAR_function_workers=2
 fi
 
 # 2000 messages/sec
@@ -63,6 +65,8 @@ if [ "$TESTTYPE" == "2" ]; then
     export TF_VAR_iothub_sku="S2"
     export TF_VAR_iothub_capacity=20
     export TF_VAR_simulator_events_per_second=2000
+    export TF_VAR_function_sku=EP2
+    export TF_VAR_function_workers=4
 fi
 
 # last checks and variables setup
@@ -92,10 +96,8 @@ echo
 echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
-echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
-echo ". Azure SQL       => SKU: $SQL_SKU, STORAGE_TYPE: $SQL_TABLE_KIND"
-echo ". Simulators      => $SIMULATOR_INSTANCES"
+echo ". IoT Hub         => SKU: $TF_VAR_iothub_sku, Capacity: $TF_VAR_iothub_capacity"
+echo ". Function        => SKU: $TF_VAR_function_sku, Workers: $TF_VAR_function_workers"
 echo
 
 echo "Deployment started..."
