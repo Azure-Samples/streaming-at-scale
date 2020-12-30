@@ -94,8 +94,8 @@ echo "***** [P] Setting up PROCESSING"
         function_name_event_hub_to_digital_twins=$(terraform output -raw function_name_event_hub_to_digital_twins)
         function_name_digital_twins_to_time_series_insights=$(terraform output -raw function_name_digital_twins_to_time_series_insights)
 
-        (cd src/EventHubToDigitalTwins; func azure functionapp publish $function_name_event_hub_to_digital_twins)
-        (cd src/DigitalTwinsToTSI; func azure functionapp publish $function_name_digital_twins_to_time_series_insights)
+        (cd src/EventHubToDigitalTwins; func azure functionapp publish $function_name_event_hub_to_digital_twins --csharp)
+        (cd src/DigitalTwinsToTSI; func azure functionapp publish $function_name_digital_twins_to_time_series_insights --csharp)
     fi
 echo
 
