@@ -10,4 +10,9 @@ resource "azurerm_iothub" "main" {
 
   event_hub_partition_count = var.partition_count
   event_hub_retention_in_days = 1
+
+  fallback_route {
+    enabled = true
+    endpoint_names = ["events"]
+  }
 }
