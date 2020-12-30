@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateDigitalTwinsModel",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateIoTHub", "PopulateIoTHub\PopulateIoTHub.csproj", "{8E2FE1A3-58FF-4887-8626-EF1EE2EBAE55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTHubToDigitalTwins", "IoTHubToDigitalTwins\IoTHubToDigitalTwins.csproj", "{918DDDF9-F8D7-4F4C-A32C-D3DC1C656F48}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,9 +36,5 @@ Global
 		{8E2FE1A3-58FF-4887-8626-EF1EE2EBAE55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E2FE1A3-58FF-4887-8626-EF1EE2EBAE55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E2FE1A3-58FF-4887-8626-EF1EE2EBAE55}.Release|Any CPU.Build.0 = Release|Any CPU
-		{918DDDF9-F8D7-4F4C-A32C-D3DC1C656F48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{918DDDF9-F8D7-4F4C-A32C-D3DC1C656F48}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{918DDDF9-F8D7-4F4C-A32C-D3DC1C656F48}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{918DDDF9-F8D7-4F4C-A32C-D3DC1C656F48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

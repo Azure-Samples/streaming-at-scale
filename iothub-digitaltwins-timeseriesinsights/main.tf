@@ -44,7 +44,7 @@ module "function_adt" {
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
-  source_path    = abspath("src/IoTHubToDigitalTwins")
+  source_path    = abspath("src/EventHubToDigitalTwins")
   tier           = "ElasticPremium"
   sku            = var.function_sku
   workers        = var.function_workers
@@ -53,22 +53,8 @@ module "function_adt" {
 
   appsettings = {
     ADT_SERVICE_URL = module.digital_twins.service_url
+    EVENT_HUB       = module.iothub.listen_event_hubs_primary_connection_string
   }
-}
-
-resource "azurerm_eventgrid_event_subscription" "iothub-to-function" {
-  name  = "grid-${var.appname}-iot"
-  scope = module.iothub.resource_id
-
-  azure_function_endpoint {
-    function_id                       = "${module.function_adt.resource_id}/functions/${var.IoTHubToDigitalTwins_function_name}"
-    max_events_per_batch              = 100
-    preferred_batch_size_in_kilobytes = 1024
-  }
-
-  included_event_types = [
-    "Microsoft.Devices.DeviceTelemetry",
-  ]
 }
 
 resource "azurerm_role_assignment" "main" {
