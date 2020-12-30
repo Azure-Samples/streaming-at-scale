@@ -60,8 +60,8 @@ source ../assert/has-local-jq.sh
 source ../assert/has-local-terraform.sh
 
 echo
-echo "Streaming at Scale with Azure Time Series Insights"
-echo "=================================================="
+echo "Streaming at Scale with Azure Digital Twins"
+echo "==========================================="
 echo
 
 echo "Steps to be executed: $STEPS"
