@@ -15,7 +15,7 @@ resource "azurerm_app_service_plan" "main" {
   name                = "plan-${var.basename}"
   location            = var.location
   resource_group_name = var.resource_group
-  kind                = "FunctionApp"
+  kind                = lower(var.tier) == "dynamic" ? "FunctionApp" : "elastic" 
   reserved            = true
 
   sku {
