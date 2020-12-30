@@ -21,15 +21,15 @@ module "container_registry" {
 }
 
 module "simulator" {
-  source                    = "./simulator"
-  basename                  = "${var.appname}simulator"
-  resource_group            = azurerm_resource_group.main.name
-  location                  = azurerm_resource_group.main.location
-  eventhub_connectionstring = module.eventhubs_in.send_primary_connection_string
+  source                  = "./simulator"
+  basename                = "${var.appname}simulator"
+  resource_group          = azurerm_resource_group.main.name
+  location                = azurerm_resource_group.main.location
+  iothub_connectionstring = module.iothub.send_primary_connection_string
 }
 
-module "eventhubs_in" {
-  source         = "./eventhubs"
+module "iothub" {
+  source         = "./iothub"
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
@@ -40,11 +40,24 @@ module "function_adt" {
   basename            = "${var.appname}in"
   resource_group      = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
+  source_path         = abspath("src/IoTHubToDigitalTwins")
   instrumentation_key = module.application_insights.instrumentation_key
   appsettings = {
     ADT_SERVICE_URL = module.digital_twins.service_url
-    EVENT_HUB       = module.eventhubs_in.listen_primary_connection_string
   }
+}
+
+resource "azurerm_eventgrid_event_subscription" "iothub-to-function" {
+  name  = "grid-${var.appname}-iot"
+  scope = module.iothub.resource_id
+
+  azure_function_endpoint {
+    function_id = "${module.function_adt.resource_id}/functions/${var.IoTHubToDigitalTwins_function_name}"
+  }
+
+  included_event_types = [
+    "Microsoft.Devices.DeviceTelemetry",
+  ]
 }
 
 resource "azurerm_role_assignment" "main" {
@@ -75,6 +88,7 @@ module "function_tsi" {
   basename            = "${var.appname}ts"
   resource_group      = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
+  source_path         = abspath("src/DigitalTwinsToTSI")
   instrumentation_key = module.application_insights.instrumentation_key
 
   appsettings = {
@@ -98,18 +112,4 @@ module "time_series_insights" {
   reader_principal_object_id = data.azurerm_client_config.current.object_id
   eventhub_namespace_name    = module.eventhubs_tsi.eventhub_namespace_name
   eventhub_name              = module.eventhubs_tsi.eventhub_name
-}
-
-module "explorer" {
-  source                             = "./digital_twins_explorer"
-  basename                           = "${var.appname}explorer"
-  resource_group                     = azurerm_resource_group.main.name
-  location                           = azurerm_resource_group.main.location
-  container_registry_name            = module.container_registry.name
-  container_registry_admin_username  = module.container_registry.admin_username
-  container_registry_admin_password  = module.container_registry.admin_password
-  container_registry_login_server    = module.container_registry.login_server
-  container_registry_resource_id     = module.container_registry.resource_id
-  instrumentation_key                = module.application_insights.instrumentation_key
-  digital_twins_instance_resource_id = module.digital_twins.digital_twins_instance_resource_id
 }

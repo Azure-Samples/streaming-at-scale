@@ -13,3 +13,9 @@ variable "resource_group" {
   type        = string
   description = "Resource group to deploy in."
 }
+
+variable "IoTHubToDigitalTwins_function_name" {
+  type    = string
+  default = "IoTHubToDigitalTwins"
+}
+

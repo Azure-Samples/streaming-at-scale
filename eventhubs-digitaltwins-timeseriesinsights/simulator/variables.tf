@@ -13,20 +13,20 @@ variable "resource_group" {
   description = "Resource group to deploy in."
 }
 
-variable "eventhub_connectionstring" {
+variable "iothub_connectionstring" {
   type        = string
-  description = "Connection string of the Event Hub to send data to. Requires Send permission."
+  description = "Connection string of the IoT Hub to send data to. Requires Send permission."
 }
 
 variable "device_count" {
-  type = number
+  type        = number
   default     = 1000
   description = "Number of simulated devices."
 }
 
 variable "interval" {
   type        = number
-  default     = 1000
+  default     = 10000
   description = "Interval between events per device [milliseconds]."
 }
 

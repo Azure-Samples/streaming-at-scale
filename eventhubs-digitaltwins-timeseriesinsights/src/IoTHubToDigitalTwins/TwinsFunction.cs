@@ -1,4 +1,4 @@
-namespace EventHubToDigitalTwins
+﻿namespace IoTHubToDigitalTwins
 {
     using System;
     using System.Net.Http;
@@ -8,8 +8,9 @@ namespace EventHubToDigitalTwins
     using Azure.Core.Pipeline;
     using Azure.DigitalTwins.Core;
     using Azure.Identity;
-    using Microsoft.Azure.EventHubs;
+    using Microsoft.Azure.EventGrid.Models;
     using Microsoft.Azure.WebJobs;
+    using Microsoft.Azure.WebJobs.Extensions.EventGrid;
     using Microsoft.Extensions.Logging;
 
     public class EventHubToDigitalTwins
@@ -30,9 +31,8 @@ namespace EventHubToDigitalTwins
                 new DigitalTwinsClientOptions {Transport = new HttpClientTransport(HttpClient)});
         }
 
-        [FunctionName("EventHubToDigitalTwins")]
-        public async Task Run([EventHubTrigger("", Connection = "EVENT_HUB")]
-            EventData[] events, ILogger log)
+        [FunctionName("IoTHubToDigitalTwins")]
+        public async Task Run([EventGridTrigger] EventGridEvent[] events, ILogger log)
         {
             try
             {
@@ -47,12 +47,25 @@ namespace EventHubToDigitalTwins
             }
         }
 
-        private static async Task ProcessEvent(EventData eventData, ILogger log)
+        private static async Task ProcessEvent(EventGridEvent eventData, ILogger log)
         {
             try
             {
-                var body = JsonDocument.Parse(eventData.Body).RootElement;
-                var deviceId = body.GetProperty("deviceId").GetString();
+                log.LogInformation("Message: {data}", eventData.Data);
+                var data = JsonDocument.Parse(eventData.Data.ToString()).RootElement;
+                var body = data.GetProperty("body");
+                var systemProperties = data.GetProperty("systemProperties");
+                var deviceId = systemProperties.GetProperty("iothub-connection-device-id").GetString();
+                if (systemProperties.GetProperty("iothub-message-source").GetString() != "Telemetry")
+                {
+                    return;
+                }
+
+                if (systemProperties.GetProperty("iothub-content-type").GetString() != "application/json")
+                {
+                    return;
+                }
+
                 var updateType = body.GetProperty("type").GetString();
                 log.LogInformation("DeviceId:{deviceId}. UpdateType:{updateType}", deviceId, updateType);
                 var updateTwinData = new JsonPatchDocument();
