@@ -33,3 +33,29 @@ variable "device_prefix" {
   default     = "contoso-device-id-"
   description = "Prefix before device name. Device name will be formed by appending six digits, e.g. 000001."
 }
+
+variable "container_registry_name" {
+  type        = string
+  description = "Container registry to use for building image."
+}
+
+variable "container_registry_admin_username" {
+  type        = string
+  description = "The container registry admin username."
+}
+
+variable "container_registry_admin_password" {
+  type        = string
+  description = "The container registry admin password."
+}
+
+variable "container_registry_login_server" {
+  type        = string
+  description = "The container registry login server."
+}
+
+variable "source_code" {
+  type        = string
+  default     = "https://github.com/algattik/Iot-Telemetry-Simulator"
+  description = "Path to the Simulator source."
+}

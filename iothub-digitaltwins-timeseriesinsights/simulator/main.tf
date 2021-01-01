@@ -1,12 +1,34 @@
+locals {
+  image_name = "generator"
+}
+
+resource "null_resource" "container_image" {
+  triggers = {
+    registry = var.container_registry_login_server
+  }
+
+  provisioner "local-exec" {
+    command     = "az acr build --registry ${var.container_registry_name} --image ${local.image_name}:latest -f src/IotTelemetrySimulator/Dockerfile ${var.source_code} > log.txt"
+  }
+}
+
 resource "azurerm_container_group" "simulator" {
   name                = "aci-${var.basename}"
   location            = var.location
   resource_group_name = var.resource_group
   os_type             = "Linux"
 
+  image_registry_credential {
+    username = var.container_registry_admin_username
+    password = var.container_registry_admin_password
+    server   = var.container_registry_login_server
+  }
+
   container {
     name  = "simulator"
-    image = "iottelemetrysimulator/azureiot-telemetrysimulator"
+    #TODO image = "iottelemetrysimulator/azureiot-telemetrysimulator"
+    #after https://github.com/Azure-Samples/Iot-Telemetry-Simulator/issues/6 has been fixed and a new image published
+    image  = "${var.container_registry_login_server}/${local.image_name}"
 
     cpu    = "4.0"
     memory = "4.0"
@@ -85,4 +107,8 @@ resource "azurerm_container_group" "simulator" {
       protocol = "TCP"
     }
   }
+
+  depends_on = [
+    null_resource.container_image,
+  ]
 }
