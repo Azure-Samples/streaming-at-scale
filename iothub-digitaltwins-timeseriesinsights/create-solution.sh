@@ -15,7 +15,7 @@ trap 'on_error $LINENO' ERR
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
-export STEPS="IDM"
+export STEPS="IDTM"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -23,6 +23,7 @@ usage() {
     echo "    Possible values:"
     echo "      I=INFRASTRUCTURE"
     echo "      D=DATA"
+    echo "      T=TEST clients"
     echo "      M=METRICS reporting"
     echo "-t: test 1,2 thousands msgs/sec. Default=$TESTTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
@@ -58,6 +59,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export TF_VAR_simulator_events_per_second=1000
     export TF_VAR_function_sku=EP2
     export TF_VAR_function_workers=2
+    export SIMULATOR_INSTANCES=1
 fi
 
 # 2000 messages/sec
@@ -67,6 +69,7 @@ if [ "$TESTTYPE" == "2" ]; then
     export TF_VAR_simulator_events_per_second=2000
     export TF_VAR_function_sku=EP2
     export TF_VAR_function_workers=4
+    export SIMULATOR_INSTANCES=1
 fi
 
 # last checks and variables setup
@@ -83,6 +86,8 @@ echo "Checking pre-requisites..."
 
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
+source ../assert/has-local-zip.sh
+source ../assert/has-local-dotnet.sh
 source ../assert/has-local-terraform.sh
 
 echo
@@ -98,6 +103,7 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". IoT Hub         => SKU: $TF_VAR_iothub_sku, Capacity: $TF_VAR_iothub_capacity"
 echo ". Function        => SKU: $TF_VAR_function_sku, Workers: $TF_VAR_function_workers"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -130,6 +136,16 @@ echo "***** [D] Setting up DATA"
         echo "    open $digital_twins_explorer_url"
         echo "    Enter URL $digital_twins_service_url"
         echo
+    fi
+echo
+
+echo "***** [T] Starting up TEST clients"
+
+    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=-1
+
+    RUN=`echo $STEPS | grep T -o || true`
+    if [ ! -z "$RUN" ]; then
+        source run-simulator.sh
     fi
 echo
 
