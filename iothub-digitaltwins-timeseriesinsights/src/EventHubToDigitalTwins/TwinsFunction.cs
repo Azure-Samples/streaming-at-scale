@@ -51,11 +51,13 @@ namespace EventHubToDigitalTwins
             try
             {
                 // await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls);
-                var output = await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls).ToListAsync();
+                var output = await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls)
+                    .ToListAsync();
                 var inp = output.Select(_ => Encoding.UTF8.GetString(_.In));
                 var numErrors = output.Count(_ => _.Exception is { });
                 var durations = output.Select(_ => _.Duration).ToList();
-                _log.LogInformation("Processed {numEvents} events with {numErrors} errors, duration {min}-{max} avg {avg} ms",
+                _log.LogInformation(
+                    "Processed {numEvents} events with {numErrors} errors, duration {min}-{max} avg {avg} ms",
                     output.Count,
                     numErrors,
                     durations.Min(),
