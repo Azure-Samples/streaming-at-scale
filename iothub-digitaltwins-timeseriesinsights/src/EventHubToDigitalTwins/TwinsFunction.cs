@@ -130,10 +130,16 @@ namespace EventHubToDigitalTwins
             if (scheduler != null)
                 options.TaskScheduler = scheduler;
             var block = new TransformBlock<TInput, TOutput>(body, options);
+            int nItems = 0;
             await foreach (var item in source)
             {
                 block.Post(item);
-                yield return block.Receive();
+                nItems++;
+            }
+
+            for (int i = 0; i < nItems; i++)
+            {
+                yield return await block.ReceiveAsync();
             }
         }
     }
