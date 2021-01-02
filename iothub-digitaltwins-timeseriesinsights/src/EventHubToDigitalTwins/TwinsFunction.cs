@@ -97,16 +97,16 @@ namespace EventHubToDigitalTwins
                 }
 
                 var output = await Client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
-                return new Result {Response = output, Duration = w.ElapsedMilliseconds, In=eventData.Body};
+                return new Result {Response = output, Duration = w.ElapsedMilliseconds, In = eventData.Body};
             }
             catch (Exception e)
             {
                 _log.LogError(e, e.Message);
-                return new Result {Exception = e, Duration = w.ElapsedMilliseconds, In=eventData.Body};
+                return new Result {Exception = e, Duration = w.ElapsedMilliseconds, In = eventData.Body};
             }
         }
     }
-    
+
     class Result
     {
         public Response? Response { get; set; }
