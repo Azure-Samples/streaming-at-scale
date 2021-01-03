@@ -20,7 +20,7 @@ variable "reader_principal_object_id" {
 
 variable "id_properties" {
   type        = list(string)
-  default     = ["$dtId"]
+  default     = ["deviceId"]
   description = "List of inbound message properties making up the Time Series Insights device identifier."
 }
 

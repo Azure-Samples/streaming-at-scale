@@ -83,6 +83,7 @@ namespace EventHubToDigitalTwins
                 _log.LogDebug("DeviceId:{deviceId}. UpdateType:{updateType}", deviceId, updateType);
                 var updateTwinData = new JsonPatchDocument();
                 updateTwinData.AppendAdd("/LastUpdate", body.GetProperty("createdAt").GetDateTimeOffset());
+                updateTwinData.AppendAdd("/deviceSequenceNumber", body.GetProperty("deviceSequenceNumber").GetInt64());
                 switch (updateType)
                 {
                     case "TEMP":
