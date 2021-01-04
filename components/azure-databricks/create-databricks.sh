@@ -16,10 +16,10 @@ else
 if ! az resource show -g $RESOURCE_GROUP --resource-type Microsoft.Databricks/workspaces -n $ADB_WORKSPACE -o none 2>/dev/null; then
 echo 'creating databricks workspace'
 echo ". name: $ADB_WORKSPACE"
-az group deployment create \
+az deployment group create \
   --name $ADB_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
-  --template-file ../components/azure-databricks/databricks-arm-template.json \
+  --template-uri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-databricks-all-in-one-template-for-vnet-injection/azuredeploy.json \
   --parameters \
   workspaceName=$ADB_WORKSPACE \
   pricingTier=standard \

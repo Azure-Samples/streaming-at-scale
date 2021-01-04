@@ -25,6 +25,7 @@ usage() {
     echo "      D=DATA"
     echo "      M=METRICS reporting"
     echo "-t: test 1,2 thousands msgs/sec. Default=$TESTTYPE"
+    echo "      V=VERIFY deployment"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
@@ -86,8 +87,8 @@ source ../assert/has-local-jq.sh
 source ../assert/has-local-terraform.sh
 
 echo
-echo "Streaming at Scale with Azure Digital Twins"
-echo "==========================================="
+echo "Streaming at Scale with Azure Digital Twins and Azure Time Series Insights"
+echo "=========================================================================="
 echo
 
 echo "Steps to be executed: $STEPS"
@@ -133,6 +134,16 @@ echo "***** [D] Setting up DATA"
     fi
 echo
 
+echo "***** [T] Starting up TEST clients"
+
+    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=-1
+
+    RUN=`echo $STEPS | grep T -o || true`
+    if [ ! -z "$RUN" ]; then
+        source run-simulator.sh
+    fi
+echo
+
 echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
@@ -140,6 +151,21 @@ echo "***** [M] Starting METRICS reporting"
         export IOTHUB_RESOURCES=$(terraform output -raw iothub_resource_id)
         export EVENTHUB_NAMESPACES=$(terraform output -raw eventhub_namespace_names)
         source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
+
+echo "***** [V] Starting deployment VERIFICATION"
+
+    export ADB_WORKSPACE="dbw-$PREFIX" 
+    export ADB_TOKEN_KEYVAULT="kvd$PREFIX" #NB AKV names are limited to 24 characters
+    export ALLOW_DUPLICATES=1
+    export TSI_ENVIRONMENT=$(terraform output -raw time_series_insights_name)
+    export AZURE_STORAGE_ACCOUNT=$(terraform output -raw time_series_insights_storage_account_name)
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-databricks/create-databricks.sh
+        source ../streaming/databricks/runners/verify-timeseriesinsights.sh
     fi
 echo
 

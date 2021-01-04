@@ -7,7 +7,7 @@
       "Temperature": {
         "kind": "numeric",
         "value": {
-          "tsx": "$event.Temperature.Long"
+          "tsx": "$event.Temperature.Double"
         },
         "aggregation": {
           "tsx": "avg($value)"
@@ -16,7 +16,7 @@
       "CO2": {
         "kind": "numeric",
         "value": {
-          "tsx": "$event.CO2.Long"
+          "tsx": "$event.CO2.Double"
         },
         "aggregation": {
           "tsx": "avg($value)"

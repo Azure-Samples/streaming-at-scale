@@ -33,3 +33,13 @@ output "time_series_insights_data_access_fqdn" {
   value       = module.time_series_insights.data_access_fqdn
   description = "The Time Series Insights data access host name."
 }
+
+output "time_series_insights_name" {
+  value       = module.time_series_insights.name
+  description = "The Time Series Insights ARM Resource name."
+}
+
+output "time_series_insights_storage_account_name" {
+  value       = module.time_series_insights.storage_account_name
+  description = "The Time Series Insights long-term data storage account ARM Resource name."
+}

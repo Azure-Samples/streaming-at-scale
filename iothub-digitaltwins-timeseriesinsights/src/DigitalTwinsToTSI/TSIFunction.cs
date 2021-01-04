@@ -18,7 +18,7 @@ namespace DigitalTwinsToTSI
             ILogger log)
         {
             JObject message = (JObject)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(myEventHubMessage.Body));
-            log.LogInformation("Reading event:" + message.ToString());
+            log.LogInformation("Reading event: {}", message);
 
             // Read values that are replaced or added
             Dictionary<string, object> tsiUpdate = new Dictionary<string, object>();
@@ -35,7 +35,8 @@ namespace DigitalTwinsToTSI
             }
             //Send an update if updates exist
             if (tsiUpdate.Count>0){
-                tsiUpdate.Add("$dtId", myEventHubMessage.Properties["cloudEvents:subject"]);
+                tsiUpdate.Add("deviceId", myEventHubMessage.Properties["cloudEvents:subject"]);
+                tsiUpdate.Add("eventId", myEventHubMessage.Properties["cloudEvents:id"]);
                 await outputEvents.AddAsync(JsonConvert.SerializeObject(tsiUpdate));
             }
         }

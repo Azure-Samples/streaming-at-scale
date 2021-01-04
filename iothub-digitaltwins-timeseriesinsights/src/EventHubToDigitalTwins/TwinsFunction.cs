@@ -54,9 +54,10 @@ namespace EventHubToDigitalTwins
                 var body = JsonDocument.Parse(eventData.Body).RootElement;
                 var deviceId = body.GetProperty("deviceId").GetString();
                 var updateType = body.GetProperty("type").GetString();
-                log.LogInformation("DeviceId:{deviceId}. UpdateType:{updateType}", deviceId, updateType);
+                _log.LogDebug("DeviceId:{deviceId}. UpdateType:{updateType}", deviceId, updateType);
                 var updateTwinData = new JsonPatchDocument();
                 updateTwinData.AppendAdd("/LastUpdate", body.GetProperty("createdAt").GetDateTimeOffset());
+                updateTwinData.AppendAdd("/deviceSequenceNumber", body.GetProperty("deviceSequenceNumber").GetInt64());
                 switch (updateType)
                 {
                     case "TEMP":

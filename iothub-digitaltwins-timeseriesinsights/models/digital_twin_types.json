@@ -11,6 +11,11 @@
         "schema": "dateTime"
       },
       {
+        "@type": "Property",
+        "name": "deviceSequenceNumber",
+        "schema": "integer"
+      },
+      {
         "@type": [
           "Property",
           "Temperature"
