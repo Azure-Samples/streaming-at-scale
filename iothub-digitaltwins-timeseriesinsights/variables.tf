@@ -31,12 +31,6 @@ variable "iothub_capacity" {
   description = "The number of IoT hub units."
 }
 
-variable "simulator_events_per_second" {
-  type        = number
-  default     = 1000
-  description = "The number of events per second to generate."
-}
-
 variable "function_sku" {
   type        = string
   default     = "EP1"

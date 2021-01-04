@@ -3,6 +3,27 @@ output "subscription_id" {
   value       = data.azurerm_client_config.current.subscription_id
 }
 
+output "container_registry_name" {
+  value = module.container_registry.name
+  description = "The container registry ARM Resource name."
+}
+
+output "container_registry_admin_username" {
+  value = module.container_registry.admin_username
+  description = "The container registry admin username."
+}
+
+output "container_registry_admin_password" {
+  value = module.container_registry.admin_password
+  sensitive   = true
+  description = "The container registry admin password."
+}
+
+output "container_registry_login_server" {
+  value = module.container_registry.login_server
+  description = "The container registry login server."
+}
+
 output "iothub_resource_id" {
   value       = module.iothub.resource_id
   description = "The ARM Resource ID of the IoT Hub."
@@ -16,6 +37,12 @@ output "eventhub_namespace_names" {
 output "iothub_registry_write_primary_connection_string" {
   value       = module.iothub.registry_write_primary_connection_string
   description = "The primary connection string to manage IoT Hub device registry."
+  sensitive   = true
+}
+
+output "iothub_telemetry_send_primary_connection_string" {
+  value       = module.iothub.send_primary_connection_string
+  description = "The primary connection string to send events to IoT Hub."
   sensitive   = true
 }
 

@@ -20,16 +20,6 @@ module "container_registry" {
   location       = azurerm_resource_group.main.location
 }
 
-module "simulator" {
-  source                  = "./simulator"
-  basename                = "${var.appname}simulator"
-  resource_group          = azurerm_resource_group.main.name
-  location                = azurerm_resource_group.main.location
-  iothub_connectionstring = module.iothub.send_primary_connection_string
-  device_count            = 1000
-  interval                = floor(1000000 / var.simulator_events_per_second)
-}
-
 module "iothub" {
   source         = "./iothub"
   basename       = "${var.appname}in"

@@ -14,8 +14,8 @@ trap 'on_error $LINENO' ERR
 
 export PREFIX=''
 export LOCATION="eastus"
-export TESTTYPE="1"
-export STEPS="IDM"
+export TESTTYPE="50"
+export STEPS="IDTM"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
@@ -23,9 +23,10 @@ usage() {
     echo "    Possible values:"
     echo "      I=INFRASTRUCTURE"
     echo "      D=DATA"
+    echo "      T=TEST clients"
     echo "      M=METRICS reporting"
-    echo "-t: test 1,2 thousands msgs/sec. Default=$TESTTYPE"
     echo "      V=VERIFY deployment"
+    echo "-t: test 50,100 msgs/sec. Default=$TESTTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
@@ -38,6 +39,9 @@ while getopts ":d:s:t:l:" arg; do
 			;;
 		s)
 			STEPS=${OPTARG}
+			;;
+		t)
+			TESTTYPE=${OPTARG}
 			;;
 		l)
 			LOCATION=${OPTARG}
@@ -52,26 +56,28 @@ if [[ -z "$PREFIX" ]]; then
 fi
 
 
-# 1000 messages/sec
-if [ "$TESTTYPE" == "1" ]; then
-    export TF_VAR_iothub_sku="S2"
-    export TF_VAR_iothub_capacity=10
-    export TF_VAR_simulator_events_per_second=1000
+# 50 messages/sec
+if [ "$TESTTYPE" == "50" ]; then
+    export TF_VAR_iothub_sku="S1"
+    export TF_VAR_iothub_capacity=1
     export TF_VAR_function_sku=EP2
-    export TF_VAR_function_workers=2
+    export TF_VAR_function_workers=1
+    export EVENTS_PER_SECOND=50
+    export SIMULATOR_INSTANCES=1
 fi
 
-# 2000 messages/sec
-if [ "$TESTTYPE" == "2" ]; then
+# 100 messages/sec
+if [ "$TESTTYPE" == "100" ]; then
     export TF_VAR_iothub_sku="S2"
-    export TF_VAR_iothub_capacity=20
-    export TF_VAR_simulator_events_per_second=2000
+    export TF_VAR_iothub_capacity=3
     export TF_VAR_function_sku=EP2
-    export TF_VAR_function_workers=4
+    export TF_VAR_function_workers=1
+    export EVENTS_PER_SECOND=100
+    export SIMULATOR_INSTANCES=1
 fi
 
 # last checks and variables setup
-if [ -z ${TF_VAR_iothub_sku+x} ]; then
+if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
@@ -84,6 +90,7 @@ echo "Checking pre-requisites..."
 
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
+source ../assert/has-local-dotnet.sh
 source ../assert/has-local-terraform.sh
 
 echo
@@ -99,6 +106,8 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". IoT Hub         => SKU: $TF_VAR_iothub_sku, Capacity: $TF_VAR_iothub_capacity"
 echo ". Function        => SKU: $TF_VAR_function_sku, Workers: $TF_VAR_function_workers"
+echo ". TS Insights     => PAYG"
+echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
