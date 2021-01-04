@@ -78,7 +78,7 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
 The script will create the following resources:
 
-- **Azure Container Instances** to host Load Test Clients: by default one client will be created, generating a load of 50 events/second (in total) across 1000 simulated devices
+- **Azure Container Instances** to host [Load Test Clients](https://github.com/Azure-Samples/Iot-Telemetry-Simulator): by default one client will be created, generating a load of 50 events/second (in total) across 1000 simulated devices
 - **Azure IoT Hub**: to ingest data incoming from test clients
 - **Azure Function** (first instance): to process events from IoT Hub and stream them into Azure Digital Twins
 - **Azure Digital Twins**: to manage a model of each simulated device
