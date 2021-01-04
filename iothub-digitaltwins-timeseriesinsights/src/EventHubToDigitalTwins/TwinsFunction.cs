@@ -1,9 +1,14 @@
 namespace EventHubToDigitalTwins
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
     using System.Net.Http;
+    using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using System.Threading.Tasks.Dataflow;
     using Azure;
     using Azure.Core.Pipeline;
     using Azure.DigitalTwins.Core;
@@ -21,6 +26,7 @@ namespace EventHubToDigitalTwins
 
         private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly DigitalTwinsClient Client;
+        private const int MaxConcurrentCalls = 128;
 
         static EventHubToDigitalTwins()
         {
@@ -30,25 +36,45 @@ namespace EventHubToDigitalTwins
                 new DigitalTwinsClientOptions {Transport = new HttpClientTransport(HttpClient)});
         }
 
+        private readonly ILogger _log;
+
+        public EventHubToDigitalTwins(ILogger<EventHubToDigitalTwins> log)
+        {
+            this._log = log;
+        }
+
         [FunctionName("EventHubToDigitalTwins")]
         public async Task Run([EventHubTrigger("", Connection = "EVENT_HUB")]
-            EventData[] events, ILogger log)
+            EventData[] events)
         {
+            _log.LogInformation("Received {numEvents} events", events.Length);
             try
             {
-                foreach (var eventData in events)
-                {
-                    await ProcessEvent(eventData, log);
-                }
+                // await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls);
+                var output = await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls)
+                    .ToListAsync();
+                var inp = output.Select(_ => Encoding.UTF8.GetString(_.In));
+                var numErrors = output.Count(_ => _.Exception is { });
+                var durations = output.Select(_ => _.Duration).ToList();
+                _log.LogInformation(
+                    "Processed {numEvents} events with {numErrors} errors, duration {min}-{max} avg {avg} ms",
+                    output.Count,
+                    numErrors,
+                    durations.Min(),
+                    durations.Max(),
+                    Convert.ToInt64(durations.Average())
+                );
             }
             catch (Exception e)
             {
-                log.LogError(e, e.Message);
+                _log.LogError(e, e.Message);
             }
         }
 
-        private static async Task ProcessEvent(EventData eventData, ILogger log)
+        private async Task<Result> ProcessEvent(EventData eventData)
         {
+            Stopwatch w = new Stopwatch();
+            w.Start();
             try
             {
                 var body = JsonDocument.Parse(eventData.Body).RootElement;
@@ -69,15 +95,52 @@ namespace EventHubToDigitalTwins
                         updateTwinData.AppendAdd("/CO2Data", body.GetProperty("complexData"));
                         break;
                     default:
-                        log.LogWarning("Unknown update type {updateType}", updateType);
+                        _log.LogWarning("Unknown update type {updateType}", updateType);
                         break;
                 }
 
-                await Client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
+                var output = await Client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
+                return new Result {Response = output, Duration = w.ElapsedMilliseconds, In = eventData.Body};
             }
             catch (Exception e)
             {
-                log.LogError(e, e.Message);
+                _log.LogError(e, e.Message);
+                return new Result {Exception = e, Duration = w.ElapsedMilliseconds, In = eventData.Body};
+            }
+        }
+    }
+
+    class Result
+    {
+        public Response? Response { get; set; }
+        public Exception? Exception { get; set; }
+        public long Duration { get; set; }
+        public ArraySegment<byte> In { get; set; }
+    }
+
+    static class Extensions
+    {
+        public static async IAsyncEnumerable<TOutput> AsyncParallelForEach<TInput, TOutput>(
+            this IAsyncEnumerable<TInput> source, Func<TInput, Task<TOutput>> body,
+            int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler? scheduler = null)
+        {
+            var options = new ExecutionDataflowBlockOptions
+            {
+                MaxDegreeOfParallelism = maxDegreeOfParallelism
+            };
+            if (scheduler != null)
+                options.TaskScheduler = scheduler;
+            var block = new TransformBlock<TInput, TOutput>(body, options);
+            int nItems = 0;
+            await foreach (var item in source)
+            {
+                block.Post(item);
+                nItems++;
+            }
+
+            for (int i = 0; i < nItems; i++)
+            {
+                yield return await block.ReceiveAsync();
             }
         }
     }
