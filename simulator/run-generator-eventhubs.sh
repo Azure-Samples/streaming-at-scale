@@ -19,8 +19,7 @@ fi
 echo 'getting Event Hub connection string'
 source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$EVENTHUB_NAMESPACE" "Send"
 
-OUTPUT_FORMAT="eventhubs"
-OUTPUT_OPTIONS="{}"
-SECURE_OUTPUT_OPTIONS="{\"eventhubs.connectionstring\": \"$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME\"}"
+SIMULATOR_VARIABLES=""
+SIMULATOR_CONNECTION_SETTING="EventHubConnectionString=$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 
-source ../simulator/create-generator-instances.sh
+source ../simulator/run-simulator.sh

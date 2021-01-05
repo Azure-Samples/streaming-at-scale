@@ -204,7 +204,7 @@ echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=-1
+    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=0
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
