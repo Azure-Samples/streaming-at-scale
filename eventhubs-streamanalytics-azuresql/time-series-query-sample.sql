@@ -28,7 +28,7 @@ select top (100)
 from
 	dbo.[rawdata2] r
 where
-	[r].[DeviceId] = 'contoso://device-id-154'
+	[r].[DeviceId] = 'contoso-device-id-000154'
 and
 	r.[PartitionId] = 5
 order by
