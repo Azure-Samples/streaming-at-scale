@@ -4,16 +4,19 @@
 set -euo pipefail
 
 OUTPUT_FORMAT="kafka"
-OUTPUT_OPTIONS=$(cat <<OPTIONS
+kafka_properties=$(cat <<OPTIONS
 {
-  "kafka.bootstrap.servers": "$KAFKA_BROKERS",
-  "kafka.sasl.mechanism": "$KAFKA_SASL_MECHANISM",
-  "kafka.security.protocol": "$KAFKA_SECURITY_PROTOCOL",
-  "topic": "$KAFKA_TOPIC"
+  "bootstrap.servers": "$KAFKA_BROKERS",
+  "security.protocol": "$KAFKA_SECURITY_PROTOCOL",
+  "sasl.mechanism": "${KAFKA_SASL_MECHANISM:-PLAIN}",
+  "sasl.username": "$KAFKA_SASL_USERNAME",
+  "sasl.password": "$KAFKA_SASL_PASSWORD"
 }
 OPTIONS
 )
 
-SECURE_OUTPUT_OPTIONS=$(echo "$KAFKA_SASL_JAAS_CONFIG" | jq --raw-input '{"kafka.sasl.jaas.config":.}')
 
-source ../simulator/create-generator-instances.sh
+SIMULATOR_VARIABLES="KafkaTopic=$KAFKA_TOPIC"
+SIMULATOR_CONNECTION_SETTING="KafkaConnectionProperties=$kafka_properties"
+
+source ../simulator/run-simulator.sh
