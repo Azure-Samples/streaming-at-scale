@@ -7,8 +7,8 @@ OUTPUT_FORMAT="kafka"
 kafka_properties=$(cat <<OPTIONS
 {
   "bootstrap.servers": "$KAFKA_BROKERS",
-  "sasl.mechanism": "$KAFKA_SASL_MECHANISM",
   "security.protocol": "$KAFKA_SECURITY_PROTOCOL",
+  "sasl.mechanism": "${KAFKA_SASL_MECHANISM:-PLAIN}",
   "sasl.username": "$KAFKA_SASL_USERNAME",
   "sasl.password": "$KAFKA_SASL_PASSWORD"
 }
