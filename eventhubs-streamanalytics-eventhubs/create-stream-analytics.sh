@@ -8,7 +8,7 @@ EVENTHUB_KEY_OUT=`az eventhubs namespace authorization-rule keys list -g $RESOUR
 
 echo 'creating stream analytics job'
 echo ". name: $PROC_JOB_NAME"
-az group deployment create \
+az deployment group create \
   --name $PROC_JOB_NAME \
   --resource-group $RESOURCE_GROUP \
   --template-file stream-analytics-job-$STREAM_ANALYTICS_JOBTYPE-arm-template.json \

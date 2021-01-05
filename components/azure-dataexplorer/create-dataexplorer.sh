@@ -61,7 +61,7 @@ done
 DATAEXPLORER_CONNECTION="eventhub"
 echo 'creating Data Explorer Event Hub connection'
 echo ". name: $DATAEXPLORER_CONNECTION"
-az group deployment create \
+az deployment group create \
   --resource-group $RESOURCE_GROUP \
   --template-file ../components/azure-dataexplorer/eventhub-connection-arm-template.json \
   --parameters \
