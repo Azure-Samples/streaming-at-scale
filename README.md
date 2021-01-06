@@ -248,6 +248,14 @@ Implement a stream processing architecture using:
 - Time Series Insights (Stream Process / Serve / Store to Parquet)
 - Azure Storage (Serve for data analytics)
 
+### [IoT Hub + Azure Functions + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/master/iothub-functions-azuresql)
+
+Implement a stream processing architecture using:
+
+- IoT Hub (Ingest)
+- Azure Functions (Stream Process)
+- Azure SQL (Serve)
+
 ## Note
 
 Performance and Services change quickly in the cloud, so please keep in mind that all values used in the samples were tested at them moment of writing. If you find any discrepancies with what you observe when running the scripts, please create an issue and report it and/or create a PR to update the documentation and the sample. Thanks!
