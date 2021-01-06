@@ -3,10 +3,11 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-EVENTS_PER_SECOND="$(($TESTTYPE * 1000 / $SIMULATOR_INSTANCES))"
+EVENTS_PER_SECOND=${EVENTS_PER_SECOND:-$(($TESTTYPE * 1000))}
+EVENTS_PER_SECOND_PER_INSTANCE="$(($EVENTS_PER_SECOND / $SIMULATOR_INSTANCES))"
 
 number_of_devices=1000
-interval="$((1000 * $number_of_devices / $EVENTS_PER_SECOND))"
+interval="$((1000 * $number_of_devices / $EVENTS_PER_SECOND_PER_INSTANCE))"
 
 image_name="iottelemetrysimulator/azureiot-telemetrysimulator"
 
@@ -26,7 +27,7 @@ done
 
 echo "creating generator container instances..."
 echo ". number of instances: $SIMULATOR_INSTANCES"
-echo ". events/second per instance: $EVENTS_PER_SECOND"
+echo ". events/second per instance: $EVENTS_PER_SECOND_PER_INSTANCE"
 for i in $(seq 1 $SIMULATOR_INSTANCES); do
   name="aci-$PREFIX-simulator-$i"
   az container delete -g $RESOURCE_GROUP -n "$name" --yes \
@@ -44,7 +45,7 @@ for i in $(seq 1 $SIMULATOR_INSTANCES); do
       Variables='[ {"name": "value", "random": true}, {"name": "Counter", "min": 0}, {"name": "type", "values": ["TEMP", "CO2"]}'"$complex_data_variables"' ]' \
       DuplicateEvery="${SIMULATOR_DUPLICATE_EVERY_N_EVENTS:-1000}" \
       PartitionKey="$.DeviceId" \
-      $SIMULATOR_VARIABLES \
+      ${SIMULATOR_VARIABLES:-} \
     --secure-environment-variables \
       "$SIMULATOR_CONNECTION_SETTING" \
     --cpu 4 --memory 4 \
