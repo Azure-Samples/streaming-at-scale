@@ -207,6 +207,22 @@ Just after starting the Azure Function, if you immediately go to the Application
 
 You can safely ignore it since it happens just during startup time when EventProcessors are created. After couple of seconds the no more exception like that one will be thrown. No messages will be lost while these exceptions are fired.
 
+## Verification
+
+To automatically verify that the solution is performing as expected, wait for the metrics output to stabilize for a few minutes, then exit the script (Ctrl-C) and rerun it with the `-s V` option:
+
+    ./create-solution.sh -d <solution_name> -s V
+
+This provisions a Databricks Workspace and runs a notebook that read the event data collected in Azure SQL Database.
+
+The notebook computes aggregated statistics per minute and asserts that, at least for one minute of data ingestion:
+* 90% of the requested event rate has been achieved (to account for fluctuations).
+* The latency is not higher than 15 seconds.
+* There are no duplicate events.
+* There are no events stored out of sequence.
+
+If the run is successful and the output is empty, that means that all assertions were verified. Otherwise, failed assertions are displayed. You can click on the notebook link in the console output to view the run details.
+
 ## Additional References
 
 - [Column-oriented DBMS](https://en.wikipedia.org/wiki/Column-oriented_DBMS)
