@@ -79,7 +79,7 @@ esac
 # 1000 messages/sec
 if [ "$TESTTYPE" == "1" ]; then
     export IOTHUB_SKU=S1
-    export IOTHUB_UNITS=1
+    export IOTHUB_UNITS=10
     export IOTHUB_PARTITIONS=4
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2

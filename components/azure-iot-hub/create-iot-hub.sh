@@ -28,6 +28,8 @@ az container create \
   --restart-policy Never \
   -e \
     IotHubConnectionString="$iothub_cs" \
+    DevicePrefix=contoso-device-id- \
+    DeviceIndex=0 \
     DeviceCount=1000
 
 if [ -n "${EVENTHUB_CG:-}" ]; then
