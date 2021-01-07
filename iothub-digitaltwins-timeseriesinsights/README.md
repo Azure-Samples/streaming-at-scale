@@ -129,14 +129,14 @@ Performance will be monitored and displayed on the console for 30 minutes. More 
 
 ```
 ***** [M] Starting METRICS reporting
-Event Hub #1 Namespace: evh-algattik68dt
+Event Hub #1 Namespace: evh-name
 Event Hub capacity: 1 throughput units (this determines MAX VALUE below).
 Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
                              Event Hub #    IncomingMessages       IncomingBytes    OutgoingMessages       OutgoingBytes   ThrottledRequests
                              -----------    ----------------       -------------    ----------------       -------------  ------------------
                    MAX VALUE Event Hub 1               60000            60000000              245760           120000000                   -
                              -----------    ----------------       -------------    ----------------       -------------  ------------------
-Event Hub #2 Namespace: evh-algattik68ts
+Event Hub #2 Namespace: evh-name
 Event Hub capacity: 1 throughput units (this determines MAX VALUE below).
 Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
                              Event Hub #    IncomingMessages       IncomingBytes    OutgoingMessages       OutgoingBytes   ThrottledRequests

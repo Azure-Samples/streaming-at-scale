@@ -129,17 +129,11 @@ echo "***** [D] Setting up DATA"
     if [ ! -z "$RUN" ]; then
         iothub_registry_write_primary_connection_string=$(terraform output -raw iothub_registry_write_primary_connection_string)
         digital_twins_service_url=$(terraform output -raw digital_twins_service_url)
-        digital_twins_explorer_url=$(terraform output -raw digital_twins_explorer_url || true)
         time_series_insights_data_access_fqdn=$(terraform output -raw time_series_insights_data_access_fqdn)
 
         CONNECTION_STRING="$iothub_registry_write_primary_connection_string" dotnet run -p src/PopulateIoTHub
         dotnet run -p src/PopulateDigitalTwinsModel "$digital_twins_service_url" "models/digital_twin_types.json"
         dotnet run -p src/PopulateTimeSeriesInsightsModel "$time_series_insights_data_access_fqdn" "models/time_series_insights_types.json" "models/time_series_insights_hierarchies.json"
-
-        echo "To run Explorer:"
-        echo "    open $digital_twins_explorer_url"
-        echo "    Enter URL $digital_twins_service_url"
-        echo
     fi
 echo
 

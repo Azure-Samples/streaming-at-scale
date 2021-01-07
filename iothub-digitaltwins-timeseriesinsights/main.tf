@@ -7,21 +7,21 @@ resource "azurerm_resource_group" "main" {
 }
 
 module "application_insights" {
-  source         = "./application_insights"
+  source         = "../components/terraform/application_insights"
   basename       = var.appname
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
 module "container_registry" {
-  source         = "./container_registry"
+  source         = "../components/terraform/container_registry"
   basename       = var.appname
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
 module "iothub" {
-  source         = "./iothub"
+  source         = "../components/terraform/iothub"
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
@@ -30,7 +30,7 @@ module "iothub" {
 }
 
 module "function_adt" {
-  source         = "./function"
+  source         = "../components/terraform/function"
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
@@ -54,7 +54,7 @@ resource "azurerm_role_assignment" "main" {
 }
 
 module "digital_twins" {
-  source                               = "./digital_twins"
+  source                               = "../components/terraform/digital_twins"
   basename                             = "${var.appname}dt"
   resource_group                       = azurerm_resource_group.main.name
   location                             = azurerm_resource_group.main.location
@@ -64,14 +64,14 @@ module "digital_twins" {
 }
 
 module "eventhubs_adt" {
-  source         = "./eventhubs"
+  source         = "../components/terraform/eventhubs"
   basename       = "${var.appname}dt"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
 module "function_tsi" {
-  source         = "./function"
+  source         = "../components/terraform/function"
   basename       = "${var.appname}ts"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
@@ -89,14 +89,14 @@ module "function_tsi" {
 }
 
 module "eventhubs_tsi" {
-  source         = "./eventhubs"
+  source         = "../components/terraform/eventhubs"
   basename       = "${var.appname}ts"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
 module "time_series_insights" {
-  source                     = "./time_series_insights"
+  source                     = "../components/terraform/time_series_insights"
   basename                   = var.appname
   resource_group             = azurerm_resource_group.main.name
   location                   = azurerm_resource_group.main.location

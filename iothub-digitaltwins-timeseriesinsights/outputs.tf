@@ -46,11 +46,6 @@ output "iothub_telemetry_send_primary_connection_string" {
   sensitive   = true
 }
 
-output "digital_twins_explorer_url" {
-  value       = ""
-  description = "The URL of the Azure Digital Twins Explorer webapp."
-}
-
 output "digital_twins_service_url" {
   value       = module.digital_twins.service_url
   description = "The URL of the Azure Digital Twins instance service."
