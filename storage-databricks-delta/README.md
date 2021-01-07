@@ -2,6 +2,7 @@
 topic: sample
 languages:
   - azurecli
+  - csharp
   - json
   - sql
   - scala
@@ -10,14 +11,17 @@ products:
   - azure-container-instances
   - azure-databricks
   - azure-event-hubs
+  - azure-functions  
   - azure-storage
 statusNotificationTargets:
   - algattik@microsoft.com
 ---
 
-# Streaming at Scale with Azure Event Hubs, Databricks and Delta Lake
+# Streaming at Scale with Azure Storage, Databricks and Delta Lake
 
-This sample uses Azure Databricks to process and store data into [Delta Lake](https://docs.azuredatabricks.net/delta/index.html) storage.
+This sample uses Azure Databricks to ingest data from Azure Storage blobs and store data into [Delta Lake](https://docs.azuredatabricks.net/delta/index.html) storage.
+
+To generate simulated ingestion data, the sample deploys data simulator Container Instances, another Event Hubs instance to receive the data from the simulator and an Azure Function that receives events in batch from the ingestion Event Hub and writes it in blobs to be processed by Databricks.
 
 The provided scripts will deploy an end-to-end solution complete with load test client.
 
@@ -35,6 +39,9 @@ The following tools/languages are also needed:
   - Install: `sudo apt install azure-cli`
 - [jq](https://stedolan.github.io/jq/download/)
   - Install: `sudo apt install jq`
+- [Zip](https://askubuntu.com/questions/660846/how-to-zip-and-unzip-a-directory-and-its-files-in-linux)
+  - Install : `sudo apt install zip`
+- [Dotnet Core](https://dotnet.microsoft.com/download/linux-package-manager/ubuntu18-04/sdk-current)
 - [python]
   - Install: `sudo apt install python python-pip`
 - [databricks-cli](https://docs.azuredatabricks.net/user-guide/dev-tools/databricks-cli.html#install-the-cli)
@@ -77,7 +84,10 @@ The script will create the following resources:
 
 - **Azure Container Instances** to host Spark Load Test Clients: by default one client will be created, generating a load of 1000 events/second
 - **Event Hubs** Namespace, Hub and Consumer Group: to ingest data incoming from test clients
-- **Azure Databricks**: to process data incoming from Event Hubs as a stream, and store it using Delta Lake. An Azure databricks Workspace and Job will be created, and the job will be run for 30 minutes on a transient cluster.
+- **Azure Function**: to process data incoming from Event Hubs as a stream, and write it to Azure Storage
+- **Application Insights**: to monitor Azure Function performances
+- **Azure Storage** (Data Lake Storage Gen2): to store event data as blobs
+- **Azure Databricks**: to process data incoming from Azure Storage as a stream, and store it using Delta Lake. An Azure databricks Workspace and Job will be created, and the job will be run for 30 minutes on a transient cluster.
 
 ## Streamed Data
 
@@ -109,7 +119,7 @@ Streamed data simulates an IoT device sending the following JSON data:
 
 ## Duplicate event handling
 
-The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in Delta. Deduplicating events on write this is in the solution development roadmap.
+The solution currently does not perform event deduplication. In order to illustrate the effect of this, the event simulator is configured to randomly duplicate a small fraction of the messages (0.1% on average). Those duplicate events will be present in Delta.
 
 ## Solution customization
 
@@ -117,12 +127,23 @@ If you want to change some setting of the solution, like number of load test cli
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
+    export PROC_FUNCTION=Storage
+    export PROC_FUNCTION_SKU=EP2
+    export PROC_FUNCTION_WORKERS=2
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
-    export DATABRICKS_MAXEVENTSPERTRIGGER=7000
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
+
+You can also edit the storage blob data generator function `StreamingProcessor-EventHubToBlob-Storage/StreamingProcessor-EventHubToBlob/host.json`:
+
+            "eventProcessorOptions": {
+                "maxBatchSize": 1024,
+                "prefetchCount": 2048
+            }
+
+The `maxBatchSize` defines how many events (around 1 kB each) are used at most to generate input blob files.
 
 ## Monitor performance
 
@@ -133,6 +154,12 @@ The test clients start sending messages before the Databricks job is active, and
 ![Console Performance Report](../_doc/_images/databricks-performance-monitor.png)
 
 ## Azure Databricks
+
+The solution allows you to test two modes for the [Databricks Auto Loader](https://docs.microsoft.com/en-us/azure/databricks/spark/latest/structured-streaming/auto-loader) to detect new files:
+- `notification` using a storage queue populated by Event Grid
+- `listing` using periodic listing of the input directory
+
+Use the `-b` option and set it to `notification` or `listing` to run the solution against the table you are interested in testing.
 
 The deployed Azure Databricks workspace contains a notebook stored under `Shared/streaming_at_scale`. If you plan to modify the notebook, first copy it to another location, as it will be overwritten if you run the solution again.
 
@@ -145,27 +172,6 @@ You can log into the workspace and view the executed job by navigating to the Jo
 After clicking on the job, you can navigate to the run and view the executed notebook. By expanding the output of the `writeStream` cell, you can see statistics about stream processing.
 
 ![Databricks streaming statistics](../_doc/_images/databricks-stream-stats.png)
-
-## Optimizing the Structured Streaming job
-
-A good starting point for cluster configuration is to have the number of workers equal the number of Event Hubs partitions, so that all workers participate in consuming data from Event Hubs.
-
-The limiting factor for throughput is not consuming from Event Hubs, but writing data to Delta Lake (Parquet columnar compressed data). To increase throughput if needed, you can leverage the following settings:
-
-- Having additional worker nodes, to parallelize the writing across additional processes. Note that columnar data compression gains quickly level off, and that this will result in smaller files in Delta Lake storage.
-- Increasing the maxEventsPerTrigger setting, i.e. number of events processed per Structured Streaming micro-batch, at the cost of addittional latency.
-
-Here are some measures of maximum processing rate (events/second) observed using Databricks Runtime 5.4 and Standard\_DS3\_v2 worker nodes (Event Hubs configured with 2 partitions and 2 throughput units):
-
-| maxEventsPerTrigger (columns) & worker nodes (rows)       | 3000 | 4000 | 5000 | 6000 | 7000 |
-|--------------------|------|------|------|------|------|
-| **1**              | 525  |  700 |  918 | 1090 | 1168 |
-| **2**              | 700  |  898 | 1067 | 1250 | 1442 |
-| **3**              | 773  | 1000 | 1250 | 1406 | 1632 |
-| **4**              | 800  | 1067 | 1375 | 1502 | 1632 |
-
-
-Accordingly, in the standard solution we defined 2 worker nodes and DATABRICKS_MAXEVENTSPERTRIGGER=7000 to ensure a max ingestion rate over 40% higher than the average incoming throughput, in order to account for spikes, node failures, etc.
 
 ## Query Data
 
