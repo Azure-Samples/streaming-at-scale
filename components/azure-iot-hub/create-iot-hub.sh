@@ -7,12 +7,10 @@ echo ". name: $IOTHUB_NAME"
 echo ". sku: $IOTHUB_SKU"
 echo ". units: $IOTHUB_UNITS"
 
-#if ! az iot hub show -n $IOTHUB_NAME -g $RESOURCE_GROUP -o none 2>/dev/null; then
-  az iot hub create -n $IOTHUB_NAME -g $RESOURCE_GROUP \
-    --sku $IOTHUB_SKU --location $LOCATION --unit $IOTHUB_UNITS \
-    --partition-count $IOTHUB_PARTITIONS \
-    -o tsv >> log.txt
-#fi
+az iot hub create -n $IOTHUB_NAME -g $RESOURCE_GROUP \
+  --sku $IOTHUB_SKU --location $LOCATION --unit $IOTHUB_UNITS \
+  --partition-count $IOTHUB_PARTITIONS \
+  -o tsv >> log.txt
 
 IOTHUB_PROVISIONING_ACI=$PREFIX"prov"
 echo 'provisioning devices'
