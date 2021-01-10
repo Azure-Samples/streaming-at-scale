@@ -5,8 +5,11 @@ set -euo pipefail
 
 REPORT_THROUGHPUT_MINUTES=${REPORT_THROUGHPUT_MINUTES:-30}
 
-EVENTHUB_NAMESPACES=${EVENTHUB_NAMESPACES:-$EVENTHUB_NAMESPACE}
-IOTHUB_RESOURCES=${IOTHUB_RESOURCES:-}
+EVENTHUB_NAMESPACES=${EVENTHUB_NAMESPACES:-${EVENTHUB_NAMESPACE:-}}
+
+if [ -n "${IOTHUB_NAME:-}" ]; then
+  IOTHUB_RESOURCES=$(az iot hub show -g $RESOURCE_GROUP --name $IOTHUB_NAME --query id -o tsv)
+fi
 
 ofs=2
 metric_names="IncomingMessages IncomingBytes OutgoingMessages OutgoingBytes ThrottledRequests"
@@ -15,6 +18,7 @@ fmt="%28s%12s%20s%20s%20s%20s%20s\n"
 
 eh_resources=""
 eh_number=0
+echo "Reporting aggregate metrics per minute, offset by $ofs minutes, for $REPORT_THROUGHPUT_MINUTES minutes."
 for EVENTHUB_NAMESPACE in $EVENTHUB_NAMESPACES; do
   eh_number=$((eh_number+1))
   echo "Event Hub #$eh_number Namespace: $EVENTHUB_NAMESPACE"
@@ -22,7 +26,6 @@ for EVENTHUB_NAMESPACE in $EVENTHUB_NAMESPACES; do
   eh_resources="$eh_resources $eh_resource"
   eh_capacity=$(az eventhubs namespace show -g $RESOURCE_GROUP -n "$EVENTHUB_NAMESPACE" --query sku.capacity -o tsv)
   echo "Event Hub capacity: $eh_capacity throughput units (this determines MAX VALUE below)."
-  echo "Reporting aggregate metrics per minute, offset by $ofs minutes, for $REPORT_THROUGHPUT_MINUTES minutes."
   printf "$fmt" "" "Event Hub #" $metric_names
   PER_MIN=60
   MB=1000000
@@ -33,7 +36,7 @@ done
 
 for i in $(seq 1 $REPORT_THROUGHPUT_MINUTES) ; do
   eh_number=0
-  for iothub_resource in $IOTHUB_RESOURCES; do
+  for iothub_resource in ${IOTHUB_RESOURCES:-}; do
     metrics=$(
       az monitor metrics list --resource "$iothub_resource" --interval PT1M \
         --metrics $(tr " " "," <<< $iot_metric_names) --offset ${ofs}M \
