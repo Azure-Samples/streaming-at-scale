@@ -151,7 +151,7 @@ Implement a stream processing architecture using:
 
 - Event Hubs (Ingest / Immutable Log)
 - Azure Databricks (Stream Process)
-- [Delta Tables](https://delta.io/) (Serve)
+- [Delta Lake](https://docs.microsoft.com/en-us/azure/databricks/delta/) (Serve)
 
 ### [Event Hubs + Azure Functions + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-functions-azuresql)
 
@@ -255,6 +255,14 @@ Implement a stream processing architecture using:
 - IoT Hub (Ingest)
 - Azure Functions (Stream Process)
 - Azure SQL (Serve)
+
+### [Storage Blobs + Databricks + Delta](https://github.com/Azure-Samples/streaming-at-scale/tree/master/storage-databricks-delta)
+
+Implement a stream processing architecture using:
+
+- Azure Storage (Azure Data Lake Storage Gen2) (Ingest / Immutable Log)
+- Azure Databricks (Stream Process)
+- [Delta Lake](https://docs.microsoft.com/en-us/azure/databricks/delta/) (Serve)
 
 ## Note
 
