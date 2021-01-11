@@ -172,7 +172,6 @@ Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
     2021-01-03T07:40:05+0100 Event Hub 2                3072             2409879                3072             2409879                   0
 ```
 
-
 ## Azure Time Series Insights
 
 Time Series Insights (TSI) is configured to ingest data from Event Hubs. TSI automatically parses the JSON fields into Parquet columns.
@@ -182,6 +181,20 @@ Time Series Insights (TSI) is configured to ingest data from Event Hubs. TSI aut
 Data is available in the created Azure Time Series Insights environment. You can browse it from the portal.
 
 ![Time Series Insights browser](../_doc/_images/time-series-insights.png)
+
+## Verification
+
+To automatically verify that the solution is performing as expected, wait for the metrics output to stabilize for a few minutes, then exit the script (Ctrl-C) and rerun it with the `-s V` option:
+
+    ./create-solution.sh -d <solution_name> -s V
+
+This provisions a Databricks Workspace and runs a notebook that reads the event data collected in Time Series Insights.
+
+The notebook computes aggregated statistics per minute and asserts that, at least for one minute of data ingestion:
+* 90% of the requested event rate has been achieved (to account for fluctuations).
+* There is less than a small amount of duplicate events, if any.
+
+If the run is successful and the output is empty, that means that all assertions were verified. Otherwise, failed assertions are displayed. You can click on the notebook link in the console output to view the run details.
 
 ## Clean up
 
