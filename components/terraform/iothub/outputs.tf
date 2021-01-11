@@ -6,6 +6,11 @@ locals {
   registryWritePolicy = "registryReadWrite"
 }
 
+output "name" {
+  value       = azurerm_iothub.main.name
+  description = "The IoT Hub ARM Resource name."
+}
+
 output "resource_id" {
   value       = azurerm_iothub.main.id
   description = "The ARM Resource ID of the IoT Hub."
@@ -22,11 +27,3 @@ output "listen_event_hubs_primary_connection_string" {
   description = "The primary connection string to receive events."
   sensitive   = true
 }
-
-output "registry_write_primary_connection_string" {
-  value       = "HostName=${azurerm_iothub.main.hostname};SharedAccessKeyName=${local.registryWritePolicy};SharedAccessKey=${azurerm_iothub.main.shared_access_policy[index(azurerm_iothub.main.shared_access_policy.*.key_name, local.registryWritePolicy)].primary_key}"
-  description = "The primary connection string to send events."
-  sensitive   = true
-}
-
-

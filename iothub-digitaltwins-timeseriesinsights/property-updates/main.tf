@@ -7,21 +7,14 @@ resource "azurerm_resource_group" "main" {
 }
 
 module "application_insights" {
-  source         = "../components/terraform/application_insights"
-  basename       = var.appname
-  resource_group = azurerm_resource_group.main.name
-  location       = azurerm_resource_group.main.location
-}
-
-module "container_registry" {
-  source         = "../components/terraform/container_registry"
+  source         = "../../components/terraform/application_insights"
   basename       = var.appname
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
 module "iothub" {
-  source         = "../components/terraform/iothub"
+  source         = "../../components/terraform/iothub"
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
@@ -30,11 +23,11 @@ module "iothub" {
 }
 
 module "function_adt" {
-  source         = "../components/terraform/function"
+  source         = "../../components/terraform/function"
   basename       = "${var.appname}in"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
-  source_path    = abspath("src/EventHubToDigitalTwins")
+  source_path    = abspath("../src/EventHubToDigitalTwins")
   tier           = "ElasticPremium"
   sku            = var.function_sku
   workers        = var.function_workers
@@ -42,8 +35,8 @@ module "function_adt" {
   instrumentation_key = module.application_insights.instrumentation_key
 
   appsettings = {
-    ADT_SERVICE_URL = module.digital_twins.service_url
     EVENT_HUB       = module.iothub.listen_event_hubs_primary_connection_string
+    ADT_SERVICE_URL = module.digital_twins.service_url
   }
 }
 
@@ -54,28 +47,30 @@ resource "azurerm_role_assignment" "main" {
 }
 
 module "digital_twins" {
-  source                               = "../components/terraform/digital_twins"
+  source                               = "../../components/terraform/digital_twins"
   basename                             = "${var.appname}dt"
   resource_group                       = azurerm_resource_group.main.name
   location                             = azurerm_resource_group.main.location
   eventhub_primary_connection_string   = module.eventhubs_adt.send_primary_connection_string
   eventhub_secondary_connection_string = module.eventhubs_adt.send_secondary_connection_string
   owner_principal_object_id            = data.azurerm_client_config.current.object_id
+
+  event_hubs_route_filter = "type = 'Microsoft.DigitalTwins.Twin.Update'"
 }
 
 module "eventhubs_adt" {
-  source         = "../components/terraform/eventhubs"
+  source         = "../../components/terraform/eventhubs"
   basename       = "${var.appname}dt"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
-module "function_tsi" {
-  source         = "../components/terraform/function"
-  basename       = "${var.appname}ts"
+module "function_updates_to_tsi" {
+  source         = "../../components/terraform/function"
+  basename       = "${var.appname}uts"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
-  source_path    = abspath("src/DigitalTwinsToTSI")
+  source_path    = abspath("../src/DigitalTwinsUpdatesToTimeSeriesInsightsEvents")
   tier           = "ElasticPremium"
   sku            = var.function_sku
   workers        = var.function_workers
@@ -89,14 +84,14 @@ module "function_tsi" {
 }
 
 module "eventhubs_tsi" {
-  source         = "../components/terraform/eventhubs"
+  source         = "../../components/terraform/eventhubs"
   basename       = "${var.appname}ts"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
 
 module "time_series_insights" {
-  source                     = "../components/terraform/time_series_insights"
+  source                     = "../../components/terraform/time_series_insights"
   basename                   = var.appname
   resource_group             = azurerm_resource_group.main.name
   location                   = azurerm_resource_group.main.location

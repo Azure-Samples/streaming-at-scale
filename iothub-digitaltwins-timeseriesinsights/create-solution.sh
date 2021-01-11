@@ -113,13 +113,15 @@ echo
 echo "Deployment started..."
 echo
 
+TERRAFORM="terraform"
+
 echo "***** [I] Deploying INFRASTRUCTURE"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        terraform init
-        terraform plan -var appname=$RESOURCE_GROUP -var resource_group=$RESOURCE_GROUP -var location=$LOCATION -out tfplan
-        terraform apply tfplan
+        $TERRAFORM init
+        $TERRAFORM plan -var appname=$RESOURCE_GROUP -var resource_group=$RESOURCE_GROUP -var location=$LOCATION -out tfplan
+        $TERRAFORM apply tfplan
     fi
 echo
 
@@ -127,11 +129,11 @@ echo "***** [D] Setting up DATA"
 
     RUN=`echo $STEPS | grep D -o || true`
     if [ ! -z "$RUN" ]; then
-        iothub_registry_write_primary_connection_string=$(terraform output -raw iothub_registry_write_primary_connection_string)
-        digital_twins_service_url=$(terraform output -raw digital_twins_service_url)
-        time_series_insights_data_access_fqdn=$(terraform output -raw time_series_insights_data_access_fqdn)
+        IOTHUB_NAME=$($TERRAFORM output -raw iothub_name)
+        digital_twins_service_url=$($TERRAFORM output -raw digital_twins_service_url)
+        time_series_insights_data_access_fqdn=$($TERRAFORM output -raw time_series_insights_data_access_fqdn)
 
-        CONNECTION_STRING="$iothub_registry_write_primary_connection_string" dotnet run -p src/PopulateIoTHub
+        source ../components/azure-iot-hub/provision-iot-hub-devices.sh
         dotnet run -p src/PopulateDigitalTwinsModel "$digital_twins_service_url" "models/digital_twin_types.json"
         dotnet run -p src/PopulateTimeSeriesInsightsModel "$time_series_insights_data_access_fqdn" "models/time_series_insights_types.json" "models/time_series_insights_hierarchies.json"
     fi
@@ -141,7 +143,7 @@ echo "***** [T] Starting up TEST clients"
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then
-        export SIMULATOR_CONNECTION_SETTING=IotHubConnectionString="$(terraform output -raw iothub_telemetry_send_primary_connection_string)"
+        export SIMULATOR_CONNECTION_SETTING=IotHubConnectionString="$($TERRAFORM output -raw iothub_telemetry_send_primary_connection_string)"
         source ../simulator/run-simulator.sh
     fi
 echo
@@ -150,8 +152,8 @@ echo "***** [M] Starting METRICS reporting"
 
     RUN=`echo $STEPS | grep M -o || true`
     if [ ! -z "$RUN" ]; then
-        export IOTHUB_RESOURCES=$(terraform output -raw iothub_resource_id)
-        export EVENTHUB_NAMESPACES=$(terraform output -raw eventhub_namespace_names)
+        export IOTHUB_RESOURCES=$($TERRAFORM output -raw iothub_resource_id)
+        export EVENTHUB_NAMESPACES=$($TERRAFORM output -raw eventhub_namespace_names)
         source ../components/azure-event-hubs/report-throughput.sh
     fi
 echo
@@ -161,8 +163,8 @@ echo "***** [V] Starting deployment VERIFICATION"
     export ADB_WORKSPACE="dbw-$PREFIX" 
     export ADB_TOKEN_KEYVAULT="kvd$PREFIX" #NB AKV names are limited to 24 characters
     export ALLOW_DUPLICATES=1
-    export TSI_ENVIRONMENT=$(terraform output -raw time_series_insights_name)
-    export AZURE_STORAGE_ACCOUNT=$(terraform output -raw time_series_insights_storage_account_name)
+    export TSI_ENVIRONMENT=$($TERRAFORM output -raw time_series_insights_name)
+    export AZURE_STORAGE_ACCOUNT=$($TERRAFORM output -raw time_series_insights_storage_account_name)
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
