@@ -28,7 +28,7 @@ The provided scripts will create an end-to-end solution complete with load test 
 
 ## Running the Scripts
 
-Please note that the scripts have been tested on [Ubuntu 18 LTS](http://releases.ubuntu.com/18.04/), so make sure to use that environment to run the scripts. You can run it using Docker, WSL or a VM:
+Please note that the scripts have been tested on [Ubuntu 18 LTS](http://releases.ubuntu.com/18.04/), so make sure to use that environment to run the scripts. You can run it using Docker, WSL, Mac OS or a VM:
 
 - [Ubuntu Docker Image](https://hub.docker.com/_/ubuntu/)
 - [WSL Ubuntu 18.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab)
