@@ -2,11 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHubToDigitalTwins", "EventHubToDigitalTwins\EventHubToDigitalTwins.csproj", "{DE51F45E-FA2E-49BB-BBFB-4F5385E983D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalTwinsUpdatesToTimeSeriesInsightsEvents", "DigitalTwinsUpdatesToTimeSeriesInsightsEvents\DigitalTwinsUpdatesToTimeSeriesInsightsEvents.csproj", "{853D1837-B0D4-4530-9EF3-6097ECCB81DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateTimeSeriesInsightsModel", "PopulateTimeSeriesInsightsModel\PopulateTimeSeriesInsightsModel.csproj", "{C1272228-A845-4D3B-8579-40144CE740D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateDigitalTwinsModel", "PopulateDigitalTwinsModel\PopulateDigitalTwinsModel.csproj", "{F2865437-E736-4A3E-BD49-06C4228AC075}"
-EndProject
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,7 +5,6 @@ namespace EventHubToDigitalTwins
     using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
-    using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Dataflow;
@@ -23,6 +22,12 @@ namespace EventHubToDigitalTwins
         private static readonly string AdtInstanceUrl = Environment.GetEnvironmentVariable("ADT_SERVICE_URL") ??
                                                         throw new InvalidOperationException(
                                                             "Application setting \"ADT_SERVICE_URL\" not set");
+
+        private static readonly bool SendTelemetry =
+            Boolean.Parse(Environment.GetEnvironmentVariable("SEND_ADT_TELEMETRY_EVENTS") ?? "false");
+
+        private static readonly bool SendUpdate =
+            Boolean.Parse(Environment.GetEnvironmentVariable("SEND_ADT_PROPERTY_UPDATES") ?? "true");
 
         private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly DigitalTwinsClient Client;
@@ -50,10 +55,8 @@ namespace EventHubToDigitalTwins
             _log.LogInformation("Received {numEvents} events", events.Length);
             try
             {
-                // await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls);
                 var output = await events.ToAsyncEnumerable().AsyncParallelForEach(ProcessEvent, MaxConcurrentCalls)
                     .ToListAsync();
-                var inp = output.Select(_ => Encoding.UTF8.GetString(_.In));
                 var numErrors = output.Count(_ => _.Exception is { });
                 var durations = output.Select(_ => _.Duration).ToList();
                 _log.LogInformation(
@@ -73,52 +76,102 @@ namespace EventHubToDigitalTwins
 
         private async Task<Result> ProcessEvent(EventData eventData)
         {
-            Stopwatch w = new Stopwatch();
-            w.Start();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
                 var body = JsonDocument.Parse(eventData.Body).RootElement;
+                var eventId = body.GetProperty("eventId").GetString();
                 var deviceId = body.GetProperty("deviceId").GetString();
                 var updateType = body.GetProperty("type").GetString();
-                _log.LogDebug("DeviceId:{deviceId}. UpdateType:{updateType}", deviceId, updateType);
-                var updateTwinData = new JsonPatchDocument();
-                updateTwinData.AppendAdd("/LastUpdate", body.GetProperty("createdAt").GetDateTimeOffset());
-                updateTwinData.AppendAdd("/deviceSequenceNumber", body.GetProperty("deviceSequenceNumber").GetInt64());
-                switch (updateType)
+                var createdAt = body.GetProperty("createdAt").GetDateTimeOffset();
+                var deviceSequenceNumber = body.GetProperty("deviceSequenceNumber").GetInt64();
+                var value = body.GetProperty("value").GetDouble();
+                var complexData = body.GetProperty("complexData");
+
+                if (SendUpdate)
                 {
-                    case "TEMP":
-                        updateTwinData.AppendAdd("/Temperature", body.GetProperty("value").GetDouble());
-                        updateTwinData.AppendAdd("/TemperatureData", body.GetProperty("complexData"));
-                        break;
-                    case "CO2":
-                        updateTwinData.AppendAdd("/CO2", body.GetProperty("value").GetDouble());
-                        updateTwinData.AppendAdd("/CO2Data", body.GetProperty("complexData"));
-                        break;
-                    default:
-                        _log.LogWarning("Unknown update type {updateType}", updateType);
-                        break;
+                    _log.LogDebug("DeviceId:{deviceId}. UpdateType:{updateType}", deviceId, updateType);
+
+                    await SendUpdateAsync(deviceId, updateType, value, complexData, deviceSequenceNumber, createdAt);
                 }
 
-                var output = await Client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
-                return new Result {Response = output, Duration = w.ElapsedMilliseconds, In = eventData.Body};
+                if (SendTelemetry)
+                {
+                    await SendTelemetryAsync(eventId, deviceId, updateType, value, complexData, deviceSequenceNumber,
+                        createdAt);
+                }
+
+                return new Result {Duration = stopwatch.ElapsedMilliseconds};
             }
             catch (Exception e)
             {
                 _log.LogError(e, e.Message);
-                return new Result {Exception = e, Duration = w.ElapsedMilliseconds, In = eventData.Body};
+                return new Result {Exception = e, Duration = stopwatch.ElapsedMilliseconds};
             }
+        }
+
+        private async Task SendTelemetryAsync(string eventId, string deviceId, string updateType, double value,
+            JsonElement complexData, long deviceSequenceNumber, DateTimeOffset createdAt)
+        {
+            var telemetryEvent = new Dictionary<string, object>
+            {
+                {"eventId", eventId},
+                {"deviceId", deviceId},
+                {"LastUpdate", createdAt},
+                {"deviceSequenceNumber", deviceSequenceNumber}
+            };
+            switch (updateType)
+            {
+                case "TEMP":
+                    telemetryEvent.Add("Temperature", value);
+                    telemetryEvent.Add("TemperatureData", complexData);
+                    break;
+                case "CO2":
+                    telemetryEvent.Add("CO2", value);
+                    telemetryEvent.Add("CO2Data", complexData);
+                    break;
+                default:
+                    _log.LogWarning("Unknown update type {updateType}", updateType);
+                    break;
+            }
+
+            var payload = JsonSerializer.Serialize(telemetryEvent);
+            await Client.PublishTelemetryAsync(deviceId, eventId, payload, createdAt);
+        }
+
+        private async Task SendUpdateAsync(string deviceId, string updateType, double value, JsonElement complexData,
+            long deviceSequenceNumber, DateTimeOffset createdAt)
+        {
+            var updateTwinData = new JsonPatchDocument();
+            updateTwinData.AppendAdd("/LastUpdate", createdAt);
+            updateTwinData.AppendAdd("/deviceSequenceNumber", deviceSequenceNumber);
+            switch (updateType)
+            {
+                case "TEMP":
+                    updateTwinData.AppendAdd("/Temperature", value);
+                    updateTwinData.AppendAdd("/TemperatureData", complexData);
+                    break;
+                case "CO2":
+                    updateTwinData.AppendAdd("/CO2", value);
+                    updateTwinData.AppendAdd("/CO2Data", complexData);
+                    break;
+                default:
+                    _log.LogWarning("Unknown update type {updateType}", updateType);
+                    break;
+            }
+
+            await Client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
         }
     }
 
-    class Result
+    internal class Result
     {
-        public Response? Response { get; set; }
         public Exception? Exception { get; set; }
         public long Duration { get; set; }
-        public ArraySegment<byte> In { get; set; }
     }
 
-    static class Extensions
+    internal static class Extensions
     {
         public static async IAsyncEnumerable<TOutput> AsyncParallelForEach<TInput, TOutput>(
             this IAsyncEnumerable<TInput> source, Func<TInput, Task<TOutput>> body,
@@ -131,14 +184,14 @@ namespace EventHubToDigitalTwins
             if (scheduler != null)
                 options.TaskScheduler = scheduler;
             var block = new TransformBlock<TInput, TOutput>(body, options);
-            int nItems = 0;
+            var nItems = 0;
             await foreach (var item in source)
             {
                 block.Post(item);
                 nItems++;
             }
 
-            for (int i = 0; i < nItems; i++)
+            for (var i = 0; i < nItems; i++)
             {
                 yield return await block.ReceiveAsync();
             }

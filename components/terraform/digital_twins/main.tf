@@ -34,11 +34,12 @@ resource "null_resource" "tsi_eventhubs_ingestion_route" {
   triggers = {
     twins    = azurerm_digital_twins_instance.main.name
     endpoint = azurerm_digital_twins_endpoint_eventhub.main.name
+    filter   = var.event_hubs_route_filter
   }
   provisioner "local-exec" {
     command = <<-EOT
       az extension add -n azure-iot
-      az dt route create -n ${self.triggers.twins} --endpoint-name ${self.triggers.endpoint} --route-name EHRoute --filter "type = 'Microsoft.DigitalTwins.Twin.Update'" -o none
+      az dt route create -n ${self.triggers.twins} --endpoint-name ${self.triggers.endpoint} --route-name EHRoute --filter "${self.triggers.filter}" -o none
       EOT
   }
   provisioner "local-exec" {

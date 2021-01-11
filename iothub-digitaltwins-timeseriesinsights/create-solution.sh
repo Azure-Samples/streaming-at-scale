@@ -16,9 +16,10 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="50"
 export STEPS="IDTM"
+export ADT_EVENT_TYPE="property"
 
 usage() { 
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-e ADT_EVENT_TYPE] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      I=INFRASTRUCTURE"
@@ -27,32 +28,36 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 50,100 msgs/sec. Default=$TESTTYPE"
+    echo "-e: Send property or telemetry events. Default=$ADT_EVENT_TYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:" arg; do
-	case "${arg}" in
-		d)
-			PREFIX=${OPTARG}
-			;;
-		s)
-			STEPS=${OPTARG}
-			;;
-		t)
-			TESTTYPE=${OPTARG}
-			;;
-		l)
-			LOCATION=${OPTARG}
-			;;
-		esac
+while getopts ":d:s:t:l:e:" arg; do
+    case "${arg}" in
+        d)
+            PREFIX=${OPTARG}
+            ;;
+        s)
+            STEPS=${OPTARG}
+            ;;
+        t)
+            TESTTYPE=${OPTARG}
+            ;;
+        l)
+            LOCATION=${OPTARG}
+            ;;
+        e)
+            ADT_EVENT_TYPE=${OPTARG}
+            ;;
+        esac
 done
 shift $((OPTIND-1))
 
 if [[ -z "$PREFIX" ]]; then
-	echo "Enter a name for this deployment."
-	usage
+    echo "Enter a name for this deployment."
+    usage
 fi
 
 
@@ -93,6 +98,20 @@ source ../assert/has-local-jq.sh
 source ../assert/has-local-dotnet.sh
 source ../assert/has-local-terraform.sh
 
+declare ADT_EVENT_TYPE_DIR=""
+case $ADT_EVENT_TYPE in
+    property)
+        ADT_EVENT_TYPE_DIR="property-updates"
+        ;;
+    telemetry)
+        ADT_EVENT_TYPE_DIR="telemetry-events"
+        ;;
+    *)
+        echo "'-e' param must be set to 'property' or 'telemetry'"        
+        usage
+        ;;
+esac
+
 echo
 echo "Streaming at Scale with Azure Digital Twins and Azure Time Series Insights"
 echo "=========================================================================="
@@ -107,6 +126,7 @@ echo ". Region          => $LOCATION"
 echo ". IoT Hub         => SKU: $TF_VAR_iothub_sku, Capacity: $TF_VAR_iothub_capacity"
 echo ". Function        => SKU: $TF_VAR_function_sku, Workers: $TF_VAR_function_workers"
 echo ". TS Insights     => PAYG"
+echo ". ADT event type  => $ADT_EVENT_TYPE_DIR"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
@@ -114,6 +134,7 @@ echo "Deployment started..."
 echo
 
 TERRAFORM="terraform"
+TERRAFORM="terraform -chdir=$ADT_EVENT_TYPE_DIR"
 
 echo "***** [I] Deploying INFRASTRUCTURE"
 

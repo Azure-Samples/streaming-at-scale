@@ -27,3 +27,8 @@ variable "owner_principal_object_id" {
   type        = string
   description = "Azure AD Object ID of the user to be assigned Azure Digital Twins Data Owner role to."
 }
+
+variable "event_hubs_route_filter" {
+  type        = string
+  description = "ADT filter expression for events routed to Event Hubs. See https://docs.microsoft.com/en-us/azure/digital-twins/how-to-manage-routes-apis-cli#filter-events"
+}

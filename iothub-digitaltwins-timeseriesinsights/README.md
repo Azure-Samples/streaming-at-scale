@@ -172,6 +172,14 @@ Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
     2021-01-03T07:40:05+0100 Event Hub 2                3072             2409879                3072             2409879                   0
 ```
 
+## Azure Digital Twins
+
+The solution allows you to test [Property updates or Telemetry events](https://docs.microsoft.com/en-us/azure/digital-twins/concepts-models#properties-vs-telemetry).
+
+Use the `-e` option and set it to `property` or `telemetry` to run the solution in the mode you are interested in testing.
+
+With Property updates, an additional Event Hubs instance and Azure Function are deployed to transform the Azure Digital Twin property update event stream into TSI events.
+
 ## Azure Time Series Insights
 
 Time Series Insights (TSI) is configured to ingest data from Event Hubs. TSI automatically parses the JSON fields into Parquet columns.

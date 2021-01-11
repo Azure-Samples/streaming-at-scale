@@ -38,8 +38,8 @@ module "function_adt" {
     EVENT_HUB       = module.iothub.listen_event_hubs_primary_connection_string
     ADT_SERVICE_URL = module.digital_twins.service_url
 
-    SEND_ADT_PROPERTY_UPDATES = true
-    SEND_ADT_TELEMETRY_EVENTS = false
+    SEND_ADT_PROPERTY_UPDATES = false
+    SEND_ADT_TELEMETRY_EVENTS = true
   }
 }
 
@@ -58,37 +58,12 @@ module "digital_twins" {
   eventhub_secondary_connection_string = module.eventhubs_adt.send_secondary_connection_string
   owner_principal_object_id            = data.azurerm_client_config.current.object_id
 
-  event_hubs_route_filter = "type = 'Microsoft.DigitalTwins.Twin.Update'"
+  event_hubs_route_filter = "type = 'microsoft.iot.telemetry'"
 }
 
 module "eventhubs_adt" {
   source         = "../../components/terraform/eventhubs"
   basename       = "${var.appname}dt"
-  resource_group = azurerm_resource_group.main.name
-  location       = azurerm_resource_group.main.location
-}
-
-module "function_updates_to_tsi" {
-  source         = "../../components/terraform/function"
-  basename       = "${var.appname}uts"
-  resource_group = azurerm_resource_group.main.name
-  location       = azurerm_resource_group.main.location
-  source_path    = abspath("../src/DigitalTwinsUpdatesToTimeSeriesInsightsEvents")
-  tier           = "ElasticPremium"
-  sku            = var.function_sku
-  workers        = var.function_workers
-
-  instrumentation_key = module.application_insights.instrumentation_key
-
-  appsettings = {
-    EVENT_HUB_ADT = module.eventhubs_adt.listen_primary_connection_string
-    EVENT_HUB_TSI = module.eventhubs_tsi.send_primary_connection_string
-  }
-}
-
-module "eventhubs_tsi" {
-  source         = "../../components/terraform/eventhubs"
-  basename       = "${var.appname}ts"
   resource_group = azurerm_resource_group.main.name
   location       = azurerm_resource_group.main.location
 }
@@ -99,6 +74,6 @@ module "time_series_insights" {
   resource_group             = azurerm_resource_group.main.name
   location                   = azurerm_resource_group.main.location
   reader_principal_object_id = data.azurerm_client_config.current.object_id
-  eventhub_namespace_name    = module.eventhubs_tsi.eventhub_namespace_name
-  eventhub_name              = module.eventhubs_tsi.eventhub_name
+  eventhub_namespace_name    = module.eventhubs_adt.eventhub_namespace_name
+  eventhub_name              = module.eventhubs_adt.eventhub_name
 }
