@@ -43,7 +43,7 @@ Here's also a list of scenarios where a Streaming solution fits nicely
 - [Big Data](https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/big-data)
 - [Near-Real Time Operational Analytics](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/get-started-with-columnstore-for-real-time-operational-analytics?view=sql-server-2017)
 
-A good document the describes the Stream *Technologies* available on Azure is the following one:
+A good document the describes the Stream *Technologies* available on Azure is:
 
 [Choosing a stream processing technology in Azure](https://docs.microsoft.com/en-us/azure/architecture/data-guide/technology-choices/stream-processing)
 
