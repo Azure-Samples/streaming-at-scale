@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="196px" preserveAspectRatio="none" style="width:1133px;height:196px;" version="1.1" viewBox="0 0 1133 196" width="1133px" zoomAndPan="magnify"><defs><filter height="300%" id="f163d61vyidr04" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[12651a51455a29860426fcab3417ec63]
+cluster Ingestion--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="177" style="stroke:#000000;stroke-width:1.5;" width="1114" x="7" y="7"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="68" x="530" y="22.5352">Ingestion</text><!--MD5=[00e5d6efdb9891a79b3eaae915f76ff4]
+entity iot1--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="125.332" style="stroke:#3C7FC0;stroke-width:1.5;" width="90" x="23" y="42.5"/><image height="70" width="70" x="33" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAIAAAD+THXTAAADg0lEQVR4Xu1Zu47VMBDNT+YX7i/wC/sLW9LutnQr0dJQ0LLSLVaIAolFFAhRIJmjWIom4/FkPLEdI92jI7TkJmMfezyPZApD4uOXX/Pbzw5eHq8TNzYG7j98S6dr5E1SLwwkCWfg7v1XOPS8uDX+xhV+kwGjSIKAdAAQ1/mtexhC0pt3L6n1laWqzpf08Ol7aprx6fknfyyP8yXFw6MT9/DH8ri+/sG2K1RGrCAJw6d2Rf74/Zc/7AX2PLUfWUGSPdNDPH/Yi7aS7Lv030iCO6V2RfInD6CtpJDPSJSlcVxHc0kW36sYG0IHSUEdYy6M4BYow1WTFJbQp6QLZE/+wAF0khQBJ0QxAQH4l4n0lbAiukpioMcM8mqdqDMlhW3BVivuYWlgKi2UcLGHpLCt04vqVwc6SWJRvpb7iegkKWwbEGwa/7ke+kkK2yIDCvnPldBVEvyNxvRYxeIigjtYq6jtKilsOxHIY6kZ/0V4PHjSeksKhiYcwo4k5RMkGZsRt6oTJNEcpdBd6faWZO/qZ29U1CRhePg9iHx/8MiusDSLK30bJUtCPE3bBN+aYS1AGMQCKbVmjo6lFCSx7EHJVLHp4ldwrSZzRoroSFaCJN034lyrTNfCCrtkjLDdyKZnAZdkeTGiExsY+5bY2MIh13oH62V5e77S11wVS7osX43E6TJTIoq8wJdtuSQgNU15vIEzbpRvi4IoSanBfIkixW50OTKQICnkaxafJzDs+vbcQlJI9goiHSlCBF0vjHK3fNuNQYX+5MvsQZEUEU+/8ehbQA+S+LKS+qRv3B1JdUHDXc61aF3rixBdJdG6RImc1P0c3t5PEl1+/Q0RjR/6nSL6SaKHZHftaXBS9lNEJ0m7UYHBcupyaCgpVnSsy7DPj65CUUBvJUlsIksn5wvoTSQpTaR9l4I3oE84fPEFA+PuCVagVIlz4UaxTx6W1D+lQ0Y6oueK3BY5LOcKQmxaTlgTSak1yiLfC+oCia50gqQiy7oPX6QvpU0k6S9k7GfJ0gKnWa6JpNwBmDPrmoPlvV/qxk0khfxsippI3etWsqdaSQrLXlEPvC//cDScpOPIbTVlP8ergoHCQ0Xob8jEYJOVdFk+myosbWPcyKUEzLAs1VrIjTUDlo/VEJ6CyEJurDGuy1cff9lqITc2Bm6StuTGxsBN0pbc2BiYlAZL5yC5OMU/2CjNuRhskr8AAAAASUVORK5CYII=" y="52.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="70" y="136.0352"/><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="65" x="35.5" y="154.457">IoT Hub</text><!--MD5=[8bdec05ec3e461ef8cd414dc7669fef0]
+entity eh1--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="125.332" style="stroke:#3C7FC0;stroke-width:1.5;" width="113" x="173" y="42.5"/><image height="70" width="68" x="195.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAB2klEQVR4Xu2aMU7EMBBFc0muwBW4AlegpIWWDomWZgtakLZAiAIJEAVCFEjZj4ws73zZjmU7mSzz9aqNk53nbGwn2eH05vno/H7twGIcx4E3rBST0YrJaMVktPKfZC7uXrdv33q4fvjgIj0Zmc3T56gp8OEiPaPJLBaTWa/M8eWWNziwszzeonn/+uEiHbBAgwEtcAYYNjm7fcE+MU6uHnEosUvzxKp1Xz3I5vFwfwgwL8l95o3JRDCZljGZCIcsg+ES69wEYeMmaSkj6ss+kcPEFbavT4EM5iZ8fQz+jamWKY3JVMVkpkW1zAwDAA/fIdlVeYEMVyPY7N/MlcqgO7hNiHtvkUhHGdwR8QkMET2NT/iYIbhlCttzOsqUxmT2YjIRDlkG1zcGqASqBwDxQKf50NxSxj2HTyDal8rgRPHwHcJPv0QKZEpTKlMfk5kWk6lKgQwucb4oQ0R71TJcjaBy1VyfjjKlk2Z9OsrMH5OJYDItYzIRsgvB3vl9QcvrX8DdnF41c/tO8X+lCXGbhsTUtnhPc2Iv+v9eneOOh7c5Zuvs6eEiPfiJmcxy4SI9JrNouEhPRgZLdB6Cl4WL9GRk1oXJaMVktGIyWjk4GcxE8OE/kK4L9yJ6B1v94rCnzWBxAAAAAElFTkSuQmCC" y="52.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="231.5" y="136.0352"/><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="93" x="183" y="154.457">Event Hubs</text><!--MD5=[e8dcb6536e0ae79950295d54fd99a29c]
+entity ehk1--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="125.332" style="stroke:#3C7FC0;stroke-width:1.5;" width="164" x="346" y="42.5"/><image height="70" width="68" x="394" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAB2klEQVR4Xu2aMU7EMBBFc0muwBW4AlegpIWWDomWZgtakLZAiAIJEAVCFEjZj4ws73zZjmU7mSzz9aqNk53nbGwn2eH05vno/H7twGIcx4E3rBST0YrJaMVktPKfZC7uXrdv33q4fvjgIj0Zmc3T56gp8OEiPaPJLBaTWa/M8eWWNziwszzeonn/+uEiHbBAgwEtcAYYNjm7fcE+MU6uHnEosUvzxKp1Xz3I5vFwfwgwL8l95o3JRDCZljGZCIcsg+ES69wEYeMmaSkj6ss+kcPEFbavT4EM5iZ8fQz+jamWKY3JVMVkpkW1zAwDAA/fIdlVeYEMVyPY7N/MlcqgO7hNiHtvkUhHGdwR8QkMET2NT/iYIbhlCttzOsqUxmT2YjIRDlkG1zcGqASqBwDxQKf50NxSxj2HTyDal8rgRPHwHcJPv0QKZEpTKlMfk5kWk6lKgQwucb4oQ0R71TJcjaBy1VyfjjKlk2Z9OsrMH5OJYDItYzIRsgvB3vl9QcvrX8DdnF41c/tO8X+lCXGbhsTUtnhPc2Iv+v9eneOOh7c5Zuvs6eEiPfiJmcxy4SI9JrNouEhPRgZLdB6Cl4WL9GRk1oXJaMVktGIyWjk4GcxE8OE/kK4L9yJ6B1v94rCnzWBxAAAAAElFTkSuQmCC" y="52.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="430" y="136.0352"/><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="144" x="356" y="154.457">Event Hubs Kafka</text><!--MD5=[528c52d825ca4e0b7c352acb87a1d804]
+entity st0--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="114.332" style="stroke:#3C7FC0;stroke-width:1.5;" width="132" x="570" y="48"/><image height="59" width="70" x="601" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAAA7CAIAAABJ8GvMAAAECklEQVR4Xs2YsY4TQQyG85LzCnmFewVe4UpaaOmQaGlS0IKUAiEKJDhRIESBNPcnvjiOx2N7NrubWL9Oyd7u2N/M7L/ebOp4bN/uy+vPK+j9l986dyI2+kAUbz79bHMvJMzd09//uoIoxpCQYLUlIj1+/KGLiGIM6dWH723WpbX/9U/X4cYA0u7bnzbfCnp491WX4sYAEoZu860jzKauph9ZJJhPm2k14QbWBfUji7SyK7SC0+qaOpFCgu20OVZW3tBjJBhOm+Amgt/q4qyIkW5i3D1lDD1ACo0b+2EutYO3yhh6gORkwupl5iwZmDsnl1TY+HlITjuX9598JKm2kaF3kZx2Tq4+5gx+eKV4tCSVvKSNLpLjCrz0c/UTMi82c4bK2fM2km/c1J5gGdt/TVObPaRyDN1G8qc/iYRBIFUcvqIaSB7X6XNUvcbPQArbuRAJJLwx5Oyoe4DtRx7kCKl6PmEg+QOVCEk9OhiJj2OJmI1ync++jMeoETONVyOFo5QEEk7AX2rJGIlMhVeGlpHSKQPkQsNitlbjd4HkuwLLR2IpJMlQThNsbnJezxCpNJu5KiTHuKVmQaJSrkcqjaGfkcJ2jnVvSOruPSNJa/I1DYmu4irVrSU1ilQuG78XJHPonqYh0c1De4Fva3OrT0CSPnFAeuq3c6Z8JBSEOeNpw8n4jPG5UOxA2oQ9N5qAVIRPHJCGriwJJCpaiqaM30dw7a7foU5DKqfbddObKkc+0vWajESN3ybvCqy7RSrH2jZDxsCX3ScSmcThXurt6Z5CJGq3MVmoqR287cSVJiORJx2QzOedIx8JtarHOTs1OYc62GoaEl/18lwauqN8JJoqlI4xyVjJgdS7wOxIVFVlpCHf85HokcfV0Nft8Wct0PJCzYskX3LPDVH+egeJl4IrpkWTALMjydahSqR8DzGERH3QokjqRfDi5SLpE0NIS6+SukVr+1ab8QkHqZzeurliApDDzoske3AKjbRLvDX5SFQxLTgVp86cEYnPlKGRqpuM5CORcdeji9IHqoyeV3yQPpubIo/Eo8kwkEKf8JHKkQrJcAL+clkYExcqXYPEc6fCQKrRG2GIdKUySMq4ZdhI1W38CAnR/msW8XPTQTJ/waPoIjmGzsP5izlNskXsTavpChxdpNo3dLnodMPMKM7ueC9vEzM8pH2/8Xs4/Zi6UOz7P4jLds4MD6m6uxkpsfEwYe1MXyMM6CcNpzJACg19ZTmuwBEg1WU8YJrads6MGKn2fWJlte2cGSkkx3xWk2/cMlJINdH4La291c6ZkUW6rU/02jkzskjVNfRFlTFuGQNItd+hLKqMccsYQ3Iav4WUdwWOMaS6uqH77ZwZw0j7fuM3u8J2zoxnRNxN1CCt8dIAAAAASUVORK5CYII=" y="58"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="638" y="130.5352"/><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="112" x="580" y="148.957">Storage blobs</text><!--MD5=[ac074a99013806f3054267ac3555943f]
+entity kafka1--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="122.332" style="stroke:#3C7FC0;stroke-width:1.5;" width="154" x="762" y="44"/><image height="67" width="70" x="804" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABDCAIAAACugeRgAAAEu0lEQVR4XrVaO25bMRDUnXwFXyFX8BV8BXdprTLtc+vOgNs0KoIUBhJAhRG4CJAYKYIgRQBm/WjR1A5nufxoMIUgkcsd7udRojbhlHj+82/78fu7D1/Orx/O3n+WF1f3T/uff/W4qdjoN+bh7uuvqAQpwvToeTiVpOXTD1SS8+Jmr+dMwkkk7b79Rg3IE8XqJJIkAiigSCk2PXkY8yWJl+g6o+Snnj+M+ZKkK6DrjJe3j3r+MOqSpDAY9dAV1caQkzUJafS4XGQ1VyuSxIQ8WBj16BVToiRGcLnIaq5WJKHFnHr0CtlgdJ2RGRG/cblEliARliRjqyJZDsgpAb0vklnAtRT1hAxUUjzL2GS7tRt7LnmWlu3W0w6gkuzQRxppLZ+ihpwSST3nALuAE1mEy5KkHtBEkcxuMFsf6woRnt3c8g0tS8L5jEYChDWFJLvS4VVeiBiWrhH+3RQWD/UFSc64JxqB6gDat6nnoyRPaSKVkW5UeywSY64ldRjdlux2oG83t5AmR5Ka8jhnbmQEfRuq6vlIkrPVKE4JUQLa9zAP1Juk1q6QmCxMQZ8beUN/k4TjPCy20bB6pt86hkxkc3EVD9OKr5L6kpg97JI1GSCvZbEoYLd+O8jTW89cMVjSL5JmtZqIJmvsSd1X1dHai6SR+YhWa2xfxI6TytpmMMoKHdYWkr0xRZsYrW3iq1bOrWxmDZ32cNPRNBe+rzjYQ2ZQpKLHNqUcemqJZT+O9DC6wpq+uIh+G3yppdBYAKwrdD8Gcm+00cY+8dbxQotDRwse0BeiokMIf6DiprxKcvrE0mNpTN0t6Ml9QuBIpD49BFLccXTapzQ4R3GiTXQoLaStr5Al5KNEnJj7dnQST+vtHD9qJqDHNtGbnKyhI2RkkpfP0t+X/BYj/EXolLSQXGCQrVfloL/VtmJprCIUgPQnSBGjkkJLoNB7RVZLTZggKbhVoYbpesIsScGhCjUoaou9mCYp1FofasjZ2pYMWJLiQeny9vHiZn91/7TUCtc+WKGMxGrKSU8TB8QTobywx5clievFK+Tz64fFzJCFNECUkdPYKRFTvNqRN9lRpiBJNpv9BSPS+JGenSRQRqKx5Xe1C8WltL8FSbaeyC05vwZSUagkkVXRzndJhbHSkra1e6FEli1LKfdQSSKzU8w3JN5TaUmeEEWyQMWjl+IOLsYT9fwV+5YLX+tA1GSI3e9PwcKv25Bqc48kOdM3UuKZz50L6dS4IqO68+2XhEk8Ef6SPrMlPbf8/cdo5eOotu+cy3Er1+2h+IQt0niejKNpc1XP1JKcuXfSrItwlhP+eUJLCj5brPmy36iwref9XVs5oPpokgH4WCtICqYqaXSGE3fkKwaKzKmtHMCOmoaewCSFNQOVOREjUotWElCMRxI7E0XIABUu+/RMJUXEHyt2652X/gzAQuRRpW0B9ocbt6onFUl+2F+WqpKMZG7FHEnPvh9rUUnO6vY7MUGSU09V0ixVo5Kq+daqajwDhyTtyHdYg6gBOXguGZJktzhG1IDUK7VgSFLgDyKbqCHnYEWNSurIva0paTDrwrikQH5sqBLFRNqnEw8mSGpteomoZzxEYYqk0NsnkOMhEvwHTEKLFwWbSz0AAAAASUVORK5CYII=" y="54"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="841" y="134.5352"/><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="134" x="772" y="152.957">HDInsight Kafka</text><!--MD5=[47bec54eb6b3118a1492a43a92e4a8c4]
+entity aks1--><rect fill="#FFFFFF" filter="url(#f163d61vyidr04)" height="125.332" style="stroke:#3C7FC0;stroke-width:1.5;" width="129" x="976" y="42.5"/><image height="70" width="70" x="1005.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAIAAAD+THXTAAADz0lEQVR4Xu2ZP67TQBDGcyeukCv4CrlCrvA6WlLShpYuEi1NCkSBBJILhCiQwHoFQhRIy/fmk4fxrne93veKGM2nUZTY3tn57R9nxt6F/067+MD25UhbkCNtQY60BTnSqMun+9Pbb/wCG379ia+o1vXLz7s3X/Gl//H7/O77Y1xR65DY/f7Fh2fP3x9e9TiCILqXH2HH15/BFjfICwAYFLrCZxDn1lUzWxUSulcSdIlQQBIhqeFKBBe7GEUSXEYSXIzoIyS1tcNELSOxS3SA6PEdn0G6zyHRcBahA8C6wsDroOAUIubxHJJaeZgiVSEhFO4cLvdQgaRmqeAH3tCWB+uRaJUz5kiO1DlS2tyaI+XlSLE5Utzc2lMiIW6bWYZqJLQaTKqG7ziCJg1IuNiOTkHLSHCE6JmnIiBOVxkJp86ZnBqRaU5UgzSbWJW1jET1JnHmmM0i1SRjQGUrzVxnkWpczaoWSYVuONIW6diUMvdjgm+RCjNcqXkkxge/uXHSUwir3L16yLkKprvyAqu8bIKkw4ZJYMu21RwSVzB1VWCb1XWsO6PJzEX1gGT3iS5uRVIreFHRle4TLEi6ItIqV0rC3ZvbcugiWqg7dt9JhWdvQSlSwQvFG2MndzPuNAg/U6SyK/wkCfcV/z9C8cZIV1yZOzRA6PxRiaQW3RJAMsjdzLrqikhqbEX18u8H55zGSiS1HQepDYn/USq6akOyrtAv4nakf+ZIU3OkuHnOlSPF5khTu1GkkyQmbUhspTo93V/tRV6INCLtJR1EBFepGrRxASmX/+MUGuKsddUVkZjsRa4GSYj2km1ex1c1YQnpOL7veEhbGQFyKhhP5JDYh+0+UuqqyyAtukJbJo1kY1QhQUoz4ElxcZZXLAzIIjE4e+WiNCBbXKirdIZzGqYlcDBIuahmSsBeSp0wuqvvPlUvtQaRorFcK12B/dLLwhmkRWFsMELcLWcpScp9FMRAdfjTVdSgFUh2n/A2EKaPU3IrIZWS0FW6SR4zTMtIgzx8Y/fsjP8bKZJaYeufxpoXzWGckBTJslUOk2oZCR4RIpcZ13EYF0nIINHSGzS+H+RhIIHpMxSR1O6mTzkLqkLi5g4rkWh2Ywy38wDZkSbmSHFza46UlyPF5khxc2uOlNdFygTYIOVGPVKaFg1SYmiOU4+0Ki1aRgqmjtpL/dsXc7xDpualLpLF0xUuJnMO6dCUmFchUf30nU2KlE5LTsO0sEuRVk1LpBVIqqtUGVw2Z6mXmrvvxzdrYVzMhRmuVAvSjcuRtiBH2oIcaQtypC3oL7FxoyWFHb8tAAAAAElFTkSuQmCC" y="52.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1042.5" y="136.0352"/><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="109" x="986" y="154.457">Kafka on AKS</text><!--MD5=[9b72ba652b9c702493b45202a821933f]
+link iot1 to eh1--><!--MD5=[5b7d6ab54a87c020bb2ab49993c3cf2d]
+link eh1 to ehk1--><!--MD5=[05739e33a6f870b028425ec2b572d2ad]
+link ehk1 to st0--><!--MD5=[0b215c60acf74b3f9917f22f4c8418f2]
+link st0 to kafka1--><!--MD5=[58eb5891e3ed1a4e2079c06b6b595d69]
+link kafka1 to aks1--><!--MD5=[af3bd2691f2438085fa220b9201ed05d]
+@startuml ingestion
+
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Analytics/all.puml
+!includeurl AzurePuml/Containers/all.puml
+!includeurl AzurePuml/Databases/all.puml
+!includeurl AzurePuml/InternetOfThings/all.puml
+!includeurl AzurePuml/Storage/AzureBlobStorage.puml
+
+!includeurl AzurePuml/AzureSimplified.puml
+
+left to right direction
+
+rectangle "Ingestion" {
+  AzureIoTHub(iot1, "IoT Hub", "")
+  AzureEventHub(eh1, "Event Hubs", "")
+  AzureEventHub(ehk1, "Event Hubs Kafka", "")
+  AzureBlobStorage(st0, "Storage blobs", "")
+  AzureHDInsight(kafka1, "HDInsight Kafka", "")
+  AzureKubernetesService(aks1, "Kafka on AKS", "")
+}
+
+iot1 -[hidden]-> eh1
+eh1 -[hidden]-> ehk1
+ehk1 -[hidden]-> st0
+st0 -[hidden]-> kafka1
+kafka1  -[hidden]-> aks1
+
+
+@enduml
+
+@startuml ingestion
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam rectangle {
+    StereotypeFontSize 12
+}
+
+skinparam Arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+
+
+
+
+
+
+sprite $AzureAnalysisServices [70x56/16z] {
+xTHPhkCu44JHo979sF-26m9bFa4jUgovwduR1qWZHDuhy6HSz4_fULrxIIbSf_-KM-RwiI95ikH3fN6hBHI_rq7Xw5eHtgzElqlzH47dNay38EqjHRbbbXlN
+N01vGu4cgG2WiK4L-eu2D0f6uhNVDfMcryLPIIg-yiRRRP3En7L-LfoEM-82MCxRrEuenqoPEBzI6kCsnPEA2nlgg8nathPGwbYWTqJD75yT1W1aLHoLarl4
+8htTLg6T6xXMaehBXDtd04QsL9o-KfWOMHzAB1LZF5HGZnHXUwHu7qYNfGBsjN8x9sD336kbk5G2i29J0B5Xh9H6kLPAeOriYhspaZL3qAIE9VOsenHOASMP
+6WDN3uSaMGRn_vTdPNoF_QGCepiaUTbP2R3GpaeiZ9NIq8dah0SGVQpVVDckr5wYKQnk1U1zenur5Co2Xj4ScU0bvVmzQWtZTKMP6CsHlQ60TJGqtrA4387i
+GssiTnJf9FiOAW2-fnItna3ULpXIV0j5FbCQjsgYd_ox-g42U0RmcJBw4vHQz9Aox8Sg_m4
+}
+
+skinparam rectangle<<AzureAnalysisServices>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDatabricks [67x70/16z] {
+fTS5SiD044HHQN7W_kSDW-5RBUZ2q2jlBqnbsSuwVIoNCjpC12A1x_HpGBVRj9F05QGPfUu7ghrAEG1SGOg9pFKIe95rsgxuq2T9PsX0Prm1yDHt17GQ7CN3
+gGGSH-noHePV0ZmiKo02oFmaCi9F0f5VX404y4SSNutxD_1DCA9Bk248qG0IZ32012CC0C681hw902DS0hV4EWGYWEXVBsRkMOq72F7x51UNYFCQoiq050W2
+NX_6S22oKGACwS78gnPncFFlyZVTAivYH5wlhpm10g6MLvx57W9udj3h56S8Z-qjSWCGei-zzoFNWN_Ju2UCCE2HbYaHyIks-Hb3NlvlGYAYBfDjPVZL8I0t
+pEJ6y_A04CYn8H2kFW4G0b4lg1M1o6F_ULchxqCst_0MY6Z0cto_vI2xpJfvBcuCih4-_okIY32GjYuGxZKsMeHGhzmYXdiLBMBM0GYqYE5UkKMDU7AyBXpT
+gsvHzwfRrBt6f18qCkLHqYakMzIfhbjy1m
+}
+
+skinparam rectangle<<AzureDatabricks>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDataCatalog [59x70/16z] {
+xTP76fim443XwONx7pWUEiW4n2RrNzd0eqeVm8WzStWW1KviU2hXY6jXsAtuR8R7j1OPFE1DcdKYJqYJrZNeBGBWDdr4__MKYiIRTEQTAQfD433xKjyDREzB
+joCXM5-gmyoxZmf84-YyrZsCeJ_belcR3SGCit6-eXeyJqC9uTfr9r3wqs2uvINRsp8ZCOyi4Qw2q913d0m59Pfzfl5XD67T-XqPrzboYxtkiPfvR2yGsOtX
+s4fVpoEKu81qN8nNCuVdcU5prrvROkpcgntUIbJxXkzuFAxvo6W_TtCvA7o7jH4qKxV4ybU_ftv8SIvtQKcbvf2QmvB6H_rhqr6w2TE8HMtTiXc8JThuLrCi
+76_IcNUcv35XWEnBzyFV-z9cqZrFUMvJkuyA6tfzXp5Uf58i_m__dwVvFhNtAH2VFKvRVstwFyMRCk6Qt7vkNfDyLnQqVFyHY1fjbyxm2BBwscUu4an-
+}
+
+skinparam rectangle<<AzureDataCatalog>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDataExplorer [70x70/16z] {
+dTHDRiCm44DXsjAaGkz_t_wNW5u4KSZR9RQ_5J7rVjZROvCoav5IPZ9Ioan6Ifd9I2ap6Ibb9YCbC04fgH6nOYOZ4rDMm0J4Z14hO8Wu_TMDG04314e3KW83
+PAxhfuj82GmGCa2iW252nWWKC41OjGc10eP8BHRReO1PxUGcqgMR2XaYtmmHCrR0F2DcZ9Yn0cP27jTYiTxVf809YmsAcRJOzlTVGGcC4JD6h6J6Y1aZLX9J
+tOZhhQ0aXejbEcEuM2gPuTYkhFH-WLaj5Zr4PCbmiK06aJN3nG8PGDOC5qjah91-QsAmM2ApqfqqCLWi42j4vh3O1J8YGeQ85IAH8J8YGeQ8bJKoWNjaR10m
+6sHi430RP6mHCaGSaDsAdn47PBzY8ku4SKHSsoBC25BR8im85BKjmen0KGl8DO4rrehkX4nCNojAI6PEaCoS8ltQCQT8apRCER9ZNaF8l8QGEKG2SuOavWY9
+p0cIcHCaCnavOI9on2mG4SbCUqO4936ukmv8Od1t7P34-EuY88dv1
+}
+
+skinparam rectangle<<AzureDataExplorer>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDataLakeAnalytics [70x70/16z] {
+xTY53kGm30JG69hOy___UtnUQ7QAWeCHBJx5SjH0cyT7PYpIhaG2Fv9TBY29IjUpIiTpXbuQIYNim9_LVcPWbN1RHMLjwC3Xn7kjbZWJVnr9ubpiMHa0a74e
+2G3nX0W0z7Om2m1egoW0jCF9rv8CG1vN0e1VLluhijoXZBn1SVHFoj2zYYJiam8CsQS4idrMaBf7MO315AHiAvg0KmMTAlLRuKfkAXr0DAvWIr40MAugMO-Y
+2nNr-X5J1bUiMa0L9Kgjajr-HUPADAeCl6RC5QEAuoqwLQAj5BRgBssg-4fXzKIRAlayzDog9sMk-FFRtAh7vvtELWLDbE3zgPyiAvFMCrVgSyL4iVuhKNDY
+glJNNYJTAlQjDK11bTgcS6LGHMlIKaL0bQNwG9NEbQXwc2995QbcKcK1LRn-I9NWogX9IvMaYW0fbnMlISkLGPM1tlOeJfMCdJko88gaxbGao5Xa_-wm9-xO
+Oqh_UtRDrqysVkyfgrQ1OrbtLd4oHfOV4hx-M-1mqjegQZvFJwmot4sFTcFb4874aopzHvmWIp_Fl06fxKfqvFoowYi
+}
+
+skinparam rectangle<<AzureDataLakeAnalytics>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureEventHub [68x70/16z] {
+xTF5bSKm341HaKdzzplaC4UPpxfhdsTEUbK2lUuJ6ju8T8uiD1ZEeRM6Dues2Cv1RHH0hceYbbR6tGXNqu7Q2s1mduOtK3gMXi2Ff9q81t5i1J0rfhonVwRI
+mGDtoqkDe9rqj46nW_0ZQYSVQqnv0qC73GrQljlz1aa7bXeOE-J_zXY9dTs6wTzEMDwOgM7WZPr_UnXAnPD_ox2BAe1acBSgMXN8vlrh2rSQteXoqgHXyWaD
+RqWk5oNu1W
+}
+
+skinparam rectangle<<AzureEventHub>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureHDInsight [70x67/16z] {
+fPVhmhCW38EX9SK9zt-xtt6i0zCTU9-VmcAQEgdfDTdEriygwIUKrlzJqpxe3svf5-tElfjRVoQdBNAVm6QqVUBuC8R1aksIh-YTJ4LiyDfBiJkqH5jLf4-C
+ox21aXHSPLWzQO_C8O-we_Hv8HjBSjpdMh2voBd6vwuTCRe8ZvRTpa2Y9KvpRRstGuFRcV0kkncEBP1eoIBlfAFXcY_oJdBROljUF4DGAvpGZ7vgXM-6o_F-
+FLaI2SqeBnKU0egAgCBzyH3Zs3EF4InWXAaZ4CV4lvMuon8LgbWm88ms3XqNDBoZXQaB5afOFH61ZkPX9YVXqHOY0l20osL_YgoC_SHCNd-WqKCnVa02rkSS
+WGAFbegu6Isb34EFdc8vw28HGAPzKloA-58GBPmqapL5W8juCZ6ncQMfcp8R8Yx3GlcMg46l4Jjk5PaSWgmUhSTHB_Nb-oJOS6aKQO-Uzn50PoFjEhvfQAK4
+8sCZCrDQLOIDDUeYHeScB2fqn3gv5JSZvHywy76FcX4oaiQ03OsZKAUbbzG-KRcAbygnG2L_DQgNFe7WuwDyzP6H4oc95nG7KuC5JVDnKGQQhW_CcQb-q_NT
+W0V-fvj57FstqgfVVlLYmEb_tPciAlGrHLzICksE42CgchuZ1wVHleXXJqPi1Xj5iLFQAHkd297PE4Ls0-OptTRfY50cxpJ9sJljEO6Ltm
+}
+
+skinparam rectangle<<AzureHDInsight>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureStreamAnalytics [70x56/16z] {
+fPQ9pgqW38GxNT__YUzMhnE1Fv3mPJb79H-M3geSaPbLvNA5rJzIhiXgL6we1xyjg94BuhMO49Kz458lGKTM74mVoeA8lWuwVyHxCI4Y6aNw9AAQs4cQiAo9
+vD_SI7RiBNMC7UMZyY-7jx9El1kaWNgUtWgnwaQJeLTdKMu7B38hCwmFHu_B5h08PkTR5uGST9kUE2w8asRONoAvc5x4ZZT0W-VCeDbBV7Kog5cDWUCpFbL6
+a8ycgJ6CELDAdisAPqNocIAwBrgahz7IGOFrZ6CyKdjKCjgJQF37q6gUD72VhUAdm_ZelwQgriA4F61f2HDEdlfAVCZFgrbP_FzuLLEyovGO6-qRImN6v4R_
+1z1_R6D1labbRq8OsRJkkwmi79nFnypSa-jbdqOJdJkjgxRQTD9-sk-X_VgQdcJEiQ60nR3pleg_CEuUpyE04oPO0XQtaj9my41ySnQi2AioWuV465QLXX8o
+hbMQ4CjNekETQf6O9kuz0wW5brXqUEWXvhvDrqWg9Jq3T7wr2Q5d39dL1fSHzVUv3wxx1XoyJFQ4p4njkhiPr2bnyp55TF_5lYUFAagB6d5eK7AWiSKd20Es
+aJoFFsU5S-hXbP2jnZd6Q94z-tKAkI1Oq0N6hDx0pjxWBEW2-5z-bFm6
+}
+
+skinparam rectangle<<AzureStreamAnalytics>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureContainerInstance [70x70/16z] {
+xTDNejmW38LXbIDFWVslDqEQKcHP7aXk_PzSFnU0Ah4eHYhqT0Bpb6SC3qyuRZWZbLymukzxi2WzCE1NSemuanlkmFQI32a7taFiJ9Xv4u-J8Pry6R6zeFMN
+GVBgg0uJfsEAufpHzFCbF5DNa9ok_nP9paEvfkZ1VrCkA3YS2P1ZXSchB6zDVagPKLWG7Z6DCBATv7WXVbSi2OvCAAQEJ2ZcLymeGcBp2WWB56DReSWIHIrF
+Q6HdbTizg_L7RJjIjdjQxwFRdD9Y1N9AwR6YeI99rq0HZXHA2XGGOLuH8WaLle-CQEn_Fz1QiqZ1mBMeZF7P0WLC8zIK7YYE4AEYj41nP8I2qaD5YJp1USLV
+n6C5JYc0CEqb5MKZxtyhROdILoXzXTAMA7s5qbOehQzG-WhbyhVogMolHsbBb3wha8sKI6tquu2SKfB-jt9vTDtfNbL6hIULbJwbSE5Lkj4VVG4
+}
+
+skinparam rectangle<<AzureContainerInstance>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureContainerRegistry [70x60/16z] {
+rPP9mkCe34OHQBx_VRkh24hm82VOgtghVtmM7vASSaOZCNCpuLPk0cm-8VMEGtoFBdlGpw0r2VivkY8Hpr1uA8bg05bKXV5QI7w5JSQMIwh_JkvHJrYvjkOP
+V9gNB9KYK0gW_gO1xwHz2sJveQulo70J_rvK3nP94wngt28ykUveypqCtI6lggXEehGO3pOB0NXwCa54fF6Wot2Zgt1NeU8s8hkqM3ZUtLBZhgM5YCqTijqK
+bggZM_gXu7EGAMjkMT-69S9vMzhdhetWwu8BYxPIvMq1Ty5-a14HN4h28hs99ajSROW4BpP2MBWKFrh8k4sY5XPTiqHFDnbPrqXssLALQXT5rdhB4fi1NwBg
+3oo2K03DdPvONdCjxlBGujrYNooH8DC3omvCB7vXeN6HoEe3iyLQRFF-gYJssLUuisXg-GlNCW5jKhbE5iujHgM3r61IVSudRmjcbZ5ezVKOKyQfheeSHL4J
+zv9OEh1RlChOtOUe2gUMndw62JMOejA_5aWiPFC75qHMorGLIw5pIwpyc82_r1QoOrXwQebb7nOW74-7YYJgmL21PNiNKFVJY48uP0qvuktVw_9CcpAM0lsK
+wbuwSdSpMBmfEcYFzai9K1zReeDui6n9-3SjLPzQWjoYzTfY-fdCr6BkcbY4THeYA1S0knyiYBfP3kKhFJRNDYpL9onMmYyqyu6Q1r720hlvaYXX5OfgOaNU
+0-Hx2ly3
+}
+
+skinparam rectangle<<AzureContainerRegistry>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureKubernetesService [70x70/16z] {
+xPQ7qXiX38HLGHAy__F6cfp6vioazx1_jHT_LtTFy0Vew4WQYE36u0wa6sEtSam7ZJ1P3MfZ3k0qFWEY1oAQ9YNL-Oc8ERea9MNo2OYCK57WeaHuepJmmIO3
+A4fjOK_11bIKKc9GcA0e9VaHb4Cv5Erlb8v9wVf6COAzoAVtzaBnIh3DQ4MfPEnLmGrBoYqgg1d7f9JnQR7Df9Xi0fyK_rJ3261j0Ha8dzJyVYuYsBweNa6g
+exqR-33ulSm6S7sYIgmFf3fjIpNPGBmPYPXH9yaK0I1cg05SbEljbCze3X28gu5ZklRNosu2dGIAijnG3HNiefGK04Y5e2WbnNTAIuhUA6KG_yUKGsbVVTV9
+XZA6yKAfwCTmNYZUhWICphS4O1RAD4dAsa2NaPIR8Lu3n19JzJcHDXE5f87lCmjgr32p5WcWuhP34Hjz_M0bPg2sMS1PAP_gxULSZ8_jRN93pAotgsS-8SmE
+C-Aah6UqnNGdICfdHpBfjZxLwkgYTxu_rJgUcU7FeHoAEowKoW26oKBvP0RKvtZ9aIiMt-O8BaerqwT6iifqvtilLQO5FY_EVjcjfEmNLuG_GaT77m
+}
+
+skinparam rectangle<<AzureKubernetesService>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureServiceFabricMesh [70x70/16z] {
+xTY7ajmm30DGWcha_tzm6gyGCnRjqQKdk5xskK9QhToaB_Sr81z9Cu-qZo3-bdwCm5Dmgeoip5F5FETKSGf-bL8VqRbYXyXoYk4OOUOOOUOCQL4awz659O-3
+rXlMMmUX3IAYmK1xWznd-bkeo9hASEiO8Hl6SBOdminwEXPOUTcqKbhP6tyuQ7L_ZrQ3rlW1-_93pikgThfJ6Mg46KQ8gH6BZs08eJykL4WJA6Ga9Y5Je7Zh
+L8L44fEHo1M3OUvc2I66aCJ4Oso0xf6444C8Cv6-GOWXPCSOALSC8wn4qAlP8fX0gbjhB2TqnyoYKt47LJqU6qIzIDjqPzmerH454anzH8D-shTuL6TtmbFw
+5JB75TFe43PtNKAu39kxRZFM9kIAKMD413EkUM88IGmXyP3v_X10P2Kc8SGm0W64anWmmWmIGc5cnKSWcNdxOua4mmLavc0I28GOGdxqhAPFPzZsRytsCej_
+JDrPKWP632FFroUWtTxiII1bj8-kgPgggO3QHYUyJZ0Qt6fb0UiZ-o6B4iClMsK9x07oVptzQr-jG5PKJjEBOUc0EKJu6VM4rFaC
+}
+
+skinparam rectangle<<AzureServiceFabricMesh>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureWebAppForContainers [70x51/16z] {
+xTO9SYqX28NX0mBsLU_-j_jCU9D53sfIS_u5V4LrE-6cb0zDsCw9KihhE0xRXKYEJdmgvN1ebwZD5S-4TeXtgn-A5w0PefHtBJrNLY1I9rfhNMWbAbuUeKZu
+56uDIe0O8TRNds_XKqGbGie3OQ_XMqHb1Yfkl5jNohpY_Q-qMcejoqeTb2wiAjw3ygFyADbKBNz9iKJmMFEcOWHm4b6H3qssb0HAwbcF0LjMCi4DHtfAa4Kb
+0p8WFewiAHIHNiAIaWBYyOfY_asYOYiAKqGycL6oC16dOPGnUbICGCnCW5ugwK5vCLZqCxb4J8UR92YL81go4BnyhYJ80p1-6FX3OLHi4d758x-ewpy5F6Mu
+4gzhLp9a3h7pvw1F9D0jPVn4J9E8OcZyHCIpIagCc7-YGR6d21VHYcAuQaaHN9I2iZtCrnLUO1JFpBF2k8vaKX7SnZB397nNlm
+}
+
+skinparam rectangle<<AzureWebAppForContainers>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureCosmosDb [70x70/16z] {
+dPVRbjim24K10PBu__zjEmfs5DRH6gVxfPtRzk5YMw4tJ5yYwhrtOzfftobyHgAqOVGS7R4Xz6QsnuvNZEagqdf4to96_yOn_KeG4NJJzsHdP2o7qitOB1Bn
+80ptom4jl6BQRyKKns96x98wD1p4gH0nivoKvEzWsWeYuDjzENeacHSZ3als2ELcCmfTPQ-3ppT93ff_8lNOcNhzBalJYyRdEiVLDb2GQ06BHaIZn2x9zPjD
+2-R_Q5IHY5as8GRAaPA5rJpzi-EUIJ98nIzQZH9b1NFdM1L6IUhsMzdkMIJOulQvY7NmYYNsWszepR_JLrTEAP36Sa0xYXfhZf1NxP6xiYDWnEQOQygT4630
+4CqLOmA0UZ3jLO_YA4yiEUnngaUUMlBEOnpbeOLVgzy8mGyjxRLlJgU2AgVvzDmtWDhYbp2MJH72-8L1JP8teHA6lMYWXr-RukStHT4WVYGJR0gq-5b20tKM
+M-mewVbabV-r215vZaSF5YuMAB4SJxFZf3ToRtPQFWtMmhYtNomupqgGCzPytY7CAoL9o_DMo-s3D3zhsdPe4oyMq5vObAHat1B5GGILP5LoNujXZl1pIP8z
+cNnBZ10zOasf0YLuGlbM064irrxtSd2KxQq0B4Y2k-8H0uxf9R4gKGB8-wtGIfIyHlHTubIfPndT9IqR_qIYdoSykrZ3uP4te3Xiokai8vhmTRPN805H1dYx
+jVlil_O5IVWpIgEgKRaFdkl91gUZ9Kf5-6h9M8TyVDoTvGYEQFDwxxHrH7IJkY2whUqaX4Ma_zKc0GiojxKru92x6f9_yE4o_TrRFWHnki6IrC22igtx3k6i
+Yvcl1eTNwKn7M6UycIeUTK8wIn38ssESd-XBKX04qBUFPVsZkMqvHdeVQERzt_QPSYezOX-lvVwpzYoJ7jFkN-PLmbWfCiTp9bEYSJEKliFgL6PNfcyHIlu2
+}
+
+skinparam rectangle<<AzureCosmosDb>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDatabaseForMariaDB [52x70/16z] {
+xTK5WkGm34JH4fcKtF-u2nfmECuop6-6rsZ0RupuIoBCJ8JRMDNCj1StXN4IwVhPQwc4NM9wambMaUb0HXlo5EbeziqcterDUnQbb2nQ4GwIqT7NP-PzeJk1
+JOBeAyWNVN6AY7sU58XOqmLH1Y9nd-SvemyqjHrCfa9uAtcOUSgq7QCIRGSfMVCmKL7S9jcZCD5KZN4QQO1kkclPb0dBM3HLxtMpfkwjbL9hQzwxC1r6lyby
+c4prYSdA14OUDuL0W8grOLC0cnb5p4TD1I025l5Xmq2aFcoiJ-jHK_kx31i6eZPk4X2n3vkArtJODC9hQTIKTu8oPfgYvoEcAj2JM-D52QlojOddR_ChqnW7
+oPN9EAnU6CLXxCk62CgvoLX7G2Jdfc6J8cAbCrC9crASvGoKdV6imY4uL_TMIp9XpWo0t2j3jaRn6fNLUAllNx_LhNaRlZhDAwC0x6pjjNYJkXdNDMRDcQav
+bxQR2mAfJzVu-h_iSzCtcFBS59eU6uPC3uq2eFR4D4PaFcmCxqaTCKsnYhHCbwOcna6ikKq7fcKJeFSP
+}
+
+skinparam rectangle<<AzureDatabaseForMariaDB>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDatabaseForMySQL [52x70/16z] {
+xTP76giw38RXNzMD_Q_t1WldnccOoUdVA06zZoOq_CI8cUKMCnDEOrNJEJDLneTe6d-1z2h4z2IJML28CqMNoOnqELmtXhs-ZMq-yz1yWhjn13fctTDpxXvq
+46sCtWru-jBkqEEwDK74-WqPZx5IjsrpZ4ZKNg6f44PMwswsveI7Y5YEc0YFQQbXTfK4fx5r4IPOLiB7I3p0PCAvofCa5ainFvkvMal9oLFAUGoVcQZLw3Sr
+_qnrjVmmxsgfV3T-tBC7gOIz_DKGUkamZ9vyCmqHnQA2Y5SCl1j5H4k6slIlHBLNUYyc5ld_9ZQcUYjZprvCB28SKKsd9XPbh1iIxCKZKXTDndqQPT5iX97K
+LUCObSb8BgMazwOEmjk3cNenco1AmvHpSunG6wRAgTdiM7CtHKxDbeKuZIDSRvMSV2yJRld2lPry50lJWX7CbUj6wsN3vQeX-tEVlVzCksvAlcwSsbLJ2DAk
+cS80k5uncT2pkcgoufwM5PC5KwIvVJKVFZt5KWquc-pAUEW_
+}
+
+skinparam rectangle<<AzureDatabaseForMySQL>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDatabaseForPostgreSQL [53x70/16z] {
+xTG9OgCm38LXItfF4hx_WSS3TY6DJJhx-cTF-8hALdvjeYtJbfJNgO4ahf60BQs0n2h29aHFi7JoIEGaj-mBJMSNX0zdNu_aQJoovJssdiOJb5EHxZ6fsVvx
+7oprU6Fa2HRmRT5C6viGTuecfHjlA7azZ2QIC2qZeU-eCIdNH5JLp5HLtlq2zuvQRkLrIlU1XeFU0B4k1ZhRvt-QrT3159quma7Ifp6NpS4I_KT10Bw_9TG0
+qpsiKPXvX5C5K6Q6cqHjRHGiaEjMU-BZ7UnuDPiZhIDhPfIwTJr3yDfBgvUs_iVqWcOhodejR7yXRv7Mnn2rvRX3mGiu1tJU8SQZoMDRu1R1JKs7J04rNcu8
+iwt1yL5Jahb4sq3jZGUpexfLj6_2PWZH4NOTVcvA-_pW33aVKFQFo0E9pr1QHtOWz0s1_Hj_SUmThydnSQl8gZv7o2low2XGcRb2ZdEy_jnNXLGkq9XltoAR
+rL52Kts5RCoNZyUIGRb4OxwjCBMURMA-HEEWC3gAdgioLJCLp15HMs2cUTLX4ksHePoZtFyRk2bhbO52FQYwlkwfmq8QJNr3RW1khx3qzb1L2nq8_FXb-GsP
+Vm7QEf8lGVaLoA8Z_G84Fqn-2N8UYFW2DBQv-1UWL6zaKtmHSbCLfKzGhD4ou2kGblXYX59afMvCYr-4h1p9bAt92F41n4xEnFmMGSiyCNWy8SBUWKy
+}
+
+skinparam rectangle<<AzureDatabaseForPostgreSQL>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDataFactory [70x68/16z] {
+xTH5OYCn443HbbJuxt_V8RFBawHs0VrLuskKZdDJp2CJCiDqZQFTqE2vq1uq7O1qLP6rHDHEg3SS1N0PpxUNW7IGdCUB35WVL1AmrsyBy0yg0FdoaWv4Gu6G
+-NWVovAkSf9CLKHKpHEWgzHQobQsifMjs56QsbH6P44MJMKaHH6QoagAOZGLWQ8uJKKfoWYQYbEKcVIK4HHbGKyPIL64fZAJeXXDHQ0eJbDHYZA2fk8KPIOz
+PGH5MT1JHb8KeQdCf2X6LTe53QNJLe2jvAcoKjRUKlGu5G3vCC7PUSs-Wx8LbrC9a7BA0GWv5Lzy76rbAxy1
+}
+
+skinparam rectangle<<AzureDataFactory>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureRedisCache [63x70/16z] {
+rTS7ikCm20PWqq7tlszwI28hqfhj_zHNFXTi6Bnz18b5pJqYMaIucmeJREi0gqSR9rmP9XOrsYgXECRYtJ-6tnFTGPttcEBbJ1ZXyvwGvUscd3gjQGL_vEPa
+Um-_VZrFdkRZ1gBJQ-_RMxfZJYBjdXZnM7cE8Syum-ITocUxvnbNHkWbiQQTydnfpFGQitpY4pxF_yyZujv2SOplcmXmoUTDjERPcsMkhswzpp_FuOUmuAbH
+V3ouQCOVvMMVZhxltAvdzdu0HlHN-FtQ8VBP4RwtaEJaiWcNIVtHsYtudMjEfb7kdghSr_oQO9WCdodF6II403S7cCDdoIVvkpn-Yhlz33UCd-2wMQjpsQXU
+kg1jyp8Fp9sWm0soamjSSq-eSBbgR3KUbArQu86vInMuG-vI1QwvNrMuF3Is0WzwRUotw14Us2zfxG1tsEsN1xZjH_m1xdHBNZ-KNXj-Q2mzTtzjjXLEkLLN
+k6NHAZmWYrRXaaMhSC-YbJXbqIhSicXx7aiUa4NRSrzooQ8DEAru38kMLQ6OBcQDP0YpgA2pjT1jeltRrxiztvEOwPmZf5qDR_sjKypTzvvOzDEHBSPMSHi5
+a5Zq4ii1mMeURukr2kLLdm4
+}
+
+skinparam rectangle<<AzureRedisCache>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureSqlDatabase [65x70/16z] {
+xTQ7phEw5eJXMVPgC_T_mGTXlaw0wAZl_r59VqErZUziUbGtARAxCkR0OyEB-eiT4_SiMgyn1ovPwWChmzsdRoABElJ4QwcbOlnjp-WZCN3ErXVeXXSikBw1
+K-ltYUNoJquBiROUDoXjnijF0ZVgvNPgHyEbmPSRgeKJ5vpQzNbWQJUS6a7fBh1q-lXHiUb5BKy22xjhqqqjDu4R_xt0ly2_0AkAnxFCusbtyrcWx7E8ps-J
+1O3vA51OGWeSuft0031y8jQNtB6fDmBOK69h0iYrIVFDW2Kb0h2FRNeZuDY5-F6J2O3F0mhil06CbNmle5uRKTXmxOBfUQ0erHuO07njaRyHc1OLs73Fm00O
+zu3DpNq0YqlsVKB5uMaWA75-pQVF0-hCB6h76W1Icpv8OiOy2vpYEfHV68PpEaS3CAc50PXdK-noUn8GQ_ErGBEaMBbMVcNuedi519a3omWotWaKKEg1BvQg
+vm4QIecVNFquC90A_3PL3mE9gSHV8RyBT0p3XiIPvdMW9s1Zpk5od1cAgq02ixKZpbLV10BMOimnF0FdN0CRwaHYa8vh9iUcz1TXvC0T1JQ3-iDH7BZ513P-
+iW53WNjTs4tgfq8I3p2nMEe71mltxDjcZgI-J2XmRnvpoS6BEWoJuvvdKOLlXcVl0IZmJAp2TpQcWOd71PmfuYdYZ6lYeSQfvlyPc2eyOi8vLniUIE459sFW
+XgKIhrX9x6jINlOzwreEu7y
+}
+
+skinparam rectangle<<AzureSqlDatabase>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureSqlDataWarehouse [70x68/16z] {
+xTS5ajj048NXDzFyxd_WhBgML8vSqYYS_SpqMmmueccuIv9awUr6o_NEJBQMijO8jZkTuNmKytQZnRZGA1xoanqhFbC-xZPQ6PxJuXcb5neh7KbUaNgxqN8-
+LBYW_eDAizr7Hmu2VtmbczsiiCLFgNnLiZaUCNG2m1XpCzQMbm68HHRvgi9aNAtCA3BTLEOBKRL-G_UL6Mq25ctVI3BaOVWiMVgvecm293UrYnHp7arKFrif
+SkBxWZnR8Qa7bRnKAJiuJhbK8Sjbx1EMvBuYsGI8R0-LBgMxRJoARLzvYWT-GkLWgPlHv4pbUEeAczwkV5MacW1HcmHcjTTA301EbWuCBTA7ig6D5tYAv5QL
+eQm1RDUYGTXm4ad785bKZ6GEw58bNu_V02Tf64iL6W2f0hPM06iLfcuP8BgoD2pD0GueIO4iLK8Y16ChgGkGD4nthsiLR88qR6QzFhbMOVhhzgtS391Atroh
+x8MgyzLofVrHbQzA_P2AyOd4MLOy4WEtJ_r3S8ruxaiLEh1YYfgvcwdCWLVV
+}
+
+skinparam rectangle<<AzureSqlDataWarehouse>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureSqlStretchDatabase [70x48/16z] {
+hTG7ikGm24LHGCIt__rEw51Tha5kupzd0LTPT6AfHrPLfQlG7Qo9WzHvmml_g6772gsOJ2ImatmvajXBkgY9p1UbMJYZz0Mp23CHyRB4Hj6Mg7-cyBnah3MQ
+Z7W16MQwrb8rYmBAXVfExeua5jC1Qm31_N59Cv522ZKaKSBTRBmzLw6M046vMPAegGgz0LZKKg3Q2ZGA3sMVIcd_bewLNigx0fGVjvUN5t2bWdfay5OP_bT4
+uk5OgMs67vL6Kp7TTM9I8Kdqrg0YYmAjd5HWj5cLJ2e8bZQZemfAsbNvjuhQovBN9jkyiZxiVQwhcifK2YUEZ31MIew3HRZ1Zwig8lnyCdwdKiB7uvORbMIf
+wMlyME_fQur_1eyNbVvyKCOqVG6StMxFNsD71fN7bhJYUaN9iL6NAyI9YRwo2Z-l94xanSgvLV-XOXGu4LJuAeI82rl5Ay-5AzDVxBk6qmHRi_eqfYbU5bbu
+g0nRmyHl
+}
+
+skinparam rectangle<<AzureSqlStretchDatabase>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureDigitalTwins [63x70/16z] {
+xPS7Zkmm241j2E2IV__h_bGYhS6xq-kRFkZXZfBwDuB3o-kfJ_bDboxFfWCH3T7LKqeTFR8iaAtdEfCz7JJ0czxqLNr3Pr66Lazr9vawoWJZ83EnqOlg9Q_K
+YG5tU1jrb0bizDhmRw8gCW5XOfXxVwfUbZxRkjzvKjOfcs2py_cNgHiM7u3jgTFcYxDmSa3MjYbdRnjT-fB4qzNdQEkYFMzr7JzZ26VgGMg5y1ZzgySFrL5I
+8l3qrDVXaNLU3kZCEa-8V5ATL_Ow7nvGv_lwvPrFVwdp17YhEf_lK-Vf_2CZYU1A1xRyP1p7Sb3xkhLHndhmlBeerjGfbkvIguGUNzq3SfROrtD6JsQP8J_1
+83Di9a3PyNm-BkSRG1JsR0Nj89D6dVp4rcOCSTV8RduBn2qD62DdpLDgYrfaZ1xtAXuCtRWTC4R6EiHae9F2XXwt9GVMRbYB3lhPpem2bXxbW7jHylUSdpzQ
+jks37sOCBi1wAFu3
+}
+
+skinparam rectangle<<AzureDigitalTwins>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureIoTCentral [61x70/16z] {
+xPP7hW0n24FJs_tl-tkpnF14rj_hUCGB6N3oL5TFbohhdBFhZJMFywbLmjwspuz63bdhFd-rUn1MjMe4zbD_2fWv1hkR534YiDtuc0jhbTa5dM6rkNbww5IV
+eWDixDC52rFq0h0Y2vrX7JQ0HNG7bllfz9zU4i3MrHnqWJKhN0NQTfPvm9iZVydTqdRtpN0fguBPH98sWbahLlKdynbIiQrTnMpskPydJJNhfSJDyhQZPc7i
+GRF-PZrc5iweMMPOr2mluzByYNvlJddScZ_HQz2i2fl_pVNHFDYSykH1ecOSOjqQW3F3Hh1F3NVLJ3_-3LXosmkUc2NQVbnLMUQpVMJWadJHFI1jP3WOP427
+Y5cMXSvXg2PUv1mnku5EUTfccPbX0waO8wQYDu25L5m3GV_vN7TW0HrWlRlfou4bT805TCpJq3Q01VIHBjGTM5QP0FiA
+}
+
+skinparam rectangle<<AzureIoTCentral>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureIoTEdge [67x70/16z] {
+fTHfUeCm38JXqJg2-z-t2xIOO4me_NudxoE43Mwbvl6Lc-1Huh5B7mWMh_bV4Oa-mr_IECkVpN1_3ZLpDyLQZD8RgtC1uF5IRaN8dR4DqW4jlxKwznveoVtL
+zS9uZDYN7T1rUGYJJ3BV478nHDA_oORaQNgn2GQ-qsBcM4WRFmTBi9JChoBl4hvR1DQySety4v79mbeKCvFrtOcY0sBvZsrZ5Aj2HIoBRmbhkoTr6K8WMLGi
+MMSCJdSkLOKxgnne7qiz674nnC_paomQMb5N-vJpCyGYMj8zIaX_HVCG4xjg_5OqXaHW5va3GoAUJT4kcryGtIwwebsEmJe5Mr4SNDYXG5PWbt0mXfm9v3A2
+Gl9t3ikH0Ji1Qia1hw_289PL2PmQwYU2YtWAbBLEWooItqOMCm-CURU6ycrzNCXSJyIlSRpwVa9WYSMDB6xdFMdgB7P4ziJsgp8f7bvoLcxP2Q4lTvkbMjkQ
+4ako8rIFGf822BdzJRpQYU_lYw0Ziegizgz2iDsxdW2y8v9VxQzQDeBTbJD0Sa_qLO2DA3z-mV2Lvv1exxGPeP0eldumBWMMIUNXz3V1WRS6IwsEcphvZFiL
+0MSEShHqJ10n84BnaWucgKIU4gxe4z4-DxXs2VwG2XJ_IcuGoijg4YjUbLBJTJDYkYxV2HCuNSTt157_9HAZ-R-g6yGykSppT5QuUq_qW05Gpi-9IR2KyrDY
+DlpqV1VuBUU7RwJmcpybsXJnb9WLFzNKLz-z9OWrcv-VYro51qUh6Ty_vBFJsP3-UFV4uwggUoCFO_sVY7yJzWa
+}
+
+skinparam rectangle<<AzureIoTEdge>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureIoTHub [70x70/16z] {
+xPPLWjWm34Gj6KVtlszXOGAkeqOfTz-tymoYfDjacy1zIxEPlyEIEmmzFxDqUwK_iGokw75BjOqIjc2T3Je8hYrgUoGjA9l5pqyDMlI7MCHvEzV2R24zR57R
+4D_YBZ2ak2Lb9aEBM8ZMLbzS-Oc53mI9MaYxY9BqyK9FBeC5-GHbjAEmIun71YPoVMmHl9IavAn10ni5y9B8JUAQPWGvVYVR4TOCPof71dozMDbQ4QTdUOTH
+B7OHqLpiXAmpueNABslj73Xdr3lo0Cn5d40wkEDd1gEtMd9MgNQWknQyVpcTrKyx8yNzXR3krWdyVmZuAPxzXuDNjKClDcaT6CDhM3dBLSziszKat1UmAymU
+xhjbVpaDzeMnFNHm8e2xCmubD8xQz4fta3emVLHlZYV5gKL6eYsOqdKHxT9UqSifLETKBliiPO-xBC7nxRBgyXqM8rZvzOvbhAuASIrzyIvY6ysrw757Kcm3
+heNBytmXubkITZDhafvPIEH6Cu7NTQchIAEHubgO0s3MpIIV0bP0n4AKrHYqa0-B0smYCBC-0m
+}
+
+skinparam rectangle<<AzureIoTHub>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureMaps [54x70/16z] {
+rPH95jim34CzcmFkVzxM4vzKYnRPNVusxmSIe6Jeij1VXYpqFzPE1rDEckXaoLbqiQUabMuoqaWFOxgAWpakBMhM5hS0CkBz0PAs9i32uZlhOJ5HQkSL1qgf
+dKTSv2x6k93CpZCUCZkhMHpVUODXVOIgCCAMe422Eo-e2Ewig8ZjlCEe-kY-sfh8plAofB_p2ZXXwuU51jsB4HfenvhHfBEpeebyxhp1uMld4HvV5sDugB_p
+0X-_3eKFUpllG2_CURLfI_014riTmIg4M4JsriuVCNBIsfdyc8SZh5U5nLJMs9kAvqKgs7RsVi2wZSS9QcslTnvVCSy7N5h_BCQl6AE-MMdDZHXZgwsngi9Y
+NfIT57zlMpl6cCgmhQf2rqRCgnCYAbwjxU105dPR2tGTkcncNT_ln7YTsCun9ZjY7Ek4KfPriezPRJkiQjLm9rj6i4xs8S_8b7Piu3nc_Ho_pny
+}
+
+skinparam rectangle<<AzureMaps>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureTimeSeriesInsights [68x70/16z] {
+fPW7qkim28Gjwkh-1txLZJ_Pe8ntUepNVC2ePACQQf70d426wzY-bJZc3y5bMzSe1iLcB3h4_A1OISPde-XoKSnMi8yMBnX09bvyawSY9HYtVefwVQODH-a0
+Q_Tx7ki_OpSN9nR5WRbm4xrwrqmFnH6U14zOgpiEYpA6JVjGwfxrLwxwnIpfKGjkKkiwc4MFSw97gT6Iz0UDyAanMcAltyrYMGJVc71_IofQ_HYOHNqjw7WE
+5EUYyjxHbF4-YiF8zQAHD7Ptj0kMdHKL5YDT8dcWW8RurhLcA8tCwivdH9sXxEOBCB7dGz8WrIPYQN2ONfXakIAY2nvQc3uDnGCOtwV7xp2QxnJwzmbUTNHL
+RZ23RUScaoeF9koZJuJW7d92QMdsgiT1SC5WCZbd6LU3S2GqyIhRDebyAxztIEN1k1qm-MZQybQyyM3goM5XMQFC2udvhmKO8K_aN1HR62SPNett3WPiEOqh
+f8DHjap9HMMVOO8nuhPouYCC1ZiBsJqd_mHZRAT4BRnmcAJhljVYWCC88y7huOf8wU1PPUCbuVUSPEVDTOivQeMu2RUetVBr7Nha5Kky8QktnYILxdX6p691
+JM0BrwWStSffexd2vyhjDkjPNIph1iPaimWPRd_aaRFAchvrwbjdU7JTFohtu6-7Ml_kJvHU6dXZ4DzksM9t7uJpGlu6
+}
+
+skinparam rectangle<<AzureTimeSeriesInsights>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureBlobStorage [70x59/16z] {
+fPVTZiOW24H7L8Hv__VT7zF4PXNRRpttFJ5CIGRynVb8mHELptZ2dkHyWM9Fuoi4EpBVOTXXV4b6JE5R737ErrH4A2zEqXP-GZj9UI1FANl4b7OysYO8oFwq
+JZMOVgpnpG8PWA9B_ceq7cs9_-0Uv5qZOSePYQ6bQ-AqRMqnwzzuQ_vhcJHvMg3POeAkrslwc3G-fJnP3EWM0ve2piMcr6c19aksz6ifgAH0gRzKG9Vh99mi
+5x-MBc15kTo0BjDkBomQM2XZWGuiDbBUMZAq3sTjOHaBjBDKP7f22onzmCaZYvK2vE86Y40OMAWzvT0Y7MSJfEoXXG9XO9c8BGrsQEdaodEB9tXiyLRL-Kjh
+lh4Ke8GMb-l7DW5QO1bR6rWAn1H21xQM300IMHAKJ70l9XjBGqVN5kyFAFtxZSNJr9zcItsoL5oKWxVuilmC2xj5O5jB6PQyj0WA3OaxYmLrOLWK443f8e28
+hImI5DHXeKeI9JrtLXQDolARFGeBbGyBkAFTB3MibtNVubq0ZtkGtLwP9EIUQDvqGqlO8hxhXsDcDKj83aOxfNtMcoi_mKzlYKuvksj6okVjMz0v6x1YWvvS
+90C_I7bGFXljKTeP3yY_3gnl
+}
+
+skinparam rectangle<<AzureBlobStorage>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+
+hide stereotype
+
+
+
+
+
+left to right direction
+
+rectangle "Ingestion" {
+  rectangle "<color:#0072C6><$AzureIoTHub></color>\n\n==IoT Hub" <<AzureIoTHub>> as iot1
+  rectangle "<color:#0072C6><$AzureEventHub></color>\n\n==Event Hubs" <<AzureEventHub>> as eh1
+  rectangle "<color:#0072C6><$AzureEventHub></color>\n\n==Event Hubs Kafka" <<AzureEventHub>> as ehk1
+  rectangle "<color:#0072C6><$AzureBlobStorage></color>\n\n==Storage blobs" <<AzureBlobStorage>> as st0
+  rectangle "<color:#0072C6><$AzureHDInsight></color>\n\n==HDInsight Kafka" <<AzureHDInsight>> as kafka1
+  rectangle "<color:#0072C6><$AzureKubernetesService></color>\n\n==Kafka on AKS" <<AzureKubernetesService>> as aks1
+}
+
+iot1 -[hidden]-> eh1
+eh1 -[hidden]-> ehk1
+ehk1 -[hidden]-> st0
+st0 -[hidden]-> kafka1
+kafka1  -[hidden]-> aks1
+
+
+@enduml
+
+PlantUML version 1.2020.22(Sun Dec 06 10:36:27 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: GB
+--></g></svg>

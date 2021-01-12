@@ -47,7 +47,11 @@ A good document the describes the Stream *Technologies* available on Azure is th
 
 [Choosing a stream processing technology in Azure](https://docs.microsoft.com/en-us/azure/architecture/data-guide/technology-choices/stream-processing)
 
-The goal of this repository is to showcase all the possible common architectural solution and implementation, describe the pros and the cons and provide you with sample script to deploy the whole solution with 100% automation.
+The goal of this repository is to showcase a variety of common architectural solutions and implementations, describe the pros and the cons and provide you with a sample script to deploy the whole solution with 100% automation.
+
+![Ingestion](_doc/_diagrams/_doc/overview/ingestion.svg)
+![Processing](_doc/_diagrams/_doc/overview/processing.svg)
+![Serving](_doc/_diagrams/_doc/overview/serving.svg)
 
 ## Running the samples
 
