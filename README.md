@@ -264,6 +264,15 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - [Delta Lake](https://docs.microsoft.com/en-us/azure/databricks/delta/) (Serve)
 
+### [IoT Hub + Azure Digital Twins + Time Series Insights](https://github.com/Azure-Samples/streaming-at-scale/tree/master/eventhubs-digitaltwins-timeseriesinsights)
+
+Implement a stream processing architecture using:
+
+- IoT Hub (Ingest)
+- Azure Digital Twins (Model Management / Stream Process / Routing)
+- Time Series Insights (Serve / Store to Parquet)
+- Azure Storage (Serve for data analytics)
+
 ## Note
 
 Performance and Services change quickly in the cloud, so please keep in mind that all values used in the samples were tested at them moment of writing. If you find any discrepancies with what you observe when running the scripts, please create an issue and report it and/or create a PR to update the documentation and the sample. Thanks!

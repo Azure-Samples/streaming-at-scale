@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="605px" preserveAspectRatio="none" style="width:1945px;height:605px;" version="1.1" viewBox="0 0 1945 605" width="1945px" zoomAndPan="magnify"><defs><filter height="300%" id="fncxftnza0vk7" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[005506d257fab70adc88451566f9129d]
+cluster r1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="273" style="stroke:#000000;stroke-width:1.5;" width="1926" x="7" y="7"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="252" x="844" y="22.5352">Deployment with property updates</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="93" x="923.5" y="39.0234">(-e property)</text><!--MD5=[e06b4a2086b65e8409aaea794fc8398b]
+cluster r2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="273" style="stroke:#000000;stroke-width:1.5;" width="1466" x="235" y="320"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="250" x="843" y="335.5352">Deployment with telemetry events</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="101" x="917.5" y="352.0234">(-e telemetry)</text><!--MD5=[e66038010c39240cc48f1f8680c740aa]
+entity gen1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="168" x="31" y="67"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="148" x="41" y="88.6016">«AzureContainerInstance»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="78" x="76" y="106.6016">Simulator</text><image height="70" width="70" x="80" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAIAAAD+THXTAAADEUlEQVR4Xu2avY4UMQzH9514BV7hXoFX4BXoaKGkHVq6kWhprkAUSCBtgRAFEiAKhCiQBu/61mfsZCaJ7flYjfVvLhtn/JskzsfcYZjXfvz+e/z+5/bzr/7jTy4ogXJZu8kOsiDMIGIIvXv7bVzABtjSucbmQCqE4YL6zWDhSLUwJHBsG4rVSDQZuJJvFAqbeUjQuGx3yiqQJkPkbJOVy1VLVYRUFR+CldcvUdUInEZyj69BVdliAgka0g9YREAlg8vYGNIa+oersKPGkFbF0xV3VBYJZqRutFn9ecujy2tV0lFZJN8uwlDsbZakvjSSb1bgcRipStaoNJLLIEGJCWAczyXTKRYpGYGxcdmcsjSScXiQckPf0j5mmpE8EYg0Mu5d5moOLAopOeS4GScVqk8dQKKQku9PmP0pKDEc0kjGGazfXM4iqBJIt+e7Du1Wrp7dk+ju4r8aH8RF7/E/pIh9ahJJV7Orv8zee6QInm5GpO4y/O6Qgni6eZG680J8hxT3mJmRYEadkFyWiJxmRoLGT0ihz5gZCXRw2ZuMaAGk0FHXLYJk3ChMSu8kdB1ftSA9enm8efEhQg+fvX/w9B0J/nz+5qsOYFzVSPAMHYqXOA8KXp+OYVwrQhJd1IZ0SuK16SEOSfM0IEEPWZHA3V2PX31qRgL36nVJIIls5mLNSLgZr949rBnpeF4wqvd4SSToal4I6i63U3ruCRfICihyaUOS56XyvOeLxLMc1MSfGpB6dny+PwIWDj9fJArdgsR5hoZTrSOSWIjakATPoK9TJqkckThPG1Ly9lMiDVP/ebESJN05ZAkkNHDA2y+BtyASBgNvPAeDlkXKGbSYjC8IiQrLbUcyI0GWI5crQYIoyeUakDBKctk8Ei2s5LJ5JIqSXLaNxPc+5LJhJLGXI5cNI4nQyWWrSE9ef9mRdiRlO1IxEoWyI51sjUj4xQF/uhIkHspWkQb1IYwuOvQNYc7lePm4thYkR9uRpFmRYKqQIBQX3bCTyAJIpOQ3PLuWRNLRuGgOJL2qxnURiGfIQvsHcHsj4BEyezEAAAAASUVORK5CYII=" y="109.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="36" x="97" y="191.5781">[.NET]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="117" y="207.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="110" x="62" y="224.1328">Generate events</text><!--MD5=[42684fd02a03c3b17fbe87ae4943fc75]
+entity hub1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="114" x="286" y="70"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="88" x="299" y="91.6016">«AzureIoTHub»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="65" x="310.5" y="109.6016">IoT Hub</text><image height="70" width="70" x="308" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAIAAAD+THXTAAADg0lEQVR4Xu1Zu47VMBDNT+YX7i/wC/sLW9LutnQr0dJQ0LLSLVaIAolFFAhRIJmjWIom4/FkPLEdI92jI7TkJmMfezyPZApD4uOXX/Pbzw5eHq8TNzYG7j98S6dr5E1SLwwkCWfg7v1XOPS8uDX+xhV+kwGjSIKAdAAQ1/mtexhC0pt3L6n1laWqzpf08Ol7aprx6fknfyyP8yXFw6MT9/DH8ri+/sG2K1RGrCAJw6d2Rf74/Zc/7AX2PLUfWUGSPdNDPH/Yi7aS7Lv030iCO6V2RfInD6CtpJDPSJSlcVxHc0kW36sYG0IHSUEdYy6M4BYow1WTFJbQp6QLZE/+wAF0khQBJ0QxAQH4l4n0lbAiukpioMcM8mqdqDMlhW3BVivuYWlgKi2UcLGHpLCt04vqVwc6SWJRvpb7iegkKWwbEGwa/7ke+kkK2yIDCvnPldBVEvyNxvRYxeIigjtYq6jtKilsOxHIY6kZ/0V4PHjSeksKhiYcwo4k5RMkGZsRt6oTJNEcpdBd6faWZO/qZ29U1CRhePg9iHx/8MiusDSLK30bJUtCPE3bBN+aYS1AGMQCKbVmjo6lFCSx7EHJVLHp4ldwrSZzRoroSFaCJN034lyrTNfCCrtkjLDdyKZnAZdkeTGiExsY+5bY2MIh13oH62V5e77S11wVS7osX43E6TJTIoq8wJdtuSQgNU15vIEzbpRvi4IoSanBfIkixW50OTKQICnkaxafJzDs+vbcQlJI9goiHSlCBF0vjHK3fNuNQYX+5MvsQZEUEU+/8ehbQA+S+LKS+qRv3B1JdUHDXc61aF3rixBdJdG6RImc1P0c3t5PEl1+/Q0RjR/6nSL6SaKHZHftaXBS9lNEJ0m7UYHBcupyaCgpVnSsy7DPj65CUUBvJUlsIksn5wvoTSQpTaR9l4I3oE84fPEFA+PuCVagVIlz4UaxTx6W1D+lQ0Y6oueK3BY5LOcKQmxaTlgTSak1yiLfC+oCia50gqQiy7oPX6QvpU0k6S9k7GfJ0gKnWa6JpNwBmDPrmoPlvV/qxk0khfxsippI3etWsqdaSQrLXlEPvC//cDScpOPIbTVlP8ergoHCQ0Xob8jEYJOVdFk+myosbWPcyKUEzLAs1VrIjTUDlo/VEJ6CyEJurDGuy1cff9lqITc2Bm6StuTGxsBN0pbc2BiYlAZL5yC5OMU/2CjNuRhskr8AAAAASUVORK5CYII=" y="112.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="42" x="322" y="194.5781">[S1/S2]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="345" y="210.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="90" x="300" y="227.1328">Ingest events</text><!--MD5=[ede7ee253444881cfc38dfbb8a2a435b]
+entity fun1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="180.5742" style="stroke:#3C7FC0;stroke-width:1.5;" width="207" x="487" y="66.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="93" x="544" y="88.1016">«AzureFunction»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="152" x="514.5" y="106.1016">Ingestion function</text><image height="64" width="70" x="555.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABACAIAAAAoFZbOAAADkklEQVR4XsWYPW4UQRCF55JcYa/gK3AFQlKTklkiJSEgBWkDhAiQwCJAiACpKNPWuPZVT/1NDftUiXfXvfV1v37dOwsdpvP3389efijX6dX5/tcfHDSgBV/o04u3X3Wj8Xr3+SeOGNOBSDzNutFgPX/zBYcL6ygknmPdaLDKlhs6ComnWfcarLuPP3C4jI5CKrtuj+WGDkHiada9Rmqn5YYOQSq7bqflhvqReJp1r5Hab7mhfqTb9990u261WG6oH+nm9SfdsVstlhuqI/F9Rx/wtUsQWG46clxFpDXToJuC68By6xnNqy0GTqiCJDOaG5JvFY4jsJyclBpVGgnWQTZUuATplOMVk/PCVNnYyCEBD/8p381evbdSjl+UGZOlSiAZ6zOUdZ0eYRVQbcFPFUWCFdDdZF2nLQcqU4WQXB5KXoLi/QEV5zt+QslHivDAnnZrOsiWslQOEsz9Viupq7drOS3ZhktlIQV5KHkJ4pjhoSIlWwcq43qxiRTnKV+97dL7LUg1R4JZN3hIhXtXTb80QoVIOjqn/yaVcl2wjP3mxtUFUoGndvW2S1sOZFM9IUEQR3hIjd5She+VVI9INR7KX4Lcgnujoa0L5wNSmSd7CXIr+2tiSrWUeUit/s5yt9BUmmqBvIqvO3W7TmdXUHCELtBWfNy7zCXILSO1XYFZFugs5Wb2iS6OdSj3kn66/LWfEo8vV4X7f4gHsGP2V6Qr15/x3QvSPLSGOKxdI5WbiqndKwU8q3WfjlqwRxeVnYopn0tt8RBciDSVfLcmw3W11CaTh/S1VVPVvnXIdl08XaVsHtJIpKyyh8rIOt1KRC4PTZGoj2rLdTXL8ZrLAblJ/MQ/zZGog8o4iwupHeQhA4l2n1dbriukdpyHbCRSMx2nut94IFFI0RQPuUhUpZq6rrCFIDNdHoogkZqnCNXN7IFENrVhXiI8FESiJNXUddPANQQ88R0YRSJ1JhhU2nWn5F27zEMpJApTadedzUe+oD08lEWiGRV8QLsu1RPwZLcfFZBIPX6BFdCnmXzXlVzhAg/VkEg8xNSbRPZUSO11Rmo8VEYa4vWBjs+XD19rbelhU9qFpCVdFzxG2tWMtO4xbcj/pk4k6bpUaveqE2n9PZJK7XZ1Ig3XZVO7XW1I48pcSO12tSEN19VSu1dtSLw+10ptUA/S+OmBr15JPUi8PldMbVAP0nVTG9SAdPWIA/0F5QKNTV6Oh1wAAAAASUVORK5CYII=" y="109.4766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="131" x="525" y="185.0781">[.NET, ElasticPremium]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="592.5" y="201.1445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="179" x="501" y="217.6328">Format Azure Digital Twin</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="102" x="539.5" y="234.1211">model updates</text><!--MD5=[b25b08804bb27f53ebd2a372055b2520]
+entity adt1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="135" x="795" y="72"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="115" x="805" y="93.6016">«AzureDigitalTwins»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="109" x="808" y="111.6016">Digital Twins</text><image height="70" width="63" x="831" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAABGCAIAAAD0ENuBAAADXklEQVR4Xu2asY4UMQyG71l4BV5hX2FfgVeYJ0BKRwslLbR0J11LgxCiQALpCoQokOBEgU4USMGsdZb39yQTezLHrhTrL3Y2k+Rz4mQ82b3YPf1w/8qd7MI2fQ9CiqgNer+QImpH9NOrz9tp//zj5vTp6utGGvRop05//eP3i3ffWZefft7c/tGla+klrG0RyEtPoM9ef7PtkBtyT5z+0ctrXZdE39jbRC56GnLbgoi84tuC9Bql0QEX/eyoa1EU5Rg93Wa5Fxtpp3/z5ZeuSJ7QN4QLDVJoRehLA8+iUpoBK30PoRBQSXrgdZQTrsagOyP0lrhFDx6/FdlSLd0XLQA1K1nPAH0+OXqaOt0XbJEd6NdHjmzhs9J98eoU00EVjBxAAZUaaV+1sEDpkuKHBBtRcNWm8vDDvJeqIK8xWx3EqzlIn+YcqGz2cD/CGtv2acWSjZ/IFuu66HPZAUKXpbyKPt3tP5WAEXnp2fQa4MeWLj11+nxYA1wL9v486Ad91aSXQX+sQb9g0gtkbHnQD/qqSS/nR8/vuNPh0IXySli4q+gnlaXZUpCX3ib0rHGeo1AaHXDR2+qg+NuJBMysSo2008N5DoHak5IUfjMsDTxr3/BWTll7RaXznHw8J8G3ckvcosYTkd1Zn+fstqY/78jZetXqAU4HB2gGuq3aVB7+ymOrnT5vumOyIBh21c0+Oem3fVqxdKawWNdFn8sO9MkUWEJvi0BeejZ5ck3ds7S0PX1uz5CpA68ePnnPskUg3RFA1K2VPiB++hC9LaoIIOo26Av6z/R2ebnE7e4bVq0WQNRNepmhh2uvcbteIJcN+oIN+gUb9HNGWQe/eSTzo3ZHS4d8lgQ/WuUw/exREWVRfX2A15RkfniL0MOJBaiXA3Z0RJd3P/+76Utpt0heHdZYBZ3FM+Cmh3bpEv4XIU2HzQ4QdWH9yV76G/P/HinSPqwcfmhKQhG8oksfvY54QATHIKF3CRB1L9qxf+c5umzRND2ctOTjg4AwPSR8sAfgaZQuWzQ9dzD2MK2T+R9yu3Q7sIR09LvpITxkg4ft306Ly2Cbl+Cx3/vo83HklQTB6jUYo1nxzLvpF5teOfBs9ikL4gFy0+eqA13Q2SoOyNxG6NmgdchAupjNpiCV+gsfQN1hSdOYtwAAAABJRU5ErkJggg==" y="114.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="39" x="843" y="196.5781">[PAYG]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="864.5" y="212.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="108" x="810.5" y="229.1328">Manage models</text><!--MD5=[8bdec05ec3e461ef8cd414dc7669fef0]
+entity eh1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="167" x="1031" y="72"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="101" x="1064" y="93.6016">«AzureEventHub»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="81" x="1074" y="111.6016">Telemetry</text><image height="70" width="68" x="1080.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAB2klEQVR4Xu2aMU7EMBBFc0muwBW4AlegpIWWDomWZgtakLZAiAIJEAVCFEjZj4ws73zZjmU7mSzz9aqNk53nbGwn2eH05vno/H7twGIcx4E3rBST0YrJaMVktPKfZC7uXrdv33q4fvjgIj0Zmc3T56gp8OEiPaPJLBaTWa/M8eWWNziwszzeonn/+uEiHbBAgwEtcAYYNjm7fcE+MU6uHnEosUvzxKp1Xz3I5vFwfwgwL8l95o3JRDCZljGZCIcsg+ES69wEYeMmaSkj6ss+kcPEFbavT4EM5iZ8fQz+jamWKY3JVMVkpkW1zAwDAA/fIdlVeYEMVyPY7N/MlcqgO7hNiHtvkUhHGdwR8QkMET2NT/iYIbhlCttzOsqUxmT2YjIRDlkG1zcGqASqBwDxQKf50NxSxj2HTyDal8rgRPHwHcJPv0QKZEpTKlMfk5kWk6lKgQwucb4oQ0R71TJcjaBy1VyfjjKlk2Z9OsrMH5OJYDItYzIRsgvB3vl9QcvrX8DdnF41c/tO8X+lCXGbhsTUtnhPc2Iv+v9eneOOh7c5Zuvs6eEiPfiJmcxy4SI9JrNouEhPRgZLdB6Cl4WL9GRk1oXJaMVktGIyWjk4GcxE8OE/kK4L9yJ6B1v94rCnzWBxAAAAAElFTkSuQmCC" y="114.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="60" x="1084.5" y="196.5781">[Standard]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1116.5" y="212.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="143" x="1045" y="229.1328">Serve model updates</text><!--MD5=[00d2e7e38a65f93570dda1895a9204c9]
+entity funo1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="180.5742" style="stroke:#3C7FC0;stroke-width:1.5;" width="187" x="1258" y="66.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="93" x="1305" y="88.1016">«AzureFunction»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="165" x="1269" y="106.1016">Processing function</text><image height="64" width="70" x="1316.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABACAIAAAAoFZbOAAADkklEQVR4XsWYPW4UQRCF55JcYa/gK3AFQlKTklkiJSEgBWkDhAiQwCJAiACpKNPWuPZVT/1NDftUiXfXvfV1v37dOwsdpvP3389efijX6dX5/tcfHDSgBV/o04u3X3Wj8Xr3+SeOGNOBSDzNutFgPX/zBYcL6ygknmPdaLDKlhs6ComnWfcarLuPP3C4jI5CKrtuj+WGDkHiada9Rmqn5YYOQSq7bqflhvqReJp1r5Hab7mhfqTb9990u261WG6oH+nm9SfdsVstlhuqI/F9Rx/wtUsQWG46clxFpDXToJuC68By6xnNqy0GTqiCJDOaG5JvFY4jsJyclBpVGgnWQTZUuATplOMVk/PCVNnYyCEBD/8p381evbdSjl+UGZOlSiAZ6zOUdZ0eYRVQbcFPFUWCFdDdZF2nLQcqU4WQXB5KXoLi/QEV5zt+QslHivDAnnZrOsiWslQOEsz9Viupq7drOS3ZhktlIQV5KHkJ4pjhoSIlWwcq43qxiRTnKV+97dL7LUg1R4JZN3hIhXtXTb80QoVIOjqn/yaVcl2wjP3mxtUFUoGndvW2S1sOZFM9IUEQR3hIjd5She+VVI9INR7KX4Lcgnujoa0L5wNSmSd7CXIr+2tiSrWUeUit/s5yt9BUmmqBvIqvO3W7TmdXUHCELtBWfNy7zCXILSO1XYFZFugs5Wb2iS6OdSj3kn66/LWfEo8vV4X7f4gHsGP2V6Qr15/x3QvSPLSGOKxdI5WbiqndKwU8q3WfjlqwRxeVnYopn0tt8RBciDSVfLcmw3W11CaTh/S1VVPVvnXIdl08XaVsHtJIpKyyh8rIOt1KRC4PTZGoj2rLdTXL8ZrLAblJ/MQ/zZGog8o4iwupHeQhA4l2n1dbriukdpyHbCRSMx2nut94IFFI0RQPuUhUpZq6rrCFIDNdHoogkZqnCNXN7IFENrVhXiI8FESiJNXUddPANQQ88R0YRSJ1JhhU2nWn5F27zEMpJApTadedzUe+oD08lEWiGRV8QLsu1RPwZLcfFZBIPX6BFdCnmXzXlVzhAg/VkEg8xNSbRPZUSO11Rmo8VEYa4vWBjs+XD19rbelhU9qFpCVdFzxG2tWMtO4xbcj/pk4k6bpUaveqE2n9PZJK7XZ1Ig3XZVO7XW1I48pcSO12tSEN19VSu1dtSLw+10ptUA/S+OmBr15JPUi8PldMbVAP0nVTG9SAdPWIA/0F5QKNTV6Oh1wAAAAASUVORK5CYII=" y="109.4766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="131" x="1286" y="185.0781">[.NET, ElasticPremium]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1353.5" y="201.1445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="159" x="1272" y="217.6328">Format events for Time</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="99" x="1302" y="234.1211">Series Insights</text><!--MD5=[94bd6d630501c766663e14217fd065a9]
+entity eho1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="121" x="1530.5" y="72"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="101" x="1540.5" y="93.6016">«AzureEventHub»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="54" x="1564" y="111.6016">Events</text><image height="70" width="68" x="1557" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAB2klEQVR4Xu2aMU7EMBBFc0muwBW4AlegpIWWDomWZgtakLZAiAIJEAVCFEjZj4ws73zZjmU7mSzz9aqNk53nbGwn2eH05vno/H7twGIcx4E3rBST0YrJaMVktPKfZC7uXrdv33q4fvjgIj0Zmc3T56gp8OEiPaPJLBaTWa/M8eWWNziwszzeonn/+uEiHbBAgwEtcAYYNjm7fcE+MU6uHnEosUvzxKp1Xz3I5vFwfwgwL8l95o3JRDCZljGZCIcsg+ES69wEYeMmaSkj6ss+kcPEFbavT4EM5iZ8fQz+jamWKY3JVMVkpkW1zAwDAA/fIdlVeYEMVyPY7N/MlcqgO7hNiHtvkUhHGdwR8QkMET2NT/iYIbhlCttzOsqUxmT2YjIRDlkG1zcGqASqBwDxQKf50NxSxj2HTyDal8rgRPHwHcJPv0QKZEpTKlMfk5kWk6lKgQwucb4oQ0R71TJcjaBy1VyfjjKlk2Z9OsrMH5OJYDItYzIRsgvB3vl9QcvrX8DdnF41c/tO8X+lCXGbhsTUtnhPc2Iv+v9eneOOh7c5Zuvs6eEiPfiJmcxy4SI9JrNouEhPRgZLdB6Cl4WL9GRk1oXJaMVktGIyWjk4GcxE8OE/kK4L9yJ6B1v94rCnzWBxAAAAAElFTkSuQmCC" y="114.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="60" x="1561" y="196.5781">[Standard]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1593" y="212.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="85" x="1550.5" y="229.1328">Serve events</text><!--MD5=[c8561b0b4df11ff520978e4a9cf8469b]
+entity tsi1--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="172" x="1737" y="72"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="152" x="1747" y="93.6016">«AzureTimeSeriesInsights»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="94" x="1776" y="111.6016">Time Series</text><image height="70" width="68" x="1789" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAEa0lEQVR4XsVbO47bQAzVaXUFXcFX8BU2bboF0qZJkTrAFosgRYDESBEEKQJMnk1blvmbGYrSPrDYlefDR77hjGR5KKk4/fn36evv5y+/jh+/Hz58m96/wsZ3LzD6Gxfx0dPnH2iGxrz/Ogz8QggvP//Cv9nvdkMXdER3PmIIq8ggtDEO0ojVylwFyWBWqEX6tN4wbDhRETIIoXQi10ApkKU+Mli1KaJqMUyEQsI9cNFBJqCruYKxytZu6NieoiYyEHGjH7SO/bKL0dCgvXKgGdrzUTTUybRIK1yL2mt6i+QqZDCEHHdp7WHzgYmqlECbd3uER8ZnkkVjiSoln49JBo7KsWZDMeAdklDdwRy96WQgZTkK2RYJkfBFYTmgkEFsrFzjenh77oVTQnFdLTYKGZR22d8ZYjs4YYWTvLUkY+V3fyYEh48sBg9k0FP2eUMmBEdvTPMPZKwyYi243WCVVia2OxmrgslsNgKKTawW1lF9Geg7GXXdq+usEdPljMOvroAqtqWHVzJWWsKhpUBiev7BClSdvJJRV0t4m1+WoHA4VPh+nslYRSxcwZZT5irNSg65eiaj7i1r0rIcJ1dpxUgOHdjOZNSlH5aHnCw8lAo1OVQGBlVj4XCqM+UqrRhlDUQGdT8KT68mORwaC+qeAyKD+kFMGGpc1gxoQc0/5D2oKeO926CmZZ6Jt94A/NQchpOWcQOlqUgjo2Z4aTucVnPIyJ1KcttBaTlkpOvyadsOSksgI+shbWHyuqo0XKTnt2FDzmnkMxkabro8Cw4Y83i8FWJZQKXSnLviXoPUBznlSjssbjCYo5NQmjz7hA2DD4nDkS33R19pfjXvtXwyTEgy7csGWQIjQ+CSZSZvgSylyaTRpzG73wKAz/HyTfdKU4+n0mmoS42gWuu6kFCafUi/KXDyIu/Zj83JFPcASjYlPWTcg4w87DBzvqXowh5k1JvZ2Q4rHs0xXJ/OSOMN18FRWuC+TR0N45zJTFq9z+VjKU0tgD7UPE+Xin8mI6tnbBoHjge9UL2lYniVmfw4NpMDqY3YxqLqiLR6LQBypjGvyBCY0mIbiyrXOe5XMuqZLzc5y/zHNpaTcb8wB/1emtV2uStnzn8s5+qZeBnxOxk1g2OodFqgKWIbi6qd8THcD5ummpxEsZHSAtGxBMZ8eyBjsY/FUkWsgqn1aRRy5ccZVZdj9uLpguWSDDEnYyX0rfhYTEbtjMLJFFts+/NxmKj1UCFTjCMDWWyz6wWibq0TxwedTHGjMm38OpB8Gro0uVRmmGSKXUPItpDcqfaymcOk+GRKjc/U/7aug+faa4CH2pu0FTKlxme8UfKncXBqewffzwmhTqa464fN99z8vgyaoXE1UmTWimdoIlPsk5tq0+KnJeg4G/5VnzP51q7kVjKlVi63sN6y2UGGUF2mKRYrLd1kym3JSg+y7Bj6iUaJkSE0VqF2m6Lv4M+Ik5mBDRuxDLNCx+Pte7yVSCAzg6ptCzEi8JT3azPCfw/vyeco00ylAAAAAElFTkSuQmCC" y="114.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="111" x="1767.5" y="196.5781">[ADLS Gen2, PAYG]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1825" y="212.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="61" x="1794.5" y="229.1328">Analytics</text><!--MD5=[afc6ebcbb3ba5d83aaf296e744b263ec]
+entity gen2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="168" x="259" y="380"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="148" x="269" y="401.6016">«AzureContainerInstance»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="78" x="304" y="419.6016">Simulator</text><image height="70" width="70" x="308" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAIAAAD+THXTAAADEUlEQVR4Xu2avY4UMQzH9514BV7hXoFX4BXoaKGkHVq6kWhprkAUSCBtgRAFEiAKhCiQBu/61mfsZCaJ7flYjfVvLhtn/JskzsfcYZjXfvz+e/z+5/bzr/7jTy4ogXJZu8kOsiDMIGIIvXv7bVzABtjSucbmQCqE4YL6zWDhSLUwJHBsG4rVSDQZuJJvFAqbeUjQuGx3yiqQJkPkbJOVy1VLVYRUFR+CldcvUdUInEZyj69BVdliAgka0g9YREAlg8vYGNIa+oersKPGkFbF0xV3VBYJZqRutFn9ecujy2tV0lFZJN8uwlDsbZakvjSSb1bgcRipStaoNJLLIEGJCWAczyXTKRYpGYGxcdmcsjSScXiQckPf0j5mmpE8EYg0Mu5d5moOLAopOeS4GScVqk8dQKKQku9PmP0pKDEc0kjGGazfXM4iqBJIt+e7Du1Wrp7dk+ju4r8aH8RF7/E/pIh9ahJJV7Orv8zee6QInm5GpO4y/O6Qgni6eZG680J8hxT3mJmRYEadkFyWiJxmRoLGT0ihz5gZCXRw2ZuMaAGk0FHXLYJk3ChMSu8kdB1ftSA9enm8efEhQg+fvX/w9B0J/nz+5qsOYFzVSPAMHYqXOA8KXp+OYVwrQhJd1IZ0SuK16SEOSfM0IEEPWZHA3V2PX31qRgL36nVJIIls5mLNSLgZr949rBnpeF4wqvd4SSToal4I6i63U3ruCRfICihyaUOS56XyvOeLxLMc1MSfGpB6dny+PwIWDj9fJArdgsR5hoZTrSOSWIjakATPoK9TJqkckThPG1Ly9lMiDVP/ebESJN05ZAkkNHDA2y+BtyASBgNvPAeDlkXKGbSYjC8IiQrLbUcyI0GWI5crQYIoyeUakDBKctk8Ei2s5LJ5JIqSXLaNxPc+5LJhJLGXI5cNI4nQyWWrSE9ef9mRdiRlO1IxEoWyI51sjUj4xQF/uhIkHspWkQb1IYwuOvQNYc7lePm4thYkR9uRpFmRYKqQIBQX3bCTyAJIpOQ3PLuWRNLRuGgOJL2qxnURiGfIQvsHcHsj4BEyezEAAAAASUVORK5CYII=" y="422.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="36" x="325" y="504.5781">[.NET]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="345" y="520.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="110" x="290" y="537.1328">Generate events</text><!--MD5=[bffd25e7c6c9af9a0b426955a7e3809a]
+entity hub2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="114" x="533.5" y="383"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="88" x="546.5" y="404.6016">«AzureIoTHub»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="65" x="558" y="422.6016">IoT Hub</text><image height="70" width="70" x="555.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAIAAAD+THXTAAADg0lEQVR4Xu1Zu47VMBDNT+YX7i/wC/sLW9LutnQr0dJQ0LLSLVaIAolFFAhRIJmjWIom4/FkPLEdI92jI7TkJmMfezyPZApD4uOXX/Pbzw5eHq8TNzYG7j98S6dr5E1SLwwkCWfg7v1XOPS8uDX+xhV+kwGjSIKAdAAQ1/mtexhC0pt3L6n1laWqzpf08Ol7aprx6fknfyyP8yXFw6MT9/DH8ri+/sG2K1RGrCAJw6d2Rf74/Zc/7AX2PLUfWUGSPdNDPH/Yi7aS7Lv030iCO6V2RfInD6CtpJDPSJSlcVxHc0kW36sYG0IHSUEdYy6M4BYow1WTFJbQp6QLZE/+wAF0khQBJ0QxAQH4l4n0lbAiukpioMcM8mqdqDMlhW3BVivuYWlgKi2UcLGHpLCt04vqVwc6SWJRvpb7iegkKWwbEGwa/7ke+kkK2yIDCvnPldBVEvyNxvRYxeIigjtYq6jtKilsOxHIY6kZ/0V4PHjSeksKhiYcwo4k5RMkGZsRt6oTJNEcpdBd6faWZO/qZ29U1CRhePg9iHx/8MiusDSLK30bJUtCPE3bBN+aYS1AGMQCKbVmjo6lFCSx7EHJVLHp4ldwrSZzRoroSFaCJN034lyrTNfCCrtkjLDdyKZnAZdkeTGiExsY+5bY2MIh13oH62V5e77S11wVS7osX43E6TJTIoq8wJdtuSQgNU15vIEzbpRvi4IoSanBfIkixW50OTKQICnkaxafJzDs+vbcQlJI9goiHSlCBF0vjHK3fNuNQYX+5MvsQZEUEU+/8ehbQA+S+LKS+qRv3B1JdUHDXc61aF3rixBdJdG6RImc1P0c3t5PEl1+/Q0RjR/6nSL6SaKHZHftaXBS9lNEJ0m7UYHBcupyaCgpVnSsy7DPj65CUUBvJUlsIksn5wvoTSQpTaR9l4I3oE84fPEFA+PuCVagVIlz4UaxTx6W1D+lQ0Y6oueK3BY5LOcKQmxaTlgTSak1yiLfC+oCia50gqQiy7oPX6QvpU0k6S9k7GfJ0gKnWa6JpNwBmDPrmoPlvV/qxk0khfxsippI3etWsqdaSQrLXlEPvC//cDScpOPIbTVlP8ergoHCQ0Xob8jEYJOVdFk+myosbWPcyKUEzLAs1VrIjTUDlo/VEJ6CyEJurDGuy1cff9lqITc2Bm6StuTGxsBN0pbc2BiYlAZL5yC5OMU/2CjNuRhskr8AAAAASUVORK5CYII=" y="425.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="42" x="569.5" y="507.5781">[S1/S2]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="592.5" y="523.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="90" x="547.5" y="540.1328">Ingest events</text><!--MD5=[9fa35f4fb87cabc49308f89be97c9d75]
+entity fun2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="180.5742" style="stroke:#3C7FC0;stroke-width:1.5;" width="217" x="754" y="379.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="93" x="816" y="401.1016">«AzureFunction»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="152" x="786.5" y="419.1016">Ingestion function</text><image height="64" width="70" x="827.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABACAIAAAAoFZbOAAADkklEQVR4XsWYPW4UQRCF55JcYa/gK3AFQlKTklkiJSEgBWkDhAiQwCJAiACpKNPWuPZVT/1NDftUiXfXvfV1v37dOwsdpvP3389efijX6dX5/tcfHDSgBV/o04u3X3Wj8Xr3+SeOGNOBSDzNutFgPX/zBYcL6ygknmPdaLDKlhs6ComnWfcarLuPP3C4jI5CKrtuj+WGDkHiada9Rmqn5YYOQSq7bqflhvqReJp1r5Hab7mhfqTb9990u261WG6oH+nm9SfdsVstlhuqI/F9Rx/wtUsQWG46clxFpDXToJuC68By6xnNqy0GTqiCJDOaG5JvFY4jsJyclBpVGgnWQTZUuATplOMVk/PCVNnYyCEBD/8p381evbdSjl+UGZOlSiAZ6zOUdZ0eYRVQbcFPFUWCFdDdZF2nLQcqU4WQXB5KXoLi/QEV5zt+QslHivDAnnZrOsiWslQOEsz9Viupq7drOS3ZhktlIQV5KHkJ4pjhoSIlWwcq43qxiRTnKV+97dL7LUg1R4JZN3hIhXtXTb80QoVIOjqn/yaVcl2wjP3mxtUFUoGndvW2S1sOZFM9IUEQR3hIjd5She+VVI9INR7KX4Lcgnujoa0L5wNSmSd7CXIr+2tiSrWUeUit/s5yt9BUmmqBvIqvO3W7TmdXUHCELtBWfNy7zCXILSO1XYFZFugs5Wb2iS6OdSj3kn66/LWfEo8vV4X7f4gHsGP2V6Qr15/x3QvSPLSGOKxdI5WbiqndKwU8q3WfjlqwRxeVnYopn0tt8RBciDSVfLcmw3W11CaTh/S1VVPVvnXIdl08XaVsHtJIpKyyh8rIOt1KRC4PTZGoj2rLdTXL8ZrLAblJ/MQ/zZGog8o4iwupHeQhA4l2n1dbriukdpyHbCRSMx2nut94IFFI0RQPuUhUpZq6rrCFIDNdHoogkZqnCNXN7IFENrVhXiI8FESiJNXUddPANQQ88R0YRSJ1JhhU2nWn5F27zEMpJApTadedzUe+oD08lEWiGRV8QLsu1RPwZLcfFZBIPX6BFdCnmXzXlVzhAg/VkEg8xNSbRPZUSO11Rmo8VEYa4vWBjs+XD19rbelhU9qFpCVdFzxG2tWMtO4xbcj/pk4k6bpUaveqE2n9PZJK7XZ1Ig3XZVO7XW1I48pcSO12tSEN19VSu1dtSLw+10ptUA/S+OmBr15JPUi8PldMbVAP0nVTG9SAdPWIA/0F5QKNTV6Oh1wAAAAASUVORK5CYII=" y="422.4766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="131" x="797" y="498.0781">[.NET, ElasticPremium]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="864.5" y="514.1445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="189" x="768" y="530.6328">Format telemetry events for</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="137" x="794" y="547.1211">Time Series Insights</text><!--MD5=[b15a3a5ec4a3ff359b1d91adb89af33c]
+entity adt2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="135" x="1047" y="385"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="115" x="1057" y="406.6016">«AzureDigitalTwins»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="109" x="1060" y="424.6016">Digital Twins</text><image height="70" width="63" x="1083" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAABGCAIAAAD0ENuBAAADXklEQVR4Xu2asY4UMQyG71l4BV5hX2FfgVeYJ0BKRwslLbR0J11LgxCiQALpCoQokOBEgU4USMGsdZb39yQTezLHrhTrL3Y2k+Rz4mQ82b3YPf1w/8qd7MI2fQ9CiqgNer+QImpH9NOrz9tp//zj5vTp6utGGvRop05//eP3i3ffWZefft7c/tGla+klrG0RyEtPoM9ef7PtkBtyT5z+0ctrXZdE39jbRC56GnLbgoi84tuC9Bql0QEX/eyoa1EU5Rg93Wa5Fxtpp3/z5ZeuSJ7QN4QLDVJoRehLA8+iUpoBK30PoRBQSXrgdZQTrsagOyP0lrhFDx6/FdlSLd0XLQA1K1nPAH0+OXqaOt0XbJEd6NdHjmzhs9J98eoU00EVjBxAAZUaaV+1sEDpkuKHBBtRcNWm8vDDvJeqIK8xWx3EqzlIn+YcqGz2cD/CGtv2acWSjZ/IFuu66HPZAUKXpbyKPt3tP5WAEXnp2fQa4MeWLj11+nxYA1wL9v486Ad91aSXQX+sQb9g0gtkbHnQD/qqSS/nR8/vuNPh0IXySli4q+gnlaXZUpCX3ib0rHGeo1AaHXDR2+qg+NuJBMysSo2008N5DoHak5IUfjMsDTxr3/BWTll7RaXznHw8J8G3ckvcosYTkd1Zn+fstqY/78jZetXqAU4HB2gGuq3aVB7+ymOrnT5vumOyIBh21c0+Oem3fVqxdKawWNdFn8sO9MkUWEJvi0BeejZ5ck3ds7S0PX1uz5CpA68ePnnPskUg3RFA1K2VPiB++hC9LaoIIOo26Av6z/R2ebnE7e4bVq0WQNRNepmhh2uvcbteIJcN+oIN+gUb9HNGWQe/eSTzo3ZHS4d8lgQ/WuUw/exREWVRfX2A15RkfniL0MOJBaiXA3Z0RJd3P/+76Utpt0heHdZYBZ3FM+Cmh3bpEv4XIU2HzQ4QdWH9yV76G/P/HinSPqwcfmhKQhG8oksfvY54QATHIKF3CRB1L9qxf+c5umzRND2ctOTjg4AwPSR8sAfgaZQuWzQ9dzD2MK2T+R9yu3Q7sIR09LvpITxkg4ft306Ly2Cbl+Cx3/vo83HklQTB6jUYo1nxzLvpF5teOfBs9ikL4gFy0+eqA13Q2SoOyNxG6NmgdchAupjNpiCV+gsfQN1hSdOYtwAAAABJRU5ErkJggg==" y="427.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="39" x="1095" y="509.5781">[PAYG]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1116.5" y="525.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="108" x="1062.5" y="542.1328">Route telemetry</text><!--MD5=[b93ce7df14c1fde2f8a950b84c1f3eca]
+entity eh2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="121" x="1291" y="385"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="101" x="1301" y="406.6016">«AzureEventHub»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="81" x="1311" y="424.6016">Telemetry</text><image height="70" width="68" x="1317.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAB2klEQVR4Xu2aMU7EMBBFc0muwBW4AlegpIWWDomWZgtakLZAiAIJEAVCFEjZj4ws73zZjmU7mSzz9aqNk53nbGwn2eH05vno/H7twGIcx4E3rBST0YrJaMVktPKfZC7uXrdv33q4fvjgIj0Zmc3T56gp8OEiPaPJLBaTWa/M8eWWNziwszzeonn/+uEiHbBAgwEtcAYYNjm7fcE+MU6uHnEosUvzxKp1Xz3I5vFwfwgwL8l95o3JRDCZljGZCIcsg+ES69wEYeMmaSkj6ss+kcPEFbavT4EM5iZ8fQz+jamWKY3JVMVkpkW1zAwDAA/fIdlVeYEMVyPY7N/MlcqgO7hNiHtvkUhHGdwR8QkMET2NT/iYIbhlCttzOsqUxmT2YjIRDlkG1zcGqASqBwDxQKf50NxSxj2HTyDal8rgRPHwHcJPv0QKZEpTKlMfk5kWk6lKgQwucb4oQ0R71TJcjaBy1VyfjjKlk2Z9OsrMH5OJYDItYzIRsgvB3vl9QcvrX8DdnF41c/tO8X+lCXGbhsTUtnhPc2Iv+v9eneOOh7c5Zuvs6eEiPfiJmcxy4SI9JrNouEhPRgZLdB6Cl4WL9GRk1oXJaMVktGIyWjk4GcxE8OE/kK4L9yJ6B1v94rCnzWBxAAAAAElFTkSuQmCC" y="427.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="60" x="1321.5" y="509.5781">[Standard]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1353.5" y="525.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="85" x="1311" y="542.1328">Serve events</text><!--MD5=[b5aa320698c137b3e6f5f889da2401b0]
+entity tsi2--><rect fill="#FFFFFF" filter="url(#fncxftnza0vk7)" height="170.0859" style="stroke:#3C7FC0;stroke-width:1.5;" width="172" x="1505" y="385"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="152" x="1515" y="406.6016">«AzureTimeSeriesInsights»</text><text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="94" x="1544" y="424.6016">Time Series</text><image height="70" width="68" x="1557" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABGCAIAAAD6uaXuAAAEa0lEQVR4XsVbO47bQAzVaXUFXcFX8BU2bboF0qZJkTrAFosgRYDESBEEKQJMnk1blvmbGYrSPrDYlefDR77hjGR5KKk4/fn36evv5y+/jh+/Hz58m96/wsZ3LzD6Gxfx0dPnH2iGxrz/Ogz8QggvP//Cv9nvdkMXdER3PmIIq8ggtDEO0ojVylwFyWBWqEX6tN4wbDhRETIIoXQi10ApkKU+Mli1KaJqMUyEQsI9cNFBJqCruYKxytZu6NieoiYyEHGjH7SO/bKL0dCgvXKgGdrzUTTUybRIK1yL2mt6i+QqZDCEHHdp7WHzgYmqlECbd3uER8ZnkkVjiSoln49JBo7KsWZDMeAdklDdwRy96WQgZTkK2RYJkfBFYTmgkEFsrFzjenh77oVTQnFdLTYKGZR22d8ZYjs4YYWTvLUkY+V3fyYEh48sBg9k0FP2eUMmBEdvTPMPZKwyYi243WCVVia2OxmrgslsNgKKTawW1lF9Geg7GXXdq+usEdPljMOvroAqtqWHVzJWWsKhpUBiev7BClSdvJJRV0t4m1+WoHA4VPh+nslYRSxcwZZT5irNSg65eiaj7i1r0rIcJ1dpxUgOHdjOZNSlH5aHnCw8lAo1OVQGBlVj4XCqM+UqrRhlDUQGdT8KT68mORwaC+qeAyKD+kFMGGpc1gxoQc0/5D2oKeO926CmZZ6Jt94A/NQchpOWcQOlqUgjo2Z4aTucVnPIyJ1KcttBaTlkpOvyadsOSksgI+shbWHyuqo0XKTnt2FDzmnkMxkabro8Cw4Y83i8FWJZQKXSnLviXoPUBznlSjssbjCYo5NQmjz7hA2DD4nDkS33R19pfjXvtXwyTEgy7csGWQIjQ+CSZSZvgSylyaTRpzG73wKAz/HyTfdKU4+n0mmoS42gWuu6kFCafUi/KXDyIu/Zj83JFPcASjYlPWTcg4w87DBzvqXowh5k1JvZ2Q4rHs0xXJ/OSOMN18FRWuC+TR0N45zJTFq9z+VjKU0tgD7UPE+Xin8mI6tnbBoHjge9UL2lYniVmfw4NpMDqY3YxqLqiLR6LQBypjGvyBCY0mIbiyrXOe5XMuqZLzc5y/zHNpaTcb8wB/1emtV2uStnzn8s5+qZeBnxOxk1g2OodFqgKWIbi6qd8THcD5ummpxEsZHSAtGxBMZ8eyBjsY/FUkWsgqn1aRRy5ccZVZdj9uLpguWSDDEnYyX0rfhYTEbtjMLJFFts+/NxmKj1UCFTjCMDWWyz6wWibq0TxwedTHGjMm38OpB8Gro0uVRmmGSKXUPItpDcqfaymcOk+GRKjc/U/7aug+faa4CH2pu0FTKlxme8UfKncXBqewffzwmhTqa464fN99z8vgyaoXE1UmTWimdoIlPsk5tq0+KnJeg4G/5VnzP51q7kVjKlVi63sN6y2UGGUF2mKRYrLd1kym3JSg+y7Bj6iUaJkSE0VqF2m6Lv4M+Ik5mBDRuxDLNCx+Pte7yVSCAzg6ptCzEi8JT3azPCfw/vyeco00ylAAAAAElFTkSuQmCC" y="427.9766"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="111" x="1535.5" y="509.5781">[ADLS Gen2, PAYG]</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="1593" y="525.6445"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="61" x="1562.5" y="542.1328">Analytics</text><!--MD5=[13fe4ea2c6cee13af59df46331c8819a]
+link gen1 to hub1--><path d="M199.19,153.1 C226.1,153.46 255.44,153.85 280.48,154.18 " fill="none" id="gen1-to-hub1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="285.76,154.25,276.8181,150.1218,280.7605,154.1786,276.7038,158.121,285.76,154.25" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[4585e11a133cc209c64015160ea44093]
+link hub1 to fun1--><path d="M400.01,155.46 C424.26,155.65 453.5,155.89 481.67,156.12 " fill="none" id="hub1-to-fun1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="486.92,156.16,477.9546,152.083,481.9202,156.1171,477.886,160.0827,486.92,156.16" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[26c485addc87575a84c7c807475a0535]
+link fun1 to adt1--><path d="M694.35,157 C726.18,157 760.56,157 789.8,157 " fill="none" id="fun1-to-adt1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="794.83,157,785.83,153,789.83,157,785.83,161,794.83,157" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[e6855e93e00cc8364d7a8150603e8e37]
+link adt1 to eh1--><path d="M930.17,157 C959.55,157 994.47,157 1025.92,157 " fill="none" id="adt1-to-eh1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1030.94,157,1021.94,153,1025.94,157,1021.94,161,1030.94,157" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[370d10f33bade8e0058b8fd2babe42dd]
+link eh1 to funo1--><path d="M1198.02,157 C1215.67,157 1234.48,157 1252.64,157 " fill="none" id="eh1-to-funo1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1257.75,157,1248.75,153,1252.75,157,1248.75,161,1257.75,157" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[9d017174aca1517328038f9459c67b8a]
+link funo1 to eho1--><path d="M1445,157 C1471.76,157 1500.38,157 1525.06,157 " fill="none" id="funo1-to-eho1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1530.27,157,1521.27,153,1525.27,157,1521.27,161,1530.27,157" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[678ff089aab6b1b3483be385e88269e8]
+link eho1 to tsi1--><path d="M1651.53,157 C1675.96,157 1704.79,157 1731.72,157 " fill="none" id="eho1-to-tsi1" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1736.72,157,1727.72,153,1731.72,157,1727.72,161,1736.72,157" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[65362d2d6adc4ce944acc29ea858cad9]
+link gen2 to hub2--><path d="M427.12,466.02 C460.12,466.42 497.41,466.87 527.92,467.25 " fill="none" id="gen2-to-hub2" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="533.15,467.31,524.1963,463.2074,528.1503,467.2529,524.1049,471.2069,533.15,467.31" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[40a54e205acc90120d5011ce343a08db]
+link hub2 to fun2--><path d="M647.77,468.42 C677.01,468.63 713.83,468.91 748.62,469.16 " fill="none" id="hub2-to-fun2" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="753.74,469.2,744.7746,465.123,748.7402,469.1571,744.706,473.1227,753.74,469.2" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[a48ea1aed457ae2f65627875c31abb4f]
+link fun2 to adt2--><path d="M971.34,470 C995.07,470 1019.65,470 1041.55,470 " fill="none" id="fun2-to-adt2" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1046.77,470,1037.77,466,1041.77,470,1037.77,474,1046.77,470" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[07c29b526528ad0fe5ab407f28bc024d]
+link adt2 to eh2--><path d="M1182.21,470 C1214.67,470 1253.53,470 1285.73,470 " fill="none" id="adt2-to-eh2" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1290.84,470,1281.84,466,1285.84,470,1281.84,474,1290.84,470" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[a000f2e75ee431b9669545dfb8116c74]
+link eh2 to tsi2--><path d="M1412.12,470 C1438.62,470 1470.39,470 1499.71,470 " fill="none" id="eh2-to-tsi2" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="1504.77,470,1495.77,466,1499.77,470,1495.77,474,1504.77,470" style="stroke:#666666;stroke-width:1.0;"/><!--MD5=[d8e2595715e9c047c8ab6e37212fb67b]
+link r1 to r2--><!--MD5=[c37782491967e148c27874f41d08079a]
+@startuml deployment
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+
+!includeurl AzurePuml/AzureCommon.puml
+
+!includeurl AzurePuml/Analytics/AzureEventHub.puml
+!includeurl AzurePuml/Compute/AzureFunction.puml
+!includeurl AzurePuml/Containers/AzureContainerInstance.puml
+!includeurl AzurePuml/InternetOfThings/all.puml
+
+left to right direction
+
+
+rectangle r1 as "Deployment with property updates\n(-e property)" {
+
+AzureContainerInstance(gen1, "Simulator", ".NET", "Generate events")
+AzureIoTHub(hub1, "IoT Hub", "S1/S2", "Ingest events")
+AzureFunction(fun1, "Ingestion function", ".NET, ElasticPremium", "Format Azure Digital Twin model updates")
+AzureDigitalTwins(adt1, "Digital Twins", "PAYG", "Manage models")
+AzureEventHub(eh1, "Telemetry", "Standard", "Serve model updates")
+AzureFunction(funo1, "Processing function", ".NET, ElasticPremium", "Format events for Time Series Insights")
+AzureEventHub(eho1, "Events", "Standard", "Serve events")
+AzureTimeSeriesInsights(tsi1, "Time Series", "ADLS Gen2, PAYG", "Analytics")
+
+
+gen1 - -> hub1
+hub1 - -> fun1
+fun1 - -> adt1
+adt1 - -> eh1
+eh1 - -> funo1
+funo1 - -> eho1
+eho1 - -> tsi1
+
+}
+
+
+rectangle r2 as "Deployment with telemetry events\n(-e telemetry)" {
+
+AzureContainerInstance(gen2, "Simulator", ".NET", "Generate events")
+AzureIoTHub(hub2, "IoT Hub", "S1/S2", "Ingest events")
+AzureFunction(fun2, "Ingestion function", ".NET, ElasticPremium", "Format telemetry events for Time Series Insights")
+AzureDigitalTwins(adt2, "Digital Twins", "PAYG", "Route telemetry")
+AzureEventHub(eh2, "Telemetry", "Standard", "Serve events")
+AzureTimeSeriesInsights(tsi2, "Time Series", "ADLS Gen2, PAYG", "Analytics")
+
+gen2 - -> hub2
+hub2 - -> fun2
+fun2 - -> adt2
+adt2 - -> eh2
+eh2 - -> tsi2
+
+}
+
+' Hack to force vertical order
+r1 -[hidden]-> r2
+
+@enduml
+
+@startuml deployment
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam rectangle {
+    StereotypeFontSize 12
+}
+
+skinparam Arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+
+
+
+
+
+
+
+sprite $AzureEventHub [68x70/16z] {
+xTF5bSKm341HaKdzzplaC4UPpxfhdsTEUbK2lUuJ6ju8T8uiD1ZEeRM6Dues2Cv1RHH0hceYbbR6tGXNqu7Q2s1mduOtK3gMXi2Ff9q81t5i1J0rfhonVwRI
+mGDtoqkDe9rqj46nW_0ZQYSVQqnv0qC73GrQljlz1aa7bXeOE-J_zXY9dTs6wTzEMDwOgM7WZPr_UnXAnPD_ox2BAe1acBSgMXN8vlrh2rSQteXoqgHXyWaD
+RqWk5oNu1W
+}
+
+skinparam rectangle<<AzureEventHub>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+sprite $AzureFunction [70x64/16z] {
+hTK7Ra8n48JXTVVc_lSDTKNxtMIFUe0F9cFhIJV-3w9Erf992R8O1QJ8OiA9Fb90YR8QFT17uea-KaxqSIVwI3hHH-fM7nyQfx_OgtFB52oaxd4Gw-IyYeSb
+cZrcahq_y3vERuoRG99TPzh7LMBubuWez36cltb-lJrG7sRQY1JgOxapVemunJvZfho_EmxkJp664JxzARx76nCOuUiCcpDJ3Q7h39iJyzWklAFj55W34T_l
+WunJG-1XHiyqO00HRIC9hXqZeOrKlBs0z0gf4sIg_QQfGh5nMlNtnTWTcMyVj7MF-7lAMnz0lDu_d-wCctbMXoOYae71lH8YrhC00tlLBcBCe92w3WA_XWl5
+0TBxtnGScP4seyq-uVPI5fbW8eoCY2KHKs1aHYpnbt4qCYDjnWgfe-KCmMzuPogF71bXnWeLGfAquurvAwIJ23DMo2yZnhmLIe146SMfVN-YaUiOiMUSFZv0
+8oT0EDw9FI0ZlRYIP8TYAseZxyI_Hjv8jf4t2rNPJh2HDmj5sOzcsKzGEP3ivK2I7CZgF1S
+}
+
+skinparam rectangle<<AzureFunction>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+sprite $AzureContainerInstance [70x70/16z] {
+xTDNejmW38LXbIDFWVslDqEQKcHP7aXk_PzSFnU0Ah4eHYhqT0Bpb6SC3qyuRZWZbLymukzxi2WzCE1NSemuanlkmFQI32a7taFiJ9Xv4u-J8Pry6R6zeFMN
+GVBgg0uJfsEAufpHzFCbF5DNa9ok_nP9paEvfkZ1VrCkA3YS2P1ZXSchB6zDVagPKLWG7Z6DCBATv7WXVbSi2OvCAAQEJ2ZcLymeGcBp2WWB56DReSWIHIrF
+Q6HdbTizg_L7RJjIjdjQxwFRdD9Y1N9AwR6YeI99rq0HZXHA2XGGOLuH8WaLle-CQEn_Fz1QiqZ1mBMeZF7P0WLC8zIK7YYE4AEYj41nP8I2qaD5YJp1USLV
+n6C5JYc0CEqb5MKZxtyhROdILoXzXTAMA7s5qbOehQzG-WhbyhVogMolHsbBb3wha8sKI6tquu2SKfB-jt9vTDtfNbL6hIULbJwbSE5Lkj4VVG4
+}
+
+skinparam rectangle<<AzureContainerInstance>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+sprite $AzureDigitalTwins [63x70/16z] {
+xPS7Zkmm241j2E2IV__h_bGYhS6xq-kRFkZXZfBwDuB3o-kfJ_bDboxFfWCH3T7LKqeTFR8iaAtdEfCz7JJ0czxqLNr3Pr66Lazr9vawoWJZ83EnqOlg9Q_K
+YG5tU1jrb0bizDhmRw8gCW5XOfXxVwfUbZxRkjzvKjOfcs2py_cNgHiM7u3jgTFcYxDmSa3MjYbdRnjT-fB4qzNdQEkYFMzr7JzZ26VgGMg5y1ZzgySFrL5I
+8l3qrDVXaNLU3kZCEa-8V5ATL_Ow7nvGv_lwvPrFVwdp17YhEf_lK-Vf_2CZYU1A1xRyP1p7Sb3xkhLHndhmlBeerjGfbkvIguGUNzq3SfROrtD6JsQP8J_1
+83Di9a3PyNm-BkSRG1JsR0Nj89D6dVp4rcOCSTV8RduBn2qD62DdpLDgYrfaZ1xtAXuCtRWTC4R6EiHae9F2XXwt9GVMRbYB3lhPpem2bXxbW7jHylUSdpzQ
+jks37sOCBi1wAFu3
+}
+
+skinparam rectangle<<AzureDigitalTwins>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureIoTCentral [61x70/16z] {
+xPP7hW0n24FJs_tl-tkpnF14rj_hUCGB6N3oL5TFbohhdBFhZJMFywbLmjwspuz63bdhFd-rUn1MjMe4zbD_2fWv1hkR534YiDtuc0jhbTa5dM6rkNbww5IV
+eWDixDC52rFq0h0Y2vrX7JQ0HNG7bllfz9zU4i3MrHnqWJKhN0NQTfPvm9iZVydTqdRtpN0fguBPH98sWbahLlKdynbIiQrTnMpskPydJJNhfSJDyhQZPc7i
+GRF-PZrc5iweMMPOr2mluzByYNvlJddScZ_HQz2i2fl_pVNHFDYSykH1ecOSOjqQW3F3Hh1F3NVLJ3_-3LXosmkUc2NQVbnLMUQpVMJWadJHFI1jP3WOP427
+Y5cMXSvXg2PUv1mnku5EUTfccPbX0waO8wQYDu25L5m3GV_vN7TW0HrWlRlfou4bT805TCpJq3Q01VIHBjGTM5QP0FiA
+}
+
+skinparam rectangle<<AzureIoTCentral>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureIoTEdge [67x70/16z] {
+fTHfUeCm38JXqJg2-z-t2xIOO4me_NudxoE43Mwbvl6Lc-1Huh5B7mWMh_bV4Oa-mr_IECkVpN1_3ZLpDyLQZD8RgtC1uF5IRaN8dR4DqW4jlxKwznveoVtL
+zS9uZDYN7T1rUGYJJ3BV478nHDA_oORaQNgn2GQ-qsBcM4WRFmTBi9JChoBl4hvR1DQySety4v79mbeKCvFrtOcY0sBvZsrZ5Aj2HIoBRmbhkoTr6K8WMLGi
+MMSCJdSkLOKxgnne7qiz674nnC_paomQMb5N-vJpCyGYMj8zIaX_HVCG4xjg_5OqXaHW5va3GoAUJT4kcryGtIwwebsEmJe5Mr4SNDYXG5PWbt0mXfm9v3A2
+Gl9t3ikH0Ji1Qia1hw_289PL2PmQwYU2YtWAbBLEWooItqOMCm-CURU6ycrzNCXSJyIlSRpwVa9WYSMDB6xdFMdgB7P4ziJsgp8f7bvoLcxP2Q4lTvkbMjkQ
+4ako8rIFGf822BdzJRpQYU_lYw0Ziegizgz2iDsxdW2y8v9VxQzQDeBTbJD0Sa_qLO2DA3z-mV2Lvv1exxGPeP0eldumBWMMIUNXz3V1WRS6IwsEcphvZFiL
+0MSEShHqJ10n84BnaWucgKIU4gxe4z4-DxXs2VwG2XJ_IcuGoijg4YjUbLBJTJDYkYxV2HCuNSTt157_9HAZ-R-g6yGykSppT5QuUq_qW05Gpi-9IR2KyrDY
+DlpqV1VuBUU7RwJmcpybsXJnb9WLFzNKLz-z9OWrcv-VYro51qUh6Ty_vBFJsP3-UFV4uwggUoCFO_sVY7yJzWa
+}
+
+skinparam rectangle<<AzureIoTEdge>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureIoTHub [70x70/16z] {
+xPPLWjWm34Gj6KVtlszXOGAkeqOfTz-tymoYfDjacy1zIxEPlyEIEmmzFxDqUwK_iGokw75BjOqIjc2T3Je8hYrgUoGjA9l5pqyDMlI7MCHvEzV2R24zR57R
+4D_YBZ2ak2Lb9aEBM8ZMLbzS-Oc53mI9MaYxY9BqyK9FBeC5-GHbjAEmIun71YPoVMmHl9IavAn10ni5y9B8JUAQPWGvVYVR4TOCPof71dozMDbQ4QTdUOTH
+B7OHqLpiXAmpueNABslj73Xdr3lo0Cn5d40wkEDd1gEtMd9MgNQWknQyVpcTrKyx8yNzXR3krWdyVmZuAPxzXuDNjKClDcaT6CDhM3dBLSziszKat1UmAymU
+xhjbVpaDzeMnFNHm8e2xCmubD8xQz4fta3emVLHlZYV5gKL6eYsOqdKHxT9UqSifLETKBliiPO-xBC7nxRBgyXqM8rZvzOvbhAuASIrzyIvY6ysrw757Kcm3
+heNBytmXubkITZDhafvPIEH6Cu7NTQchIAEHubgO0s3MpIIV0bP0n4AKrHYqa0-B0smYCBC-0m
+}
+
+skinparam rectangle<<AzureIoTHub>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureMaps [54x70/16z] {
+rPH95jim34CzcmFkVzxM4vzKYnRPNVusxmSIe6Jeij1VXYpqFzPE1rDEckXaoLbqiQUabMuoqaWFOxgAWpakBMhM5hS0CkBz0PAs9i32uZlhOJ5HQkSL1qgf
+dKTSv2x6k93CpZCUCZkhMHpVUODXVOIgCCAMe422Eo-e2Ewig8ZjlCEe-kY-sfh8plAofB_p2ZXXwuU51jsB4HfenvhHfBEpeebyxhp1uMld4HvV5sDugB_p
+0X-_3eKFUpllG2_CURLfI_014riTmIg4M4JsriuVCNBIsfdyc8SZh5U5nLJMs9kAvqKgs7RsVi2wZSS9QcslTnvVCSy7N5h_BCQl6AE-MMdDZHXZgwsngi9Y
+NfIT57zlMpl6cCgmhQf2rqRCgnCYAbwjxU105dPR2tGTkcncNT_ln7YTsCun9ZjY7Ek4KfPriezPRJkiQjLm9rj6i4xs8S_8b7Piu3nc_Ho_pny
+}
+
+skinparam rectangle<<AzureMaps>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+sprite $AzureTimeSeriesInsights [68x70/16z] {
+fPW7qkim28Gjwkh-1txLZJ_Pe8ntUepNVC2ePACQQf70d426wzY-bJZc3y5bMzSe1iLcB3h4_A1OISPde-XoKSnMi8yMBnX09bvyawSY9HYtVefwVQODH-a0
+Q_Tx7ki_OpSN9nR5WRbm4xrwrqmFnH6U14zOgpiEYpA6JVjGwfxrLwxwnIpfKGjkKkiwc4MFSw97gT6Iz0UDyAanMcAltyrYMGJVc71_IofQ_HYOHNqjw7WE
+5EUYyjxHbF4-YiF8zQAHD7Ptj0kMdHKL5YDT8dcWW8RurhLcA8tCwivdH9sXxEOBCB7dGz8WrIPYQN2ONfXakIAY2nvQc3uDnGCOtwV7xp2QxnJwzmbUTNHL
+RZ23RUScaoeF9koZJuJW7d92QMdsgiT1SC5WCZbd6LU3S2GqyIhRDebyAxztIEN1k1qm-MZQybQyyM3goM5XMQFC2udvhmKO8K_aN1HR62SPNett3WPiEOqh
+f8DHjap9HMMVOO8nuhPouYCC1ZiBsJqd_mHZRAT4BRnmcAJhljVYWCC88y7huOf8wU1PPUCbuVUSPEVDTOivQeMu2RUetVBr7Nha5Kky8QktnYILxdX6p691
+JM0BrwWStSffexd2vyhjDkjPNIph1iPaimWPRd_aaRFAchvrwbjdU7JTFohtu6-7Ml_kJvHU6dXZ4DzksM9t7uJpGlu6
+}
+
+skinparam rectangle<<AzureTimeSeriesInsights>> {
+    BackgroundColor #FFFFFF
+    BorderColor #3C7FC0
+}
+
+
+left to right direction
+
+
+rectangle r1 as "Deployment with property updates\n(-e property)" {
+
+rectangle "==Simulator\n<color:#0072C6><$AzureContainerInstance></color>\n//<size:12>[.NET]</size>//\n\n Generate events" <<AzureContainerInstance>> as gen1
+rectangle "==IoT Hub\n<color:#0072C6><$AzureIoTHub></color>\n//<size:12>[S1/S2]</size>//\n\n Ingest events" <<AzureIoTHub>> as hub1
+rectangle "==Ingestion function\n<color:#0072C6><$AzureFunction></color>\n//<size:12>[.NET, ElasticPremium]</size>//\n\n Format Azure Digital Twin model updates" <<AzureFunction>> as fun1
+rectangle "==Digital Twins\n<color:#0072C6><$AzureDigitalTwins></color>\n//<size:12>[PAYG]</size>//\n\n Manage models" <<AzureDigitalTwins>> as adt1
+rectangle "==Telemetry\n<color:#0072C6><$AzureEventHub></color>\n//<size:12>[Standard]</size>//\n\n Serve model updates" <<AzureEventHub>> as eh1
+rectangle "==Processing function\n<color:#0072C6><$AzureFunction></color>\n//<size:12>[.NET, ElasticPremium]</size>//\n\n Format events for Time Series Insights" <<AzureFunction>> as funo1
+rectangle "==Events\n<color:#0072C6><$AzureEventHub></color>\n//<size:12>[Standard]</size>//\n\n Serve events" <<AzureEventHub>> as eho1
+rectangle "==Time Series\n<color:#0072C6><$AzureTimeSeriesInsights></color>\n//<size:12>[ADLS Gen2, PAYG]</size>//\n\n Analytics" <<AzureTimeSeriesInsights>> as tsi1
+
+
+gen1 - -> hub1
+hub1 - -> fun1
+fun1 - -> adt1
+adt1 - -> eh1
+eh1 - -> funo1
+funo1 - -> eho1
+eho1 - -> tsi1
+
+}
+
+
+rectangle r2 as "Deployment with telemetry events\n(-e telemetry)" {
+
+rectangle "==Simulator\n<color:#0072C6><$AzureContainerInstance></color>\n//<size:12>[.NET]</size>//\n\n Generate events" <<AzureContainerInstance>> as gen2
+rectangle "==IoT Hub\n<color:#0072C6><$AzureIoTHub></color>\n//<size:12>[S1/S2]</size>//\n\n Ingest events" <<AzureIoTHub>> as hub2
+rectangle "==Ingestion function\n<color:#0072C6><$AzureFunction></color>\n//<size:12>[.NET, ElasticPremium]</size>//\n\n Format telemetry events for Time Series Insights" <<AzureFunction>> as fun2
+rectangle "==Digital Twins\n<color:#0072C6><$AzureDigitalTwins></color>\n//<size:12>[PAYG]</size>//\n\n Route telemetry" <<AzureDigitalTwins>> as adt2
+rectangle "==Telemetry\n<color:#0072C6><$AzureEventHub></color>\n//<size:12>[Standard]</size>//\n\n Serve events" <<AzureEventHub>> as eh2
+rectangle "==Time Series\n<color:#0072C6><$AzureTimeSeriesInsights></color>\n//<size:12>[ADLS Gen2, PAYG]</size>//\n\n Analytics" <<AzureTimeSeriesInsights>> as tsi2
+
+gen2 - -> hub2
+hub2 - -> fun2
+fun2 - -> adt2
+adt2 - -> eh2
+eh2 - -> tsi2
+
+}
+
+r1 -[hidden]-> r2
+
+@enduml
+
+PlantUML version 1.2020.22(Sun Dec 06 10:36:27 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: GB
+--></g></svg>

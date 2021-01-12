@@ -202,6 +202,7 @@ echo "***** [I] Setting up INGESTION"
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-iot-hub/create-iot-hub.sh
+        source ../components/azure-iot-hub/provision-iot-hub-devices.sh
     fi
 echo
 
