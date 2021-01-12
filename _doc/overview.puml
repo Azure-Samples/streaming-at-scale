@@ -1,0 +1,98 @@
+@startuml ingestion
+
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Analytics/all.puml
+!includeurl AzurePuml/Containers/all.puml
+!includeurl AzurePuml/Databases/all.puml
+!includeurl AzurePuml/InternetOfThings/all.puml
+!includeurl AzurePuml/Storage/AzureBlobStorage.puml
+
+!includeurl AzurePuml/AzureSimplified.puml
+
+left to right direction
+
+rectangle "Ingestion" {
+  AzureIoTHub(iot1, "IoT Hub", "")
+  AzureEventHub(eh1, "Event Hubs", "")
+  AzureEventHub(ehk1, "Event Hubs Kafka", "")
+  AzureBlobStorage(st1, "Storage blobs", "")
+  AzureHDInsight(hdk1, "HDInsight Kafka", "")
+  AzureKubernetesService(aks1, "Kafka on AKS", "")
+}
+
+iot1 -[hidden]-> eh1
+eh1  -[hidden]-> ehk1
+ehk1 -[hidden]-> st1
+st1  -[hidden]-> hdk1
+hdk1 -[hidden]-> aks1
+
+@enduml
+
+@startuml processing
+
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Analytics/all.puml
+!includeurl AzurePuml/Compute/AzureFunction.puml
+!includeurl AzurePuml/Containers/all.puml
+!includeurl AzurePuml/Databases/all.puml
+!includeurl AzurePuml/InternetOfThings/all.puml
+
+!includeurl AzurePuml/AzureSimplified.puml
+
+left to right direction
+
+rectangle "Processing" {
+  AzureFunction(fun1, "Functions", "")
+  AzureDatabricks(adb1, "Databricks", "")
+  AzureStreamAnalytics(asa1, "Stream Analytics", "")
+  AzureDigitalTwins(adt1, "Digital Twins", "")
+  AzureHDInsight(hd1, "Flink on HDInsight", "")
+  AzureKubernetesService(hd2, "Flink on AKS", "")
+}
+
+fun1 -[hidden]-> adb1
+adb1 -[hidden]-> asa1
+asa1 -[hidden]-> adt1
+adt1 -[hidden]-> hd1
+hd1  -[hidden]-> hd2
+
+@enduml
+
+@startuml serving
+
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Analytics/all.puml
+!includeurl AzurePuml/Containers/all.puml
+!includeurl AzurePuml/Databases/all.puml
+!includeurl AzurePuml/InternetOfThings/all.puml
+!includeurl AzurePuml/Storage/AzureBlobStorage.puml
+
+!includeurl AzurePuml/AzureSimplified.puml
+
+left to right direction
+
+rectangle "Serving" {
+  AzureCosmosDb(cdb1, "Cosmos DB", "")
+  AzureDataExplorer(adx1, "Data Explorer", "")
+  AzureTimeSeriesInsights(tsi1, "Time Series Insights", "")
+  AzureBlobStorage(st1, "Delta Lake", "")
+  AzureSqlDatabase(sql1, "SQL Database", "")
+  AzureSqlDataWarehouse(dw1, "Synapse Analytics", "")
+  AzureEventHub(eh2, "Event Hubs", "")
+  AzureEventHub(ehk2, "Event Hubs Kafka", "")
+  AzureHDInsight(kafka2, "HDInsight Kafka", "")
+}
+
+cdb1-[hidden]->adx1
+adx1-[hidden]->tsi1
+tsi1-[hidden]->st1
+st1-[hidden]->sql1
+sql1-[hidden]->dw1
+dw1-[hidden]->eh2
+eh2-[hidden]->ehk2
+ehk2-[hidden]->kafka2
+
+@enduml
