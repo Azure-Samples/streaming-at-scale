@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ClusterName": {
+            "type": "String"
+        },
+        "Location": {
+            "type": "String"
+        },
+        "DatabaseName": {
+            "type": "String"
+        },
+        "SoftDeletePeriod": {
+            "type": "String"
+        },
+        "HotCachePeriod": {
+            "type": "String"
+        },
+        "DatabaseUserName": {
+            "type": "String"
+        },
+        "DatabaseUserClientId": {
+            "type": "String"
+        },
+        "DatabaseUserTenantId": {
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Kusto/Clusters/Databases",
+            "apiVersion": "2019-11-09",
+            "name": "[concat(parameters('ClusterName'), '/', parameters('DatabaseName'))]",
+            "location": "[parameters('Location')]",
+            "kind": "ReadWrite",
+            "properties": {
+                "softDeletePeriod": "[parameters('SoftDeletePeriod')]",
+                "hotCachePeriod": "[parameters('HotCachePeriod')]"
+            }
+        },
+        {
+            "type": "Microsoft.Kusto/Clusters/Databases/PrincipalAssignments",
+            "apiVersion": "2020-02-15",
+            "name": "[concat(parameters('ClusterName'), '/', parameters('DatabaseName'), '/principal-assignment-user-', parameters('DatabaseUserName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Kusto/Clusters/Databases', parameters('ClusterName'), parameters('DatabaseName'))]"
+            ],
+            "properties": {
+                "principalId": "[parameters('DatabaseUserClientId')]",
+                "role": "User",
+                "principalType": "App",
+                "tenantId": "[parameters('DatabaseUserTenantId')]"
+            }
+        },
+        {
+            "type": "Microsoft.Kusto/Clusters/Databases/PrincipalAssignments",
+            "apiVersion": "2020-02-15",
+            "name": "[concat(parameters('ClusterName'), '/', parameters('DatabaseName'), '/principal-assignment-ingestor-', parameters('DatabaseUserName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Kusto/Clusters/Databases', parameters('ClusterName'), parameters('DatabaseName'))]"
+            ],
+            "properties": {
+                "principalId": "[parameters('DatabaseUserClientId')]",
+                "role": "Ingestor",
+                "principalType": "App",
+                "tenantId": "[parameters('DatabaseUserTenantId')]"
+            }
+        }
+    ]
+}

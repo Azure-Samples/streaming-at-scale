@@ -1,0 +1,263 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Location": {
+            "type": "String"
+        },
+        "Sku": {
+            "type": "String",
+            "defaultValue": "standard"
+        },
+        "KeyVaultName": {
+            "type": "String"
+        },
+        "WorkspaceName": {
+            "type": "String"
+        },
+        "DatabricksLogWorkspaceName": {
+            "type": "string"
+        },
+        "DatabricksLogServiceTier": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "TenantId": "[subscription().tenantId]",
+        "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroupName'))]",
+        "managedResourceGroupName": "[concat(parameters('WorkspaceName'), '-resource-rg')]",
+        "queries": [
+            {
+                "displayName": "stage latency per stage",
+                "query": "let results=SparkListenerEvent_CL\n|  where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,apptag,TimeGenerated,cluster_Name_s\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerStageCompleted\"  \n    | extend stageDuration=Stage_Info_Completion_Time_d - Stage_Info_Submission_Time_d\n) on Stage_Info_Stage_ID_d;\nresults\n | extend slice = strcat(cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s) \n| extend stageDuration=Stage_Info_Completion_Time_d - Stage_Info_Submission_Time_d \n| summarize percentiles(stageDuration,10,30,50,90)  by bin(TimeGenerated,  1m), slice\n| order by TimeGenerated asc nulls last\n\n"
+            },
+            {
+                "displayName": "stage throughput per stage",
+                "query": "let results=SparkListenerEvent_CL\n|  where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project \nStage_Info_Stage_ID_d,apptag,TimeGenerated,cluster_Name_s\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerStageCompleted\"  \n) on Stage_Info_Stage_ID_d;\nresults\n | extend slice = strcat(\"# StagesCompleted \",cluster_Name_s,\"-\",\napptag,\" \",Stage_Info_Stage_Name_s) \n| summarize StagesCompleted=count(Event_s) by bin(TimeGenerated,1m), slice\n| order by TimeGenerated asc nulls last\n\n"
+            },
+            {
+                "displayName": "Tasks Per Stage",
+                "query": "let results=SparkListenerEvent_CL\n|  where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project \nStage_Info_Stage_ID_d,apptag,TimeGenerated,cluster_Name_s\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerStageCompleted\"  \n) on Stage_Info_Stage_ID_d;\nresults\n | extend slice = strcat(\"# StagesCompleted \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| extend slice=strcat(cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s) \n| project Stage_Info_Number_of_Tasks_d,slice,TimeGenerated \n| order by TimeGenerated asc nulls last\n\n"
+            },
+            {
+                "displayName": "% serialize time per executor",
+                "query": "let results = SparkMetric_CL\n|  where name_s contains \"executor.resultserializationtime\" \n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , setime=count_d , executor ,name_s\n| join kind= inner (\nSparkMetric_CL\n|  where name_s contains \"executor.RunTime\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , runTime=count_d , executor ,name_s\n) on executor, TimeGenerated;\nresults\n| extend serUsage=(setime/runTime)*100\n| summarize SerializationCpuTime=percentile(serUsage,90) by bin(TimeGenerated, 1m), executor\n| order by TimeGenerated asc nulls last\n| render timechart"
+            },
+            {
+                "displayName": "shuffle bytes read per executor",
+                "query": "let results=SparkMetric_CL\n|  where  name_s  contains \"executor.shuffleTotalBytesRead\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkMetric_CL\n    |  where name_s contains \"executor.shuffleTotalBytesRead\"\n    | extend sname=split(name_s, \".\") \n    | extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\n) on executor, TimeGenerated;\nresults\n| extend ShuffleBytesWritten=MaxShuffleWrites-MinShuffleWrites \n| summarize max(ShuffleBytesWritten)   by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc nulls last\n"
+            },
+            {
+                "displayName": "error traces",
+                "query": "SparkLoggingEvent_CL\r\n| where Level contains \"Error\"\r\n| project TimeGenerated , Message  \r\n"
+            },
+            {
+                "displayName": "Task Shuffle Bytes Written",
+                "query": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend schedulerdelay = Task_Info_Launch_Time_d - Stage_Info_Submission_Time_d\n| extend name=strcat(\"SchuffleBytesWritten \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "Task Input Bytes Read",
+                "query": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,Task_Metrics_Input_Metrics_Bytes_Read_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend name=strcat(\"InputBytesRead \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Input_Metrics_Bytes_Read_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "Sum Task Execution Per Host",
+                "query": "SparkListenerEvent_CL\n|  where Event_s contains \"taskend\" \n| extend taskDuration=Task_Info_Finish_Time_d-Task_Info_Launch_Time_d \n| summarize sum(taskDuration) by bin(TimeGenerated,  1m), Task_Info_Host_s\n| order by TimeGenerated asc nulls last "
+            },
+            {
+                "displayName": "% cpu time per executor",
+                "query": "let results = SparkMetric_CL \n|  where name_s contains \"executor.cpuTime\" \n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , cpuTime=count_d/1000000  ,  executor ,name_s\n| join kind= inner (\n    SparkMetric_CL\n|  where name_s contains \"executor.RunTime\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , runTime=count_d  ,  executor ,name_s\n) on executor, TimeGenerated;\nresults\n| extend cpuUsage=(cpuTime/runTime)*100\n| summarize ExecutorCpuTime = percentile(cpuUsage,90) by bin(TimeGenerated, 1m), executor\n| order by TimeGenerated asc nulls last   \n"
+            },
+            {
+                "displayName": "Job Throughput",
+                "query": "let results=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerJobStart\"\n| extend metricsns=columnifexists(\"Properties_spark_metrics_namespace_s\",Properties_spark_app_id_s)\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Job_ID_d,apptag,cluster_Name_s,TimeGenerated\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    | where Event_s contains \"SparkListenerJobEnd\"\n    | where Job_Result_Result_s contains \"JobSucceeded\"\n    | project Event_s,Job_ID_d,TimeGenerated\n) on Job_ID_d;\nresults\n| extend slice=strcat(\"#JobsCompleted \",cluster_Name_s,\"-\",apptag)\n| summarize count(Event_s)   by bin(TimeGenerated,  1m),slice\n| order by TimeGenerated asc nulls last"
+            },
+            {
+                "displayName": "shuffle disk bytes spilled per executor",
+                "query": "let results=SparkMetric_CL\r\n| where  name_s  contains \"executor.diskBytesSpilled\"\r\n| extend sname=split(name_s, \".\") \r\n| extend executor=strcat(\"executorid:\",sname[1])\r\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \r\n| order by TimeGenerated asc  nulls last \r\n| join kind= inner (\r\n    SparkMetric_CL\r\n    | where name_s contains \"executor.diskBytesSpilled\"\r\n    | extend sname=split(name_s, \".\") \r\n    | extend executor=strcat(\"executorid:\",sname[1])\r\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\r\n) on executor, TimeGenerated;\r\nresults\r\n| extend ShuffleBytesWritten=MaxShuffleWrites-MinShuffleWrites \r\n| summarize any(ShuffleBytesWritten)   by bin(TimeGenerated,  1m), executor\r\n| order by TimeGenerated asc nulls last\r\n"
+            },
+            {
+                "displayName": "Task Shuffle Read Time",
+                "query": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend name=strcat(\"TaskShuffleReadTime \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "shuffle heap memory per executor",
+                "query": "SparkMetric_CL\n|  where  name_s  contains \"shuffle-client.usedHeapMemory\"\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| summarize percentile(value_d,90)  by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc  nulls last"
+            },
+            {
+                "displayName": "job errors per job",
+                "query": "let results=SparkListenerEvent_CL\r\n| where  Event_s  contains \"SparkListenerJobStart\"\r\n| project Job_ID_d,Properties_callSite_short_s,TimeGenerated\r\n| order by TimeGenerated asc  nulls last \r\n| join kind= inner (\r\n    SparkListenerEvent_CL\r\n    | where Event_s contains \"SparkListenerJobEnd\"\r\n    | where Job_Result_Result_s !contains \"JobSucceeded\"\r\n    | project Event_s,Job_ID_d,TimeGenerated\r\n) on Job_ID_d;\r\nresults\r\n| extend slice=strcat(\"JobErrors \",Properties_callSite_short_s)\r\n| summarize count(Event_s)   by bin(TimeGenerated,  1m),slice\r\n| order by TimeGenerated asc nulls last"
+            },
+            {
+                "displayName": "Task errors per stage",
+                "query": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageCompleted\"\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Event_s,TimeGenerated\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    | where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s !contains \"Success\"\n    | project Stage_ID_d,Task_Info_Task_ID_d,Task_End_Reason_Reason_s,\n              TaskEvent=Event_s,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend slice=strcat(\"#TaskErrors \",Stage_Info_Stage_Name_s)\n| summarize count(TaskEvent)  by bin(TimeGenerated,1m),slice\n| order by TimeGenerated asc nulls last\n"
+            },
+            {
+                "displayName": "streaming latency per stream",
+                "query": "\r\n\r\nSparkListenerEvent_CL\r\n| where Event_s contains \"queryprogressevent\"\r\n| extend sname=strcat(progress_id_g,\"-\",\"triggerexecution\") \r\n| summarize percentile(progress_durationMs_triggerExecution_d,90)  by bin(TimeGenerated, 1m), sname\r\n| order by  TimeGenerated   asc  nulls last \r\n"
+            },
+            {
+                "displayName": "Task Shuffle Write Time",
+                "query": "let result=SparkListenerEvent_CL\r\n| where  Event_s  contains \"SparkListenerStageCompleted\"\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated\r\n| order by TimeGenerated asc  nulls last \r\n| join kind= inner (\r\n    SparkListenerEvent_CL\r\n    | where Event_s contains \"SparkListenerTaskEnd\"\r\n    | where Task_End_Reason_Reason_s contains \"Success\"\r\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\r\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\r\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\r\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\r\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\r\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\r\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\r\nresult\r\n| extend ShuffleWriteTime=Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d/1000000\r\n| extend name=strcat(\"TaskShuffleWriteTime \",Stage_Info_Stage_Name_s)\r\n| summarize percentile(ShuffleWriteTime,90) by bin(TimeGenerated,1m),name\r\n| order by TimeGenerated asc nulls last;\r\n\r\n"
+            },
+            {
+                "displayName": "Task Deserialization Time",
+                "query": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,Task_Metrics_Input_Metrics_Bytes_Read_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend name=strcat(\"TaskDeserializationTime \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Executor_Deserialize_Time_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "Task Result Serialization Time",
+                "query": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last  \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend name=strcat(\"TaskResultSerializationTime \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Result_Serialization_Time_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "file system bytes read per executor",
+                "query": "SparkMetric_CL\n|  extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| where  name_s  contains \"executor.filesystem.file.read_bytes\" \n| summarize FileSystemReadBytes=percentile(value_d,90)  by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc  nulls last"
+            },
+            {
+                "displayName": "streaming throughput processedrowsSec",
+                "query": "SparkListenerEvent_CL\r\n| where Event_s   contains \"progress\"\r\n| extend sname=strcat(progress_id_g,\"-ProcRowsPerSecond\") \r\n| extend status = todouble(extractjson(\"$.[0].processedRowsPerSecond\", progress_sources_s))\r\n| summarize percentile(status,90) by bin(TimeGenerated,  1m) , sname\r\n| order by  TimeGenerated   asc  nulls last "
+            },
+            {
+                "displayName": "% deserialize time per executor",
+                "query": "let results = SparkMetric_CL \n|  where name_s contains \"executor.deserializetime\" \n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , desetime=count_d , executor ,name_s\n| join kind= inner (\nSparkMetric_CL\n|  where name_s contains \"executor.RunTime\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , runTime=count_d , executor ,name_s\n) on executor, TimeGenerated;\nresults\n| extend deseUsage=(desetime/runTime)*100\n| summarize deSerializationCpuTime=percentiles(deseUsage,90) by bin(TimeGenerated, 1m), executor\n| order by TimeGenerated asc nulls last "
+            },
+            {
+                "displayName": "Tasks Per Executor",
+                "query": "SparkMetric_CL\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1]) \n| where name_s contains \"threadpool.activeTasks\" \n| summarize percentile(value_d,90)  by bin(TimeGenerated, 1m),executor\n| order by TimeGenerated asc  nulls last"
+            },
+            {
+              "displayName": "file system bytes write per executor",
+              "query": "SparkMetric_CL\n|  extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| where  name_s  contains \"executor.filesystem.file.write_bytes\" \n| summarize FileSystemWriteBytes=percentile(value_d,90)  by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc  nulls last "
+            },
+            {
+                "displayName": "Task Scheduler Delay Latency",
+                "query": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend schedulerdelay = Task_Info_Launch_Time_d - Stage_Info_Submission_Time_d\n| extend name=strcat(\"SchedulerDelayTime \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(schedulerdelay,90) , percentile(Task_Metrics_Executor_Run_Time_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "streaming errors per stream",
+                "query": "SparkLoggingEvent_CL\r\n| extend slice = strcat(\"CountExceptions\",progress_id_g) \r\n| where Level contains \"Error\"\r\n| summarize count(Level) by bin(TimeGenerated, 1m), slice \r\n"
+            },
+            {
+                "displayName": "shuffle client memory per executor",
+                "query": "SparkMetric_CL\r\n| where  name_s  contains \"shuffle-client.usedDirectMemory\"\r\n| extend sname=split(name_s, \".\")\r\n| extend executor=strcat(\"executorid:\",sname[1])\r\n| summarize percentile(value_d,90)  by bin(TimeGenerated,  1m), executor\r\n| order by TimeGenerated asc  nulls last"
+            },
+            {
+                "displayName": "job latency per job",
+                "query": "let results=SparkListenerEvent_CL\r\n| where  Event_s  contains \"SparkListenerJobStart\"\r\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Job_ID_d,apptag,cluster_Name_s,\r\nSubmission_Time_d,TimeGenerated\r\n| order by TimeGenerated asc  nulls last \r\n| join kind= inner (\r\n    SparkListenerEvent_CL\r\n    | where Event_s contains \"SparkListenerJobEnd\"\r\n    | where Job_Result_Result_s contains \"JobSucceeded\"\r\n    | project Event_s,Job_ID_d,Completion_Time_d,TimeGenerated\r\n) on Job_ID_d;\r\nresults\r\n| extend slice=strcat(cluster_Name_s,\"-\",apptag)\r\n| extend jobDuration=Completion_Time_d - Submission_Time_d \r\n| summarize percentiles(jobDuration,10,30,50,90)  by bin(TimeGenerated,  1m), slice\r\n| order by TimeGenerated asc nulls last"
+            },
+            {
+                "displayName": "Task Executor Compute Time",
+                "query": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last\n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend name=strcat(\"ExecutorComputeTime \",clusterName_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Executor_Run_Time_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "streaming throughput inputrowssec",
+                "query": "SparkListenerEvent_CL\n| where Event_s   contains \"progress\"\n| extend sname=strcat(progress_id_g,\"-ProcRowsPerSecond\") \n| extend status = todouble(extractjson(\"$.[0].processedRowsPerSecond\", progress_sources_s))\n| summarize percentile(status,90) by bin(TimeGenerated,  1m) , sname\n| order by  TimeGenerated   asc  nulls last \n\n"
+            },
+            {
+                "displayName": "Task Shuffle Bytes Read",
+                "query": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s\n| order by TimeGenerated asc  nulls last\n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,\n              Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d,\n              Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,\n              Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,\n              Task_Metrics_JVM_GC_Time_d,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend name=strcat(\"SchuffleBytesRead \",clusterName_s,\"-\",\" \",Stage_Info_Stage_Name_s)\n| summarize percentile(Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,90) by bin(TimeGenerated,1m),name\n| order by TimeGenerated asc nulls last;\n\n"
+            },
+            {
+                "displayName": "shuffle memory bytes spilled per executor",
+                "query": "let results=SparkMetric_CL\n|  where  name_s  contains \"executor.memoryBytesSpilled\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkMetric_CL\n    |  where name_s contains \"executor.memoryBytesSpilled\"\n    | extend sname=split(name_s, \".\") \n    | extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\n) on executor, TimeGenerated;\nresults\n| extend ShuffleBytesWritten=MaxShuffleWrites-MinShuffleWrites \n| summarize any(ShuffleBytesWritten)   by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc nulls last\n"
+            },
+            {
+                "displayName": "% jvm time per executor",
+                "query": "let results = SparkMetric_CL\n|  where name_s contains \"executor.jvmGCTime\" \n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , jvmgcTime=count_d , executor ,name_s\n| join kind= inner (\nSparkMetric_CL\n|  where name_s contains \"executor.RunTime\"\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| project TimeGenerated , runTime=count_d , executor ,name_s\n) on executor, TimeGenerated;\nresults\n| extend JvmcpuUsage=(jvmgcTime/runTime)*100\n| summarize JvmCpuTime = percentile(JvmcpuUsage,90) by bin(TimeGenerated, 1m), executor\n| order by TimeGenerated asc nulls last\n| render timechart  \n"
+            },
+            {
+                "displayName": "Running Executors",
+                "query": "SparkMetric_CL\n|  where name_s !contains \"driver\" \n| where name_s contains \"executor\"\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[1]) \n| extend app=strcat(sname[0])\n| summarize NumExecutors=dcount(executor)  by bin(TimeGenerated,  1m),app\n| order by TimeGenerated asc  nulls last"
+            },
+            {
+                "displayName": "shuffle bytes read to disk per executor",
+                "query": "let results=SparkMetric_CL\r\n| where  name_s  contains \"executor.shuffleRemoteBytesReadToDisk\"\r\n| extend sname=split(name_s, \".\") \r\n| extend executor=strcat(\"executorid:\",sname[1])\r\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \r\n| order by TimeGenerated asc  nulls last \r\n| join kind= inner (\r\n    SparkMetric_CL\r\n    | where name_s contains \"executor.shuffleRemoteBytesReadToDisk\"\r\n    | extend sname=split(name_s, \".\") \r\n    | extend executor=strcat(\"executorid:\",sname[1])\r\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\r\n) on executor, TimeGenerated;\r\nresults\r\n| extend ShuffleBytesWritten=MaxShuffleWrites-MinShuffleWrites \r\n| summarize any(ShuffleBytesWritten)   by bin(TimeGenerated,  1m), executor\r\n| order by TimeGenerated asc nulls last\r\n"
+            },
+            {
+                "displayName": "task latency per stage",
+                "query": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,apptag,cluster_Name_s,Event_s,TimeGenerated\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Info_Finish_Time_d\n              ) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend TaskLatency =  Task_Info_Finish_Time_d - Task_Info_Launch_Time_d\n| extend slice=strcat(cluster_Name_s,\"-\",apptag,\"-\",Stage_Info_Stage_Name_s)\n| summarize percentile(TaskLatency,90)  by bin(TimeGenerated,1m),slice\n| order by TimeGenerated asc nulls last;\n"
+            },
+            {
+                "displayName": "task throughput",
+                "query": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\r\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,cluster_Name_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Stage_ID_d,Task_Info_Task_ID_d,\n              TaskEvent=Event_s,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend slice=strcat(\"#TasksCompleted \",cluster_Name_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s)\n| summarize count(TaskEvent)  by bin(TimeGenerated,1m),slice\n| order by TimeGenerated asc nulls last\n"
+            },
+            {
+                "displayName": "shuffle client direct memory",
+                "query": "SparkMetric_CL\n|  where  name_s  contains \"shuffle-client.usedDirectMemory\"\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[0],\".\",sname[1])\n| summarize percentile(value_d,90)  by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc  nulls last"
+            },
+            {
+                "displayName": "Disk Bytes Spilled",
+                "query": "let results=SparkMetric_CL\n|  where  name_s  contains \"executor.diskBytesSpilled\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkMetric_CL\n    |  where name_s contains \"executor.diskBytesSpilled\"\n    | extend sname=split(name_s, \".\") \n    | extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\n) on executor, TimeGenerated;\nresults\n| extend ShuffleBytesWritten=MaxShuffleWrites-MinShuffleWrites \n| summarize any(ShuffleBytesWritten)   by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc nulls last\n"
+            },
+            {
+                "displayName": "Shuffle Bytes Read",
+                "query": "let results=SparkMetric_CL\n|  where  name_s  contains \"executor.shuffleRemoteBytesReadToDisk\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkMetric_CL\n    |  where name_s contains \"executor.shuffleRemoteBytesReadToDisk\"\n    | extend sname=split(name_s, \".\") \n    | extend executor=strcat(sname[0],\".\",sname[1])\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\n) on executor, TimeGenerated;\nresults\n| extend ShuffleBytesWritten=MaxShuffleWrites-MinShuffleWrites \n| summarize any(ShuffleBytesWritten)   by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc nulls last\n"
+            }
+          ]
+    },
+    "resources": [
+        {
+            "name": "[parameters('WorkspaceName')]",
+            "type": "Microsoft.Databricks/workspaces",
+            "apiVersion": "2018-04-01",
+            "location": "[parameters('Location')]",
+            "sku": {
+                "name": "[parameters('Sku')]"
+            },
+            "properties": {
+                "managedResourceGroupId": "[variables('managedResourceGroupId')]",
+                "parameters": {}
+            }
+        },
+        {
+            "type": "microsoft.operationalinsights/workspaces",
+            "name": "[parameters('DatabricksLogWorkspaceName')]",
+            "apiVersion": "2017-03-15-preview",
+            "location": "[parameters('Location')]",
+            "properties": {
+                "sku": {
+                    "name": "[parameters('DatabricksLogServiceTier')]"
+                }
+            }
+        },
+        {
+            "name": "[concat(parameters('KeyVaultName'), '/add')]",
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2019-09-01",
+            "dependsOn": [
+                "[concat('Microsoft.Databricks/workspaces/', parameters('WorkspaceName'))]"
+            ],
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[variables('TenantId')]",
+                        "objectId": "857fa58b-b8bf-4c94-884d-152ead801b09",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+            "name": "[concat(parameters('DatabricksLogWorkspaceName'), '/', guid(concat(resourceGroup().id, deployment().name, copyIndex())))]",
+            "apiVersion": "2017-03-15-preview",
+            "scale": null,
+            "properties": {
+            "eTag": "*",
+            "Category": "spark metrics",
+            "DisplayName": "[variables('queries')[copyIndex()].displayName]",
+            "Query": "[variables('queries')[copyIndex()].query]",
+            "Version": 2
+        },
+            "dependsOn": [
+                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('DatabricksLogWorkspaceName'))]"
+            ],
+            "copy": {
+                "name": "querycopy",
+                "count": "[length(variables('queries'))]"
+            }
+        }
+    ]
+}

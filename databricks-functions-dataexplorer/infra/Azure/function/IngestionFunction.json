@@ -1,0 +1,298 @@
+{
+   "$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+   "contentVersion":"1.0.0.0",
+   "parameters":{
+        "FunctionName":{
+            "type":"string"
+        },
+        "StorageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": ["Standard_LRS", "Standard_GRS", "Standard_RAGRS"],
+            "metadata": {
+                "description": "Storage Account type"
+            }
+        },
+        "KeyVaultName":{
+            "type": "string"
+        },
+        "IngestionStorageAccountName":{
+            "type": "string"
+        },
+        "IngestionEventQueueName": {
+            "type": "string"
+        },
+        "IngestionEventQueueCount":{
+            "defaultValue": 1,
+            "type": "int"
+        },
+        "IngestionConnectingStringName":{
+            "type": "string"
+        },
+        "TableStorageAccountName":{
+            "defaultValue": "",
+            "type": "string"
+        },
+        "LeadClusterName":{
+            "type": "string"
+        },
+        "FunctionLocation":{
+            "type": "string"
+        },
+        "Runtime":{
+            "defaultValue": "python",
+            "type": "string"
+        },      
+        "IsFlushImmediately": {
+            "defaultValue": "True",
+            "type": "string"
+        },      
+        "DatabaseIDKey": {
+            "type": "string"
+        },      
+        "TableIDKey": {
+            "type": "string"
+        },
+        "IsDuplicateCheck": {
+            "defaultValue": "False",
+            "type": "string"
+        }
+        
+    },
+    "variables": {
+      "TenantId": "[subscription().tenantId]"
+    },
+   "resources":[
+        {
+            "name": "[concat(parameters('IngestionStorageAccountName'), '/default/', parameters('IngestionEventQueueName'), copyIndex())]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2019-06-01",
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "properties": {
+                "metadata": {}
+            }
+        },
+        {   
+            "name": "[concat(parameters('IngestionStorageAccountName'), '/default/', parameters('IngestionEventQueueName'), copyIndex(), '-poison')]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2019-06-01",
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "properties": {
+                "metadata": {}
+            }
+        },
+        {
+            "type":"Microsoft.Storage/storageAccounts",
+            "name":"[concat(parameters('FunctionName'), copyIndex())]",
+            "apiVersion":"2019-06-01",
+            "location":"[parameters('FunctionLocation')]",
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "kind":"StorageV2",
+            "sku":{
+                "name":"[parameters('StorageAccountType')]"
+            }
+        },
+        {
+            "type":"Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion":"2019-06-01",
+            "name":"[concat(parameters('FunctionName'), copyIndex(), '/default')]",
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "dependsOn":[
+                "[resourceId('Microsoft.Storage/storageAccounts', concat(parameters('FunctionName'), copyIndex()))]"
+            ],
+            "sku":{
+                "name":"[parameters('StorageAccountType')]",
+                "tier":"Standard"
+            },
+            "properties":{
+                "cors":{
+                "corsRules":[]
+                }
+            }
+        },
+        {
+            "type":"Microsoft.Web/serverfarms",
+            "apiVersion":"2018-02-01",
+            "name":"[concat(parameters('FunctionName'),copyIndex())]",
+            "location":"[parameters('FunctionLocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', concat(parameters('FunctionName'), copyIndex()))]"
+            ],
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "sku":{
+                "name":"Y1",
+                "tier":"Dynamic"
+            },
+            "properties":{
+                "name":"[concat(parameters('FunctionName'),copyIndex())]",
+                "computeMode":"Dynamic",
+                "reserved":true
+            }
+        },
+        {
+            "apiVersion":"2015-08-01",
+            "type":"Microsoft.Web/sites",
+            "name":"[concat(parameters('FunctionName'),copyIndex())]",
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "location":"[parameters('FunctionLocation')]",
+            "kind":"functionapp,linux",
+            "dependsOn":[
+                "[resourceId('Microsoft.Web/serverfarms', concat(parameters('FunctionName'),copyIndex()))]"
+            ],
+            "identity":{
+                "type":"SystemAssigned"
+            },
+            "properties":{
+                "serverFarmId":"[resourceId('Microsoft.Web/serverfarms', concat(parameters('FunctionName'), copyIndex()))]",
+                "siteConfig":{
+                    "appSettings":[
+                        {
+                            "name":"AzureWebJobsStorage",
+                            "value":"[concat('DefaultEndpointsProtocol=https;AccountName=', concat(parameters('FunctionName'), copyIndex()), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', concat(parameters('FunctionName'), copyIndex())),'2019-06-01').keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                        },
+                        {
+                            "name":"WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value":"[concat('DefaultEndpointsProtocol=https;AccountName=', concat(parameters('FunctionName'), copyIndex()), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', concat(parameters('FunctionName'), copyIndex())),'2019-06-01').keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                        },
+                        {
+                            "name":"WEBSITE_CONTENTSHARE",
+                            "value":"[toLower(concat(parameters('FunctionName'),copyIndex()))]"
+                        },
+                        {
+                            "name":"APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value":"[reference(resourceId('microsoft.insights/components/', concat(parameters('FunctionName'),copyIndex())), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[concat('InstrumentationKey=', reference(resourceId('microsoft.insights/components/', concat(parameters('FunctionName'),copyIndex())), '2015-05-01').InstrumentationKey)]"
+                        },                      
+                        {
+                            "name":"FUNCTIONS_WORKER_RUNTIME",
+                            "value":"[parameters('Runtime')]"
+                        },
+                        {
+                            "name":"APP_AAD_TENANT_ID",
+                            "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/aadtenantid/)')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"APP_CLIENT_ID",
+                            "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/adxclientid/)')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"APP_CLIENT_SECRETS",
+                            "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/adxclientsecret/)')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"AzureStorageQueuesConnectionString",
+                            "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/', parameters('IngestionConnectingStringName'), '/)')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"EVENT_SUBJECT_FILTER_REGEX",
+                            "value":"(.*?)[0-9].json",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"FUNCTIONS_EXTENSION_VERSION",
+                            "value":"~3",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"FUNCTIONS_WORKER_PROCESS_COUNT",
+                            "value":"10",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"INGESTION_MAPPING",
+                            "value":"json_mapping_01",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"INGESTION_SERVER_URI",
+                            "value":"[concat('https://ingest-', parameters('LeadClusterName'), '.', parameters('FunctionLocation'), '.kusto.windows.net:443')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"IS_FLUSH_IMMEDIATELY",
+                            "value":"[parameters('IsFlushImmediately')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"SOURCE_TELEMETRY_FILE_TOKEN",
+                            "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/ingestiontoken/)')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"DATABASEID_KEY",
+                            "value":"[parameters('DatabaseIDKey')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"TABLEID_KEY",
+                            "value":"[parameters('TableIdkey')]",
+                            "slotSetting":false
+                        }, 
+                        {
+                            "name":"IS_DUPLICATE_CHECK",
+                            "value":"[parameters('IsDuplicateCheck')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"STORAGE_TABLE_ACCOUNT",
+                            "value":"[parameters('TableStorageAccountName')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"STORAGE_TABLE_TOKEN",
+                            "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName') ,'.vault.azure.net/secrets/logtabletoken/)')]",
+                            "slotSetting":false
+                        },
+                        {
+                            "name":"DUPLICATE_EVENT_NAME",
+                            "value":"KUSTOLAB_DUPLICATE_FAILURE",
+                            "slotSetting":false
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion":"2018-05-01-preview",
+            "name":"[concat(parameters('FunctionName'), copyIndex())]",
+            "type":"microsoft.insights/components",
+            "copy":{
+                "name":"QueueCopy",
+                "count":"[parameters('IngestionEventQueueCount')]"
+            },
+            "location":"[parameters('FunctionLocation')]",
+            "tags":{
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', concat(parameters('FunctionName'),copyIndex()))]":"Resource"
+            },
+            "properties":{
+                "ApplicationId":"[concat(parameters('FunctionName'), copyIndex())]",
+                "Request_Source":"IbizaWebAppExtensionCreate"
+            }
+        }
+    ]
+}

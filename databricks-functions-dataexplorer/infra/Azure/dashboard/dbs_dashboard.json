@@ -1,0 +1,1458 @@
+{
+   "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+   "contentVersion":"1.0.0.0",
+   "parameters":{
+      "DashboardName":{
+         "type":"string"
+      },
+      "DatabricksLogAnalyticsWorkspaceName":{
+         "type":"string"
+      }
+   },
+   "variables":{
+      
+   },
+   "resources":[
+      {
+         "properties": {
+           "lenses": {
+             "0": {
+               "order": 0,
+               "parts": {
+                 "0": {
+                   "position": {
+                     "x": 0,
+                     "y": 0,
+                     "colSpan": 11,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "avg_status_input",
+                               "type": "real"
+                             },
+                             {
+                               "name": "avg_status_processed",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "SparkListenerEvent_CL\n| where Event_s   contains \"progress\"\n| extend sname_input=strcat(progress_id_g,\"-inputRowsPerSecond\")\n| extend status_input = todouble(extractjson(\"$.[0].inputRowsPerSecond\", progress_sources_s))\n| extend sname_p =strcat(progress_id_g,\"-ProcRowsPerSecond\")\n| extend status_processed = todouble(extractjson(\"$.[0].processedRowsPerSecond\", progress_sources_s))\n| summarize avg(status_input), avg(status_processed) by bin(TimeGenerated,  1m)\n| order by  TimeGenerated   asc  nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "7e831c9a-ed17-4de2-a871-b46b3588a667",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Throughtput",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "1": {
+                   "position": {
+                     "x": 0,
+                     "y": 3,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "avg_jobDuration",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "slice",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Average"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let results=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerJobStart\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Job_ID_d,apptag,clusterName_s,\nSubmission_Time_d,TimeGenerated\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    | where Event_s contains \"SparkListenerJobEnd\"\n    | where Job_Result_Result_s contains \"JobSucceeded\"\n    | project Event_s,Job_ID_d,Completion_Time_d,TimeGenerated\n) on Job_ID_d;\nresults\n| extend slice=strcat(clusterName_s,\"-\",apptag)\n| extend jobDuration=(Completion_Time_d - Submission_Time_d )/1000\n| summarize avg(jobDuration) by bin(TimeGenerated,  1m), slice\n| order by TimeGenerated asc nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "12748e5e-0f1c-4ace-9813-94ea1ed11c2a",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Job Duration",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "2": {
+                   "position": {
+                     "x": 5,
+                     "y": 3,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "avg_stageDuration",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "slice",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Average"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let results=SparkListenerEvent_CL\n|  where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Stage_Info_Stage_ID_d,apptag,TimeGenerated,clusterName_s\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerStageCompleted\"  \n    | extend stageDuration=(Stage_Info_Completion_Time_d - Stage_Info_Submission_Time_d)/1000\n) on Stage_Info_Stage_ID_d;\nresults\n | extend slice = strcat(clusterName_s,\"-\",apptag,\" \",Stage_Info_Stage_Name_s) \n| extend stageDuration=(Stage_Info_Completion_Time_d - Stage_Info_Submission_Time_d )/1000\n| summarize avg(stageDuration) by bin(TimeGenerated,  1m), slice\n| order by TimeGenerated asc nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "3b6c03ba-309b-4c75-8713-1789b7d4931d",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Stage Duration",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "3": {
+                   "position": {
+                     "x": 10,
+                     "y": 3,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "avg_TaskLatency",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "slice",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Average"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let result=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,apptag,clusterName_s,Event_s,TimeGenerated\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,\n              Task_Info_Finish_Time_d\n              ) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend TaskLatency =  (Task_Info_Finish_Time_d - Task_Info_Launch_Time_d)/1000\n| extend slice=strcat(clusterName_s,\"-\",apptag)\n| summarize avg(TaskLatency)  by bin(TimeGenerated,1m),slice\n| order by TimeGenerated asc nulls last;\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "12cffcad-1395-4cee-a892-eb6c14a839df",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Task Duration",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "4": {
+                   "position": {
+                     "x": 0,
+                     "y": 6,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "count_Job_ID_d",
+                               "type": "long"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "slice",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Average"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let results=SparkListenerEvent_CL\n| where  Event_s  contains \"SparkListenerJobStart\"\n| extend metricsns=columnifexists(\"Properties_spark_metrics_namespace_s\",Properties_spark_app_id_s)\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Job_ID_d,apptag,clusterName_s,TimeGenerated\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    | where Event_s contains \"SparkListenerJobEnd\"\n    | where Job_Result_Result_s contains \"JobSucceeded\"\n    | project Event_s,Job_ID_d,TimeGenerated\n) on Job_ID_d;\nresults\n| extend slice=strcat(\"#JobsCompleted \",clusterName_s,\"-\",apptag)\n| summarize count(Job_ID_d)   by bin(TimeGenerated,  1m),slice\n| order by TimeGenerated asc nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "14a6b52b-13bc-48c5-89e1-3d0e1acd15c6",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Job Count",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "5": {
+                   "position": {
+                     "x": 5,
+                     "y": 6,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "StagesCompleted",
+                               "type": "long"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "slice",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let results=SparkListenerEvent_CL\n|  where  Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project \nStage_Info_Stage_ID_d,apptag,TimeGenerated,clusterName_s\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerStageCompleted\"  \n) on Stage_Info_Stage_ID_d;\nresults\n | extend slice = strcat(\"# StagesCompleted \",clusterName_s,\"-\",\napptag,\" \",Stage_Info_Stage_Name_s) \n| summarize StagesCompleted=count(Event_s) by bin(TimeGenerated,1m), slice\n| order by TimeGenerated asc nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "13d08a17-1e9d-41a5-ac48-dd9067139c4d",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Stage Count",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "6": {
+                   "position": {
+                     "x": 10,
+                     "y": 6,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "count_TaskEvent",
+                               "type": "long"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "slice",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Average"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,clusterName_s,apptag\n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkListenerEvent_CL\n    |  where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Stage_ID_d,Task_Info_Task_ID_d,\n              TaskEvent=Event_s,TimeGenerated\n) on $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nresult\n| extend slice=strcat(\"#TasksCompleted \",clusterName_s,\"-\",apptag,\" \")\n| summarize count(TaskEvent)  by bin(TimeGenerated,1m),slice\n| order by TimeGenerated asc nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "4bbffa6b-dab7-4bc8-b121-c5164351df57",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Task Count",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "7": {
+                   "position": {
+                     "x": 0,
+                     "y": 9,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "dcount_Properties_spark_scheduler_pool_s",
+                               "type": "long"
+                             }
+                           ],
+                           "splitBy": [],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| summarize dcount(Properties_spark_scheduler_pool_s) by bin(TimeGenerated,1m)\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "15f58b5a-8f89-4322-b715-f62cd74108bc",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "StackedColumn",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "No. of Scheduler Pool",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "8": {
+                   "position": {
+                     "x": 5,
+                     "y": 9,
+                     "colSpan": 5,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "NumExecutors",
+                               "type": "long"
+                             }
+                           ],
+                           "splitBy": [],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "SparkMetric_CL\n| where name_s !contains \"driver\" \n| where name_s contains \"executorMetrics\"\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(sname[1]) \n| summarize NumExecutors=dcount(executor)  by bin(TimeGenerated,  1m)\n| order by TimeGenerated asc  nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "2e556073-71b1-4841-932e-4c5238b5508a",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "StackedColumn",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "No. of executors",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "9": {
+                   "position": {
+                     "x": 0,
+                     "y": 12,
+                     "colSpan": 5,
+                     "rowSpan": 4
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "ExecutorCpuTime",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "executor",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let results = SparkMetric_CL \n|  where name_s contains \"executor.cpuTime\" \n| extend sname=split(name_s, \".\")\n| extend executor=strcat(\"executorid:\",sname[1])\n| project TimeGenerated , cpuTime=count_d/1000000  ,  executor ,name_s\n| join kind= inner (\n    SparkMetric_CL\n|  where name_s contains \"executor.RunTime\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(\"executorid:\",sname[1])\n| project TimeGenerated , runTime=count_d  ,  executor ,name_s\n) on executor, TimeGenerated;\nresults\n| extend cpuUsage_percentage=(cpuTime/runTime)*100\n| summarize ExecutorCpuTime = avg(cpuUsage_percentage) by bin(TimeGenerated, 1m), executor\n| order by TimeGenerated asc nulls last   \n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "1911cf8a-3faf-4ed6-b6ff-733e360158b0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Avg CPU Usage (%) per Executor",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "10": {
+                   "position": {
+                     "x": 5,
+                     "y": 12,
+                     "colSpan": 5,
+                     "rowSpan": 4
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "avg_shuffle_client_mem_MB",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "executor",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "SparkMetric_CL\n| where  name_s  contains \"shuffle-client.usedDirectMemory\"\n| extend sname=split(name_s, \".\")\n| extend executor=strcat(\"executorid:\",sname[1])\n| extend shuffle_client_mem_MB = value_d*1e-6\n| summarize avg(shuffle_client_mem_MB)  by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc  nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "861aecad-b5da-42f0-80c2-5ca5b110ac66",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Avg Used Direct Memory (MB) per Host",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "11": {
+                   "position": {
+                     "x": 10,
+                     "y": 12,
+                     "colSpan": 5,
+                     "rowSpan": 4
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "value": {
+                           "xAxis": {
+                             "name": "TimeGenerated",
+                             "type": "datetime"
+                           },
+                           "yAxis": [
+                             {
+                               "name": "any_ShuffleMemSpilled_MB",
+                               "type": "real"
+                             }
+                           ],
+                           "splitBy": [
+                             {
+                               "name": "executor",
+                               "type": "string"
+                             }
+                           ],
+                           "aggregation": "Sum"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let results=SparkMetric_CL\n|  where  name_s  contains \"executor.memoryBytesSpilled\"\n| extend sname=split(name_s, \".\") \n| extend executor=strcat(\"executorid:\",sname[1])\n| summarize MaxShuffleWrites=max(count_d)  by bin(TimeGenerated,  1m), executor \n| order by TimeGenerated asc  nulls last \n| join kind= inner (\n    SparkMetric_CL\n    |  where name_s contains \"executor.memoryBytesSpilled\"\n    | extend sname=split(name_s, \".\") \n    | extend executor=strcat(\"executorid:\",sname[1])\n| summarize MinShuffleWrites=min(count_d)  by bin(TimeGenerated,  1m), executor\n) on executor, TimeGenerated;\nresults\n| extend ShuffleMemSpilled_MB=(MaxShuffleWrites-MinShuffleWrites)*1e-6\n| summarize any(ShuffleMemSpilled_MB)   by bin(TimeGenerated,  1m), executor\n| order by TimeGenerated asc nulls last\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "15ea175e-01a8-41e8-b812-b822df111c4c",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "FrameControlChart",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "value": "Line",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Spilled Memory per host (MB)",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]"
+                       }
+                     }
+                   }
+                 },
+                 "12": {
+                   "position": {
+                     "x": 0,
+                     "y": 16,
+                     "colSpan": 15,
+                     "rowSpan": 3
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "SparkLoggingEvent_CL\n| where Level contains \"Error\"\n| project TimeGenerated , Message , thread_name_s\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "10b29fb3-12ef-43c7-9fc5-67024e399b6e",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "AnalyticsGrid",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Error",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "GridColumnsWidth": {
+                           "Message": "1089px"
+                         }
+                       }
+                     }
+                   }
+                 },
+                 "13": {
+                   "position": {
+                     "x": 0,
+                     "y": 19,
+                     "colSpan": 11,
+                     "rowSpan": 4
+                   },
+                   "metadata": {
+                     "inputs": [
+                       {
+                         "name": "ComponentId",
+                         "value": {
+                           "SubscriptionId": "[subscription().subscriptionId]",
+                           "ResourceGroup": "[resourceGroup().name]",
+                           "Name": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                           "ResourceId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/microsoft.operationalinsights/workspaces/', parameters('DatabricksLogAnalyticsWorkspaceName'))]"
+                         },
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Dimensions",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Query",
+                         "value": "let result=SparkListenerEvent_CL\n| where Event_s  contains \"SparkListenerStageSubmitted\"\n| extend apptag=iif(isnotempty(Properties_spark_app_id_s),Properties_spark_app_id_s, applicationId_s)\n| project Stage_Info_Stage_ID_d,Stage_Info_Stage_Name_s,Stage_Info_Submission_Time_d,Event_s,TimeGenerated,clusterName_s,apptag, Stage_Info_Number_of_Tasks_d, Stage_Info_Parent_IDs_s\n| order by TimeGenerated asc  nulls last\n| join kind= inner\n(\n    SparkListenerEvent_CL\n    | where Event_s contains \"SparkListenerTaskEnd\"\n    | where Task_End_Reason_Reason_s contains \"Success\"\n    | project Task_Info_Launch_Time_d,Stage_ID_d,Task_Info_Task_ID_d,Event_s,Task_Metrics_Executor_Deserialize_Time_d,Task_Metrics_Shuffle_Read_Metrics_Fetch_Wait_Time_d,               Task_Metrics_Executor_Run_Time_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Write_Time_d, Task_Metrics_Result_Serialization_Time_d,Task_Info_Getting_Result_Time_d,               Task_Metrics_Shuffle_Read_Metrics_Remote_Bytes_Read_d,Task_Metrics_Shuffle_Write_Metrics_Shuffle_Bytes_Written_d,               Task_Metrics_JVM_GC_Time_d,TimeGenerated, Task_Info_Executor_ID_s\n)\non $left.Stage_Info_Stage_ID_d == $right.Stage_ID_d;\nlet result2 = result\n| extend Task_Metrics_Executor_Run_Time_s = Task_Metrics_Executor_Run_Time_d/1000\n| summarize count(Task_Metrics_Executor_Run_Time_s), percentiles(Task_Metrics_Executor_Run_Time_s,70, 90, 100) by Stage_ID_d, bin(TimeGenerated,1s)\n| order by TimeGenerated, Stage_ID_d desc  nulls last;\nresult2\n| where count_Task_Metrics_Executor_Run_Time_s > 20\n| extend  diff_90_70_net = percentile_Task_Metrics_Executor_Run_Time_s_90 - percentile_Task_Metrics_Executor_Run_Time_s_70\n| extend  diff_100_90_net = percentile_Task_Metrics_Executor_Run_Time_s_100 - percentile_Task_Metrics_Executor_Run_Time_s_90\n| extend diff_90_70_percent = (percentile_Task_Metrics_Executor_Run_Time_s_90 - percentile_Task_Metrics_Executor_Run_Time_s_70)/percentile_Task_Metrics_Executor_Run_Time_s_70 *100\n| extend diff_100_90_percent = (percentile_Task_Metrics_Executor_Run_Time_s_100 -percentile_Task_Metrics_Executor_Run_Time_s_90)/percentile_Task_Metrics_Executor_Run_Time_s_90*100\n| extend task_count = count_Task_Metrics_Executor_Run_Time_s\n| project TimeGenerated, Stage_ID_d, task_count, diff_90_70_percent , diff_90_70_net,  diff_100_90_percent, diff_100_90_net\n| order by TimeGenerated, Stage_ID_d asc nulls last;\n",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartTitle",
+                         "value": "Analytics",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartSubTitle",
+                         "value": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "PartId",
+                         "value": "43f1d0c5-369d-42ff-ae13-6250ba14b8fa",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "Version",
+                         "value": "1.0",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "resourceTypeMode",
+                         "value": "workspace",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "TimeRange",
+                         "value": "PT4H",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "DashboardId",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "ControlType",
+                         "value": "AnalyticsGrid",
+                         "isOptional": true
+                       },
+                       {
+                         "name": "SpecificChart",
+                         "isOptional": true
+                       }
+                     ],
+                     "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                     "settings": {
+                       "content": {
+                         "PartTitle": "Data Skew( Execute Compute Time in Stage 2)",
+                         "PartSubTitle": "[parameters('DatabricksLogAnalyticsWorkspaceName')]",
+                         "GridColumnsWidth": {
+                           "Stage_ID_d": "108px",
+                           "task_count": "102px",
+                           "diff_90_70_net": "130px",
+                           "diff_100_90_percent": "152px",
+                           "diff_100_90_net": "136px"
+                         }
+                       }
+                     }
+                   }
+                 }
+               }
+             }
+           },
+           "metadata": {
+             "model": {
+               "timeRange": {
+                 "value": {
+                   "relative": {
+                     "duration": 24,
+                     "timeUnit": 1
+                   }
+                 },
+                 "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+               },
+               "filterLocale": {
+                 "value": "en-us"
+               },
+               "filters": {
+                 "value": {
+                   "MsPortalFx_TimeRange": {
+                     "model": {
+                       "format": "local",
+                       "granularity": "auto",
+                       "absolute": {
+                         "fromDate": "2020-10-08T07:50:08Z",
+                         "toDate": "2020-10-08T08:20:08Z"
+                       }
+                     },
+                     "displayCache": {
+                       "name": "Local Time",
+                       "value": "10/8/2020 to 10/8/2020"
+                     },
+                     "filteredPartIds": [
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e007",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e009",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e00b",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e00d",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e00f",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e011",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e013",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e015",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e017",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e019",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e01b",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e01d",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e01f",
+                       "StartboardPart-AnalyticsPart-dd61083d-5331-460c-b1c9-6d2d6885e021"
+                     ]
+                   }
+                 }
+               }
+             }
+           }
+         },
+         "name":"[parameters('DashboardName')]",
+         "type":"Microsoft.Portal/dashboards",
+         "location":"[resourceGroup().location]",
+         "tags":{
+           "hidden-title":"[parameters('DashboardName')]"
+         },
+         "apiVersion": "2015-08-01-preview"
+      }
+   ]
+}

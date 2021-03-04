@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ClusterName": {
+            "type": "String"
+        },
+        "Location": {
+            "type": "String"
+        },
+        "ClusterSkuName": {
+            "type": "String"
+        },
+        "ClusterSkuTier": {
+            "type": "String"
+        },
+        "ClusterSkuCapacity": {
+            "type": "Int"
+        },
+        "AvaliabilityZones": {
+            "type": "Array"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Kusto/Clusters",
+            "apiVersion": "2019-11-09",
+            "name": "[parameters('ClusterName')]",
+            "location": "[parameters('Location')]",
+            "zones": "[parameters('AvaliabilityZones')]",
+            "sku": {
+                "name": "[parameters('ClusterSkuName')]",
+                "tier": "[parameters('ClusterSkuTier')]",
+                "capacity": "[parameters('ClusterSkuCapacity')]"
+            },
+            "properties": {
+                "trustedExternalTenants": [
+                    {
+                        "value": "*"
+                    }
+                ],
+                "enableDiskEncryption": false,
+                "enableStreamingIngest": false
+            }
+        }
+    ]
+}

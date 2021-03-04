@@ -39,7 +39,7 @@ wait_for_run () {
 cluster_jq_command="$(cat <<JQ
   .name = "Streaming at scale job $notebook_name"
   | .notebook_task.notebook_path = "/Shared/streaming-at-scale/$notebook_name"
-  | .new_cluster.spark_version = "${DATABRICKS_SPARKVERSION:-5.5.x-scala2.11}"
+  | .new_cluster.spark_version = "$DATABRICKS_SPARKVERSION"
   | .new_cluster.node_type_id = "$DATABRICKS_NODETYPE"
   | .new_cluster.num_workers = $DATABRICKS_WORKERS
   | .timeout_seconds = $((${REPORT_THROUGHPUT_MINUTES:-30} * 60))
@@ -53,8 +53,13 @@ fi
 
 echo "starting Databricks notebook job for $notebook_name" | tee -a log.txt
 
-job_def=$(cat ../streaming/databricks/job/job-config.json | jq "$cluster_jq_command" | jq "$job_jq_command")
+# Template path
+if [ -z "${AZURE_DBSJOB_TEMPLATE_PATH-}" ]; then
+    AZURE_DBSJOB_TEMPLATE_PATH="../streaming/databricks/job/job-config.json"
+fi
 
+job_def=$(cat $AZURE_DBSJOB_TEMPLATE_PATH | jq "$cluster_jq_command" | jq "$job_jq_command")
+echo "job_def$job_def"
 if ! job=$(databricks jobs create --json "$job_def"); then
   #Databricks CLI outputs any error message to stdout rather than stderr, intercept that
   echo $job >&2

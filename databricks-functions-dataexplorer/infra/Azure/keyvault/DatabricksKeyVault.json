@@ -1,0 +1,85 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",     
+    "parameters": {
+        "AadObjectId": {
+          "type": "string"
+        },
+        "SoftDelete": {
+            "type": "bool"
+        },
+        "KeyVaultName": {
+          "type": "string"
+        },
+        "Location": {
+          "type": "string"
+        },
+        "AzureDatabricksObjectId": {
+          "type": "string"
+        },
+        "Secrets": {
+          "type": "object"
+        }
+    },
+    "variables": {
+      "KvApiVersion": "[providers('Microsoft.KeyVault', 'vaults').apiVersions[0]]",
+      "TenantId": "[subscription().tenantId]"
+    }, 
+    "resources": [
+      {
+        "type": "Microsoft.KeyVault/vaults",
+        "apiVersion": "[variables('KvApiVersion')]",
+        "name": "[parameters('KeyVaultName')]",
+        "location": "[parameters('Location')]",
+        "properties": {
+          "sku": {
+            "family": "A",
+            "name": "standard"
+          },
+          "tenantId": "[variables('TenantId')]",
+          "enableSoftDelete": "[parameters('SoftDelete')]",
+          "enabledForDeployment": true,
+          "enabledForTemplateDeployment": true,
+          "enabledForDiskEncryption": false,          
+          "accessPolicies": [
+            {
+              "tenantId": "[variables('TenantId')]",
+              "objectId": "[parameters('AadObjectId')]",
+              "permissions": {
+                "secrets": [
+                  "set",
+                  "get"
+                ]
+              }
+            },
+            {
+              "tenantId": "[variables('TenantId')]",
+              "objectId": "[parameters('AzureDatabricksObjectId')]",
+              "permissions": {
+                "secrets": [
+                  "get"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "[concat(parameters('keyVaultName'), '/', parameters('Secrets').secretPairs[copyIndex()].key)]",
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "copy": {
+            "name":"SecretsCopy",
+            "count":"[length(parameters('Secrets').secretPairs)]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+        ],
+        "apiVersion": "2018-02-14",
+        "tags": {},
+        "properties": {
+            "value": "[parameters('Secrets').secretPairs[copyIndex()].value]",
+            "contentType": "string"
+        }
+      }
+    ]
+}

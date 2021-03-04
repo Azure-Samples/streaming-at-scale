@@ -1,0 +1,6 @@
+azure-kusto-data==1.0.2
+azure-mgmt-kusto==0.9.0
+
+adal==1.2.4
+azure-common==1.1.25
+azure-core==1.9.0

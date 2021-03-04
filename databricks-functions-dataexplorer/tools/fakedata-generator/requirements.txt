@@ -1,0 +1,2 @@
+azure-storage-blob==12.6.0
+apscheduler==3.6.3

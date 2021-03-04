@@ -1,0 +1,97 @@
+{
+    "$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":"1.0.0.0",
+    "parameters":{
+        "FunctionName":{
+            "type":"string"
+        },
+        "FunctionLocation":{
+            "type":"string"
+        },
+        "StorageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": ["Standard_LRS", "Standard_GRS", "Standard_RAGRS"],
+            "metadata": {
+                "description": "Storage Account type"
+            }
+        }
+    },
+    "resources":[
+        {
+            "type":"Microsoft.Storage/storageAccounts",
+            "name":"[parameters('FunctionName')]",
+            "apiVersion":"2019-06-01",
+            "location":"[parameters('FunctionLocation')]",
+            "kind":"StorageV2",
+            "sku":{
+                "name":"[parameters('StorageAccountType')]"
+            }
+        },
+        {
+            "type":"Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion":"2019-06-01",
+            "name":"[concat(parameters('FunctionName'), '/default')]",
+            "dependsOn":[
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('FunctionName'))]"
+            ],
+            "sku":{
+                "name":"[parameters('StorageAccountType')]",
+                "tier":"Standard"
+            },
+            "properties":{
+                "cors":{
+                "corsRules":[]
+                }
+            }
+        },
+        {
+            "type":"Microsoft.Web/serverfarms",
+            "apiVersion":"2018-02-01",
+            "name":"[parameters('FunctionName')]",
+            "location":"[parameters('FunctionLocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('FunctionName'))]"
+            ],
+            "sku":{
+                "name":"Y1",
+                "tier":"Dynamic"
+            },
+            "properties":{
+                "name":"[parameters('FunctionName')]",
+                "computeMode":"Dynamic",
+                "reserved": true
+            }
+        },
+        {
+            "apiVersion":"2015-08-01",
+            "type":"Microsoft.Web/sites",
+            "name":"[parameters('FunctionName')]",
+            "location":"[parameters('FunctionLocation')]",
+            "kind":"functionapp,linux",
+            "dependsOn":[
+                "[resourceId('Microsoft.Web/serverfarms', parameters('FunctionName'))]"
+            ],
+            "identity":{
+                "type":"SystemAssigned"
+            },
+            "properties":{
+                "serverFarmId":"[resourceId('Microsoft.Web/serverfarms', parameters('FunctionName'))]",
+                "reserved": true
+            }
+        },
+        {
+            "apiVersion":"2018-05-01-preview",
+            "name":"[parameters('FunctionName')]",
+            "type":"microsoft.insights/components",
+            "location":"[parameters('FunctionLocation')]",
+            "tags":{
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('FunctionName'))]":"Resource"
+            },
+            "properties":{
+                "ApplicationId":"[parameters('FunctionName')]",
+                "Request_Source":"IbizaWebAppExtensionCreate"
+            }
+        }
+    ]
+ }

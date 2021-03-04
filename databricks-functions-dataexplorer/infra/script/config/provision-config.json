@@ -1,0 +1,113 @@
+{
+    "AppName":"Your Application or System Name",
+    "ResourceGroupName": "Azure Resource Group Name",
+    "Location": "Azure Resource Region",
+    "Storage": {
+        "LandingDatalakeName":"landing",
+        "AccessTier":"Hot",
+        "StorageSku":"Standard_LRS",
+        "IngestionDatalakeName":"ingestion",
+        "FileSystemName": "data",
+        "LandingBadRecordFolder": "telemetrydata-badrecords",
+        "FileSystemNameRootFolder": "telemetry",
+        "AzureStorageTargetFolder":"databricks-out",
+        "TelemetryLogfileRetentionDays":"7",
+        "DatalakeTemplatePath":"./infra/Azure/datalake/EventStorage.json",
+        "TableStorageAccountName":"tables"
+    },
+    "Functions": {
+        "IngestionFunction": {
+            "FunctionName": "ingestionfunc",
+            "IngestionConnectingStringName": "ingestionconnectingstring",
+            "IsFlushImmediately": "True",
+            "Path": "Function-DataExplorer-Ingestion",
+            "TriggerQueueName": "adxingest-queue",
+            "FunctionFolder": "dataingest",
+            "Runtime": "Python",
+            "IngestionfuncTemplatePath": "./infra/Azure/function/IngestionFunction.json",
+            "DatabaseIDKey":"companyIdkey=",
+            "TableIDKey":"typekey=",
+            "IsDuplicateCheck":"False"            
+        },
+        "dbsMetadataHandlerFunction": {
+            "FunctionName": "dbsmetafunc",
+            "FunctionLocation": "southeastasia",
+            "Path": "databricksmetadatahandler",
+            "TriggerQueueName": "databricks-output-metadata",
+            "FunctionFolder": "metadatahandler",
+            "Runtime": "Python",
+            "MetadataHandlerfuncTemplatePath": "./infra/Azure/function/FunctionApp.json",
+            "MetadataHandlerfuncSettingsTemplatePath": "./infra/Azure/function/appsettings/dbsmetafunc.json",
+            "IngestionSasTokenName": "ingestiontoken"
+        }
+        
+    },
+    "EventGrid": {
+        "EventTypeCreate": "Microsoft.Storage.BlobCreated",
+        "EventTypeRenamed": "Microsoft.Storage.BlobRenamed",
+        "EventGridTemplatePath":"./infra/Azure/event-trigger/StorageEventTrigger.json",
+        "LandingEventQueueName": "landingeventqueue",
+        "LandingEventQueueCount": "3",
+        "LandingEventFilters":[{"key": "Subject", "operatorType": "StringEndsWith", "values": ["0.json.gz","1.json.gz","2.json.gz"]},{"key": "Subject", "operatorType": "StringEndsWith", "values": ["3.json.gz","4.json.gz","5.json.gz"]},{"key": "Subject", "operatorType": "StringEndsWith", "values": ["6.json.gz","7.json.gz","8.json.gz","9.json.gz"]}],            
+        "IngestionEventQueueName":"adxingest-queue",
+        "IngestionEventQueueCount":"1",
+        "IngestionEventFilters": [{"key": "Subject", "operatorType": "StringEndsWith", "values": [".c000.json"]}],
+        "IngestionEventAdvancedFilters": [{ "key": "data.api", "operatorType": "StringIn", "values": [ "FlushWithClose", "PutBlockList" ] }],        
+        "DBSMetadataQueueName": "databricks-output-metadata",
+        "DBSMetadataQueueCount": "1",
+        "DBSMetadataFilters":[{"key": "Subject", "operatorType": "StringEndsWith", "values": ["0","1","2","3","4","5","6","7","8","9"]}],
+        "DBSMetadataAdvancedFilters": [{ "key": "data.api", "operatorType": "StringIn", "values": [ "FlushWithClose", "PutBlockList" ] }]
+    },
+    "KeyVault": {
+        "KeyVaultName": "keyvault",
+        "DatabricksKeyVaultName": "dbskeyvault",
+        "SoftDelete": false,
+        "KeyVaultTemplatePath":"./infra/Azure/keyvault/KeyVault.json",
+        "KeyVaultSecretTemplatePath": "./infra/Azure/keyvault/KeyVaultSecrets.json",
+        "KeyVaultAccessTemplatePath": "./infra/Azure/keyvault/KeyVaultAccessPolicyUpdate.json"
+    },
+    "ADX": {
+        "ClusterName": "adx",
+        "ClusterSkuName": "Standard_D11_v2",
+        "ClusterSkuTier": "Standard",
+        "ClusterSkuCapacity": 2,
+        "AvaliabilityZones":["1"],
+        "ADXTemplatePath": "./infra/Azure/ADX/ADX.json",
+        "TableRetentionDays": "100",
+        "DatabaseNum":100
+    },
+    "Databricks": {
+        "WorkspaceName": "dbsws",
+        "WorkspaceSku": "standard",
+        "DBSTemplatePath": "./infra/Azure/databricks/Workspace.json",
+        "DBSSecretScopeName": "MAIN"
+    }, 
+    "DatabricksJob": {
+        "DatabricksJobParamPath": "./infra/Azure/databricks/JobSpec.cfg.enablelog",
+        "DatabricksJobName": "sasdatabrickJob",
+        "DatabricksSparkVersion": "7.4.x-scala2.12",
+        "DatabricksNodeSpec": "Standard_DS3_v2",
+        "DatabricksMinWorkersCount": 2,
+        "DatabricksMaxWorkersCount": 3,
+        "AzureStorageCheckPointFolder": "checkpoint",
+        "triger_process_time": "10 seconds",
+        "max_files": "30"
+    }, 
+    "LogAnalytics": {
+        "WorkspaceName": "-dbs-log-analytics",
+        "ServiceTier":"PerGB2018",
+        "SecretScope": "logscope",
+        "SecretScopeKeyWorkspaceId": "databrickslogworkspaceid",
+        "SecretScopeKeyWorkspaceKey": "databrickslogworkspacekey",
+        "ARMTemplatePath": "./infra/Azure/loganalytics/LogAnalytics.json",
+        "SparkMonitoringScript": "./infra/Azure/databricks-monitoring/spark-monitoring.sh"
+    },
+    "AzureMonitor":{
+        "Dashboard":{
+            "MainDashboardName":"-ingestion-dashboard",
+            "MainDashboardTemplatePath": "./infra/Azure/dashboard/main_dashboard.json",
+            "DBSDashboardName":"-dbs-dashboard",
+            "DBSDashboardTemplatePath": "./infra/Azure/dashboard/dbs_dashboard.json"
+        }
+    }
+}

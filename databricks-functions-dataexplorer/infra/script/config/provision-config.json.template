@@ -1,0 +1,149 @@
+{
+    "AppName":"Your Application or System Name",
+    "DeployClientId":"Your Service Principal ID",
+    "DeploySecret":"Your Service Principal Secret",    
+    "DeployObjectId":"Your Service Principal Object ID",
+    "AzureSubscriptionId":"Your Azure Subscription ID",
+    "AzureTenantId":"Your Azure Tenant ID",
+    "ResourceGroupName": "Azure Resource Group Name",
+    "Location": "Azure Resource Region",
+    "Storage": {
+        "LandingDatalakeName":"Landing Datalake Name",
+        "AccessTier":"Storage Access Tier",
+        "StorageSku":"Datalake Storage Sku",
+        "IngestionDatalakeName":"Ingestion Datalake Name",
+        "FileSystemName": "Ingestion Datalake Container Name",
+        "LandingErrorHandleFileSystemName":"Landing Storage Error Handling File Foldler Name",
+        "IngestionRetryEndInFailContainerName":"Ingestion Storage Retry End In Fail Container Name",
+        "LandingBadRecordFolder": "Bad Record Folder on Landing Storage"
+        "FinalFailedFolder": "DBS error handling final retry failed foler",
+        "FileSystemNameRootFolder": "Ingestion Datalake Telemetry Root Folder Name",
+        "AzureStorageTargetFolder":"Databrick Ingestion Output Folder Name",
+        "TelemetryLogfileRetentionDays":"Delete Files After N Days",
+        "DatalakeTemplatePath":"Datalake ARM Template Path",        
+        "TableStorageAccountName":"Table Storage Account Name"
+    },
+    "Functions": {
+        "IngestionFunction": {
+            "FunctionName": "ingestion function name",
+            "IngestionEventQueueName": "ingestion Even Queue Name",
+            "IngestionEventQueueCount": number,
+            "IngestionConnectingStringName": "Ingestion ConnectingString Name",
+            "LeadClusterName": "LeadCluster Name",
+            "Location": "Location",
+            "FunctionLocation": "Location",
+            "IsFlushImmediately": "False or Ture",
+            "Path": "Function Path",
+            "TriggerQueueName": "Trigger Queue Name",
+            "FunctionFolder": "Function Folder: Specify the py file folder under __app__ folder, different with Path",
+            "Runtime": "Python",
+            "IngestionfuncTemplatePath": "Ingestion Function ARM Template　Path",
+            "AppInsightKeySecretName": "Ingestion Function App Insight Key SecretName in KeyVault"
+
+        },
+        "dbsErrorHandlerFunction": {
+            "FunctionName": "Function Name",
+            "KeyVaultName": "KeyVault Name",
+            "FunctionLocation": "Function Location",
+            "Path": "databrickserrorhandler",
+            "TriggerQueueName": "databricks-error-handling-queue",
+            "DbserrorhandlefuncTemplatePath": "Function ARM Template Path",
+            "DbserrorhandleFuncAppsettingTemplatePath": "Function App Seetings ARM Template Path"
+        },
+        "adxErrorHandlerFunction": {
+            "FunctionName": "Function Name",
+            "KeyVaultName": "KeyVault Name",
+            "FunctionLocation": "Location",
+            "IngestionEventQueueCount": Number,
+            "Runtime": "python",
+            "IngestionFunctionName": "Ingestion Function Name",
+            "Path": "Function Path",
+            "FunctionFolder": "Function Folder: Specify the py file folder under __app__ folder, different with Path",
+            "TriggerQueueName": "Trigger Queue Name"
+        },
+        "dbsMetadataHandlerFunction": {
+            "FunctionName": "Function Name",
+            "FunctionLocation": "Location",
+            "Path": "Function Path",
+            "TriggerQueueName": "Trigger Queue Name"
+            "FunctionFolder": "Function Folder: Specify the py file folder under __app__ folder, different with Path",
+            "Runtime": "Python",
+            "MetadataHanlderfuncTemplatePath": "Metadata Hanlderfunc Template Path",
+            "MetadataHanlderfuncSettingsTemplatePath": "MetadataHanlderfunc Settings TemplatePath",
+            "IngestionSasTokenName": "Ingestion Sas TokenName"
+            "TriggerQueueName": "Trigger Queue Name",
+            "AdxerrorhandlefuncTemplatePath": "Function ARM Template　Path"
+        }
+    }，
+    "EventGrid": {
+        "LandingEventQueueName": "Landing Storage Queue Name",
+        "LandingEventQueueCount": "Landing Storage Queue Count",
+        "DBSMetadataQueueName": "Databricks Metadata Queue Name",
+        "DBSMetadataQueueCount": "Databricks Metadata Queue Count",
+        "DataBricksErrorHandlingQueueName": "Databricks Error Handling Queue Name",
+        "BadRequestsQueueCount": "Databricks Error Handling Queue Count",
+        "BadRequestsFilters": [Landing Storage Databricks Error Handling Event Grid Filter Rule Array ex: Blob File Name Prefix or Suffix],
+        "BadRequestsAdvancedFilters": [Landing Storage Databricks Error Handling Event Grid Advanced Filter Rule Array ex: Blob File Name Prefix or Suffix],
+        "IngestionEventQueueName":"ADX Ingestion Queue Name",
+        "IngestionEventQueueCount":"ADX Ingestion Queue Count",
+        "IngestionRetryEventFilters": [Ingestion Storage Retry Event Grid Filter Rule Array ex: Blob File Name Prefix or Suffix],
+        "IngestionRetryEventAdvancedFilters":  [Ingestion Storage Retry Event Grid Advanced Filter Rule Array ex: Blob File Name Prefix or Suffix], 
+        "EventTypeCreate": "Microsoft.Storage.BlobCreated",
+        "EventTypeRenamed": "Microsoft.Storage.BlobRenamed",
+        "LandingEventFilters": [Landing Event Grid Filter Rule Array ex: Blob File Name Prefix or Suffix],
+        "IngestionEventFilters": [Ingestion Event Filter Rule Array ex: Blob File Name Prefix or Suffix],
+        "EventGridTemplatePath":"Event Grid ARM Template File Path"
+    },
+    "KeyVault": {
+        "KeyVaultName": "Your Key Vault Name",
+        "DatabricksKeyVaultName": "Your Databricks Related Key Vault Name",
+        "SoftDelete": true or false,
+        "KeyVaultTemplatePath":"Key Vault ARM Template File Path",
+        "KeyVaultSecretTemplatePath": "Key Vault Secret ARM Template File Path",
+        "KeyVaultAccessTemplatePath": "Update Key Vault Access Policy ARM Template File Path"
+    },
+    "ADX": {
+        "ClusterName": "Your ADX Cluster Name",
+        "ClusterSkuName": "Your ADX Cluster Sku",
+        "ClusterSkuTier": "Your ADX Cluster Sku Tier",
+        "ClusterSkuCapacity": ADX Cluster Instance Count,
+        "AvaliabilityZones":["1"],
+        "ADXTemplatePath": "Azure Data Explorer ARM Template File Path",
+        "TableRetentionDays": "ADX Table Retention Days",
+        "DatabaseNum":"ADX Database number"
+    },
+    "Databricks": {
+        "WorkspaceName": "Your Databrick Workspace Name",
+        "WorkspaceSku": "Your Workspace Sku",
+        "DBSTemplatePath": "Databricks ARM Template File Path",
+        "DBSSecretScopeName": "Your Databrick Secret Scope Name"
+    },
+    "DatabricksJob": {
+        "DatabricksJobParamPath": "Databricks Job Configuration File Path",
+        "DatabricksJobName": "Databricks Job Name",
+        "DatabricksSparkVersion": "Databricks Runtime Version",
+        "DatabricksNodeSpec": "Databricks Node Spec",
+        "DatabricksMinWorkersCount": Databricks Minimum Worker Count,
+        "DatabricksMaxWorkersCount": Databricks Maximum Worker Count,
+        "AzureStorageCheckPointFolder": "Databricks Checkpoint Folder (on Azure Storage)"
+    }, 
+     "LogAnalytics": {
+        "WorkspaceName": "Log Analytics Workspace Name",
+        "ServiceTier":"Log Analytics Service Tier",
+        "SecretScope": "Databricks Secret Scope for Log Analytics",
+        "SecretScopeKeyWorkspaceId": "Databricks Secret for Workspsace ID",
+        "SecretScopeKeyWorkspaceKey": "Databricks Secret for Workspsace Key",
+        "ARMTemplatePath": "Log Analytics ARM Template File Path",
+        "SparkMonitoringScript": "Spark Monitoring Script Path"
+    },
+    "AzureMonitor":{
+         "Dashboard":{
+            "MainDashboardName":"Main Ingestion Flow Azure Dashboard Name",
+            "MainDashboardTemplatePath": "Main Ingestion Flow Azure Dashboard ARM Template Path",
+            "DBSDashboardName":"Databricks Azure Dashboard Name",
+            "DBSDashboardTemplatePath": "Databricks Azure Dashboard ARM Template Path"
+        }
+
+    }
+}
+

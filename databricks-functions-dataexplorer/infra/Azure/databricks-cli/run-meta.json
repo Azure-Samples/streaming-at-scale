@@ -1,0 +1,19 @@
+{
+    "task": {
+        "notebook_task": {
+            "notebook_path": "/Users/ye.ma@microsoft.com/Hello",
+            "revision_timestamp": 0
+        }
+    },
+    "cluster_spec": {
+        "existing_cluster_id": "0825-022352-merge746"
+    },
+    "cluster_instance": {
+        "cluster_id": "0825-022352-merge746"
+    },
+    "overriding_parameters": {
+        "notebook_params": {
+            "name": "databricks_notebook_002"
+        }
+    }
+}

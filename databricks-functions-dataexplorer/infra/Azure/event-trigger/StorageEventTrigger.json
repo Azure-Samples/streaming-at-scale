@@ -1,0 +1,185 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "EventSubName": {
+            "type": "string"
+        },
+        "TopicStorageAccountName": {
+            "type": "string"
+        },
+        "SubStorageAccountName": {
+            "type": "string"
+        },
+        "SubQueueName": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "EventQueueCount": {
+            "type": "int"
+        },
+        "TriggerContainerName": {
+            "type": "string"
+        },
+        "TirggerFolderName": {
+            "type": "string"
+        },
+        "EventType": {
+            "type": "string"
+        },
+        "IsFunctionTriggerSource": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "AdvancedFilters": {
+            "type": "object",
+            "defaultValue": {
+                "filters": []
+            }
+        },
+        "DefaultFilters": {
+            "type": "array",
+            "defaultValue": []
+        }
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('SubStorageAccountName'), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2019-06-01",
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            },
+            "resources": [
+            ]
+        },
+        {
+            "condition": "[not(equals(parameters('EventQueueCount'), 1))]",
+            "name": "[concat(parameters('SubStorageAccountName'), '/default/', parameters('SubQueueName'), copyIndex())]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2019-06-01",
+            "copy": {
+                "name": "EventQueueCopy",
+                "count": "[parameters('EventQueueCount')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('SubStorageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "metadata": {}
+            }
+        },
+        {   
+            "condition": "[and(parameters('IsFunctionTriggerSource'), not(equals(parameters('EventQueueCount'), 1)))]",
+            "name": "[concat(parameters('SubStorageAccountName'), '/default/', parameters('SubQueueName'), copyIndex(), '-poison')]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2019-06-01",
+            "copy": {
+                "name": "EventQueueCopy",
+                "count": "[parameters('EventQueueCount')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('SubStorageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "metadata": {}
+            }
+        },
+        {
+            "condition": "[equals(parameters('EventQueueCount'), 1)]",
+            "name": "[concat(parameters('SubStorageAccountName'), '/default/', parameters('SubQueueName'))]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('SubStorageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "metadata": {}
+            }
+        },
+        {   
+            "condition": "[and(parameters('IsFunctionTriggerSource'), equals(parameters('EventQueueCount'), 1))]",
+            "name": "[concat(parameters('SubStorageAccountName'), '/default/', parameters('SubQueueName'), '-poison')]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('SubStorageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "metadata": {}
+            }
+        },
+		{
+			"name": "[concat(parameters('TopicStorageAccountName'))]",
+			"type": "Microsoft.EventGrid/systemTopics",
+			"apiVersion": "2020-04-01-preview",
+			"location": "[parameters('Location')]",
+			"properties": {
+				"source": "[resourceId('Microsoft.Storage/storageAccounts', parameters('TopicStorageAccountName'))]",
+				"topicType": "Microsoft.Storage.StorageAccounts"
+			}
+		},
+		{
+            "condition": "[not(equals(parameters('EventQueueCount'), 1))]",
+            "name": "[concat(parameters('TopicStorageAccountName'), '/', parameters('EventSubName'), copyIndex())]",
+			"type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+			"apiVersion": "2020-04-01-preview",
+            "location": "[parameters('Location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.EventGrid/systemTopics', parameters('TopicStorageAccountName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('SubStorageAccountName'), 'default')]"
+			],
+            "copy": {
+                "name": "QueueCopy",
+                "count": "[parameters('EventQueueCount')]"
+            },
+			"properties": {
+				"destination": {
+                    "endpointType": "StorageQueue",
+					"properties": {
+						"resourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('SubStorageAccountName'))]",
+                        "queueName": "[concat(parameters('SubQueueName'), copyIndex())]"
+					}
+				},
+				"filter": {
+                    "subjectBeginsWith": "[concat('/blobServices/default/containers/', parameters('TriggerContainerName'), '/blobs/', parameters('TirggerFolderName'))]",
+					"includedEventTypes": [
+						"Microsoft.Storage.BlobCreated"
+					],
+                    "advancedFilters": "[concat(parameters('AdvancedFilters').filters, createArray(parameters('DefaultFilters')[copyIndex()]))]"
+				}
+			}
+        },
+		{
+            "condition": "[equals(parameters('EventQueueCount'), 1)]",
+            "name": "[concat(parameters('TopicStorageAccountName'), '/', parameters('EventSubName'))]",
+			"type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+			"apiVersion": "2020-04-01-preview",
+            "location": "[parameters('Location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.EventGrid/systemTopics', parameters('TopicStorageAccountName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('SubStorageAccountName'), 'default')]"
+			],
+			"properties": {
+				"destination": {
+                    "endpointType": "StorageQueue",
+					"properties": {
+						"resourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('SubStorageAccountName'))]",
+                        "queueName": "[parameters('SubQueueName')]"
+					}
+				},
+				"filter": {
+                    "subjectBeginsWith": "[concat('/blobServices/default/containers/', parameters('TriggerContainerName'), '/blobs/', parameters('TirggerFolderName'))]",
+					"includedEventTypes": [
+						"[parameters('EventType')]"
+					],
+                    "advancedFilters": "[concat(parameters('AdvancedFilters').filters, parameters('DefaultFilters'))]"
+				}
+			}
+        }
+    ]
+}

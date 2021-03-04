@@ -1,0 +1,163 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DatalakeName": {
+            "type": "String"
+        },
+		"Location": {
+            "type": "String"
+        },
+        "StorageSku": {
+            "type": "String"
+        },
+		"AccessTier": {
+            "type": "String"
+        },
+        "FileSystemName": {
+            "type": "String"
+        },
+        "ErrorHandleFileSystemName": {
+            "type": "String"
+        },
+		"FileSystemNameRootFolder": {
+            "type": "String"
+        },
+        "TelemetryLogfileRetentionDays": {
+            "type": "Int"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('DatalakeName')]",
+            "location": "[parameters('Location')]",
+            "sku": {
+                "name": "[parameters('StorageSku')]",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "isHnsEnabled": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "[parameters('AccessTier')]"
+            }
+        },
+        {
+            "name": "[concat(parameters('DatalakeName'), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('DatalakeName'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            },
+            "resources": [
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('DatalakeName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('DatalakeName'))]"
+            ],
+            "sku": {
+                "name": "[parameters('StorageSku')]",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('DatalakeName'), '/default/', parameters('FileSystemName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('DatalakeName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('DatalakeName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('DatalakeName'), '/default/', parameters('ErrorHandleFileSystemName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('DatalakeName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('DatalakeName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "name": "[concat(parameters('DatalakeName'), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/managementPolicies",
+            "apiVersion": "2019-04-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('DatalakeName'))]"
+            ],
+            "properties": {
+                "policy": {
+                    "rules": [
+                        {
+                            "enabled": true,
+                            "name": "DeleteFilesAfterNDays",
+                            "type": "Lifecycle",
+                            "definition": {
+                                "actions": {
+                                    "baseBlob": {
+                                        "delete": {
+                                            "daysAfterModificationGreaterThan": "[parameters('TelemetryLogfileRetentionDays')]"
+                                        }
+                                    }
+                                },
+                                "filters": {
+                                    "blobTypes": [
+                                        "blockBlob"
+                                    ],
+                                    "prefixMatch": [
+                                        "[concat(parameters('FileSystemName'), '/', parameters('FileSystemNameRootFolder'))]"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

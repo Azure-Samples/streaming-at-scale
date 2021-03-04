@@ -1,0 +1,37 @@
+{
+    "name": "job_name_param",
+    "new_cluster": {
+        "autoscale": {
+            "min_workers": min_workers_param,
+            "max_workers": max_workers_param
+        },
+        "spark_version": "spark_version_param",
+        "spark_conf": {
+            "spark.sql.streaming.minBatchesToRetain": 3000
+        },
+        "node_type_id": "node_type_id_param",
+        "ssh_public_keys": [],
+        "custom_tags": {},
+        "spark_env_vars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "init_scripts": []
+    },
+    "notebook_task": {
+        "notebook_path": "/data-preprocessor.py",
+        "base_parameters": {
+            "secretscope": "secret_scope_param",
+            "source_stream_folder": "abfss://container_param@landing_sa_param.dfs.core.windows.net/root_folder_param",
+            "target_file_folder": "abfss://container_param@ingestion_sa_param.dfs.core.windows.net/target_folder_param",
+            "chekc_point_location": "abfss://container_param@landing_sa_param.dfs.core.windows.net/check_point_folder_param",
+            "triger_process_time": "10 seconds",
+            "max_files": "30",
+            "queue_name_list": "queue_name_list_param",
+            "bad_records_path": "abfss://container_param@landing_sa_param.dfs.core.windows.net/bad_record_folder_param",
+            "source_stream_storage_account": "landing_sa_param",
+            "target_file_storage_account": "ingestion_sa_param"
+        }
+    },
+    "max_retries": 0,
+    "max_concurrent_runs": 1
+}

@@ -1,0 +1,178 @@
+{
+   "$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+   "contentVersion":"1.0.0.0",
+   "parameters":{
+        "AzFunctionStorageAccountName":{
+            "type": "string"
+        },
+        "KeyVault":{
+            "type": "string"
+        },
+        "FunctionName":{
+            "type": "string"
+        },
+        "ResourceGroup": {
+            "type": "string"
+        },
+        "LeadClusterName": {
+            "type": "string"
+        },
+        "SubscriptionID": {
+            "type": "string"
+        },
+        "IngestionStorageAccountName": {
+            "type": "string"
+        },
+        "TableStorageAccountName": {
+            "type": "string"
+        },
+        "FunctionLocation": {
+            "type": "string"
+        }
+   },
+   "resources":[
+        {
+            "type":"Microsoft.Web/serverfarms",
+            "apiVersion":"2018-02-01",
+            "name":"[parameters('FunctionName')]",
+            "location":"[parameters('FunctionLocation')]",
+            "sku":{
+                "name":"Y1",
+                "tier":"Dynamic"
+            },
+            "properties":{
+                "name":"[parameters('FunctionName')]",
+                "computeMode":"Dynamic",
+                "reserved":true
+            }
+        },
+        {
+            "apiVersion":"2015-08-01",
+            "type":"Microsoft.Web/sites",
+            "name":"[parameters('FunctionName')]",
+            "location":"[parameters('FunctionLocation')]",
+            "kind":"functionapp,linux",
+            "dependsOn":[
+                "[resourceId('Microsoft.Web/serverfarms', parameters('FunctionName'))]"
+            ],
+            "identity":{
+                "type":"SystemAssigned"
+            },
+            "properties":{
+                "serverFarmId":"[resourceId('Microsoft.Web/serverfarms', parameters('FunctionName'))]",
+                "reserved": true,
+                "siteConfig":{
+                "appSettings":[
+                    {
+                        "name":"AzureWebJobsStorage",
+                        "value":"[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('AzFunctionStorageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('AzFunctionStorageAccountName')),'2019-06-01').keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                    },
+                    {
+                        "name":"WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                        "value":"[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('AzFunctionStorageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('AzFunctionStorageAccountName')),'2019-06-01').keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                    },
+                    {
+                        "name":"WEBSITE_CONTENTSHARE",
+                        "value":"[toLower(parameters('FunctionName'))]"
+                    },
+                    {
+                        "name":"APPINSIGHTS_INSTRUMENTATIONKEY",
+                        "value":"[reference(resourceId('microsoft.insights/components/', parameters('FunctionName')), '2015-05-01').InstrumentationKey]"
+                    },
+                    {
+                        "name":"APP_INSIGHT_ID",
+                        "value":"[reference(resourceId('microsoft.insights/components/', parameters('FunctionName')), '2015-05-01').InstrumentationKey]"
+                    },
+                    {
+                        "name":"TENANT_ID",
+                        "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVault'), '.vault.azure.net/secrets/tenantid/)')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"CLIENT_ID",
+                        "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVault'), '.vault.azure.net/secrets/adxclientid/)')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"CLIENT_SECRETS",
+                        "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVault'), '.vault.azure.net/secrets/adxclientsecret/)')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"SUBSCRIPTION_ID",
+                        "value": "[parameters('SubscriptionID')]"
+                    },
+                    {
+                        "name":"RESOURCE_GROUP",
+                        "value":"[parameters('ResourceGroup')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"STORAGE_TABLE_ACCOUNT",
+                        "value":"[parameters('TableStorageAccountName')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"STORAGE_TABLE_TOKEN",
+                        "value":"[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVault') ,'.vault.azure.net/secrets/tabletoken/)')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name": "ADX_CLUSTER_NAME",
+                        "value":"[parameters('LeadClusterName')]",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"BUILD_FLAGS",
+                        "value":"UseExpressBuild",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"ENABLE_ORYX_BUILD",
+                        "value":"true",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"FUNCTIONS_EXTENSION_VERSION",
+                        "value":"~3",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"FUNCTIONS_WORKER_PROCESS_COUNT",
+                        "value":"10",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"SCM_DO_BUILD_DURING_DEPLOYMENT",
+                        "value":"1",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"XDG_CACHE_HOME",
+                        "value":"/tmp/.cache",
+                        "slotSetting":false
+                    },
+                    {
+                        "name":"SOURCE_TELEMETRY_BLOB_ACCOUNT",
+                        "value":"[parameters('IngestionStorageAccountName')]",
+                        "slotSetting":false
+                    }
+                ]
+                }
+            }
+        },
+        {
+            "apiVersion":"2018-05-01-preview",
+            "name":"[parameters('FunctionName')]",
+            "type":"microsoft.insights/components",
+            "location":"[parameters('FunctionLocation')]",
+            "tags":{
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('FunctionName'))]":"Resource"
+            },
+            "properties":{
+                "ApplicationId":"[parameters('FunctionName')]",
+                "Request_Source":"IbizaWebAppExtensionCreate"
+            }
+        }
+    ]
+}

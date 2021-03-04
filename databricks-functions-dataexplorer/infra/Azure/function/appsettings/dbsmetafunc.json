@@ -1,0 +1,72 @@
+{
+    "$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":"1.0.0.0",
+    "parameters":{
+        "FunctionName": {
+            "type": "string"
+        },
+        "KeyVaultName": {
+            "type": "string"
+        },
+        "IngestionStorageAccountName": {
+            "type": "string"
+        },
+        "IngestionEventQueueName": {
+            "type": "string"
+        },
+        "IngestionConnectingStringName": {
+            "type": "string",
+            "defaultValue": "ingestionconnectingstring"
+        },
+        "IngestionSasTokenName": {
+            "type": "string",
+            "defaultValue": "ingestiontoken"
+        },
+        "Runtime": {
+            "type": "string",
+            "defaultValue": "python"
+        }
+    },
+    "variables": {
+      "TenantId": "[subscription().tenantId]"
+    }, 
+    "resources":[
+        {
+            "type": "Microsoft.Web/sites/config",
+            "name": "[concat(parameters('FunctionName'), '/appsettings')]",
+            "apiVersion": "2018-11-01",
+            "properties": {
+                "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('FunctionName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('FunctionName')),'2019-06-01').keys[0].value)]",
+                "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('FunctionName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('FunctionName')),'2019-06-01').keys[0].value)]",
+                "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('microsoft.insights/components/', parameters('FunctionName')), '2015-05-01').InstrumentationKey]",
+                "APPLICATIONINSIGHTS_CONNECTION_STRING": "[concat('InstrumentationKey=', reference(resourceId('microsoft.insights/components/', parameters('FunctionName')), '2015-05-01').InstrumentationKey)]",
+                "FUNCTIONS_EXTENSION_VERSION": "~3",
+                "FUNCTIONS_WORKER_RUNTIME": "[parameters('Runtime')]",
+                "FUNCTIONS_WORKER_PROCESS_COUNT": "10",
+                "AzureStorageQueuesConnectionString": "[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/', parameters('IngestionConnectingStringName'), '/)')]",
+                "ADX_INGEST_QUEUE_SAS_TOKEN": "[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/', parameters('IngestionSasTokenName'), '/)')]",
+                "ADX_INGEST_QUEUE_URL_LIST": "[concat('https://', parameters('IngestionStorageAccountName'), '.queue.core.windows.net/', parameters('IngestionEventQueueName') ,'0,','https://', parameters('IngestionStorageAccountName'), '.queue.core.windows.net/', parameters('IngestionEventQueueName') ,'1,', 'https://', parameters('IngestionStorageAccountName'), '.queue.core.windows.net/', parameters('IngestionEventQueueName') ,'2')]",
+                "DATABRICKS_OUTPUT_STORAGE_ACCOUNT_URL": "[concat('https://', parameters('IngestionStorageAccountName'), '.blob.core.windows.net/')]",
+                "DATABRICKS_OUTPUT_STORAGE_SAS_TOKEN": "[concat('@Microsoft.KeyVault(SecretUri=https://', parameters('KeyVaultName'), '.vault.azure.net/secrets/', parameters('IngestionSasTokenName'), '/)')]"
+            }
+        },
+        {
+            "name": "[concat(parameters('KeyVaultName'), '/add')]",
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2019-09-01",
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[variables('TenantId')]",
+                        "objectId": "[reference(concat(resourceId('Microsoft.Web/sites', concat(parameters('FunctionName'))), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

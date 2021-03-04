@@ -1,0 +1,62 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",     
+    "parameters": {
+        "AadObjectId": {
+            "type": "string"
+        },
+        "SoftDelete": {
+            "type": "bool"
+        },
+        "KeyVaultName": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "TenantId": "[subscription().tenantId]"
+    }, 
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "name": "[parameters('KeyVaultName')]",
+            "location": "[parameters('Location')]",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "standard"
+                },
+                "tenantId": "[variables('TenantId')]",
+                "enableSoftDelete": "[parameters('SoftDelete')]",
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": false,
+                "accessPolicies": []
+            }
+        },
+        {
+            "name": "[concat(parameters('KeyVaultName'), '/add')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+            ],
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2019-09-01",
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[variables('TenantId')]",
+                        "objectId": "[parameters('AadObjectId')]",
+                        "permissions": {
+                            "secrets": [
+                                "set"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

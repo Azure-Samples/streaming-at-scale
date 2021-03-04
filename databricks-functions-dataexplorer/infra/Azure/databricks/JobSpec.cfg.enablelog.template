@@ -1,0 +1,28 @@
+{
+    "name": "job_name_param",
+    "new_cluster": {
+        "autoscale": {
+            "min_workers": min_workers_param,
+            "max_workers": max_workers_param
+        },
+        "spark_version": "spark_version_param",
+        "spark_conf": {
+            "spark.sql.streaming.minBatchesToRetain": 3000
+        },
+        "node_type_id": "node_type_id_param",
+        "ssh_public_keys": [],
+        "custom_tags": {},
+        "spark_env_vars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3",
+            "LOG_ANALYTICS_WORKSPACE_ID": "{{secrets/log_secret_scope_param/log_secret_scope_log_wsid_param}}",
+            "LOG_ANALYTICS_WORKSPACE_KEY": "{{secrets/log_secret_scope_param/log_secret_scope_log_wskey_param}}"
+        },
+        "init_scripts": [ {
+            "dbfs": {
+                "destination": "dbfs:/databricks/spark-monitoring/spark-monitoring.sh"
+            }
+        } ]
+    },    
+    "max_retries": 0,
+    "max_concurrent_runs": 1
+}

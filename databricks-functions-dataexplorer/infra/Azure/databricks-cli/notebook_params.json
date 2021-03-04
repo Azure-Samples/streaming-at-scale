@@ -1,0 +1,12 @@
+{
+    "secretscope":"kusto-lab",
+    "source_stream_storage_account":"mslanding",
+    "target_file_storage_account":"msingestion",
+    "source_stream_folder":"abfss://data@mslanding.dfs.core.windows.net/telemetrydata-in",
+    "target_file_folder":"abfss://data@msingestion.dfs.core.windows.net/databrick-out",
+    "chekc_point_location":"abfss://data@mslanding.dfs.core.windows.net/databrick/checkpoint/checkpoing001B",
+    "triger_process_time":"10 seconds",
+    "max_files":"30",
+    "queue_name_list":"cloudfiles-all,cloudfiles-00",
+    "bad_records_path":"abfss://data@mslanding.dfs.core.windows.net/telemetrydata-badrecords"
+}

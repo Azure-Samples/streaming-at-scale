@@ -1,0 +1,63 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Location": {
+            "type": "String"
+        },
+        "Sku": {
+            "type": "String",
+            "defaultValue": "standard"
+        },
+        "KeyVaultName": {
+            "type": "String"
+        },
+        "WorkspaceName": {
+            "type": "String"
+        },
+        "AadObjectId": {
+             "type": "String"
+        }
+    },
+    "variables": {
+        "TenantId": "[subscription().tenantId]",
+        "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroupName'))]",
+        "managedResourceGroupName": "[concat(parameters('WorkspaceName'), '-resource-rg')]"        
+    },
+    "resources": [
+        {
+            "name": "[parameters('WorkspaceName')]",
+            "type": "Microsoft.Databricks/workspaces",
+            "apiVersion": "2018-04-01",
+            "location": "[parameters('Location')]",
+            "sku": {
+                "name": "[parameters('Sku')]"
+            },
+            "properties": {
+                "managedResourceGroupId": "[variables('managedResourceGroupId')]",
+                "parameters": {}
+            }
+        },
+        {
+            "name": "[concat(parameters('KeyVaultName'), '/add')]",
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2019-09-01",
+            "dependsOn": [
+                "[concat('Microsoft.Databricks/workspaces/', parameters('WorkspaceName'))]"
+            ],
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[variables('TenantId')]",
+                        "objectId": "[parameters('AadObjectId')]",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

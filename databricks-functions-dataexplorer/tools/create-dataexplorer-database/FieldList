@@ -1,0 +1,43 @@
+{
+    "version": "1.0.0",
+    "schema":[
+        {
+            "adxType": "string",
+            "field": "eventId"
+        },
+        {
+            "adxType": "datetime",
+            "field": "createdAt",
+            "properties": {
+                "ingest": {
+                    "source": "createdAt",
+                    "transform": "DateTimeFromUnixMilliseconds"
+                }
+            }
+        },
+        {
+            "adxType": "dynamic",
+            "field": "complexData"
+        },
+        {
+            "adxType": "real",
+            "field": "value"
+        },
+        {
+            "adxType": "string",
+            "field": "deviceId"
+        },
+        {
+            "adxType": "string",
+            "field": "companyId"
+        },
+        {
+            "adxType": "long",
+            "field": "deviceSequenceNumber"
+        },
+        {
+            "adxType": "string",
+            "field": "type"
+        }        
+    ]
+}
