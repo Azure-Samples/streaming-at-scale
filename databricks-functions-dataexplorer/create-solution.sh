@@ -1,12 +1,15 @@
 #!/bin/bash
 # [datalake-databricks-function-dataexplorer]
-
-#  1. Data landing place: data lake storage
-#  2. Databricks autoloader for streaming
-#  3. Databricks partition data by devideId(ex:device-id-1554) and type(ex:CO2)
-#  3. Azure Function ingest data into data explorer pipeline
-#  8. Generate sample data for testing
-#  9. Evaluate results in data explorer
+#  this solution will create
+#  1. default steps: CIDMPFTV: 
+#  1. C:common resource including resource group, Data landing and ingestion data lake storage, key vault
+#  2. I:Ingestion. EventGrid and storage queue
+#  3. D: Create data explorer and database, tables and data explorer
+#  3. M: Monitor - Creae log analytics workspace to monitor databricks, function, data explorer, and storage
+#  3. P:Process - Azure databricks to parition the data by devideId(ex:device-id-1554) and type(ex:CO2)
+#  3. F:Function - Deploy Azure Function to ingest data into data explorer
+#  3. T:Test - generate test data
+#  8. V:Evaluate - evaluate results in data explorer
 
 # Strict mode, fail on any error
 set -euo pipefail
@@ -35,7 +38,6 @@ usage() {
     echo "      P=PROCESSING" 1>&2; 
     echo "      T=TEST clients" 1>&2; 
     echo "      M=METRICS reporting"
-    echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
     echo "-f: path to the provisioning config file. Default=$CONFIG_FILE_NAME"
     exit 1; 
 }
@@ -72,73 +74,25 @@ source ./util/script-util.sh
 source ./util/azure-util.sh
 
 # reading configuration settings into environment variables
+# ---- BEGIN: SET THE VALUES IN CONFIG FILE TO CORRECTLY HANDLE THE WORKLOAD
+
 export PREFIX="$(readConfigItem .ResourceGroupName)"
 export RESOURCE_GROUP="$(readConfigItem .ResourceGroupName)"
 export LOCATION="$(readConfigItem .Location)"
 export TENANT_ID="$(az account show --query tenantId -o tsv)"
 export SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+# ---- END: SET THE VALUES TO CORRECTLY HANDLE THE WORLOAD
 
 if [[ -z "$PREFIX" ]]; then
-	  echo "Enter a name for this deployment."
+	  echo "Enter a app name in config file for this deployment."
 	  usage
 fi
 
-# ---- BEGIN: SET THE VALUES TO CORRECTLY HANDLE THE WORKLOAD
-# ---- HERE'S AN EXAMPLE USING DATABRICKS, FUNCTION AND DATA EXPLORER
-
-# 10000 messages/sec
-if [ "$TESTTYPE" == "10" ]; then
-    export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=36 # must be 1, 3, 6 or a multiple or 6
-    export SIMULATOR_INSTANCES=5
-    export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=16
-    export DATABRICKS_MAXEVENTSPERTRIGGER=70000
-    export PROC_FUNCTION=Ingestion
-    export PROC_FUNCTION_SKU=EP2
-    export PROC_FUNCTION_WORKERS=10
-    export DATAEXPLORER_SKU=Standard_D13_v2
-    export DATAEXPLORER_CAPACITY=3
-    export SIMULATOR_INSTANCES=5
-fi
-
-# 5000 messages/sec
-if [ "$TESTTYPE" == "5" ]; then
-    export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=24 # must be 1, 3, 6 or a multiple or 6
-    export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=16
-    export DATABRICKS_MAXEVENTSPERTRIGGER=70000
-    export SIMULATOR_INSTANCES=3
-    export PROC_FUNCTION=Ingestion
-    export PROC_FUNCTION_SKU=EP2
-    export PROC_FUNCTION_WORKERS=8
-    export DATAEXPLORER_SKU=Standard_D12_v2
-    export DATAEXPLORER_CAPACITY=2
-    export SIMULATOR_INSTANCES=3
-fi
-
-# 1000 messages/sec
-if [ "$TESTTYPE" == "1" ]; then
-    export PROC_JOB_NAME=streamingjob
-    export PROC_STREAMING_UNITS=6 # must be 1, 3, 6 or a multiple or 6
-    export SIMULATOR_INSTANCES=1
-    export DATABRICKS_NODETYPE=Standard_DS3_v2
-    export DATABRICKS_WORKERS=4
-    export DATABRICKS_MAXEVENTSPERTRIGGER=10000
-    export PROC_FUNCTION=Ingestion
-    export PROC_FUNCTION_SKU=EP2
-    export PROC_FUNCTION_WORKERS=2
-    export DATAEXPLORER_SKU=Standard_D11_v2
-    export DATAEXPLORER_CAPACITY=2
-    export SIMULATOR_INSTANCES=1
-fi
-
-# ---- END: SET THE VALUES TO CORRECTLY HANDLE THE WORLOAD
-
-# last checks and variables setup
-if [ -z ${SIMULATOR_INSTANCES+x} ]; then
-    usage
+default_prefix="Azure Resource Group Name"
+echo "**$default_prefix**"
+if [[ "$PREFIX" == "$default_prefix" ]]; then
+	  echo "Enter a app name in config file for this deployment."
+	  usage
 fi
 
 # remove log.txt if exists
@@ -157,10 +111,6 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". Subscription    => $SUBSCRIPTION_ID"
 echo ". Tenant          => $TENANT_ID"
-#echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS, maxEventsPerTrigger: $DATABRICKS_MAXEVENTSPERTRIGGER"
-echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
-echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
 echo "Deployment started..."
@@ -181,27 +131,19 @@ source ../components/azure-common/create-service-principal.sh
 # this returns SP_CLIENT_ID and SP_CLIENT_SECRET environment variables
 source ../components/azure-common/get-service-principal-data.sh
 echo "Client id is $SP_CLIENT_ID"
-echo "Client id is $SP_CLIENT_SECRET"
 echo
 
 # perform assignment
 ASSIGNMENT=$(az role assignment create --assignee $SP_CLIENT_ID --scope "/subscriptions/$SUBSCRIPTION_ID" --role "Contributor")
 
-echo "Client id is $SP_CLIENT_ID"
-echo "Client object id is $SP_CLIENT_OBJECTID"
+echo "assign role to clientid $SP_CLIENT_ID completed"
 echo
 
 echo "***** [C] Setting up COMMON resources"
-    # create resource group
-    # create key vault
+    # create resource group    
     # create azure data lake storage account (dbinput and dboutput)
-    # create databricks
-    # create autoloader for databricks
-    # create ingestion function
-    # configure ingestion function
-    # create data explorer
-    # configure data explorer    
-    # variables to call shared components
+    # create key vault
+    # update key vault
     
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
@@ -249,6 +191,8 @@ echo "***** [C] Setting up COMMON resources"
 echo
 
 echo "***** [I] Setting up INGESTION eventgrid and related storage queues"
+    # create event grid and storage queue    
+
     export EVENT_GRID_SYSTEM_TOPIC_NAME=$PREFIX"ingestiontopic"
     export EVENT_GRID_SYSTEM_TOPIC_TYPE="microsoft.storage.storageaccounts"
 
@@ -258,15 +202,15 @@ echo "***** [I] Setting up INGESTION eventgrid and related storage queues"
     fi
 echo
 
-echo "***** [D] Setting up DATAEXPLORER"    
+echo "***** [D] Setting up DATAEXPLORER"
+    # create data explorer
+    # create data explorer databases
+
     export DATAEXPLORER_CLUSTER=$PREFIX"$(readConfigItem .ADX.ClusterName)"
     echo "***** ADX DATAEXPLORER_CLUSTER: $DATAEXPLORER_CLUSTER"
-    # export SERVICE_PRINCIPAL_KV_NAME=$DATAEXPLORER_CLUSTER"-reader"
-    # export SERVICE_PRINCIPAL_KEYVAULT=$PREFIX"spkv"    
 
     RUN=`echo $STEPS | grep D -o || true`
-    if [ ! -z "$RUN" ]; then
-        #source ../components/azure-common/create-service-principal.sh        
+    if [ ! -z "$RUN" ]; then      
         source ../components/azure-dataexplorer/create-dataexplorer.sh "-s C"
         #TODO: update adx policy to be able to view data for user
         echo "***** ADX created successully"
@@ -288,6 +232,10 @@ echo "***** [D] Setting up DATAEXPLORER"
 echo
 
 echo "***** [M] Starting METRICS reporting"
+    # create LOG_ANALYTICS workspace
+    # create dashboard for databricks
+    # create dashboard for data lake storage, function and data explorer
+
     export INGESTION_DASHBOARD_NAME="$(readConfigItem .ResourceGroupName)$(readConfigItem .AzureMonitor.Dashboard.MainDashboardName)"
     export DATABRICKS_DASHBOARD_NAME="$(readConfigItem .ResourceGroupName)$(readConfigItem .AzureMonitor.Dashboard.DBSDashboardName)"
 
@@ -307,13 +255,15 @@ echo "***** [M] Starting METRICS reporting"
 echo
 
 echo "***** [P] Setting up PROCESSING"
+    # create databricks
+    # deploy notebooks in databricks
+    # create databricks job
+
     echo "Start to deploy databricks"
     export ADB_WORKSPACE="$(readConfigItem .ResourceGroupName)$(readConfigItem .Databricks.WorkspaceName)"
     echo "ADB_WORKSPACE: $ADB_WORKSPACE"
     export ADB_TOKEN_KEYVAULT="$(readConfigItem .ResourceGroupName)$(readConfigItem .KeyVault.DatabricksKeyVaultName)"
     
-    #TODO: Use custom template for log analytics init script
-    #TODO: sync and clean up env variable to align with other steps
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
 
@@ -327,7 +277,8 @@ echo "***** [P] Setting up PROCESSING"
         export DATABRICKS_WORKERS="$(readConfigItem .DatabricksJob.DatabricksMinWorkersCount)"
         export DBSSECRETSCOPENAME="$(readConfigItem .Databricks.DBSSecretScopeName)"
         export LogANALYTICSSCOPENAME="$(readConfigItem .LogAnalytics.SecretScope)"
-        # print parameters 
+        # print parameters
+        echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS"
         printParameters "${AZURE_DATABRICKS_TEMPLATE_PARAMS[@]}"    
 
         tempfile="./infra/Azure/databricks-monitoring/spark-monitoring.sh.template"
@@ -348,15 +299,11 @@ echo "***** [P] Setting up PROCESSING"
 echo
 
 echo "***** [F] Setting up ingestion function"
+    # create function
+    # create keyvault policy for function to access
+    # deploy function code
+
     echo "Start to set up ingestion function"
-    #TODO: Modify to deploy python function and configure function
-    # export PROC_FUNCTION_APP_NAME=$PREFIX"process"
-    # export PROC_FUNCTION_NAME=StreamingProcessor
-    # export PROC_PACKAGE_FOLDER=.
-    # export PROC_PACKAGE_TARGET=AzureSQL    
-    # export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
-    # export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
-    # export SQL_PROCEDURE_NAME="stp_WriteData$TABLE_SUFFIX"
 
     RUN=`echo $STEPS | grep F -o || true`
     if [ ! -z "$RUN" ]; then
@@ -369,9 +316,9 @@ echo "***** [F] Setting up ingestion function"
     fi
 echo
 
-# ---- END: CALL THE SCRIPT TO SETUP USED DATABASE AND STREAM PROCESSOR
 
 echo "***** [T] Starting up TEST clients"
+    # use python script to generate test data
     echo "Start to run data generator"
     #TODO: Modify modify data generator to dump data to data lake storage
     RUN=`echo $STEPS | grep T -o || true`
@@ -386,12 +333,11 @@ echo "***** [T] Starting up TEST clients"
         export RESOURCE_GROUP="$RESOURCE_GROUP"
         export DATABASE_NUM="$(readConfigItem .ADX.DatabaseNum)"
         export scriptpath="./tools/evaluation"
-        #pip install -r "$scriptpath/requirements.txt"
+        pip install -r "$scriptpath/requirements.txt"
         python "$scriptpath/cleanup_adx_all_db_records.py"
         python "$scriptpath/count_adx_all_db_records.py"
 
         echo "***** start to simulate data"
-        # source ../simulator/run-generator-datalake.sh 
         # include the get storage secret info function code
         export AZURE_STORAGE_ACCOUNT="$(readConfigItem .ResourceGroupName)$(readConfigItem .Storage.LandingDatalakeName)"
         
@@ -410,9 +356,8 @@ echo "***** [T] Starting up TEST clients"
 echo
 
 echo "***** [V] Starting deployment VERIFICATION"
-    echo "Not implemented! Need to create verification script"
+    # verify the results in data explorer
     WAITTIME="5m"
-    #TODO: Need to modify current evaluation script
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         echo "wait $WAITTIME mins..."
@@ -429,7 +374,6 @@ echo "***** [V] Starting deployment VERIFICATION"
         export scriptpath="./tools/evaluation"
         pip install -r "$scriptpath/requirements.txt"
         python "$scriptpath/count_adx_all_db_records.py"
-        # source ../streaming/databricks/runners/verify-azureadx.sh
     fi
 echo
 

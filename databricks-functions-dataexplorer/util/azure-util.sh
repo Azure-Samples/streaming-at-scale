@@ -31,6 +31,7 @@ function buildBasicInfraDatalake() {
     echo "${allParameters[@]}"
 }
 
+# get databricks infrastructure parameters from config file
 function getDatabricksParams() {   
     # parameters
     # resourceName, Location, Sku, KeyVaultName, AadObjectId
@@ -45,6 +46,7 @@ function getDatabricksParams() {
     echo "${allParameters[@]}"
 }
 
+# get databricks job infrastructure parameters from config file
 function getDatabricksJobParams() {     
     secret_scope_param="$(readConfigItem .Databricks.DBSSecretScopeName)"
     landing_sa_param="$(readConfigItem .ResourceGroupName)$(readConfigItem .Storage.LandingDatalakeName)"
@@ -55,9 +57,7 @@ function getDatabricksJobParams() {
     check_point_folder_param="$(readConfigItem .DatabricksJob.AzureStorageCheckPointFolder)"
     bad_record_folder_param="$(readConfigItem .Storage.LandingBadRecordFolder)"
     queue_name_list_param="$(getQueues)"
-    log_secret_scope_param="$(readConfigItem .LogAnalytics.SecretScope)"
-    # min_workers_param="$(readConfigItem .DatabricksJob.DatabricksMinWorkersCount)"
-    # max_workers_param="$(readConfigItem .DatabricksJob.DatabricksMaxWorkersCount)"
+    log_secret_scope_param="$(readConfigItem .LogAnalytics.SecretScope)"    
     source_stream_folder="abfss://$container_param@$landing_sa_param.dfs.core.windows.net/$root_folder_param"
     target_file_folder="abfss://$container_param@$ingestion_sa_param.dfs.core.windows.net/$target_folder_param"
     chekc_point_location="abfss://$container_param@$landing_sa_param.dfs.core.windows.net/$check_point_folder_param"
@@ -84,6 +84,7 @@ JQ
 echo "$job_jq_command"
 }
 
+# get queue list infrastructure from config file
 function getQueues() {
     queueNameList=""
     queue_num="$(readConfigItem .EventGrid.LandingEventQueueCount)"
@@ -168,9 +169,9 @@ function buildLogAnalytics() {
 }
 
 # creates ingestion function
+#TODO:move this function into components
 function createIngestionFunction() {
     FuncLOCATION=$LOCATION
-    #"Southeast Asia"
     #set up parameters for ingestion function arm template
     resourceName="$(readConfigItem .ResourceGroupName)$(readConfigItem .Functions.IngestionFunction.FunctionName)"
     allParameters=("FunctionName=$resourceName")
@@ -185,8 +186,7 @@ function createIngestionFunction() {
     allParameters+=("TableIDKey=$(readConfigItem .Functions.IngestionFunction.TableIDKey)")
     allParameters+=("IsFlushImmediately=$(readConfigItem .Functions.IngestionFunction.IsFlushImmediately)")
     allParameters+=("IsDuplicateCheck=$(readConfigItem .Functions.IngestionFunction.IsDuplicateCheck)")
-    allParameters+=("IngestionEventQueueCount=$(readConfigItem .EventGrid.IngestionEventQueueCount)")       
-    # allParameters+=("STORAGE_TABLE_ACCOUNT=$(readConfigItem .ResourceGroupName)$(readConfigItem .Storage.TableStorageAccountName)")
+    allParameters+=("IngestionEventQueueCount=$(readConfigItem .EventGrid.IngestionEventQueueCount)")
     # return parameters
     echo "${allParameters[@]}"
 
@@ -203,6 +203,7 @@ function createIngestionFunction() {
 }
 
 #Update KeyVault Access Policy for Function
+#TODO:move this function into components
 function updateKeyvaultPolicy() {
     echo "start to update function KeyVault Access Policy!"
     funresourceName="$(readConfigItem .ResourceGroupName)$(readConfigItem .Functions.IngestionFunction.FunctionName)"
@@ -223,9 +224,8 @@ function updateKeyvaultPolicy() {
 }
 
 #Deploy function code
+#TODO:move this function into components
 function deployFunctionCode(){
-    #TODO: Add current kusolab publish methid. but should change
-    #TODO: to az functionapp deployment to align with SAS repo
     echo "INFO" "Start to deploy IngestionFunction"    
     resourceName="$(readConfigItem .ResourceGroupName)$(readConfigItem .Functions.IngestionFunction.FunctionName)"
     resourceName+='0'
@@ -244,34 +244,17 @@ function deployFunctionCode(){
     sed -i "s/$search/$replace/" $targetFunJson
     PROC_PACKAGE_PATH="$projectFolder/$functionFolder"
     echo ". src: $PROC_PACKAGE_PATH"
-    # echo 'creating zip file'
-    # # ZIPFOLDER="$FUNCTION_SRC_PATH/Release/$RELFOLDER"
-    # ZIPFOLDER="$projectFolder/$functionFolder"
-    # zip -r $ZIPFOLDER . >> log.txt
-    # echo " .zipped folder: $ZIPFOLDER"
-    # # rm -f $PROC_PACKAGE_PATH
-    cd $projectFolder
-    
+    cd $projectFolder    
 
     echo 'configuring function app deployment source'  
     #PROC_PACKAGE_PATH
-    func azure functionapp publish $resourceName --python 
-     
-    # az functionapp deployment source config \
-    #     --resource-group $RESOURCE_GROUP \
-    #     --name $resourceName  --src $ZIPFOLDER \
-    #     --cd-app-type "Python"\
-    #     -o tsv >> log.txt
-
-    # echo 'removing local zip file'
-    # rm -f $PROC_PACKAGE_PATH
-    #     # Publish-Azure-Function-Deployment $path $functionFolder $triggerQueueName $resourceName
+    func azure functionapp publish $resourceName --python     
     echo "Deploy Ingestion Function Successfully!"    
     cd ../../../
     rm -f $targetFunJson
 }
 
-
+#get secret pair
 function getSecretPair() {
     #Declare a associative array and put secret name and value into array        
     declare -A secretMap    
