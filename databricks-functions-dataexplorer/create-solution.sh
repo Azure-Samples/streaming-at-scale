@@ -1,14 +1,14 @@
 #!/bin/bash
 # [datalake-databricks-function-dataexplorer]
 #  this solution will create
-#  1. default steps: CIDMPFTV: 
+#  default steps: CIDMPFTV: 
 #  1. C:common resource including resource group, Data landing and ingestion data lake storage, key vault
 #  2. I:Ingestion. EventGrid and storage queue
 #  3. D: Create data explorer and database, tables and data explorer
-#  3. M: Monitor - Creae log analytics workspace to monitor databricks, function, data explorer, and storage
-#  3. P:Process - Azure databricks to parition the data by devideId(ex:device-id-1554) and type(ex:CO2)
-#  3. F:Function - Deploy Azure Function to ingest data into data explorer
-#  3. T:Test - generate test data
+#  4. M: Monitor - Creae log analytics workspace to monitor databricks, function, data explorer, and storage
+#  5. P:Process - Azure databricks to parition the data by devideId(ex:device-id-1554) and type(ex:CO2)
+#  6. F:Function - Deploy Azure Function to ingest data into data explorer
+#  7. T:Test - generate test data
 #  8. V:Evaluate - evaluate results in data explorer
 
 # Strict mode, fail on any error
@@ -63,8 +63,7 @@ echo "Checking pre-requisites..."
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
 source ../assert/has-local-databrickscli.sh
-#TODO: add azure core tool check
-echo "azure core tool needed to install..."
+source ../assert/has-local-funcoretool.sh
 
 # ---- Parse parameters from config file to fill out environment variables
 echo "Parsing configuration file $CONFIG_FILE_NAME"

@@ -3,23 +3,44 @@ topic: sample
 languages:
   - azurecli
   - json
-  - powershell
   - python
 products:
   - azure
+  - azure key-vault
+  - azure log analytics
   - azure-data-lake-storage
   - azure-event-grid
   - azure-functions
   - azure-databricks
   - azure-data-explorer
+statusNotificationTargets:
+  - chingch@microsoft.com
 ---
 
 # Data lake storage, Event Grid, Databricks, Functions, and Data Explorer Solution
 
-This folder contains a end-to-end streaming solution sample from data landing into DataLake storage, Databricks autoloader to partition the content and then azure function to ingest data into data explorer. Following you can find the instruction to collaborate by creating this end-to-end samples.
+This folder contains an end-to-end streaming solution sample from data landing into DataLake storage, Databricks autoloader to partition the content and then azure function to ingest data into data explorer. Following you can find the instruction to collaborate by creating this end-to-end samples.
 
-![architecture](artifacts/databricks-functions-dataexplorer.png)
+![architecture](image/databricks-functions-dataexplorer.png)
+## Flow
+1.  Use fake_data_generator.py to generate test data into "landing" data lake storage
+2. Databricks Auto Loader process and partition uploaded data by key "companyId" and "type" from "landing" into "ingestion" data lake storage.
+3. Eventgrid will be trigger and push message into storage queue
+4. Function will be triggered by storage queue and ingest data into Azure data explorer 
 
+## Set up parameters in [config](infra/script/config/provision-config.json)
+
+```json
+    "AppName":"Your Application or System Name",
+    "ResourceGroupName": "Azure Resource Group Name",
+    "Location": "Azure Resource Region",
+```
+   - "ResourceGroupName" will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generate a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `ResourceGroupName` is also used to create a storage account, which has several constraints on characters usage:
+      [Storage Naming Conventions and Limits](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#storage)
+   - Location(ex:southeastasia): resource location 
+      please use the command below to query all azure locations "Name"
+
+        az account list-locations -o table
 ## Running the Scripts
 Please note that the scripts have been tested on [Ubuntu 18 LTS](http://releases.ubuntu.com/18.04/), so make sure to use that environment to run the scripts. You can run it using Docker, WSL or a VM:
 
@@ -33,11 +54,13 @@ The following tools are also needed:
   - Install: `sudo apt install azure-cli`
 - [jq](https://stedolan.github.io/jq/download/)
   - Install: `sudo apt install jq`
-- [python]
-  - Install: `sudo apt install python python-pip`
+- python(3.7 or 3.8)
+  - Install: `sudo apt install python3.8`
 - [databricks-cli](https://github.com/databricks/databricks-cli)
   - Install: `pip install --upgrade databricks-cli`
-
+- [Azure Function Core Tool](https://github.com/Azure/azure-functions-core-tools)
+  - Install: `sudo apt-get install azure-functions-core-tools-3`
+  
 ## Setup Solution
 
 Make sure you are logged into your Azure account:
@@ -52,20 +75,29 @@ if you want to select a specific subscription use the following command
 
     az account set --subscription <subscription_name>
 
-once you have selected the subscription you want to use just execute the following command
+once you have selected the subscription you want to use, and also
+**confiure the [config](infra/script/config/provision-config.json)**, just execute the following command
 
-    ./create-solution.sh -d <solution_name>
+    ./create-solution.sh 
 
-then `solution_name` value will be used to create a resource group that will contain all resources created by the script. It will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generate a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `solution_name` is also used to create a storage account, which has several constraints on characters usage:
 
-[Storage Naming Conventions and Limits](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#storage)
+to identify configure file path, just run the following command
 
-to have an overview of all the supported arguments just run
-
-    ./create-solution.sh
     ./create-solution.sh -f infra/script/config/provision-config.local.json
+
+to identify configure file path and identify specific steps, just run the following command
+
     ./create-solution.sh -f infra/script/config/provision-config.local.json -s C
 
+>default steps are: CIDMPFTV
+>1. C:common resource including resource group, Data landing and ingestion data lake storage, key vault
+>2. I:Ingestion. EventGrid and storage queue
+>3. D: Create data explorer and database, tables and data explorer
+>4. M: Monitor - Creae log analytics workspace to monitor databricks, function, data explorer, and storage
+>5. P:Process - Azure databricks to parition the data by devideId(ex:device-id-1554) and type(ex:CO2)
+>6. F:Function - Deploy Azure Function to ingest data into data explorer
+>7. T:Test - generate test data
+>8. V:Evaluate - evaluate results in data explorer
 ## Script content
 
 ### create-solution.sh
@@ -74,52 +106,68 @@ to have an overview of all the supported arguments just run
 
 The file does the following things:
 
-* gets and validates the argument
+* gets and validates the argument from config file
 * make sure required software are available
 * exports the variables used in called scripts
-* set correct values for 1, 5 and 10 msgs/sec test
 * execute the requested step by executing the related scripts 
 
 Code should be self-explanatory; if not, just ask.
 
-### source ../components/azure-eventgrid/create-eventgrid.sh(new)
+### source ../components/azure-common/
+`create-resource-group.sh`: this script creates resource group
+`create-service-principal.sh`: this script creates the service principal used for creating Azure service.
+`get-service-principal-data.sh`: this script gets the service principal.
 
-`create-eventgrid.sh`: this script creates the Event grid used for ingestion.
+### source ../components/azure-keyvault/
+`create-key-vault.sh`: this script creates key vault
+`configure-key-vault-access-policy.sh`: this script configure access policy of the key vault
+`update-key-vault.sh`: this script updates key vaults value
 
-### source ../components/azure-storagequeue/create-storagequeue.sh(new)
-
-`create-storagequeue.sh`: this script creates the storage queue used for ingestion.
-
-### source ../components/azure-storage/create-storage-hfs.sh
-
+### source ../components/azure-storage/
 `create-storage-hfs.sh`: this script creates a Data lake storage
+`create-storage-account.sh`: this script creates a storage account that will be used for function log table
+`get-storage-secret-info.sh`: this script gets storage secret info
 
-### source ../components/azure-databricks/create-databricks.sh
-`create-databricks.sh`: this script creates a Databricks
+### ../components/azure-dataexplorer/
+`create-dataexplorer.sh`: this scrip creates the data explorer used for store telemetry data. By passing args "-s C", it will only create service without setting up database/tables or eventhub.
 
-### source ../streaming/Databricks/notebooks/datalake-to-datalake
-`datalake-to-datalake.py`: notebook code for data partition
+### ../components/azure-monitor
+`create-log-analytics.sh`: this script creates log analytics workspace
+`create-azure-dashboard.sh`: this script creates azure dashboard from template used for monitoring
+### ../components/azure-databricks/create-databricks.sh
+`create-databricks`: this script creates the databricks used for data partition.
 
-### source ../streaming/Databricks/runners/datalake-to-datalake.sh
-`datalake-to-datalake.sh`: this script creates a Databricks job to run the notebook (new)
-### source ../components/azure-functions/create-processing-function.sh
+### ../streaming/databricks/
+`runners/autoloader-to-datalake.sh`: this script creates a databricks job used for data streaming and partition
+`notebooks/autoloader-to-datalake.py`: this is the notebook code that used in databricks job
+### ./tools/create-dataexplorer-database
+`create_dataexplorer_database.py`: this python code is used to create database and tables in Azure Date Explorer
+### ./tools/evaluation
+`cleanup_adx_all_db_records.py`:this python code is used to clean up all records in the ADX
+`count_adx_all_db_records.py`: this python code is used to count all records in all tables in the ADX
+### ./tools/fakedata-generator
+`fake_data_generator.py`: this python code is used to generate initial test data to verify if the whole architecture deployed successfully
 
-### source ../components/azure-functions/configure-processing-function-storagequeue.sh (new)
+## Test Data Generation
+### 1. Folder structure
+- output of fake_data_generator
+  {container}/(folder)/{output_time}/{timestamp}.json.gz
+		- output_time example: 2020/12/31/00/00
 
-`create-processing-function.sh`: this script creates an Azure Function for stream processing, again you can use another component instead, such as Databricks, or provide your own script.
+### 2. Usage of fake_data_generator.py
+#### 2-1. Generate 1 gz file which contains 10 logs every 3 seconds (throughput is controllable by parameters) until meximal 10 files
+```python fake_data_generator.py -fc 1 -c 10 -i 3 -m 10```
+#### 2-2. Copy 10 gz files which contains 10 logs every 3 seconds (throughput is controllable by parameters) until meximal 100 files
+```python fake_data_generator.py -fc 10 -c 10 -i 3 -m 100```
 
-`configure-processing-function-storagequeue.sh`: this script configures the Azure Function for input from storage queue
+#### 3. Other args
+- ta : target storage account
+- tk : target storage key
+- tc : tartger container
+- tf : target folder inside container
 
-### source ../components/azure-dataexplorer/create-dataexplorer.sh
-`create-dataexplorer.sh`: this script create dataexplorer and create database for data explorer
-
-### source ../components/azure-dataexplorer/configure-dataexplorer.sh(new)
-`configure-dataexplorer.sh`: this script configures the Azure Data Explorer ingestion policy
-### source ../simulator/run-generator-datalake.sh(new)
-
-`run-generator-datalake.sh` contains the code need to setup Spark clients, using Azure Container Instances.
-
-Each client generates up to 2000 msgs/sec. Each generated message is close to 1KB and look like this:
+## data schema
+- companyid is used for data partition in databricks
 
 ```json
 {
@@ -150,23 +198,22 @@ Each client generates up to 2000 msgs/sec. Each generated message is close to 1K
         "moreData22": 12.12345678901234
     },
     "value": 49.02278128887753,
-    "deviceId": "contoso://device-id-1554",
-    "deviceSequenceNumber": 0,
-    "type": "CO2",
-    "createdAt": "2019-05-16T17:16:40.000003Z"
+	"deviceId": "contoso://device-id-1554",
+	"companyId": "company-id-6",
+  "deviceSequenceNumber": 0,
+  "type": "CO2",
+  "createdAt": "2019-05-16T17:16:40.000003Z"
 }
 ```
 
 and it will send data to the specified data lake and trigger eventgrid.
 
-### source ../evaluation/azure-databricks/report-throughput.sh (new)
-
-<!-- `report-throughput.sh` queries Azure Monitor for Event Hub metrics and reports incoming and outgoing messages per minute. Ideally after a ramp-up phase those two metrics should be similar. -->
-
 ## Created resources
-  - **azure-data-lake-storage** : One for data landing and one for data ingestion 
+  - **azure-key-vault** : One for storing secret pairs that will be used in deployment
+  - **azure-data-lake-storage** : One for data landing and one for data ingestion
+  - **azure-data-storage** : One for log table
   - **azure-event-grid** : One for data land into storage, eventgrid will send the message to storage queue, One data land into storage, eventgrid will send the message to storage queue
   - **azure-storage-queue** : one for Databricks autoloader, one for Azure function input
   - **azure-functions** : parse metadata and ingestion data into dataexplorer queue
-  - **azure-databricks** : partition data by deviceid and type
+  - **azure-databricks** : partition data by companyid and type
   - **azure-data-explorer** : store and serve processed data
