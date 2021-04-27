@@ -343,14 +343,19 @@ echo "***** [T] Starting up TEST clients"
         source ../components/azure-storage/get-storage-secret-info.sh
         echo "AZURE_STORAGE_ACCOUNT: $AZURE_STORAGE_ACCOUNT"
         landingkey=$(getStorageSecretInfo accesskey)
-        echo "landingkey: $landingkey"
 
         echo "start to gen fake data"
         export scriptpath="./tools/fakedata-generator"
         pip install -r "$scriptpath/requirements.txt"
         container="$(readConfigItem .Storage.FileSystemName)"
         folder="$(readConfigItem .Storage.FileSystemNameRootFolder)"
-        python "$scriptpath/fake_data_generator.py" -fc 1 -c 10 -i 1 -m 2 -ta $AZURE_STORAGE_ACCOUNT -tk $landingkey -tc $container -tf $folder 
+        batch_file_count=1
+        record_count=10
+        interval=1
+        maximal_count=2
+        targte_result=$[$record_count*$maximal_count]
+        echo "expected to generate $targte_result records"
+        python "$scriptpath/fake_data_generator.py" -fc $batch_file_count -c $record_count -i $interval -m $maximal_count -ta $AZURE_STORAGE_ACCOUNT -tk $landingkey -tc $container -tf $folder 
     fi
 echo
 

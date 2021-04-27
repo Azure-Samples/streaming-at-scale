@@ -1,4 +1,4 @@
-# Injestion simulation
+# Ingestion simulation
 ## Flow
 1.	generate input data beforehand using fake_data_generator.py
 to output folder
@@ -8,16 +8,20 @@ to output folder
 		- output_time example: 2020/12/31/00/00
 
 ## Usage of fake_data_generator.py
+### - args
+- fc : batch file count
+- c : # of records in a file
+- i : time interval to generate files
+- m : total maximal file count
+- ta : target storage account
+- tk : target storage key
+- tc : tartger container
+- tf : target folder inside container
 ### - Generate 1 gz file which contains 10 logs every 3 seconds (throughput is controllable by parameters) until meximal 10 files
 ```python fake_data_generator.py -fc 1 -c 10 -i 3 -m 10```
 ### - Copy 10 gz files which contains 10 logs every 3 seconds (throughput is controllable by parameters) until meximal 100 files
 ```python fake_data_generator.py -fc 10 -c 10 -i 3 -m 100```
 
-### - Other args
-- ta : target storage account
-- tk : target storage key
-- tc : tartger container
-- tf : target folder inside container
 
 ## data schema
 ```json
