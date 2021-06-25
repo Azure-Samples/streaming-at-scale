@@ -19,7 +19,7 @@ echo ". name: $ADB_WORKSPACE"
 az deployment group create \
   --name $ADB_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
-  --template-uri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-databricks-all-in-one-template-for-vnet-injection/azuredeploy.json \
+  --template-uri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.databricks/databricks-all-in-one-template-for-vnet-injection/azuredeploy.json \
   --parameters \
   workspaceName=$ADB_WORKSPACE \
   pricingTier=standard \
