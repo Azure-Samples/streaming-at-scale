@@ -54,7 +54,7 @@ streamData
   .withColumn("enqueuedAt", 'createdAt)
   .writeStream
   .outputMode("append")
-  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/eventhubs-to-delta/" + dbutils.widgets.get("delta-table"))
+  .option("checkpointLocation", "dbfs:/streaming_at_scale/checkpoints/blob-json-to-delta/" + dbutils.widgets.get("delta-table"))
   .format("delta")
   .option("path", s"abfss://streamingatscale@$gen2account.dfs.core.windows.net/" + dbutils.widgets.get("delta-table"))
   .table(dbutils.widgets.get("delta-table"))

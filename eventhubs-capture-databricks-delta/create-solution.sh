@@ -16,10 +16,9 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTMV"
-export BLOB_DETECTION_MODE="notification"
 
 usage() {
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-b <blob-detection-mode>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
@@ -29,7 +28,6 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-b: use Databricks listing or notification to detect blobs. Default=$BLOB_DETECTION_MODE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1;
 }
@@ -49,9 +47,6 @@ while getopts ":d:s:t:l:b:" arg; do
         l)
             LOCATION=${OPTARG}
             ;;
-        b)
-            BLOB_DETECTION_MODE=${OPTARG}
-            ;;
         esac
 done
 shift $((OPTIND-1))
@@ -65,11 +60,8 @@ export DATABRICKS_SPARKVERSION=7.3.x-scala2.12
 
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
-    export EVENTHUB_PARTITIONS=16
+    export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export PROC_FUNCTION=Storage
-    export PROC_FUNCTION_SKU=EP2
-    export PROC_FUNCTION_WORKERS=16
     export SIMULATOR_INSTANCES=5
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=12
@@ -79,9 +71,6 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export PROC_FUNCTION=Storage
-    export PROC_FUNCTION_SKU=EP2
-    export PROC_FUNCTION_WORKERS=8
     export SIMULATOR_INSTANCES=3
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=6
@@ -91,9 +80,6 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export PROC_FUNCTION=Storage
-    export PROC_FUNCTION_SKU=EP2
-    export PROC_FUNCTION_WORKERS=2
     export SIMULATOR_INSTANCES=1
     export DATABRICKS_NODETYPE=Standard_DS3_v2
     export DATABRICKS_WORKERS=2
@@ -117,19 +103,7 @@ source ../assert/has-local-databrickscli.sh
 source ../assert/has-local-zip.sh
 source ../assert/has-local-dotnet.sh
 
-declare STORAGE_EVENT_QUEUE=""
-case $BLOB_DETECTION_MODE in
-    listing)
-        STORAGE_EVENT_QUEUE=""
-        ;;
-    notification)
-        STORAGE_EVENT_QUEUE="blob-events"
-        ;;
-    *)
-        echo "'-b' param must be set to 'listing' or 'notification'"
-        usage
-        ;;
-esac
+declare STORAGE_EVENT_QUEUE="blob-events"
 
 echo
 echo "Streaming at Scale with Azure Databricks and Delta"
@@ -143,9 +117,7 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-echo ". Function        => Name: $PROC_FUNCTION, SKU: $PROC_FUNCTION_SKU, Workers: $PROC_FUNCTION_WORKERS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS"
-echo ". AutoLoader mode => $BLOB_DETECTION_MODE"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
@@ -162,31 +134,19 @@ echo "***** [C] Setting up COMMON resources"
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
         source ../components/azure-storage/create-storage-hfs.sh
-        if [ -n "$STORAGE_EVENT_QUEUE" ]; then
-            source ../components/azure-storage/setup-storage-event-grid.sh
-        fi
+        source ../components/azure-storage/setup-storage-event-grid.sh
     fi
 echo
 
-echo "***** [I] Setting up INGESTION EVENT HUB AND FUNCTION"
+echo "***** [I] Setting up INGESTION"
 
     export EVENTHUB_NAMESPACE=$PREFIX"eventhubs"
     export EVENTHUB_NAME="streamingatscale-$EVENTHUB_PARTITIONS"
-    export EVENTHUB_CG="function"
-
-    export PROC_FUNCTION_APP_NAME=$PREFIX"ingest"
-    export PROC_FUNCTION_NAME=StreamingProcessor
-    export PROC_PACKAGE_FOLDER=.
-    export PROC_PACKAGE_TARGET=EventHubToBlob
-    export PROC_PACKAGE_NAME=$PROC_FUNCTION_NAME-$PROC_PACKAGE_TARGET.zip
-    export PROC_PACKAGE_PATH=$PROC_PACKAGE_FOLDER/$PROC_PACKAGE_NAME
+    export EVENTHUB_CAPTURE=True
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-event-hubs/create-event-hub.sh
-        source ../components/azure-functions/create-processing-function.sh
-        source ../components/azure-functions/configure-processing-function-eventhubs.sh
-        source ../components/azure-functions/configure-processing-function-storage.sh
     fi
 echo
 
@@ -194,12 +154,12 @@ echo "***** [P] Setting up PROCESSING"
 
     export ADB_WORKSPACE=$PREFIX"databricks"
     export ADB_TOKEN_KEYVAULT=$PREFIX"kv" #NB AKV names are limited to 24 characters
-    export BLOB_FILE_FORMAT="json"
+    export BLOB_FILE_FORMAT="avro"
 
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-databricks/create-databricks.sh
-        source ../streaming/databricks/runners/blob-json-to-delta.sh
+        source ../streaming/databricks/runners/blob-avro-to-delta.sh
     fi
 echo
 
@@ -222,6 +182,7 @@ echo
 echo "***** [V] Starting deployment VERIFICATION"
 
     export ALLOW_DUPLICATES=1
+    export MAX_LATENCY_MILLISECONDS=600000
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then

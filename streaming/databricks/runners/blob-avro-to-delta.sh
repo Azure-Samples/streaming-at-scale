@@ -12,11 +12,11 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "storage-account-key" --string-value "$STORAGE_GEN2_KEY"
 
 delta_table="events_$PREFIX"
-checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/blob-to-delta/"$delta_table"
+checkpoints_dir=dbfs:/streaming_at_scale/checkpoints/blob-avro-to-delta/"$delta_table"
 echo "Deleting checkpoints directory $checkpoints_dir"
 databricks fs rm -r "$checkpoints_dir"
 
-source ../streaming/databricks/job/run-databricks-job.sh blob-to-delta false "$(cat <<JQ
+source ../streaming/databricks/job/run-databricks-job.sh blob-avro-to-delta false "$(cat <<JQ
   .notebook_task.base_parameters."storage-account" = "$AZURE_STORAGE_ACCOUNT_GEN2"
   | .notebook_task.base_parameters."notification-queue" = "$STORAGE_EVENT_QUEUE"
   | .notebook_task.base_parameters."delta-table" = "$delta_table"
