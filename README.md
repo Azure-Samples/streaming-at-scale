@@ -116,14 +116,15 @@ Implement a stream processing architecture using:
 - Azure Databricks (Stream Process)
 - Cosmos DB (Serve)
 
-### [Event Hubs Capture Sample](https://github.com/Azure-Samples/streaming-at-scale/tree/main/eventhubs-capture)
+### [Event Hubs Capture + Azure Databricks + Delta](https://github.com/Azure-Samples/streaming-at-scale/tree/main/eventhubs-capture-databricks-delta)
 
 Implement stream processing architecture using:
 
 - Event Hubs (Ingest)
 - Event Hubs Capture (Store)
-- Azure Blob Store (Data Lake)
-- Apache Drill (Query/Serve)
+- Azure Storage (Azure Data Lake Storage Gen2)
+- Azure Databricks (Stream Process)
+- [Delta Lake](https://docs.microsoft.com/en-us/azure/databricks/delta/) (Serve)
 
 ### [Event Hubs + Azure Databricks + Azure SQL](https://github.com/Azure-Samples/streaming-at-scale/tree/main/eventhubs-databricks-azuresql)
 
