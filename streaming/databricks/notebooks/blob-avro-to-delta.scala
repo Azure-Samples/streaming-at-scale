@@ -44,6 +44,7 @@ if (!notificationQueueName.isEmpty) {
 val streamData = spark.readStream
   .format("cloudFiles")
   .option("cloudFiles.format", "avro")
+  .option("recursiveFileLookup", "true")
   .options(cloudFilesOptions)
   .schema(schema)
   .load(s"abfss://streamingatscale@$gen2account.dfs.core.windows.net/capture")

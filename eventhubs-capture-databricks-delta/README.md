@@ -19,7 +19,7 @@ statusNotificationTargets:
 
 This sample uses Azure Databricks to ingest data from Azure Storage blobs and store data into [Delta Lake](https://docs.azuredatabricks.net/delta/index.html) storage.
 
-To generate simulated ingestion data, the sample deploys data simulator Container Instances, an Event Hubs instance to receive the data from the simulator configured with Event Hubs Capture to write the data in blobs to be processed by Databricks.
+To generate simulated ingestion data, the sample deploys data simulator Container Instances, an Event Hubs instance to receive the data from the simulator configured with Event Hubs Capture to write the data in blobs to be processed by Databricks. Databricks parses the Avro blob data into Delta Lake.
 
 The provided scripts will deploy an end-to-end solution complete with load test client.
 
@@ -147,11 +147,7 @@ Event Hub capacity: 2 throughput units (this determines MAX VALUE below).
 
 ## Azure Databricks
 
-The solution allows you to test two modes for the [Databricks Auto Loader](https://docs.microsoft.com/en-us/azure/databricks/spark/latest/structured-streaming/auto-loader) to detect new files:
-- `notification` using a storage queue populated by Event Grid
-- `listing` using periodic listing of the input directory
-
-Use the `-b` option and set it to `notification` or `listing` to run the solution against the table you are interested in testing.
+The solution uses [Databricks Auto Loader](https://docs.microsoft.com/en-us/azure/databricks/spark/latest/structured-streaming/auto-loader) to detect and load new files, using a storage queue populated by Event Grid.
 
 The deployed Azure Databricks workspace contains a notebook stored under `Shared/streaming_at_scale`. If you plan to modify the notebook, first copy it to another location, as it will be overwritten if you run the solution again.
 

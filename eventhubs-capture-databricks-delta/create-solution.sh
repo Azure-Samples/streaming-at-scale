@@ -16,10 +16,9 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTMV"
-export BLOB_DETECTION_MODE="notification"
 
 usage() {
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-b <blob-detection-mode>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
@@ -29,7 +28,6 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-b: use Databricks listing or notification to detect blobs. Default=$BLOB_DETECTION_MODE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1;
 }
@@ -48,9 +46,6 @@ while getopts ":d:s:t:l:b:" arg; do
             ;;
         l)
             LOCATION=${OPTARG}
-            ;;
-        b)
-            BLOB_DETECTION_MODE=${OPTARG}
             ;;
         esac
 done
@@ -108,19 +103,7 @@ source ../assert/has-local-databrickscli.sh
 source ../assert/has-local-zip.sh
 source ../assert/has-local-dotnet.sh
 
-declare STORAGE_EVENT_QUEUE=""
-case $BLOB_DETECTION_MODE in
-    listing)
-        STORAGE_EVENT_QUEUE=""
-        ;;
-    notification)
-        STORAGE_EVENT_QUEUE="blob-events"
-        ;;
-    *)
-        echo "'-b' param must be set to 'listing' or 'notification'"
-        usage
-        ;;
-esac
+declare STORAGE_EVENT_QUEUE="blob-events"
 
 echo
 echo "Streaming at Scale with Azure Databricks and Delta"
@@ -135,7 +118,6 @@ echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS"
-echo ". AutoLoader mode => $BLOB_DETECTION_MODE"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
@@ -152,9 +134,7 @@ echo "***** [C] Setting up COMMON resources"
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
         source ../components/azure-storage/create-storage-hfs.sh
-        if [ -n "$STORAGE_EVENT_QUEUE" ]; then
-            source ../components/azure-storage/setup-storage-event-grid.sh
-        fi
+        source ../components/azure-storage/setup-storage-event-grid.sh
     fi
 echo
 
