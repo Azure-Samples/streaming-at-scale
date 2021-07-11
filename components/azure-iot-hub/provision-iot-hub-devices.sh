@@ -15,7 +15,7 @@ az container delete -g $RESOURCE_GROUP -n $iothub_provisioning_aci --yes \
 az container create \
   --name $iothub_provisioning_aci \
   --resource-group $RESOURCE_GROUP \
-  --image iottelemetrysimulator/azureiot-simulatordeviceprovisioning \
+  --image mcr.microsoft.com/oss/azure-samples/azureiot-simulatordeviceprovisioning \
   --restart-policy Never \
   -e \
     IotHubConnectionString="$iothub_cs" \

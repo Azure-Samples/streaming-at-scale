@@ -9,7 +9,7 @@ EVENTS_PER_SECOND_PER_INSTANCE="$(($EVENTS_PER_SECOND / $SIMULATOR_INSTANCES))"
 number_of_devices=1000
 interval="$((1000 * $number_of_devices / $EVENTS_PER_SECOND_PER_INSTANCE))"
 
-image_name="iottelemetrysimulator/azureiot-telemetrysimulator"
+image_name="mcr.microsoft.com/oss/azure-samples/azureiot-telemetrysimulator"
 
 if [ -n "${VNET_NAME:-}" ]; then
   vnet_options="--vnet $VNET_NAME --subnet producers-subnet"
