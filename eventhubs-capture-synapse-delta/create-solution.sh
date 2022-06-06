@@ -82,7 +82,7 @@ if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
-export RESOURCE_GROUP=$PREFIX
+export RESOURCE_GROUP=$PREFIX"-rg"
 
 # remove log.txt if exists
 rm -f log.txt
@@ -136,9 +136,9 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CAPTURE=True
 
     RUN=`echo $STEPS | grep I -o || true`
-    if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/create-event-hub-partitioned.sh
-    fi
+    # if [ ! -z "$RUN" ]; then
+    #     # source ../components/azure-event-hubs/create-event-hub-partitioned.sh
+    # fi
 echo
 
 echo "***** [P] Setting up PROCESSING"
@@ -150,7 +150,8 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
-        # source ../components/azure-databricks/create-databricks.sh
+        source ../components/azure-synapse/.env
+        source ../components/azure-synapse/create-synapse.sh
         # source ../streaming/databricks/runners/blob-avro-to-delta.sh
     fi
 echo
