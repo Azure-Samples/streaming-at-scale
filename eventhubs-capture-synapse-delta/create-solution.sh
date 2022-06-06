@@ -136,9 +136,9 @@ echo "***** [I] Setting up INGESTION"
     export EVENTHUB_CAPTURE=True
 
     RUN=`echo $STEPS | grep I -o || true`
-    # if [ ! -z "$RUN" ]; then
-    #     # source ../components/azure-event-hubs/create-event-hub-partitioned.sh
-    # fi
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/create-event-hub.sh
+    fi
 echo
 
 echo "***** [P] Setting up PROCESSING"
