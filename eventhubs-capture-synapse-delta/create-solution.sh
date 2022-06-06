@@ -137,7 +137,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/create-event-hub-partitioned.sh
+        source ../components/azure-event-hubs/create-event-hub.sh
     fi
 echo
 
