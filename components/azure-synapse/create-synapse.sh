@@ -1,6 +1,6 @@
 SYNAPSE_WORKSPACE=$PREFIX"-synwkspc"
 echo "Creating Azure Synapse Workspace $SYNAPSE_WORKSPACE"
-# source .env
+
 az synapse workspace create --name $SYNAPSE_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
   --storage-account $AZURE_STORAGE_ACCOUNT_GEN2 \

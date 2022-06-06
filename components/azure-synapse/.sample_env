@@ -1,0 +1,6 @@
+FILE_SYSTEM="workspace"
+SQL_ADMIN_USER="sasesssyn"
+SQL_ADMIN_PASSWORD=""
+LOCATION="eastus"
+SYNAPSE_SPARKPOOL="sasesssparkpool"
+SPARK_VERSION="2.4"
