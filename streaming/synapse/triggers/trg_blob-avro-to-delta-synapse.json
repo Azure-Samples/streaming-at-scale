@@ -1,0 +1,25 @@
+{
+    "name": "trg_blob-avro-to-delta-synapse",
+    "properties": {
+        "annotations": [],
+        "runtimeState": "Started",
+        "pipelines": [
+            {
+                "pipelineReference": {
+                    "referenceName": "blob-avro-to-delta-synapse",
+                    "type": "PipelineReference"
+                }
+            }
+        ],
+        "type": "BlobEventsTrigger",
+        "typeProperties": {
+            "blobPathBeginsWith": "/streamingatscale/blobs/capture/sassynapsergeventhubs/streamingatscale-2",
+            "blobPathEndsWith": ".avro",
+            "ignoreEmptyBlobs": true,
+            "scope": "/subscriptions/d2279a56-94c0-4a55-8c48-cd74bd1028ea/resourceGroups/sassynapserg/providers/Microsoft.Storage/storageAccounts/sassynapsergstorhfs",
+            "events": [
+                "Microsoft.Storage.BlobCreated"
+            ]
+        }
+    }
+}
