@@ -52,3 +52,9 @@ jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' ../s
 
 az synapse trigger create --workspace-name $SYNAPSE_WORKSPACE \
   --name "avro-to-delta-trigger" --file @"../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json"
+
+SYNAPSE_WORKSPACE_ID=$(az synapse workspace show --name $SYNAPSE_WORKSPACE --resource-group $RESOURCE_GROUP | jq -r '.identity.principalId')
+az ad sp create --id "$SYNAPSE_WORKSPACE_ID"
+az role assignment create --assignee "$SYNAPSE_WORKSPACE_ID" \
+--role "Contributor" \
+--scope $STORAGE_ACCOUNT_URL

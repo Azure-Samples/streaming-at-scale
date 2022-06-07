@@ -150,9 +150,8 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
-        source ../components/azure-synapse/.env
+        source .env
         source ../components/azure-synapse/create-synapse.sh
-        # source ../streaming/databricks/runners/blob-avro-to-delta.sh
     fi
 echo
 
@@ -162,27 +161,6 @@ echo "***** [T] Starting up TEST clients"
     if [ ! -z "$RUN" ]; then
         source ../simulator/run-generator-eventhubs.sh
     fi
+
 echo
-
-
-# echo "***** [M] Starting METRICS reporting"
-
-#     RUN=`echo $STEPS | grep M -o || true`
-#     if [ ! -z "$RUN" ]; then
-#         source ../components/azure-event-hubs/report-throughput.sh
-#     fi
-# echo
-
-# echo "***** [V] Starting deployment VERIFICATION"
-
-#     export ALLOW_DUPLICATES=1
-#     export MAX_LATENCY_MILLISECONDS=600000
-
-#     RUN=`echo $STEPS | grep V -o || true`
-#     if [ ! -z "$RUN" ]; then
-#         source ../components/azure-databricks/create-databricks.sh
-#         source ../streaming/databricks/runners/verify-delta.sh
-#     fi
-# echo
-
 echo "***** Done"
