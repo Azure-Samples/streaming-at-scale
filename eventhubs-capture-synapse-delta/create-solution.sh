@@ -164,6 +164,7 @@ echo "***** [T] Starting up TEST clients"
     fi
 echo
 
+
 # echo "***** [M] Starting METRICS reporting"
 
 #     RUN=`echo $STEPS | grep M -o || true`
