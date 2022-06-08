@@ -1,25 +1,28 @@
 {
-  "name": "trg_blob-avro-to-delta-synapse",
+  "name": "avro-to-delta-trigger",
   "properties": {
-    "annotations": [],
-    "runtimeState": "Started",
-    "pipelines": [
-      {
-        "pipelineReference": {
-          "referenceName": "blob-avro-to-delta-synapse",
-          "type": "PipelineReference"
-        }
+      "annotations": [],
+      "runtimeState": "Started",
+      "pipelines": [
+          {
+              "pipelineReference": {
+                  "referenceName": "blob-avro-to-delta-synapse",
+                  "type": "PipelineReference"
+              },
+              "parameters": {
+                  "folder_path": "@trigger().outputs.body.folderPath"
+              }
+          }
+      ],
+      "type": "BlobEventsTrigger",
+      "typeProperties": {
+          "blobPathBeginsWith": "update blob path in script",
+          "blobPathEndsWith": ".avro",
+          "ignoreEmptyBlobs": true,
+          "scope": "update scope in script",
+          "events": [
+              "Microsoft.Storage.BlobCreated"
+          ]
       }
-    ],
-    "type": "BlobEventsTrigger",
-    "typeProperties": {
-      "blobPathBeginsWith": "/streamingatscale/capture/testevns/hub",
-      "blobPathEndsWith": ".avro",
-      "ignoreEmptyBlobs": true,
-      "scope": "/subscriptions//resourceGroups/ktsastest44-rg/providers/Microsoft.Storage/storageAccounts/bosomtwe",
-      "events": [
-        "Microsoft.Storage.BlobCreated"
-      ]
-    }
   }
 }
