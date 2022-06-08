@@ -13,10 +13,10 @@
     ],
     "type": "BlobEventsTrigger",
     "typeProperties": {
-      "blobPathBeginsWith": "/streamingatscale/blobs/capture/sassynapsergeventhubs/streamingatscale-2",
+      "blobPathBeginsWith": "/streamingatscale/capture/testevns/hub",
       "blobPathEndsWith": ".avro",
       "ignoreEmptyBlobs": true,
-      "scope": "/subscriptions/d2279a56-94c0-4a55-8c48-cd74bd1028ea/resourceGroups/ktsas17-rg/providers/Microsoft.Storage/storageAccounts/ktsas17storhfs",
+      "scope": "/subscriptions//resourceGroups/ktsastest44-rg/providers/Microsoft.Storage/storageAccounts/bosomtwe",
       "events": [
         "Microsoft.Storage.BlobCreated"
       ]

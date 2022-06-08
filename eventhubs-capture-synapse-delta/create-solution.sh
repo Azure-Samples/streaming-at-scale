@@ -18,7 +18,7 @@ export TESTTYPE="1"
 export STEPS="CIPTMV"
 
 usage() {
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> $1 -p <sparkpool-sql-password> [-s <steps>] [-t <test-type>] [-l <location>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
@@ -33,10 +33,12 @@ usage() {
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:b:" arg; do
+while getopts ":d:p:s:t:l:b:" arg; do
     case "${arg}" in
         d)
             PREFIX=${OPTARG}
+            ;;
+        p)  SQLPASSWORD=${OPTARG}
             ;;
         s)
             STEPS=${OPTARG}
@@ -53,6 +55,11 @@ shift $((OPTIND-1))
 
 if [[ -z "$PREFIX" ]]; then
     echo "Enter a name for this deployment."
+    usage
+fi
+
+if [[ -z "$SQLPASSWORD" ]]; then
+    echo "Enter a SQL password for the Sparkpool"
     usage
 fi
 
@@ -124,7 +131,7 @@ echo "***** [C] Setting up COMMON resources"
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
-        source ../components/azure-storage/create-storage-hfs.sh
+        # source ../components/azure-storage/create-storage-account-gen2.sh
         source ../components/azure-storage/setup-storage-event-grid.sh
     fi
 echo
@@ -137,7 +144,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/create-event-hub.sh
+        source ../components/azure-event-hubs/create-event-hub.sh 
     fi
 echo
 
@@ -151,7 +158,8 @@ echo "***** [P] Setting up PROCESSING"
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
         source .env
-        source ../components/azure-synapse/create-synapse.sh
+        echo $SQLPASSWORD
+        source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
     fi
 echo
 
