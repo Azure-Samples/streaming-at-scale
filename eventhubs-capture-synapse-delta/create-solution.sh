@@ -130,7 +130,7 @@ echo "***** [C] Setting up COMMON resources"
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
-        source ../components/azure-storage/create-storage-account.sh
+        source ../components/azure-storage/create-storage-hfs.sh
         # source ../components/azure-storage/create-storage-account-gen2.sh
         source ../components/azure-storage/setup-storage-event-grid.sh
     fi
@@ -157,8 +157,6 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
-        source .env
-        echo $SQLPASSWORD
         source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
     fi
 echo

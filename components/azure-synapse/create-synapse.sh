@@ -4,7 +4,6 @@ SYNAPSE_SPARKPOOL="sasesssparkpool"
 SPARK_VERSION="2.4"
 SYNAPSE_WORKSPACE=$PREFIX"-synwkspc"
 SQL_ADMIN_PASSWORD=$1
-echo "SQL Password is $SQL_ADMIN_PASSWORD"
 
 # Get subscription Id
 SUBSCRIPTION_ID=$(az account show | jq -r '.id')
@@ -63,7 +62,7 @@ az synapse pipeline create --workspace-name $SYNAPSE_WORKSPACE \
 # Replaces the value of scope in the trigger json with the above STORAGE_ACCOUNT_URL
 jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json > "$tmp" && mv "$tmp" ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json
 
-BLOB_BASE_PATH="/streamingatscale/capture/$eventHubsNamespace/$eventHubName"
+BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubName"
 echo "Container Base Path is $BLOB_BASE_PATH"
 jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json > "$tmp" && mv "$tmp" ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json
 
