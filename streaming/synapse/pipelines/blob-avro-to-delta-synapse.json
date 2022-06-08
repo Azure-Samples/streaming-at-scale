@@ -1,30 +1,44 @@
 {
-  "name": "blob-avro-to-delta-synapse",
-  "properties": {
-      "activities": [
-          {
-              "name": "Blob AVRO to Delta Synapse Notebook",
-              "type": "SynapseNotebook",
-              "dependsOn": [],
-              "policy": {
-                  "timeout": "7.00:00:00",
-                  "retry": 0,
-                  "retryIntervalInSeconds": 30,
-                  "secureOutput": false,
-                  "secureInput": false
-              },
-              "userProperties": [],
-              "typeProperties": {
-                  "notebook": {
-                      "referenceName": "blob-avro-to-delta-synapse",
-                      "type": "NotebookReference"
-                  },
-                  "snapshot": true
-              }
-          }
-      ],
-      "annotations": [],
-      "lastPublishTime": "2022-06-03T21:32:23Z"
-  },
-  "type": "Microsoft.Synapse/workspaces/pipelines"
+    "name": "blob-avro-to-delta-synapse",
+    "properties": {
+        "activities": [
+            {
+                "name": "Blob AVRO to Delta Synapse Notebook",
+                "type": "SynapseNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebook": {
+                        "referenceName": "blob-avro-to-delta-synapse",
+                        "type": "NotebookReference"
+                    },
+                    "parameters": {
+                        "folder_path": {
+                            "value": {
+                                "value": "@pipeline().parameters.folder_path",
+                                "type": "Expression"
+                            },
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        ],
+        "concurrency": 1,
+        "parameters": {
+            "folder_path": {
+                "type": "string"
+            }
+        },
+        "annotations": [],
+        "lastPublishTime": "2022-06-08T20:49:34Z"
+    },
+    "type": "Microsoft.Synapse/workspaces/pipelines"
 }
