@@ -57,13 +57,13 @@ once you have selected the subscription you want to use just execute the followi
 
     ./create-solution.sh -d <solution_name> -p <synapse_sql_password>
 
-the `solution_name` value will be used to create a resource group that will contain all resources created by the script. It will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generate a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `solution_name` is also used to create a storage account, which has several constraints on characters usage:
+The `solution_name` value will be used to create a resource group that will contain all resources created by the script. It will also be used as a prefix for all resource create so, in order to help to avoid name duplicates that will break the script, you may want to generate a name using a unique prefix. **Please also use only lowercase letters and numbers only**, since the `solution_name` is also used to create a storage account, which has several constraints on characters usage:
 
 [Storage Naming Conventions and Limits](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#storage)
 
-the `sql-admin-login-password` value will be used to create the password for the synapse sql pool. The SQL Pools are not explicitely used anywhere in the project, but the SQL Admin Login Password is necessary when creating a Syanpse Workspace. 
+The `sql-admin-login-password` value will be used to create the password for the synapse sql pool. The SQL Pools are not explicitely used anywhere in the project, but the SQL Admin Login Password is necessary when creating a Syanpse Workspace. 
 
-to have an overview of all the supported arguments just run
+To have an overview of all the supported arguments just run
 
     ./create-solution.sh
 
@@ -163,7 +163,7 @@ After clicking on the pipeline run, you can navigate to the run and view the exe
 
 Data is stored in a Delta Lake Spark table in the created Azure Syanpse workspace, backed by Azure Data Lake Storage Gen2. You can query the table by logging into the Syanpse workspace, by navigating to the normalized output path `datalake/normalized/streaming_device` in the Data tab (under the Linked section) of your Synapse workspace.
 
-__NOTE__: You will need to have the `Storage Data Blob Contributor` role assigned to query the data from your Synapse Workspace.
+**NOTE**: You will need to have the `Storage Data Blob Contributor` role assigned to query the data from your Synapse Workspace.
 
 After right clicking on either the folder (`datalake/normalized/streaming_device`) or a sprecific file in the normalized data folder, you will be given the option to use SQL to query the data. It is advised to select `New SQL Script > Select Top 100 Rows`. If you right clicked on the folder, you will need to read the data as `DELTA`. If you right clicked on a specific file, you will need to read the data as `PARQUET`. You should now see a new screen querying the desired source. Run the query to see the results.
 
