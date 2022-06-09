@@ -36,7 +36,7 @@ The following tools/languages are also needed:
   - Install: `sudo apt install azure-cli`
 - [jq](https://stedolan.github.io/jq/download/)
   - Install: `sudo apt install jq`
-- [python]
+- [python](https://www.python.org/)
   - Install: `sudo apt install python python-pip`
 
 ## Setup Solution
