@@ -16,10 +16,10 @@
     ],
     "type": "BlobEventsTrigger",
     "typeProperties": {
-      "blobPathBeginsWith": "streamingatscale/capture/ktultronsas02eventhubs/streamingatscale-2",
-      "blobPathEndsWith": ".avro",
+      "blobPathBeginsWith": "/streamingatscale/blobs/capture/pbutlersas03eventhubs/streamingatscale-2",
+      "blobPathEndsWith": "0.avro",
       "ignoreEmptyBlobs": true,
-      "scope": "/subscriptions/d2279a56-94c0-4a55-8c48-cd74bd1028ea/resourceGroups/ktultronsas02-rg/providers/Microsoft.Storage/storageAccounts/ktultronsas02storhfs",
+      "scope": "/subscriptions/d2279a56-94c0-4a55-8c48-cd74bd1028ea/resourceGroups/pbutlersas03-rg/providers/Microsoft.Storage/storageAccounts/pbutlersas03storhfs",
       "events": [
         "Microsoft.Storage.BlobCreated"
       ]

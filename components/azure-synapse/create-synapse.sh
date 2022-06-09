@@ -16,7 +16,7 @@ echo "Creating Azure Synapse Workspace $SYNAPSE_WORKSPACE"
 az synapse workspace create --name $SYNAPSE_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
   --storage-account $AZURE_STORAGE_ACCOUNT_GEN2 \
-  --file-system $FILE_SYSTEM \
+  --file-system streamingatscale \
   --sql-admin-login-user $SQL_ADMIN_USER \
   --sql-admin-login-password $SQL_ADMIN_PASSWORD \
   --location $LOCATION
@@ -66,5 +66,10 @@ BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubNam
 echo "Container Base Path is $BLOB_BASE_PATH"
 jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json > "$tmp" && mv "$tmp" ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json
 
+TRIGGER_NAME="avro-to-delta-trigger"
+
 az synapse trigger create --workspace-name $SYNAPSE_WORKSPACE \
-  --name "avro-to-delta-trigger" --file @"../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json"
+  --name $TRIGGER_NAME --file @"../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json"
+
+az synapse trigger start --workspace-name $SYNAPSE_WORKSPACE \
+  --name $TRIGGER_NAME
