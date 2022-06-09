@@ -56,17 +56,17 @@ az synapse notebook create --workspace-name $SYNAPSE_WORKSPACE \
 az synapse pipeline create --workspace-name $SYNAPSE_WORKSPACE \
   --name "blob-avro-to-delta-synapse" --file @"../streaming/synapse/pipelines/blob-avro-to-delta-synapse.json"
 
-tmp=$(mktemp)
-# Replaces the value of scope in the trigger json with the above STORAGE_ACCOUNT_URL
 TRIGGER_PATH="../streaming/synapse/triggers/"
 TEMPLATE_TRIGGER_FILE="trg_blob-avro-to-delta-synapse.json"
 TEMP_TRIGGER_FILE="temp-avro-to-delta-trigger.json"
 TRIGGER_NAME="avro-to-delta-trigger"
-jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' $TRIGGER_PATH$TEMPLATE_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
 # The eventHubsNamespace and eventHubName are used to set the base path for the blob trigger.
 # And since these are parameters dynamically passed in when creating resources, 
 # we construct the path from these values and use jq to replace the defaults in the trigger file with new dynamically created path.
+tmp=$(mktemp)
+jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' $TRIGGER_PATH$TEMPLATE_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
+
 BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubName"
 jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' $TRIGGER_PATH$TEMP_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
