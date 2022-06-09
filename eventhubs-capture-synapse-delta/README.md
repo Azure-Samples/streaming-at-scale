@@ -18,7 +18,7 @@ statusNotificationTargets:
 
 This sample uses Azure Syanpse to ingest data from Azure Storage blobs and store data into [Delta Lake](https://docs.azuredatabricks.net/delta/index.html) storage.
 
-To generate simulated ingestion data, the sample deploys data simulator Container Instances, an Event Hubs instance to receive the data from the simulator configured with Event Hubs Capture to write the data in blobs to be processed by Databricks. Databricks parses the Avro blob data into Delta Lake.
+To generate simulated ingestion data, the sample deploys data simulator Container Instances, an Event Hubs instance to receive the data from the simulator configured with Event Hubs Capture to write the data in blobs to be processed by Synapse. Synapse parses the Avro blob data into Delta Lake.
 
 The provided scripts will deploy an end-to-end solution complete with load test client.
 
@@ -38,8 +38,6 @@ The following tools/languages are also needed:
   - Install: `sudo apt install jq`
 - [python]
   - Install: `sudo apt install python python-pip`
-- [databricks-cli](https://docs.azuredatabricks.net/user-guide/dev-tools/databricks-cli.html#install-the-cli)
-  - Install: `pip install --upgrade databricks-cli`
 
 ## Setup Solution
 
@@ -117,7 +115,7 @@ The solution currently does not perform event deduplication. In order to illustr
 
 ## Solution customization
 
-If you want to change some setting of the solution, like number of load test clients, Databricks workers and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
+If you want to change some setting of the solution, like number of load test clients, Synapse Spark Pool workers and so on, you can do it right in the `create-solution.sh` script, by changing any of these values:
 
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
@@ -143,31 +141,33 @@ Event Hub capacity: 2 throughput units (this determines MAX VALUE below).
     2021-06-28T18:51:05+0200 Event Hub 1               60096            56015228                   0                   0                   0
 ```
 
-## Azure Databricks
+## Azure Synapse
 
+The solution uses [Storage Event Trigger](https://docs.microsoft.com/en-us/azure/data-factory/how-to-create-event-trigger?tabs=data-factory) to detect and load new files, using a storage queue populated by Event Grid. While this url links to a Data Factory example, there is Synapse specific information within this documentation.
 
+The `Storage Event Trigger` is a type of trigger. To view more details on the trigger, go to the synapse workspace and click on then manage tab. In the manage tab, click on Triggers under Integration. You will see a trigger named `avro-to-delta-trigger`.
+
+![Synapse Pipeline Trigger](../_doc/_images/synapse-pipeline-triggers.png)
+
+The deployed Azure Synapse workspace contains a notebook stored under the Develop tab as `blob-avro-to-delta-synapse`. If you plan to modify the notebook, first copy it to another location, as it will be overwritten if you run the solution again.
+
+Synapse doens't natively support an always up cluster. This approach is one way to get out of the box checkpointing with an append only store and eventhub capture. For more complex streaming requirements (data lnading more frequently or slow changing data), it is advised to use a more robust design.
+
+You can log into the workspace and view the executed pipeline (which runs the notebook) by navigating to the Monitor tab in the provisioned Synapse Workspace:
+
+![Synapse Monitor Pipeline View](../_doc/_images/synapse-monitor-pipelines.png)
+
+After clicking on the pipeline run, you can navigate to the run and view the executed pipeline. From there, you can view the run of the notebook.
 
 ## Query Data
 
-Data is stored in a Delta Lake Spark table in the created Azure Syanpse workspace, backed by Azure Data Lake Storage Gen2. You can query the table by logging  into the Syanpse workspace, creating a cluster, and creating a notebook to query the data.
-From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
+Data is stored in a Delta Lake Spark table in the created Azure Syanpse workspace, backed by Azure Data Lake Storage Gen2. You can query the table by logging into the Syanpse workspace, by navigating to the normalized output path `datalake/normalized/streaming_device` in the Data tab (under the Linked section) of your Synapse workspace.
 
-```scala
-val gen2account = "<created-adls2-storage-account>"
-spark.conf.set(s"fs.azure.account.key.$gen2account.dfs.core.windows.net", "<created-adls2-storage-key>")
-dbutils.fs.ls(s"abfss://streamingatscale@$gen2account.dfs.core.windows.net/")
-```
+__NOTE__: You will need to have the `Storage Data Blob Contributor` role assigned to query the data from your Synapse Workspace.
 
-and the you can query the table using Spark SQL for example:
+After right clicking on either the folder (`datalake/normalized/streaming_device`) or a sprecific file in the normalized data folder, you will be given the option to use SQL to query the data. It is advised to select `New SQL Script > Select Top 100 Rows`. If you right clicked on the folder, you will need to read the data as `DELTA`. If you right clicked on a specific file, you will need to read the data as `PARQUET`. You should now see a new screen querying the desired source. Run the query to see the results.
 
-```
-%sql
-SELECT * FROM delta.`abfss://streamingatscale@<created-adls2-storage-account>.dfs.core.windows.net/events` LIMIT 100
-```
-
-More info here:
-
-[Delta Lake Quickstart - Read a Table](https://docs.azuredatabricks.net/delta/quick-start.html#read-a-table)
+![Synapse Query Parquet Data In SQL Syntax](../_doc/_images/synapse-query-datalake.png)
 
 ## Clean up
 
