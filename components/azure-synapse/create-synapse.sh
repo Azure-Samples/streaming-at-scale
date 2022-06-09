@@ -5,13 +5,6 @@ SPARK_VERSION="2.4"
 SYNAPSE_WORKSPACE=$PREFIX"-synwkspc"
 SQL_ADMIN_PASSWORD=$1
 
-# Get subscription Id
-SUBSCRIPTION_ID=$(az account show | jq -r '.id')
-STORAGE_ACCOUNT_URL="/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$AZURE_STORAGE_ACCOUNT_GEN2"
-
-echo $STORAGE_ACCOUNT_URL
-tmp=$(mktemp)
-
 echo "Creating Azure Synapse Workspace $SYNAPSE_WORKSPACE"
 az synapse workspace create --name $SYNAPSE_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
@@ -22,6 +15,10 @@ az synapse workspace create --name $SYNAPSE_WORKSPACE \
   --location $LOCATION
 
 SYNAPSE_WORKSPACE_ID=$(az synapse workspace show --name $SYNAPSE_WORKSPACE --resource-group $RESOURCE_GROUP | jq -r '.identity.principalId')
+
+# Get subscription Id
+SUBSCRIPTION_ID=$(az account show | jq -r '.id')
+STORAGE_ACCOUNT_URL="/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$AZURE_STORAGE_ACCOUNT_GEN2"
 
 az role assignment create --assignee "$SYNAPSE_WORKSPACE_ID" \
 --role "Storage Blob Data Contributor" \
@@ -47,8 +44,8 @@ az synapse spark pool create --name $SYNAPSE_SPARKPOOL \
   --workspace-name $SYNAPSE_WORKSPACE \
   --resource-group $RESOURCE_GROUP \
   --spark-version $SPARK_VERSION \
-  --node-count 3 \
-  --node-size Small 
+  --node-count $SPARK_NODE_COUNT \
+  --node-size $SPARK_NODE_SIZE 
 
 echo "Creating Synapse Notebook"
 az synapse notebook create --workspace-name $SYNAPSE_WORKSPACE \
@@ -59,17 +56,18 @@ az synapse notebook create --workspace-name $SYNAPSE_WORKSPACE \
 az synapse pipeline create --workspace-name $SYNAPSE_WORKSPACE \
   --name "blob-avro-to-delta-synapse" --file @"../streaming/synapse/pipelines/blob-avro-to-delta-synapse.json"
 
+tmp=$(mktemp)
 # Replaces the value of scope in the trigger json with the above STORAGE_ACCOUNT_URL
-jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json > "$tmp" && mv "$tmp" ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json
+TRIGGER_PATH="../streaming/synapse/triggers/"
+TEMPLATE_TRIGGER_FILE="trg_blob-avro-to-delta-synapse.json"
+TEMP_TRIGGER_FILE="temp-avro-to-delta-trigger.json"
+jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' $TRIGGER_PATH$TEMPLATE_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
+# The eventHubsNamespace and eventHubName are used to set the base path for the blob trigger.
+# And since these are parameters dynamically passed in when creating resources, 
+# we construct the path from these values and use jq to replace the defaults in the trigger file with new dynamically created path.
 BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubName"
-echo "Container Base Path is $BLOB_BASE_PATH"
-jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json > "$tmp" && mv "$tmp" ../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json
-
-TRIGGER_NAME="avro-to-delta-trigger"
+jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' $TRIGGER_PATH$TEMP_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
 az synapse trigger create --workspace-name $SYNAPSE_WORKSPACE \
-  --name $TRIGGER_NAME --file @"../streaming/synapse/triggers/trg_blob-avro-to-delta-synapse.json"
-
-az synapse trigger start --workspace-name $SYNAPSE_WORKSPACE \
-  --name $TRIGGER_NAME
+  --name "avro-to-delta-trigger" --file @"$TRIGGER_PATH$TEMP_TRIGGER_FILE"
