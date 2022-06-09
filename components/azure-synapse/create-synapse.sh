@@ -61,6 +61,7 @@ tmp=$(mktemp)
 TRIGGER_PATH="../streaming/synapse/triggers/"
 TEMPLATE_TRIGGER_FILE="trg_blob-avro-to-delta-synapse.json"
 TEMP_TRIGGER_FILE="temp-avro-to-delta-trigger.json"
+TRIGGER_NAME="avro-to-delta-trigger"
 jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' $TRIGGER_PATH$TEMPLATE_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
 # The eventHubsNamespace and eventHubName are used to set the base path for the blob trigger.
@@ -70,4 +71,7 @@ BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubNam
 jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' $TRIGGER_PATH$TEMP_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
 az synapse trigger create --workspace-name $SYNAPSE_WORKSPACE \
-  --name "avro-to-delta-trigger" --file @"$TRIGGER_PATH$TEMP_TRIGGER_FILE"
+  --name $TRIGGER_NAME --file @"$TRIGGER_PATH$TEMP_TRIGGER_FILE"
+
+az synapse trigger start --workspace-name $SYNAPSE_WORKSPACE \
+  --name $TRIGGER_NAME
