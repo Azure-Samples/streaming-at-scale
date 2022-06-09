@@ -68,6 +68,8 @@ if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export SIMULATOR_INSTANCES=5
+    export SPARK_NODE_COUNT=5
+    export SPARK_NODE_SIZE=Large
 fi
 
 # 5000 messages/sec
@@ -75,6 +77,8 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export SIMULATOR_INSTANCES=3
+    export SPARK_NODE_COUNT=3
+    export SPARK_NODE_SIZE=Medium
 fi
 
 # 1000 messages/sec
@@ -82,6 +86,8 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export SIMULATOR_INSTANCES=1
+    export SPARK_NODE_COUNT=3
+    export SPARK_NODE_SIZE=Small
 fi
 
 # last checks and variables setup

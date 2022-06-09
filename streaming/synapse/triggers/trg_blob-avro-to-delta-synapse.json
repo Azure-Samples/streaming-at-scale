@@ -16,10 +16,10 @@
     ],
     "type": "BlobEventsTrigger",
     "typeProperties": {
-      "blobPathBeginsWith": "/streamingatscale/blobs/capture/pbutlersas03eventhubs/streamingatscale-2",
-      "blobPathEndsWith": "0.avro",
+      "blobPathBeginsWith": "<Blob Path>",
+      "blobPathEndsWith": ".avro",
       "ignoreEmptyBlobs": true,
-      "scope": "/subscriptions/d2279a56-94c0-4a55-8c48-cd74bd1028ea/resourceGroups/pbutlersas03-rg/providers/Microsoft.Storage/storageAccounts/pbutlersas03storhfs",
+      "scope": "<Storage URL>",
       "events": [
         "Microsoft.Storage.BlobCreated"
       ]
