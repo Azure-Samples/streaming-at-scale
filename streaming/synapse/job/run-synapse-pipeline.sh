@@ -31,10 +31,6 @@ wait_for_run () {
     fi
 }
 
-test () {
-  echo "testing..."
-}
-
 echo "starting Synapse pipeline for $pipeline_name" | tee -a log.txt
 
 run_id=$(az synapse pipeline create-run --workspace-name $workspace_name --name "$pipeline_name" \
