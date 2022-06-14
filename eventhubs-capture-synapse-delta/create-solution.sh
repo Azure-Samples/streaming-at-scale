@@ -16,9 +16,9 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTMV"
-
+export WAITVERIFICATION=true
 usage() {
-    echo "Usage: $0 -d <deployment-name> $1 -p <sparkpool-sql-password> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> $1 -p <sparkpool-sql-password> [-s <steps>] [-t <test-type>] [-l <location>] [-w <wait-verfication>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
@@ -33,7 +33,7 @@ usage() {
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:p:s:t:l:b:" arg; do
+while getopts ":d:p:s:t:l:w:" arg; do
     case "${arg}" in
         d)
             PREFIX=${OPTARG}
@@ -48,6 +48,9 @@ while getopts ":d:p:s:t:l:b:" arg; do
             ;;
         l)
             LOCATION=${OPTARG}
+            ;;
+        w)
+            WAITVERIFICATION=${OPTARG}
             ;;
         esac
 done
@@ -121,7 +124,6 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-# echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
@@ -137,7 +139,6 @@ echo "***** [C] Setting up COMMON resources"
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-hfs.sh
-        # source ../components/azure-storage/create-storage-account-gen2.sh
         source ../components/azure-storage/setup-storage-event-grid.sh
     fi
 echo
@@ -164,6 +165,7 @@ echo "***** [P] Setting up PROCESSING"
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
         source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
+        source ../streaming/synapse/runners/start-synapse-pipeline-trigger.sh
     fi
 echo
 
@@ -184,4 +186,12 @@ echo "***** [M] Starting METRICS reporting"
     fi
 echo
 
+echo "***** [V] Starting deployment VERIFICATION"
+
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
+        source ../streaming/synapse/runners/verify-synapse-pipeline.sh $WAITVERIFICATION
+    fi
+echo
 echo "***** Done"

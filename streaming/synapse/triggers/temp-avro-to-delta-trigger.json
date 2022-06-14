@@ -1,0 +1,28 @@
+{
+  "name": "avro-to-delta-trigger",
+  "properties": {
+    "annotations": [],
+    "runtimeState": "Started",
+    "pipelines": [
+      {
+        "pipelineReference": {
+          "referenceName": "blob-avro-to-delta-synapse",
+          "type": "PipelineReference"
+        },
+        "parameters": {
+          "folder_path": "@trigger().outputs.body.folderPath"
+        }
+      }
+    ],
+    "type": "BlobEventsTrigger",
+    "typeProperties": {
+      "blobPathBeginsWith": "/streamingatscale/blobs/capture/ktsyness09eventhubs/streamingatscale-2",
+      "blobPathEndsWith": ".avro",
+      "ignoreEmptyBlobs": true,
+      "scope": "/subscriptions/d2279a56-94c0-4a55-8c48-cd74bd1028ea/resourceGroups/ktsyness09-rg/providers/Microsoft.Storage/storageAccounts/ktsyness09storhfs",
+      "events": [
+        "Microsoft.Storage.BlobCreated"
+      ]
+    }
+  }
+}

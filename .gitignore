@@ -25,4 +25,5 @@ terraform.rc
 .terraform.lock.hcl
 tfplan
 *.env
-streaming/synapse/triggers/temp-avro-to-delta-trigger.json
+*.temp.json
+*output.txt
