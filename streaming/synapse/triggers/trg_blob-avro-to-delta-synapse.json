@@ -6,7 +6,7 @@
     "pipelines": [
       {
         "pipelineReference": {
-          "referenceName": "blob-avro-to-delta-synapse",
+          "referenceName": "blob-triggered-avro-to-delta-pipeline",
           "type": "PipelineReference"
         },
         "parameters": {

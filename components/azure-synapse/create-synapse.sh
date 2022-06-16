@@ -63,10 +63,10 @@ az synapse notebook create --workspace-name $SYNAPSE_WORKSPACE \
   # And since these are parameters dynamically passed in when creating resources, 
   # we construct the path from these values and use jq to replace the defaults in the trigger file with new dynamically created path.
   tmp=$(mktemp)
-  jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' $TRIGGER_PATH$TEMPLATE_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
+  jq --arg a "${STORAGE_ACCOUNT_URL}" '.properties.typeProperties.scope = $a' $SAMPLE_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_FILE
 
   BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubName"
-  jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' $TRIGGER_PATH$TEMP_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
+  jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' $TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_FILE
 
   BLOBS_FOLDER_PATH="streamingatscale/capture/$eventHubsNamespace/$eventHubName"
   jq --arg a "${BLOBS_FOLDER_PATH}" '.folder_path = $a' $AVRO_TO_DELTA_PIPELINE_PARAMETER_FILE > "$tmp" && mv "$tmp" $TEMP_PIPELINE_PARAMETER_FILE

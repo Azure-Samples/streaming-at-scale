@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Strict mode, fail on any error
-source .env
+source set-variables.sh
 source ../streaming/synapse/job/run-synapse-pipeline.sh
 set -euo pipefail
 
@@ -174,7 +174,7 @@ echo "***** [P] Setting up PROCESSING"
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
         source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
-        source ../streaming/synapse/runners/blob-avro-delta-pipeline.sh
+        source ../streaming/synapse/runners/run-synapse-blob-triggered-pipeline.sh
     fi
 echo
 
