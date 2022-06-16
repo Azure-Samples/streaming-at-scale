@@ -1,8 +1,3 @@
-SYNAPSE_WORKSPACE="sas-ess-test-synwkspc"
-SQL_ADMIN_USER="sasesssyn"
-SYNAPSE_SPARKPOOL="sasesssparkpool"
-SPARK_VERSION="2.4"
-FILE_SYSTEM=streamingatscale
 SYNAPSE_WORKSPACE=$PREFIX"-synwkspc"
 SQL_ADMIN_PASSWORD=$1
 
@@ -58,14 +53,11 @@ if [ "$WORKSPACE_NAME_EXIST" = true ];then
     --file @"../streaming/synapse/notebooks/blob-avro-to-delta-synapse.ipynb" \
     --spark-pool-name $SYNAPSE_SPARKPOOL
 
-  echo "Creating Synapse Avro to Delta Pipeline"
-  az synapse pipeline create --workspace-name $SYNAPSE_WORKSPACE \
-    --name "blob-avro-to-delta-synapse" --file @"../streaming/synapse/pipelines/blob-avro-to-delta-synapse.json"
-
-  TRIGGER_PATH="../streaming/synapse/triggers/"
-  TEMPLATE_TRIGGER_FILE="trg_blob-avro-to-delta-synapse.json"
-  TEMP_TRIGGER_FILE="avro-to-delta-trigger.temp.json"
-  TRIGGER_NAME="avro-to-delta-trigger"
+echo "Creating Synapse Verify Delta Notebook"
+az synapse notebook create --workspace-name $SYNAPSE_WORKSPACE \
+  --name "verify-delta" \
+  --file @"../streaming/synapse/notebooks/verify-delta.ipynb" \
+  --spark-pool-name $SYNAPSE_SPARKPOOL
 
   # The eventHubsNamespace and eventHubName are used to set the base path for the blob trigger.
   # And since these are parameters dynamically passed in when creating resources, 
@@ -76,9 +68,9 @@ if [ "$WORKSPACE_NAME_EXIST" = true ];then
   BLOB_BASE_PATH="/streamingatscale/blobs/capture/$eventHubsNamespace/$eventHubName"
   jq --arg a "${BLOB_BASE_PATH}" '.properties.typeProperties.blobPathBeginsWith = $a' $TRIGGER_PATH$TEMP_TRIGGER_FILE > "$tmp" && mv "$tmp" $TRIGGER_PATH$TEMP_TRIGGER_FILE
 
-  echo "Creating Synapse Avro to Delta Pipeline Trigger"
-  az synapse trigger create --workspace-name $SYNAPSE_WORKSPACE \
-    --name $TRIGGER_NAME --file @"$TRIGGER_PATH$TEMP_TRIGGER_FILE"
+  BLOBS_FOLDER_PATH="streamingatscale/capture/$eventHubsNamespace/$eventHubName"
+  jq --arg a "${BLOBS_FOLDER_PATH}" '.folder_path = $a' $AVRO_TO_DELTA_PIPELINE_PARAMETER_FILE > "$tmp" && mv "$tmp" $TEMP_PIPELINE_PARAMETER_FILE
+
 else
   echo "Synapse Workspace $SYNAPSE_WORKSPACE already exists"
 fi

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Strict mode, fail on any error
+source .env
+source ../streaming/synapse/job/run-synapse-pipeline.sh
 set -euo pipefail
 
 on_error() {
@@ -12,11 +14,18 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export SQL_ADMIN_USER="sasesssyn"
+export SPARK_VERSION="2.4"
+export FILE_SYSTEM=streamingatscale
+export SYNAPSE_SPARKPOOL="sasesssparkpool"
+
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTMV"
 export WAITVERIFICATION=true
+
+
 usage() {
     echo "Usage: $0 -d <deployment-name> $1 -p <sparkpool-sql-password> [-s <steps>] [-t <test-type>] [-l <location>] [-w <wait-verfication>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
@@ -165,7 +174,7 @@ echo "***** [P] Setting up PROCESSING"
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
         source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
-        source ../streaming/synapse/runners/start-synapse-pipeline-trigger.sh
+        source ../streaming/synapse/runners/blob-avro-delta-pipeline.sh
     fi
 echo
 
@@ -191,7 +200,7 @@ echo "***** [V] Starting deployment VERIFICATION"
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
-        source ../streaming/synapse/runners/verify-synapse-pipeline.sh $WAITVERIFICATION
+        source ../streaming/synapse/runners/verify-delta.sh $WAITVERIFICATION
     fi
 echo
 echo "***** Done"
