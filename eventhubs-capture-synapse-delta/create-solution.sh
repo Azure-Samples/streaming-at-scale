@@ -2,7 +2,6 @@
 
 # Strict mode, fail on any error
 source set-variables
-echo $TEST
 source ../streaming/synapse/job/run-synapse-pipeline.sh
 set -euo pipefail
 
@@ -15,7 +14,7 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
-export SQL_ADMIN_USER="sasesssyn"
+export SQL_ADMIN_USER="sasesssynadmin"
 export SPARK_VERSION="2.4"
 export FILE_SYSTEM=streamingatscale
 export SYNAPSE_SPARKPOOL="sasesssparkpool"
