@@ -1,0 +1,8 @@
+{
+    "input_table_location": "/datalake/normalized/streaming_device",
+    "test_output_path": "/test-ouptut/verify-delta/output.txt",
+    "assert_events_per_second": 900,
+    "assert_latency_milliseconds": 15000,
+    "assert_duplicate_fraction": -1,
+    "assert_out_of_sequence_fraction": 0
+}

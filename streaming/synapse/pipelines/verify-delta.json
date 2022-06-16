@@ -1,0 +1,98 @@
+{
+  "name": "verify-delta",
+  "properties": {
+      "activities": [
+          {
+              "name": "Verify Delta",
+              "type": "SynapseNotebook",
+              "dependsOn": [],
+              "policy": {
+                  "timeout": "7.00:00:00",
+                  "retry": 0,
+                  "retryIntervalInSeconds": 30,
+                  "secureOutput": false,
+                  "secureInput": false
+              },
+              "userProperties": [],
+              "typeProperties": {
+                  "notebook": {
+                      "referenceName": "verify-delta",
+                      "type": "NotebookReference"
+                  },
+                  "parameters": {
+                      "input_table_location": {
+                          "value": {
+                              "value": "@pipeline().parameters.input_table_location",
+                              "type": "Expression"
+                          },
+                          "type": "string"
+                      },
+                      "test_output_path": {
+                          "value": {
+                              "value": "@pipeline().parameters.test_output_path",
+                              "type": "Expression"
+                          },
+                          "type": "string"
+                      },
+                      "assert_events_per_second": {
+                          "value": {
+                              "value": "@pipeline().parameters.assert_events_per_second",
+                              "type": "Expression"
+                          },
+                          "type": "int"
+                      },
+                      "assert_latency_milliseconds": {
+                          "value": {
+                              "value": "@pipeline().parameters.assert_latency_milliseconds",
+                              "type": "Expression"
+                          },
+                          "type": "int"
+                      },
+                      "assert_duplicate_fraction": {
+                          "value": {
+                              "value": "@pipeline().parameters.assert_duplicate_fraction",
+                              "type": "Expression"
+                          },
+                          "type": "int"
+                      },
+                      "assert_out_of_sequence_fraction": {
+                          "value": {
+                              "value": "@pipeline().parameters.assert_out_of_sequence_fraction",
+                              "type": "Expression"
+                          },
+                          "type": "int"
+                      }
+                  },
+                  "snapshot": true
+              }
+          }
+      ],
+      "parameters": {
+          "input_table_location": {
+              "type": "string",
+              "defaultValue": "/datalake/normalized/streaming_device"
+          },
+          "test_output_path": {
+              "type": "string",
+              "defaultValue": "/test-ouptut/verify-delta/output.txt"
+          },
+          "assert_events_per_second": {
+              "type": "int",
+              "defaultValue": 900
+          },
+          "assert_latency_milliseconds": {
+              "type": "int",
+              "defaultValue": 15000
+          },
+          "assert_duplicate_fraction": {
+              "type": "float",
+              "defaultValue": -1
+          },
+          "assert_out_of_sequence_fraction": {
+              "type": "float",
+              "defaultValue": 0
+          }
+      },
+      "annotations": []
+  }
+}

@@ -19,7 +19,7 @@ az storage queue create \
   --only-show-errors \
   -o tsv >>log.txt
 
-storage_id=$(az storage account show --name $AZURE_STORAGE_ACCOUNT_GEN2 --query id -o tsv)
+storage_id=$(az storage account show --name $AZURE_STORAGE_ACCOUNT_GEN2 -g $RESOURCE_GROUP --query id -o tsv)
 
 az eventgrid event-subscription create \
   --name "$subscription_name" \

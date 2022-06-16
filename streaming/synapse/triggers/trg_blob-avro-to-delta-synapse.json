@@ -1,28 +1,28 @@
 {
-    "name": "avro-to-delta-trigger",
-    "properties": {
-        "annotations": [],
-        "runtimeState": "Started",
-        "pipelines": [
-            {
-                "pipelineReference": {
-                    "referenceName": "blob-avro-to-delta-synapse",
-                    "type": "PipelineReference"
-                },
-                "parameters": {
-                    "folder_path": "@trigger().outputs.body.folderPath"
-                }
-            }
-        ],
-        "type": "BlobEventsTrigger",
-        "typeProperties": {
-            "blobPathBeginsWith": "update blob path in script",
-            "blobPathEndsWith": ".avro",
-            "ignoreEmptyBlobs": true,
-            "scope": "update scope in script",
-            "events": [
-                "Microsoft.Storage.BlobCreated"
-            ]
+  "name": "avro-to-delta-trigger",
+  "properties": {
+    "annotations": [],
+    "runtimeState": "Started",
+    "pipelines": [
+      {
+        "pipelineReference": {
+          "referenceName": "blob-triggered-avro-to-delta-pipeline",
+          "type": "PipelineReference"
+        },
+        "parameters": {
+          "folder_path": "@trigger().outputs.body.folderPath"
         }
+      }
+    ],
+    "type": "BlobEventsTrigger",
+    "typeProperties": {
+      "blobPathBeginsWith": "<Blob Path>",
+      "blobPathEndsWith": ".avro",
+      "ignoreEmptyBlobs": true,
+      "scope": "<Storage URL>",
+      "events": [
+        "Microsoft.Storage.BlobCreated"
+      ]
     }
+  }
 }

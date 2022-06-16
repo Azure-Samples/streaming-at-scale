@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Strict mode, fail on any error
+source set-variables
+source ../streaming/synapse/job/run-synapse-pipeline.sh
 set -euo pipefail
 
 on_error() {
@@ -12,13 +14,20 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
+export SQL_ADMIN_USER="sasesssynadmin"
+export SPARK_VERSION="2.4"
+export FILE_SYSTEM=streamingatscale
+export SYNAPSE_SPARKPOOL="sasesssparkpool"
+
 export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTMV"
+export WAITVERIFICATION=true
+
 
 usage() {
-    echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-l <location>]"
+    echo "Usage: $0 -d <deployment-name> $1 -p <sparkpool-sql-password> [-s <steps>] [-t <test-type>] [-l <location>] [-w <wait-verfication>]"
     echo "-s: specify which steps should be executed. Default=$STEPS"
     echo "    Possible values:"
     echo "      C=COMMON"
@@ -33,10 +42,12 @@ usage() {
 }
 
 # Initialize parameters specified from command line
-while getopts ":d:s:t:l:b:" arg; do
+while getopts ":d:p:s:t:l:w:" arg; do
     case "${arg}" in
         d)
             PREFIX=${OPTARG}
+            ;;
+        p)  SQLPASSWORD=${OPTARG}
             ;;
         s)
             STEPS=${OPTARG}
@@ -47,6 +58,9 @@ while getopts ":d:s:t:l:b:" arg; do
         l)
             LOCATION=${OPTARG}
             ;;
+        w)
+            WAITVERIFICATION=${OPTARG}
+            ;;
         esac
 done
 shift $((OPTIND-1))
@@ -56,11 +70,18 @@ if [[ -z "$PREFIX" ]]; then
     usage
 fi
 
+if [[ -z "$SQLPASSWORD" ]]; then
+    echo "Enter a SQL password for the Sparkpool"
+    usage
+fi
+
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
     export SIMULATOR_INSTANCES=5
+    export SPARK_NODE_COUNT=5
+    export SPARK_NODE_SIZE=Large
 fi
 
 # 5000 messages/sec
@@ -68,6 +89,8 @@ if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
     export SIMULATOR_INSTANCES=3
+    export SPARK_NODE_COUNT=3
+    export SPARK_NODE_SIZE=Medium
 fi
 
 # 1000 messages/sec
@@ -75,6 +98,8 @@ if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
     export SIMULATOR_INSTANCES=1
+    export SPARK_NODE_COUNT=3
+    export SPARK_NODE_SIZE=Small
 fi
 
 # last checks and variables setup
@@ -82,7 +107,7 @@ if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
-export RESOURCE_GROUP=$PREFIX
+export RESOURCE_GROUP=$PREFIX"-rg"
 
 # remove log.txt if exists
 rm -f log.txt
@@ -108,7 +133,6 @@ echo "Configuration: "
 echo ". Resource Group  => $RESOURCE_GROUP"
 echo ". Region          => $LOCATION"
 echo ". EventHubs       => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
-# echo ". Databricks      => VM: $DATABRICKS_NODETYPE, Workers: $DATABRICKS_WORKERS"
 echo ". Simulators      => $SIMULATOR_INSTANCES"
 echo
 
@@ -123,7 +147,6 @@ echo "***** [C] Setting up COMMON resources"
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
-        source ../components/azure-storage/create-storage-account.sh
         source ../components/azure-storage/create-storage-hfs.sh
         source ../components/azure-storage/setup-storage-event-grid.sh
     fi
@@ -137,7 +160,7 @@ echo "***** [I] Setting up INGESTION"
 
     RUN=`echo $STEPS | grep I -o || true`
     if [ ! -z "$RUN" ]; then
-        source ../components/azure-event-hubs/create-event-hub.sh
+        source ../components/azure-event-hubs/create-event-hub.sh 
     fi
 echo
 
@@ -150,8 +173,8 @@ echo "***** [P] Setting up PROCESSING"
     RUN=`echo $STEPS | grep P -o || true`
     if [ ! -z "$RUN" ]; then
         echo "Setting up processing. Currently there is no processing layer."
-        # source ../components/azure-databricks/create-databricks.sh
-        # source ../streaming/databricks/runners/blob-avro-to-delta.sh
+        source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
+        source ../streaming/synapse/runners/run-synapse-blob-triggered-pipeline.sh
     fi
 echo
 
@@ -161,26 +184,23 @@ echo "***** [T] Starting up TEST clients"
     if [ ! -z "$RUN" ]; then
         source ../simulator/run-generator-eventhubs.sh
     fi
+
 echo
 
-# echo "***** [M] Starting METRICS reporting"
+echo "***** [M] Starting METRICS reporting"
 
-#     RUN=`echo $STEPS | grep M -o || true`
-#     if [ ! -z "$RUN" ]; then
-#         source ../components/azure-event-hubs/report-throughput.sh
-#     fi
-# echo
+    RUN=`echo $STEPS | grep M -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-event-hubs/report-throughput.sh
+    fi
+echo
 
-# echo "***** [V] Starting deployment VERIFICATION"
+echo "***** [V] Starting deployment VERIFICATION"
 
-#     export ALLOW_DUPLICATES=1
-#     export MAX_LATENCY_MILLISECONDS=600000
-
-#     RUN=`echo $STEPS | grep V -o || true`
-#     if [ ! -z "$RUN" ]; then
-#         source ../components/azure-databricks/create-databricks.sh
-#         source ../streaming/databricks/runners/verify-delta.sh
-#     fi
-# echo
-
+    RUN=`echo $STEPS | grep V -o || true`
+    if [ ! -z "$RUN" ]; then
+        source ../components/azure-synapse/create-synapse.sh $SQLPASSWORD
+        source ../streaming/synapse/runners/verify-delta.sh $WAITVERIFICATION
+    fi
+echo
 echo "***** Done"
