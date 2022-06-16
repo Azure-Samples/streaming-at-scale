@@ -13,3 +13,4 @@ export SAMPLE_TRIGGER_FILE="../streaming/synapse/triggers/trg_blob-avro-to-delta
 export TRIGGER_NAME="avro-to-delta-trigger"
 export TRIGGER_FILE="../streaming/synapse/triggers/avro-to-delta-trigger.temp.json"
 export BLOB_TRIGGERED_PIPELINE_NAME="blob-triggered-avro-to-delta-pipeline"
+export TEST="Hello"

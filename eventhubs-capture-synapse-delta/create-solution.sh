@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Strict mode, fail on any error
-source set-variables.sh
+source set-variables
+echo $TEST
 source ../streaming/synapse/job/run-synapse-pipeline.sh
 set -euo pipefail
 
