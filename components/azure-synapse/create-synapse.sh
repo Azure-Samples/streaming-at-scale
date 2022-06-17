@@ -1,8 +1,13 @@
+#!/bin/bash
+
+# Strict mode, fail on any error
+set -euo pipefail
+
 SYNAPSE_WORKSPACE=$PREFIX"-synwkspc"
 SQL_ADMIN_PASSWORD=$1
-WORKSPACE_NAME_EXIST=$(az synapse workspace check-name --name $SYNAPSE_WORKSPACE --query "available")
+WORKSPACE_NAME_AVAILABLE=$(az synapse workspace check-name --name $SYNAPSE_WORKSPACE --query "available")
 
-if [ "$WORKSPACE_NAME_EXIST" = true ];then 
+if [ "$WORKSPACE_NAME_AVAILABLE" = true ];then 
 
   echo "Creating Azure Synapse Workspace $SYNAPSE_WORKSPACE"
   az synapse workspace create --name $SYNAPSE_WORKSPACE \
@@ -69,7 +74,7 @@ if [ "$WORKSPACE_NAME_EXIST" = true ];then
 
   BLOBS_FOLDER_PATH="streamingatscale/capture/$eventHubsNamespace/$eventHubName"
   jq --arg a "${BLOBS_FOLDER_PATH}" '.folder_path = $a' $AVRO_TO_DELTA_PIPELINE_PARAMETER_FILE > "$tmp" && mv "$tmp" $TEMP_PIPELINE_PARAMETER_FILE
-  
+
 else
     echo "Synapse Workspace $SYNAPSE_WORKSPACE already exists"
 fi

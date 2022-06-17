@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Strict mode, fail on any error
+set -euo pipefail
 source set-variables
 source ../streaming/synapse/job/run-synapse-pipeline.sh
-set -euo pipefail
 
 on_error() {
     set +e
@@ -24,7 +24,6 @@ export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTMV"
 export WAITVERIFICATION=true
-
 
 usage() {
     echo "Usage: $0 -d <deployment-name> $1 -p <sparkpool-sql-password> [-s <steps>] [-t <test-type>] [-l <location>] [-w <wait-verfication>]"
