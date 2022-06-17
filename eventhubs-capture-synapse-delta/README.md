@@ -73,29 +73,6 @@ To make sure that name collisions will be unlikely, you should use a random stri
 
     ./_common/generate-solution-name.sh
 
-## Running the Steps
-
-The script executes 6 independent steps as follows:
-
-- Common      `C`  - Creates a Resource Group and Storage accounts for Synapse and EventGrid
-- Ingestion   `I`- Creates and EventHub namespace and an EventHub
-- Processing  `P` - Create the Synapse components and starts a blob triggered pipeline
-- Test        `T` - Creates an Azure Container Instance(s) to send sample data to EventHub
-- Metrics     `M` - Runs a report on the throughput of the EventHub
-- Verification `V` - Validates the delta table.
-
->**NOTE:** While these steps can be run independently to deploy resources, some of them are required in order to get an end-to-end deployment to work. For example, Common and Ingestion steps are required to get sample data which then can be processed by the Processing or Validation step.
-
-By default, the script will run all `CIPTMV` steps if no argument is passed to the `-s` flag. However, you can run specific steps using `-s` flag followed by a sequence of letters representing each step.
-
-For example you create the common resources, EventHub, ACI, and Azure Synapse(and all needed components) by running:
-
-```
-  ./create-solution.sh -d <solution_name> -p <synapse_sql_password> -w -s CIPT <wait_verfication>
-```
-
-We recommend waiting for about 5-10mins after resources have been provisioned before querying the datalake as it might take said amount of time for data to be captured and processed.
-
 ## Created resources
 
 The script will create the following resources:

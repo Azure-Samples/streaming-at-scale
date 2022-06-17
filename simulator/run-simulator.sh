@@ -31,7 +31,7 @@ echo ". events/second per instance: $EVENTS_PER_SECOND_PER_INSTANCE"
 for i in $(seq 1 $SIMULATOR_INSTANCES); do
   name="aci-$PREFIX-simulator-$i"
   az container delete -g $RESOURCE_GROUP -n "$name" --yes \
-    -o tsv >> log.txt 2>/dev/null || true
+    -o tsv >> log.txt 2>/dev/null
   az container create -g $RESOURCE_GROUP -n "$name" \
     --image $image_name \
     $vnet_options \
