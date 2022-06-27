@@ -62,7 +62,9 @@ once you have selected the subscription you want to use just execute the followi
 
 - The `sql-admin-login-password` value is be used to create the password for the synapse sql pool. The SQL Pools are not explicitly used anywhere in the project, but the SQL Admin Login Password is necessary when creating a Synapse Workspace.
 
-- `wait_verification` is a boolean flag defaulted to `true` that places the CLI in a waiting state until the pipeline results have to downloaded and written to SDTOUT.
+> [Refer to Azure SQL Password Policy and Complexity](https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver16#password-complexity)
+
+- `wait_verification` is a boolean flag defaulted to `true` that places the CLI in a waiting state until the pipeline results have been downloaded and written to SDTOUT.
 
 To have an overview of all the supported arguments just run
 
