@@ -106,7 +106,7 @@ if [ -z ${SIMULATOR_INSTANCES+x} ]; then
     usage
 fi
 
-export RESOURCE_GROUP=$PREFIX"-rg"
+export RESOURCE_GROUP=$PREFIX
 
 # remove log.txt if exists
 rm -f log.txt
