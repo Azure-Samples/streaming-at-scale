@@ -5,8 +5,7 @@ languages:
 products:
 - azure
 - azure-event-hubs 
-extensions:
-- platforms: dotnet
+- dotnet
 ---
 
 # Getting started on processing received message from Event Hubs #
