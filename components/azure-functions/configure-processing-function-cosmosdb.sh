@@ -4,7 +4,7 @@
 set -euo pipefail
 
 echo "getting cosmosdb master key"
-COSMOSDB_MASTER_KEY=`az cosmosdb list-keys -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv`
+COSMOSDB_MASTER_KEY=`az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv`
 
 echo 'adding app settings for connection strings'
 echo ". function: $PROC_FUNCTION_APP_NAME"

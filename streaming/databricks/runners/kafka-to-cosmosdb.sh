@@ -7,7 +7,7 @@ echo "retrieving storage account key"
 AZURE_STORAGE_KEY=$(az storage account keys list -g $RESOURCE_GROUP -n $AZURE_STORAGE_ACCOUNT -o tsv --query "[0].value")
 
 echo "getting cosmosdb master key"
-COSMOSDB_MASTER_KEY=$(az cosmosdb list-keys -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv)
+COSMOSDB_MASTER_KEY=$(az cosmosdb keys list -g $RESOURCE_GROUP -n $COSMOSDB_SERVER_NAME --query "primaryMasterKey" -o tsv)
 
 echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "kafka-sasl-jaas-config" --string-value "$KAFKA_SASL_JAAS_CONFIG_DATABRICKS"
