@@ -12,7 +12,7 @@ echo 'writing Databricks secrets'
 databricks secrets put --scope "MAIN" --key "event-hubs-read-connection-string" --string-value "$EVENTHUB_CS;EntityPath=$EVENTHUB_NAME"
 
 source ../streaming/databricks/job/run-databricks-job.sh verify-eventhubs true "$(cat <<JQ
-  .libraries += [ { "maven": { "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.13" } } ]
+  .libraries += [ { "maven": { "coordinates": "${DATABRICKS_EVENTHUBSSPARK:-com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.13}" } } ]
   | .notebook_task.base_parameters."test-output-path" = "$DATABRICKS_TESTOUTPUTPATH"
   | .notebook_task.base_parameters."eventhub-consumergroup" = "$EVENTHUB_CG"
   | .notebook_task.base_parameters."assert-events-per-second" = "$(($TESTTYPE * 900))"

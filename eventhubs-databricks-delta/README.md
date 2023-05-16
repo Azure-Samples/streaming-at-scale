@@ -100,7 +100,7 @@ Streamed data simulates an IoT device sending the following JSON data:
         [...]
     },
     "value": 49.02278128887753,
-    "deviceId": "contoso://device-id-154",
+    "deviceId": "contoso-device-id-000154",
     "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
@@ -173,8 +173,8 @@ Data is stored in a Delta Lake Spark table in the created Azure Databricks works
 From a Databricks notebook, connect spark to the Azure Datalake Gen2 storage:
 
 ```scala
-val gen2account = "<created-adsl2-storage-account>"
-spark.conf.set(s"fs.azure.account.key.$gen2account.dfs.core.windows.net", "<created-adsl2-storage-key>")
+val gen2account = "<created-adls2-storage-account>"
+spark.conf.set(s"fs.azure.account.key.$gen2account.dfs.core.windows.net", "<created-adls2-storage-key>")
 dbutils.fs.ls(s"abfss://streamingatscale@$gen2account.dfs.core.windows.net/")
 ```
 
@@ -182,7 +182,7 @@ and the you can query the table using Spark SQL for example:
 
 ```
 %sql
-SELECT * FROM delta.`abfss://streamingatscale@<created-adsl2-storage-account>.dfs.core.windows.net/events` LIMIT 100
+SELECT * FROM delta.`abfss://streamingatscale@<created-adls2-storage-account>.dfs.core.windows.net/events` LIMIT 100
 ```
 
 More info here:

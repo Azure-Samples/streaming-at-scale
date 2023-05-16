@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Text;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.EventHubs;
 using Newtonsoft.Json;

@@ -108,7 +108,7 @@ Streamed data simulates an IoT device sending the following JSON data:
         [...]
     },
     "value": 49.02278128887753,
-    "deviceId": "contoso://device-id-154",
+    "deviceId": "contoso-device-id-000154",
     "deviceSequenceNumber": 0,
     "type": "CO2",
     "createdAt": "2019-05-16T17:16:40.000003Z"
@@ -155,7 +155,7 @@ As mentioned in the article [Serverless Streaming At Scale with Cosmos DB](https
 
 ## Cosmos DB
 
-As you'll notice when using funciont "Test1", Cosmos DB reports something a bit more than 8 RU used for each written document. This is due to the fact that 1Kb document is ingested, but in the sample Azure Functions are used to augment the incoming JSON by adding some additional data, making the document a little bit bigger than 1Kb.
+As you'll notice when using function "Test1", Cosmos DB reports something a bit more than 8 RU used for each written document. This is due to the fact that 1Kb document is ingested, but in the sample Azure Functions are used to augment the incoming JSON by adding some additional data, making the document a little bit bigger than 1Kb.
 
 Cosmos DB index policy has been set up in order to index only the meaninful properties to avoid to waste RU in properties that will never be searched for and thus indexing won't help in any way. Keeping the indexing enabled for all properties, would raise the RU usage, per document, to 19 (100% more!). On the other hand, removing indexing from all properties will bring down RU usage to 6.
 

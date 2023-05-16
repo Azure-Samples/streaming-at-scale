@@ -4,7 +4,11 @@
 set -euo pipefail
 
 echo 'getting shared access key'
-source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$EVENTHUB_NAMESPACE" "Listen"
+if [ -n "${IOTHUB_NAME:-}" ]; then
+  source ../components/azure-iot-hub/get-iothub-eventhubs-connection-string.sh 
+else
+  source ../components/azure-event-hubs/get-eventhubs-connection-string.sh "$EVENTHUB_NAMESPACE" "Listen"
+fi
 
 echo 'adding app settings for connection strings'
 

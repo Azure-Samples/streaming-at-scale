@@ -26,7 +26,7 @@ if ! az keyvault secret show --vault-name $SERVICE_PRINCIPAL_KEYVAULT --name $SE
                   --query password \
                   --output tsv)
     echo "getting service principal"
-    appId=$(az ad sp show --id http://$SERVICE_PRINCIPAL_KV_NAME --query appId --output tsv)
+    appId=$(az ad sp list --display-name http://$SERVICE_PRINCIPAL_KV_NAME --query "[].appId" --output tsv)
   fi
 
   echo "storing service principal in Key Vault"

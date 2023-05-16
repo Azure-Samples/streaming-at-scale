@@ -10,7 +10,7 @@ COSMOSDB_MASTER_KEY=`az cosmosdb list-keys -g $RESOURCE_GROUP -n $COSMOSDB_SERVE
 
 echo 'creating stream analytics job'
 echo ". name: $PROC_JOB_NAME"
-az group deployment create \
+az deployment group create \
   --name $PROC_JOB_NAME \
   --resource-group $RESOURCE_GROUP \
   --template-file "stream-analytics-job-arm-template.json" \

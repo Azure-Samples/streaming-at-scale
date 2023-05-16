@@ -9,7 +9,7 @@ echo ". account name: $COSMOSDB_SERVER_NAME"
 echo ". database name: $COSMOSDB_DATABASE_NAME"
 echo ". collection name: $COSMOSDB_COLLECTION_NAME"
 
-az group deployment create \
+az deployment group create \
   --resource-group $RESOURCE_GROUP \
   --template-file ../components/azure-cosmosdb/cosmosdb-arm-template.json \
   --parameters \

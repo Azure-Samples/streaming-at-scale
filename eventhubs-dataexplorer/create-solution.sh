@@ -47,11 +47,13 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
+export DATABRICKS_SPARKVERSION=7.3.x-scala2.12
+
 # 10000 messages/sec
 if [ "$TESTTYPE" == "10" ]; then
     export EVENTHUB_PARTITIONS=12
     export EVENTHUB_CAPACITY=12
-    export DATAEXPLORER_SKU=D13_v2
+    export DATAEXPLORER_SKU=Standard_D13_v2
     export DATAEXPLORER_CAPACITY=3
     export SIMULATOR_INSTANCES=5
 fi
@@ -60,7 +62,7 @@ fi
 if [ "$TESTTYPE" == "5" ]; then
     export EVENTHUB_PARTITIONS=8
     export EVENTHUB_CAPACITY=6
-    export DATAEXPLORER_SKU=D12_v2
+    export DATAEXPLORER_SKU=Standard_D12_v2
     export DATAEXPLORER_CAPACITY=2
     export SIMULATOR_INSTANCES=3
 fi
@@ -69,7 +71,7 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_PARTITIONS=2
     export EVENTHUB_CAPACITY=2
-    export DATAEXPLORER_SKU=D11_v2
+    export DATAEXPLORER_SKU=Standard_D11_v2
     export DATAEXPLORER_CAPACITY=2
     export SIMULATOR_INSTANCES=1 
 fi
@@ -169,6 +171,7 @@ echo "***** [V] Starting deployment VERIFICATION"
 
     RUN=`echo $STEPS | grep V -o || true`
     if [ ! -z "$RUN" ]; then
+        source ../assert/has-local-databrickscli.sh
         source ../components/azure-databricks/create-databricks.sh
         source ../streaming/databricks/runners/verify-dataexplorer.sh
     fi

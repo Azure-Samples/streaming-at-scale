@@ -66,7 +66,7 @@ GO
 ALTER TABLE [dbo].[rawdata]  WITH NOCHECK ADD CHECK  ((isjson([ComplexData])=1))
 GO
 
-CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+CREATE CLUSTERED INDEX [ixc] ON [dbo].[rawdata] ([StoredAt] DESC) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
 ALTER TABLE dbo.[rawdata] 
@@ -77,7 +77,7 @@ ADD CONSTRAINT [pk__rawdata] PRIMARY KEY NONCLUSTERED
 	)  WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
-CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId], [DeviceSequenceNumber]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
+CREATE NONCLUSTERED INDEX ix1 ON [dbo].[rawdata] ([DeviceId] ASC, [DeviceSequenceNumber] DESC) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])
 GO
 
 CREATE NONCLUSTERED INDEX ix2 ON [dbo].[rawdata] ([BatchId]) WITH (DATA_COMPRESSION = PAGE) ON [ps_af]([PartitionId])

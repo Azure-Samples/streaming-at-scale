@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Strict mode, fail on any error
 set -euo pipefail
 
 on_error() {
@@ -30,8 +31,8 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-k: test rowstore or columnstore. Default=rowstore"
-    echo "-o: test Hyperscale (HS) or Business Critical (BC). Default=HS"
+    echo "-k: test rowstore or columnstore. Default=$SQL_TABLE_KIND"
+    echo "-o: test Hyperscale (HS) or Business Critical (BC). Default=$AZURE_SQL_TIER"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
@@ -203,7 +204,7 @@ echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=-1
+    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=0
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then

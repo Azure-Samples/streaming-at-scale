@@ -6,9 +6,10 @@
     <AssemblyName>StreamingProcessor</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.60.9" />
+    <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventHubs" Version="3.0.5" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.9" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

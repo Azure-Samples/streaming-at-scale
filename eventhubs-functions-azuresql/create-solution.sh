@@ -17,6 +17,7 @@ export LOCATION="eastus"
 export TESTTYPE="1"
 export SQL_TABLE_KIND="rowstore"
 export STEPS="CIDPTM"
+export AZURE_SQL_TIER="BC"
 
 usage() { 
     echo "Usage: $0 -d <deployment-name> [-s <steps>] [-t <test-type>] [-k <store-kind>] [-l <location>]"
@@ -30,7 +31,8 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-k: test rowstore, columnstore, rowstore-inmemory, columnstore-inmemory. Default=$SQL_TABLE_KIND"
+    echo "-k: test rowstore or columnstore. Default=$SQL_TABLE_KIND"
+    echo "-o: test Hyperscale (HS) or Business Critical (BC). Default=$AZURE_SQL_TIER"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1; 
 }
@@ -53,6 +55,9 @@ while getopts ":d:s:t:l:k:" arg; do
         k)
 			SQL_TABLE_KIND=${OPTARG}
 			;;
+        o)
+            AZURE_SQL_TIER=${OPTARG}
+            ;;
 		esac
 done
 shift $((OPTIND-1))
@@ -62,15 +67,24 @@ if [[ -z "$PREFIX" ]]; then
 	usage
 fi
 
+case $AZURE_SQL_TIER in
+    HS|BC)
+        ;;
+    *)
+        printf "\nError: '-o' param must be set to 'HS' or 'BC'\n\n"   
+        usage
+        ;;
+esac
+
 # 20000 messages/sec
 # more messages but smaller
 if [ "$TESTTYPE" == "20" ]; then
     export EVENTHUB_PARTITIONS=16
     export EVENTHUB_CAPACITY=20
     export PROC_FUNCTION=Test0
-    export PROC_FUNCTION_SKU=P2v2
+    export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=16
-    export SQL_SKU=HS_Gen5_24
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_24
     export SIMULATOR_INSTANCES=10
     export SIMULATOR_COMPLEX_DATA_COUNT=10
 fi
@@ -82,7 +96,7 @@ if [ "$TESTTYPE" == "10" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=16
-    export SQL_SKU=HS_Gen5_16
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_16
     export SIMULATOR_INSTANCES=5
 fi
 
@@ -93,7 +107,7 @@ if [ "$TESTTYPE" == "5" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=8
-    export SQL_SKU=HS_Gen5_8
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_8
     export SIMULATOR_INSTANCES=3
 fi
 
@@ -104,7 +118,7 @@ if [ "$TESTTYPE" == "1" ]; then
     export PROC_FUNCTION=Test0
     export PROC_FUNCTION_SKU=EP2
     export PROC_FUNCTION_WORKERS=2
-    export SQL_SKU=HS_Gen5_2
+    export SQL_SKU=${AZURE_SQL_TIER}_Gen5_8
     export SIMULATOR_INSTANCES=1
 fi
 
@@ -140,9 +154,8 @@ case $SQL_TABLE_KIND in
         TABLE_SUFFIX="_cs_mo"
         ;;
     *)
-        echo "SQL_TABLE_KIND must be set to 'rowstore', 'rowstore-inmemory', 'columnstore' or 'columnstore-inmemory'"
-        echo "please install it as it is needed by the script"
-        exit 1
+        echo "'-k' param must be set to 'rowstore' or 'columnstore'"        
+        usage
         ;;
 esac
 
@@ -222,7 +235,7 @@ echo
 
 echo "***** [T] Starting up TEST clients"
 
-    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=-1
+    export SIMULATOR_DUPLICATE_EVERY_N_EVENTS=0
 
     RUN=`echo $STEPS | grep T -o || true`
     if [ ! -z "$RUN" ]; then

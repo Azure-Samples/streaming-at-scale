@@ -22,8 +22,8 @@ val cluster = dbutils.widgets.get("dataexplorer-cluster")
 val database = dbutils.widgets.get("dataexplorer-database")
 val query = dbutils.widgets.get("dataexplorer-query")
 val conf: Map[String, String] = Map(
-  KustoSourceOptions.KUSTO_AAD_CLIENT_ID -> dbutils.widgets.get("dataexplorer-client-id"),
-  KustoSourceOptions.KUSTO_AAD_CLIENT_PASSWORD -> dbutils.secrets.get(scope = "MAIN", key = "dataexplorer-client-password"),
+  KustoSourceOptions.KUSTO_AAD_APP_ID -> dbutils.widgets.get("dataexplorer-client-id"),
+  KustoSourceOptions.KUSTO_AAD_APP_SECRET -> dbutils.secrets.get(scope = "MAIN", key = "dataexplorer-client-password"),
   KustoSourceOptions.KUSTO_BLOB_STORAGE_ACCOUNT_NAME -> dbutils.widgets.get("dataexplorer-storage-account"),
   KustoSourceOptions.KUSTO_BLOB_STORAGE_ACCOUNT_KEY -> dbutils.secrets.get(scope = "MAIN", key = "dataexplorer-storage-key"),
   KustoSourceOptions.KUSTO_BLOB_CONTAINER -> dbutils.widgets.get("dataexplorer-storage-container")

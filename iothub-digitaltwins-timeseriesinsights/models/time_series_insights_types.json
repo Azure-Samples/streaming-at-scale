@@ -1,0 +1,27 @@
+[
+  {
+    "id": "simulated-device",
+    "name": "Simulated Device",
+    "description": "Simulated Device with Temperature and CO2 Sensors",
+    "variables": {
+      "Temperature": {
+        "kind": "numeric",
+        "value": {
+          "tsx": "$event.Temperature.Double"
+        },
+        "aggregation": {
+          "tsx": "avg($value)"
+        }
+      },
+      "CO2": {
+        "kind": "numeric",
+        "value": {
+          "tsx": "$event.CO2.Double"
+        },
+        "aggregation": {
+          "tsx": "avg($value)"
+        }
+      }
+    }
+  }
+]

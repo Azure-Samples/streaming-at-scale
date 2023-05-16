@@ -1,0 +1,21 @@
+[
+  {
+    "id": "manufacture-date",
+    "name": "ManufactureDate",
+    "source": {
+      "instanceFieldNames": [
+        "year",
+        "month"
+      ]
+    }
+  },
+  {
+    "id": "vehicle-type",
+    "name": "VehicleType",
+    "source": {
+      "instanceFieldNames": [
+        "vehicle"
+      ]
+    }
+  }
+]

@@ -28,7 +28,7 @@ table(tempTable)
   .withColumnRenamed("timestamp", "enqueuedAt")
   .withColumnRenamed("deviceId_string", "deviceId")
   .withColumnRenamed("eventId_string", "eventId")
-  .withColumnRenamed("deviceSequenceNumber_double", "deviceSequenceNumber")
+  .withColumnRenamed("deviceSequenceNumber_long", "deviceSequenceNumber")
   .createOrReplaceGlobalTempView(tempView)
 
 // COMMAND ----------

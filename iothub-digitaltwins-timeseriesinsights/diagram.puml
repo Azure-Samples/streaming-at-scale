@@ -1,0 +1,58 @@
+@startuml deployment
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+
+!includeurl AzurePuml/AzureCommon.puml
+
+!includeurl AzurePuml/Analytics/AzureEventHub.puml
+!includeurl AzurePuml/Compute/AzureFunction.puml
+!includeurl AzurePuml/Containers/AzureContainerInstance.puml
+!includeurl AzurePuml/InternetOfThings/all.puml
+
+left to right direction
+
+
+rectangle r1 as "Deployment with property updates\n(-e property)" {
+
+AzureContainerInstance(gen1, "Simulator", ".NET", "Generate events")
+AzureIoTHub(hub1, "IoT Hub", "S1/S2", "Ingest events")
+AzureFunction(fun1, "Ingestion function", ".NET, ElasticPremium", "Format Azure Digital Twin model updates")
+AzureDigitalTwins(adt1, "Digital Twins", "PAYG", "Manage models")
+AzureEventHub(eh1, "Telemetry", "Standard", "Serve model updates")
+AzureFunction(funo1, "Processing function", ".NET, ElasticPremium", "Format events for Time Series Insights")
+AzureEventHub(eho1, "Events", "Standard", "Serve events")
+AzureTimeSeriesInsights(tsi1, "Time Series", "ADLS Gen2, PAYG", "Analytics")
+
+
+gen1 --> hub1
+hub1 --> fun1
+fun1 --> adt1
+adt1 --> eh1
+eh1 --> funo1
+funo1 --> eho1
+eho1 --> tsi1
+
+}
+
+
+rectangle r2 as "Deployment with telemetry events\n(-e telemetry)" {
+
+AzureContainerInstance(gen2, "Simulator", ".NET", "Generate events")
+AzureIoTHub(hub2, "IoT Hub", "S1/S2", "Ingest events")
+AzureFunction(fun2, "Ingestion function", ".NET, ElasticPremium", "Format telemetry events for Time Series Insights")
+AzureDigitalTwins(adt2, "Digital Twins", "PAYG", "Route telemetry")
+AzureEventHub(eh2, "Telemetry", "Standard", "Serve events")
+AzureTimeSeriesInsights(tsi2, "Time Series", "ADLS Gen2, PAYG", "Analytics")
+
+
+gen2 --> hub2
+hub2 --> fun2
+fun2 --> adt2
+adt2 --> eh2
+eh2 --> tsi2
+
+}
+
+' Hack to force vertical order
+r1 -[hidden]-> r2
+
+@enduml

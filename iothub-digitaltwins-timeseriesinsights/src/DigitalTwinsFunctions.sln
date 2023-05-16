@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHubToDigitalTwins", "EventHubToDigitalTwins\EventHubToDigitalTwins.csproj", "{DE51F45E-FA2E-49BB-BBFB-4F5385E983D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalTwinsUpdatesToTimeSeriesInsightsEvents", "DigitalTwinsUpdatesToTimeSeriesInsightsEvents\DigitalTwinsUpdatesToTimeSeriesInsightsEvents.csproj", "{853D1837-B0D4-4530-9EF3-6097ECCB81DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateTimeSeriesInsightsModel", "PopulateTimeSeriesInsightsModel\PopulateTimeSeriesInsightsModel.csproj", "{C1272228-A845-4D3B-8579-40144CE740D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateDigitalTwinsModel", "PopulateDigitalTwinsModel\PopulateDigitalTwinsModel.csproj", "{F2865437-E736-4A3E-BD49-06C4228AC075}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE51F45E-FA2E-49BB-BBFB-4F5385E983D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE51F45E-FA2E-49BB-BBFB-4F5385E983D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE51F45E-FA2E-49BB-BBFB-4F5385E983D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE51F45E-FA2E-49BB-BBFB-4F5385E983D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{853D1837-B0D4-4530-9EF3-6097ECCB81DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{853D1837-B0D4-4530-9EF3-6097ECCB81DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{853D1837-B0D4-4530-9EF3-6097ECCB81DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{853D1837-B0D4-4530-9EF3-6097ECCB81DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1272228-A845-4D3B-8579-40144CE740D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1272228-A845-4D3B-8579-40144CE740D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1272228-A845-4D3B-8579-40144CE740D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1272228-A845-4D3B-8579-40144CE740D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2865437-E736-4A3E-BD49-06C4228AC075}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2865437-E736-4A3E-BD49-06C4228AC075}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2865437-E736-4A3E-BD49-06C4228AC075}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2865437-E736-4A3E-BD49-06C4228AC075}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
