@@ -17,7 +17,7 @@ statusNotificationTargets:
 
 This sample uses Stream Analytics to process streaming data from EventHub and uses another Event Hub as a sink to store JSON data. This is done to analyze pure streaming performances of Stream Analytics; no aggregation is done and data is passed as fast as possible from the input to the output. Data is augmented by adding additional fields.
 
-To support very high throughput, two different Event Hubs namespaces are deployed by the template. Event Hubs can support streaming workloads from a few MB/s to several GB/s scale. Therefore, you need to choose the appropriate SKU and create the namespace as per your data volume needs. Event Hubs can support streaming workloads from a few MB/s to several GB/s scale. Therefore, you need to choose the appropriate SKU and create the namespace as per your data volume needs. 
+To support very high throughput, two different Event Hubs namespaces are deployed by the template. Event Hubs can support streaming workloads from a few MB/s to several GB/s scale. Therefore, you need to choose the appropriate SKU and create the namespace as per your data volume needs.
 
 
 The provided scripts will create an end-to-end solution complete with load test client.  
