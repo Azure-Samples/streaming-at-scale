@@ -189,6 +189,7 @@ echo "***** [P] Setting up PROCESSING"
 
     export APPINSIGHTS_NAME=$PREFIX"appmon"
     export HDINSIGHT_AKS_NAME=$PREFIX"hdi"
+    export HDINSIGHT_AKS_RESOURCE_PREFIX=$PREFIX
     # Creating multiple HDInsight clusters in the same Virtual Network requires each cluster to have unique first six characters.
     export HDINSIGHT_YARN_NAME="yarn"$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
