@@ -11,9 +11,8 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ public class ComplexEventProcessingJob {
         JsonMapperSchema<SampleRecord> schema = new JsonMapperSchema(SampleRecord.class);
         FlinkKafkaConsumerBase<ConsumerRecord<byte[], SampleRecord>> consumer = StreamingJobCommon.createKafkaConsumer(params, schema);
         JsonMapperSchema<SampleTag> schema2 = new JsonMapperSchema(SampleTag.class);
-        FlinkKafkaProducer011<SampleTag> producer = StreamingJobCommon.createKafkaProducer(params, schema2);
+        FlinkKafkaProducer<SampleTag> producer = StreamingJobCommon.createKafkaProducer(params, schema2);
 
         // setup streaming execution environment
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
