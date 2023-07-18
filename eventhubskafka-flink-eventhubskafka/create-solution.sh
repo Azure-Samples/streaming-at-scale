@@ -21,7 +21,7 @@ usage() {
     echo "      M=METRICS reporting"
     echo "      V=VERIFY deployment"
     echo "-t: test 1,5,10 thousands msgs/sec. Default=$TESTTYPE"
-    echo "-p: platform: aks or hdinsight. Default=$FLINK_PLATFORM"
+    echo "-p: platform: 'aks', 'hdinsight-aks' or 'hdinsight'. Default=$FLINK_PLATFORM"
     echo "-a: type of job: 'simple-relay' or 'complex-processing'. Default=$FLINK_JOBTYPE"
     echo "-l: where to create the resources. Default=$LOCATION"
     exit 1;
@@ -68,6 +68,8 @@ if [ "$TESTTYPE" == "10" ]; then
     # settings for AKS (-p aks)
     export AKS_NODES=4
     export AKS_VM_SIZE=Standard_D4s_v3
+    # settings for HDInsight AKS (-p hdinsight-aks)
+    export HDINSIGHT_AKS_WORKER_SIZE=Standard_D8ds_v5
     # settings for HDInsight YARN (-p hdinsight)
     export HDINSIGHT_HADOOP_WORKERS=3
     export HDINSIGHT_HADOOP_WORKER_SIZE=Standard_D3_V2
@@ -82,6 +84,8 @@ if [ "$TESTTYPE" == "5" ]; then
     # settings for AKS (-p aks)
     export AKS_NODES=5
     export AKS_VM_SIZE=Standard_D2s_v3
+    # settings for HDInsight AKS (-p hdinsight-aks)
+    export HDINSIGHT_AKS_WORKER_SIZE=Standard_D8ds_v5
     # settings for HDInsight YARN (-p hdinsight)
     export HDINSIGHT_HADOOP_WORKERS=3
     export HDINSIGHT_HADOOP_WORKER_SIZE=Standard_D3_V2
@@ -96,6 +100,8 @@ if [ "$TESTTYPE" == "1" ]; then
     # settings for AKS (-p aks)
     export AKS_NODES=3
     export AKS_VM_SIZE=Standard_D2s_v3
+    # settings for HDInsight AKS (-p hdinsight-aks)
+    export HDINSIGHT_AKS_WORKER_SIZE=Standard_D8ds_v5
     # settings for HDInsight YARN (-p hdinsight)
     export HDINSIGHT_HADOOP_WORKERS=3
     export HDINSIGHT_HADOOP_WORKER_SIZE=Standard_D3_V2
@@ -134,10 +140,12 @@ echo ". Region              => $LOCATION"
 echo ". EventHubs           => TU: $EVENTHUB_CAPACITY, Partitions: $EVENTHUB_PARTITIONS"
 if [ "$FLINK_PLATFORM" == "hdinsight" ]; then
   echo ". HDInsight YARN      => VM: $HDINSIGHT_HADOOP_WORKER_SIZE, Workers: $HDINSIGHT_HADOOP_WORKERS"
+elif [ "$FLINK_PLATFORM" == "hdinsight-aks" ]; then
+  echo ". HDInsight on AKS    => VM: $HDINSIGHT_AKS_WORKER_SIZE"
 else
   echo ". AKS                 => VM: $AKS_VM_SIZE, Workers: $AKS_NODES"
 fi
-echo ". Flink               => AKS nodes: $AKS_NODES x $AKS_VM_SIZE, Parallelism: $FLINK_PARALLELISM"
+echo ". Flink               => Parallelism: $FLINK_PARALLELISM"
 echo ". Simulators          => $SIMULATOR_INSTANCES"
 if [[ -n ${AD_SP_APP_ID:-} && -n ${AD_SP_SECRET:-} ]]; then
     echo ". Service Principal   => $AD_SP_APP_ID"
@@ -180,6 +188,7 @@ echo
 echo "***** [P] Setting up PROCESSING"
 
     export APPINSIGHTS_NAME=$PREFIX"appmon"
+    export HDINSIGHT_AKS_NAME=$PREFIX"hdi"
     # Creating multiple HDInsight clusters in the same Virtual Network requires each cluster to have unique first six characters.
     export HDINSIGHT_YARN_NAME="yarn"$PREFIX"hdi"
     export HDINSIGHT_PASSWORD="Strong_Passw0rd!"
