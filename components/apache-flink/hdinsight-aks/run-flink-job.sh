@@ -34,8 +34,10 @@ rm params.properties
 
 echo "********************************************************************************************"
 echo "The Job JAR must be manually submitted in the Flink UI."
-echo "- Access the Flink UI at https://$cluster_fqdn"
-echo "- In the Submit New Jobs pane, click Add New and upload 'flink-job.jar' from this directory."
+echo "- Access the Flink UI at"
+echo "  https://$cluster_fqdn"
+echo "- In the Submit New Jobs pane, click Add New and upload 'flink-job.jar' from this directory"
+echo "  ($PWD)."
 echo "- Wait for the upload to complete."
 echo "- Click on 'flink-job.jar' and click Submit."
 echo "********************************************************************************************"
