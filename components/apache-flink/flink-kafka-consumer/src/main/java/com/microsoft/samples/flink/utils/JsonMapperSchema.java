@@ -3,7 +3,6 @@ package com.microsoft.samples.flink.utils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonGenerator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonParser;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,21 +10,22 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.*;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Headers;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 
 public class JsonMapperSchema<T> implements KafkaDeserializationSchema<ConsumerRecord<byte[], T>>, SerializationSchema<T> {
 
-    private static final DateTimeFormatter dateTimeFormatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX").withZone(ZoneOffset.UTC);
     private final Class<T> type;
     private final ObjectMapper mapper;
+
+    private static final DateTimeFormatter dateTimeFormatter =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
 
     public JsonMapperSchema(Class<T> type) {
         this.type = type;
@@ -57,7 +57,7 @@ public class JsonMapperSchema<T> implements KafkaDeserializationSchema<ConsumerR
         byte[] message = r.value();
         T v = mapper.readValue(message, type);
         return new
-            ConsumerRecord<byte[], T>(r.topic(), r.partition(), r. offset(), r. timestamp(), r. timestampType(), null, r. serializedKeySize(), r. serializedValueSize(), r. key(), v, r. headers());
+                ConsumerRecord<>(r.topic(), r.partition(), r.offset(), r.timestamp(), r.timestampType(), r.serializedKeySize(), r.serializedValueSize(), r.key(), v, r.headers(), Optional.empty());
     }
 
     public TypeInformation<ConsumerRecord<byte[], T>> getProducedType() {
@@ -76,7 +76,7 @@ public class JsonMapperSchema<T> implements KafkaDeserializationSchema<ConsumerR
 
         @Override
         public Instant deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return dateTimeFormatter.parse(jsonParser.getText(), Instant::from);
+            return Instant.parse(jsonParser.getText());
         }
     }
 }
