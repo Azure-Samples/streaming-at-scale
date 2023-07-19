@@ -10,8 +10,13 @@ cluster_fqdn=$(az resource show --ids $cluster_pool_id/clusters/${HDINSIGHT_AKS_
 
 echo 'Preparing Flink Job JAR'
 
-jar_name=flink-kafka-consumer-$FLINK_JOBTYPE.jar
-cp "../components/apache-flink/flink-kafka-consumer/target/assembly/$jar_name" flink-job.jar
+base_jar=flink-kafka-consumer-$FLINK_JOBTYPE.jar
+mkdir -p target
+jar_name=$FLINK_JOBTYPE.jar
+jar_path=target/$jar_name
+
+cp "../components/apache-flink/flink-kafka-consumer/target/assembly/$base_jar" $jar_path
+
 cat << EOF > params.properties
 parallelism=$FLINK_PARALLELISM
 kafka.in.topic=$KAFKA_TOPIC
@@ -29,15 +34,15 @@ kafka.out.security.protocol=$KAFKA_OUT_SEND_SECURITY_PROTOCOL
 kafka.out.sasl.jaas.config=$KAFKA_OUT_SEND_JAAS_CONFIG
 EOF
 
-zip -g flink-job.jar params.properties
+zip -g $jar_path params.properties
 rm params.properties
 
 echo "********************************************************************************************"
 echo "The Job JAR must be manually submitted in the Flink UI."
 echo "- Access the Flink UI at"
 echo "  https://$cluster_fqdn"
-echo "- In the Submit New Jobs pane, click Add New and upload 'flink-job.jar' from this directory"
-echo "  ($PWD)."
+echo "- In the Submit New Jobs pane, click Add New and upload '$jar_name' from the directory"
+echo "  $PWD/target"
 echo "- Wait for the upload to complete."
-echo "- Click on 'flink-job.jar' and click Submit."
+echo "- Click on '$jar_name' and click Submit."
 echo "********************************************************************************************"
