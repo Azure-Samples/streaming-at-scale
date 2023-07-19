@@ -10,6 +10,8 @@ import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 
@@ -69,6 +71,12 @@ class StreamingJobCommon {
                 });
     }
 
-
+    static ParameterTool getParams(String[] args) throws IOException {
+        InputStream resourceAsStream = StreamingJobCommon.class.getClassLoader().getResourceAsStream("params.properties");
+        if (resourceAsStream != null) {
+            return ParameterTool.fromPropertiesFile(resourceAsStream);
+        }
+        return ParameterTool.fromArgs(args);
+    }
 }
 

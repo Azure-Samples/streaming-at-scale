@@ -17,12 +17,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.microsoft.samples.flink.StreamingJobCommon.getParams;
+
 public class ComplexEventProcessingJob {
     private static final int MAX_EVENT_DELAY = 60; // max delay for out of order events
     private static final Logger LOG = LoggerFactory.getLogger(ComplexEventProcessingJob.class);
 
     public static void main(String[] args) throws Exception {
-        ParameterTool params = ParameterTool.fromArgs(args);
+        ParameterTool params = getParams(args);
 
         StreamExecutionEnvironment env = StreamingJobCommon.createStreamExecutionEnvironment(params);
         JsonMapperSchema<SampleRecord> schema = new JsonMapperSchema(SampleRecord.class);
@@ -48,7 +50,6 @@ public class ComplexEventProcessingJob {
         env.execute("complex event processing");
 
     }
-
 
     static void buildStream(DataStream<ConsumerRecord<byte[], SampleRecord>> source, SinkFunction<SampleTag> producer, KeyedProcessFunction<String, SampleRecord, SampleTag> logic) {
         DataStream<SampleTag> stream = source
