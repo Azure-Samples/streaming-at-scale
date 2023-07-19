@@ -30,7 +30,12 @@ kafka.out.sasl.jaas.config=$KAFKA_OUT_SEND_JAAS_CONFIG
 EOF
 
 zip -g flink-job.jar params.properties
+rm params.properties
 
-echo "The Job JAR must be"
-echo "Flink UI: https://$cluster_fqdn"
-echo "Job JAR: flink-job.jar"
+echo "********************************************************************************************"
+echo "The Job JAR must be manually submitted in the Flink UI."
+echo "- Access the Flink UI at https://$cluster_fqdn"
+echo "- In the Submit New Jobs pane, click Add New and upload 'flink-job.jar' from this directory."
+echo "- Wait for the upload to complete."
+echo "- Click on 'flink-job.jar' and click Submit."
+echo "********************************************************************************************"
