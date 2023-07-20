@@ -29,7 +29,7 @@ echo ". name: $eventHubName"
 echo ". partitions: $EVENTHUB_PARTITIONS"
 
 az eventhubs eventhub create -n $eventHubName -g $RESOURCE_GROUP \
-    --message-retention 1 --partition-count $EVENTHUB_PARTITIONS --namespace-name $eventHubsNamespace \
+    --partition-count $EVENTHUB_PARTITIONS --namespace-name $eventHubsNamespace \
     --enable-capture "$EVENTHUB_CAPTURE" --capture-interval 300 --capture-size-limit 314572800 \
     --archive-name-format 'capture/{Namespace}/{EventHub}/{Year}_{Month}_{Day}_{Hour}_{Minute}_{Second}_{PartitionId}' \
     --blob-container streamingatscale \
