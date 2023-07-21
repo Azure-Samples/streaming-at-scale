@@ -166,17 +166,13 @@ around 60k events/min.
 
 The deployed Apache Flink solution doesn't do any analytics or projection, but only populates two fields in the JSON message: the time at which the event was received in Event Hubs, and the current timestamp.
 
-The solution includes a custom monitoring library to log Flink events and metrics to Azure Monitor. The custom monitoring library is currently only included when the Flink job is deployed in AKS. To view the monitoring data, navigate to the Log Analytics resource in the Azure Portal.
-
 The Flink Job Manager UI shows information about the current running job. The IP address of the Job Manager UI is reported by the deployment script. Note that the solution deploys the Job Manager on a public IP address without any security. In a production deployment, you should disable public IP endpoints.
 
 ![Flink Job Manager Web UI](../_doc/_images/flink-job-manager.png)
 
 ### Flink deployment on HDInsight
 
-Deployment on HDInsight is done in job server, highly available mode. The deployment runs a YARN job for the Flink Job Manager, then submits a JAR job to the Job Manager. The Job Manager creates a YARN application per job.
-
-Note that deployed jobs do not survive an HDInsight cluster reboot.
+TODO
 
 ## Query Data
 
