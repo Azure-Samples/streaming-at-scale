@@ -140,7 +140,7 @@
                     ]
                 },
                 "clusterProfile": {
-                    "clusterVersion": "1.0.4",
+                    "clusterVersion": "1.0.6",
                     "ossVersion": "1.16.0",
                     "components": [
                         {
