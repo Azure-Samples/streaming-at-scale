@@ -23,7 +23,8 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
     --parameters \
       clusterpoolName=$HDINSIGHT_AKS_NAME \
       resourcePrefix=$HDINSIGHT_AKS_RESOURCE_PREFIX \
-      clusterVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
+      headNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
+      workerNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
       userObjectId=$userId \
       clusterPoolLogAnalyticsWorkspaceId=$analytics_ws_resourceId \
     -o tsv >> log.txt

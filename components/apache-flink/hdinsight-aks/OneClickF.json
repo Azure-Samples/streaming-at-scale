@@ -20,17 +20,99 @@
                 "description": "Provide a prefix for your resource, your resources will be named as [prefix + random string]."
             }
         },
-        "clusterVMSize": {
-            "defaultValue": "Standard_D8ds_v5",
-            "type": "string",
-            "metadata": {
-                "description": "Provide a the VM Size for the cluster. Example - Standard_D8ds_v5]."
-            }
-        },
         "userObjectId": {
             "type": "string",
             "metadata": {
                 "description": "The user alias object ID from Azure Active Directory"
+            }
+        },
+        "clusterVersion": {
+            "type": "string",
+            "defaultValue": "1.0.6",
+            "metadata": {
+                "description": "The version of the cluster to be created"
+            }
+        },
+        "ossVersion": {
+            "type": "string",
+            "defaultValue": "1.16.0",
+            "metadata": {
+                "description": "The OSS version of the cluster to be created"
+            }
+        },
+        "taskManagerCPU": {
+            "type": "string",
+            "defaultValue": "2",
+            "metadata": {
+                "description": "Task manager CPU count"
+            }
+        },
+        "taskManagerMemoryInMB": {
+            "type": "string",
+            "defaultValue": "2000",
+            "metadata": {
+                "description": "Task manager memory in MB"
+            }
+        },
+        "jobManagerCPU": {
+            "type": "string",
+            "defaultValue": "1",
+            "metadata": {
+                "description": "Job manager CPU count"
+            }
+        },
+        "jobManagerMemoryInMB": {
+            "type": "string",
+            "defaultValue": "2000",
+            "metadata": {
+                "description": "Job manager memory in MB"
+            }
+        },
+        "historyServerCPU": {
+            "type": "string",
+            "defaultValue": "1",
+            "metadata": {
+                "description": "History server CPU count"
+            }
+        },
+        "historyServerMemoryInMB": {
+            "type": "string",
+            "defaultValue": "2000",
+            "metadata": {
+                "description": "History server memory in MB"
+            }
+        },
+        "headNodeVMSize": {
+            "type": "string",
+            "metadata": {
+                "description": "VM SKU selected for the head node"
+            }
+        },
+        "headNodeCount": {
+            "type": "string",
+            "defaultValue": "2",
+            "metadata": {
+                "description": "Head node count"
+            }
+        },
+        "workerNodeVMSize": {
+            "type": "string",
+            "metadata": {
+                "description": "VM SKU selected for the worker node"
+            }
+        },
+        "workerNodeCount": {
+            "type": "string",
+            "defaultValue": "3",
+            "metadata": {
+                "description": "Worker node count"
+            }
+        },
+        "workerPodsCount": {
+            "type": "string",
+            "defaultValue": "2",
+            "metadata": {
+                "description": "Worker pods count"
             }
         }
     },
@@ -141,23 +223,23 @@
                     "nodes": [
                         {
                             "type": "Head",
-                            "vmSize": "[parameters('clusterVMSize')]",
-                            "count": 2
+                            "vmSize": "[parameters('headNodeVMSize')]",
+                            "count": "[int(parameters('headNodeCount'))]"
                         },
                         {
                             "type": "Worker",
-                            "vmSize": "[parameters('clusterVMSize')]",
-                            "count": 3
+                            "vmSize": "[parameters('workerNodeVMSize')]",
+                            "count": "[int(parameters('workerNodeCount'))]"
                         }
                     ]
                 },
                 "clusterProfile": {
-                    "clusterVersion": "1.0.6",
-                    "ossVersion": "1.16.0",
+                    "clusterVersion": "[parameters('clusterVersion')]",
+                    "ossVersion": "[parameters('ossVersion')]",
                     "components": [
                         {
                             "name": "Flink",
-                            "version": "1.16.0"
+                            "version": "[parameters('ossVersion')]"
                         },
                         {
                             "name": "Hive Metastore",
@@ -174,19 +256,27 @@
                             "[parameters('userObjectId')]"
                         ]
                     },
+                    "logAnalyticsProfile": {
+                        "enabled": true,
+                        "applicationLogs": {
+                            "stdErrorEnabled": true,
+                            "stdOutEnabled": true
+                        },
+                        "metricsEnabled": true
+                    },
                     "flinkProfile": {
-                        "numReplicas": 2,
+                        "numReplicas": "[int(parameters('workerPodsCount'))]",
                         "jobManager": {
-                            "cpu": 1,
-                            "memory": 2000
+                            "cpu": "[int(parameters('jobManagerCPU'))]",
+                            "memory": "[int(parameters('jobManagerMemoryInMB'))]"
                         },
                         "taskManager": {
-                            "cpu": 2,
-                            "memory": 2000
+                            "cpu": "[int(parameters('taskManagerCPU'))]",
+                            "memory": "[int(parameters('taskManagerMemoryInMB'))]"
                         },
                         "historyServer": {
-                            "cpu": 1,
-                            "memory": 2000
+                            "cpu": "[int(parameters('historyServerCPU'))]",
+                            "memory": "[int(parameters('historyServerMemoryInMB'))]"
                         },
                         "storage": {
                             "storageUri": "[concat('abfs://container1', '@', variables('storageName'), '.dfs.core.windows.net')]"
