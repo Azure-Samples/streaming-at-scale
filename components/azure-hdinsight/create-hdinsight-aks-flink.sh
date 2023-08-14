@@ -17,6 +17,7 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
   echo ". name: $HDINSIGHT_AKS_NAME"
 
   az deployment group create \
+    --no-prompt \
     --resource-group $RESOURCE_GROUP \
     --template-file "../components/apache-flink/hdinsight-aks/OneClickF.json" \
     --parameters \
@@ -24,5 +25,6 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
       resourcePrefix=$HDINSIGHT_AKS_RESOURCE_PREFIX \
       clusterVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
       userObjectId=$userId \
+      clusterPoolLogAnalyticsWorkspaceId=$analytics_ws_resourceId \
     -o tsv >> log.txt
 fi

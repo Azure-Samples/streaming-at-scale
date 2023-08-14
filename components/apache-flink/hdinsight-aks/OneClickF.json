@@ -3,26 +3,32 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "clusterpoolName": {
-            "type": "String",
+            "type": "string",
             "metadata": {
-                "description": "The cluster pool name"
+                "description": "The name of the Azure HDInsight on AKS cluster pool to create."
+            }
+        },
+        "clusterPoolLogAnalyticsWorkspaceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Id of the Log Analytics workspace when the logs to be stored"
             }
         },
         "resourcePrefix": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Provide a prefix for your resource, your resources will be named as [prefix + random string]."
             }
         },
         "clusterVMSize": {
             "defaultValue": "Standard_D8ds_v5",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Provide a the VM Size for the cluster. Example - Standard_D8ds_v5]."
             }
         },
         "userObjectId": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The user alias object ID from Azure Active Directory"
             }
@@ -36,10 +42,16 @@
     },
     "resources": [
         {
-            "type": "microsoft.hdinsight/clusterpools",
+            "type": "Microsoft.HDInsight/clusterpools",
             "apiVersion": "2021-09-15-preview",
             "name": "[parameters('clusterpoolName')]",
-            "location": "[resourceGroup().location]"
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "logAnalyticsProfile": {
+                    "enabled": true,
+                    "workspaceId": "[parameters('clusterPoolLogAnalyticsWorkspaceId')]"
+                }
+            }
         },
         {
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",

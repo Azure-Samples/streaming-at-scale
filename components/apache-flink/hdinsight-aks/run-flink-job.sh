@@ -5,7 +5,7 @@ set -euo pipefail
 
 echo 'Determining Flink cluster UI'
 
-cluster_pool_id=$(az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type microsoft.hdinsight/clusterPools --query id -o tsv)
+cluster_pool_id=$(az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type microsoft.hdinsight/clusterPools --query id --api-version 2021-09-15-preview -o tsv)
 cluster_fqdn=$(az resource show --ids $cluster_pool_id/clusters/${HDINSIGHT_AKS_RESOURCE_PREFIX}flinkcluster --query properties.clusterProfile.connectivityProfile.web.fqdn -o tsv)
 
 echo 'Preparing Flink Job JAR'
