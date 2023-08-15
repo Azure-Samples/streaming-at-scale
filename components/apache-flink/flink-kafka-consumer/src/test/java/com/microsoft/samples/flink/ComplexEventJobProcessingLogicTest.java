@@ -29,7 +29,7 @@ public class ComplexEventJobProcessingLogicTest {
         //instantiate user-defined function
         ComplexEventProcessingLogic logic = new ComplexEventProcessingLogic();
 
-        // wrap user defined function into a the corresponding operator
+        // wrap user defined function into the corresponding operator
         testHarness = new KeyedOneInputStreamOperatorTestHarness<>(
                 new KeyedProcessOperator<>(logic),
                 (KeySelector<SampleRecord, String>) value -> value.deviceId,
