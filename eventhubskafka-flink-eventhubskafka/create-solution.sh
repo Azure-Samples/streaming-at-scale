@@ -7,7 +7,6 @@ export PREFIX=''
 export LOCATION="eastus"
 export TESTTYPE="1"
 export STEPS="CIPTM"
-export FLINK_PLATFORM='hdinsight-aks'
 export FLINK_JOBTYPE='simple-relay'
 
 usage() {
@@ -164,7 +163,7 @@ echo "***** [P] Setting up PROCESSING"
         source ../components/apache-flink/build-flink-jobs.sh
         source ../components/azure-event-hubs/get-eventhubs-kafka-brokers-in-listen.sh
         source ../components/azure-event-hubs/get-eventhubs-kafka-brokers-out-send.sh
-        source ../components/apache-flink/$FLINK_PLATFORM/run-flink.sh 
+        source ../components/apache-flink/hdinsight-aks/run-flink.sh 
     fi
 echo
 
