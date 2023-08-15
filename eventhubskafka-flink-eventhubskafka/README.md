@@ -131,28 +131,34 @@ The deployment script will report performance, by default every minute for 30 mi
 
 ```
 ***** [M] Starting METRICS reporting
-Event Hub capacity: 2 throughput units (this determines MAX VALUE below).
 Reporting aggregate metrics per minute, offset by 2 minutes, for 30 minutes.
-                         Event Hub #  IncomingMessages  IncomingBytes  OutgoingMessages  OutgoingBytes  ThrottledRequests
-                         -----------  ----------------  -------------  ----------------  -------------  -----------------
-              MAX VALUE                         120000      120000000            491520      240000000                  -
-                         -----------  ----------------  -------------  ----------------  -------------  -----------------
-    2019-11-10T08:17:44            1                 0              0                 0              0                  0
-    2019-11-10T08:17:44            2                 0              0                 0              0                  0
-    2019-11-10T08:18:00            1                 0              0                 0              0                  0
-    2019-11-10T08:18:00            2                 0              0                 0              0                  0
-    2019-11-10T08:19:00            1                 0              0                 0              0                  0
-    2019-11-10T08:19:00            2                 0              0                 0              0                  0
-    2019-11-10T08:22:37            1                 0              0                 0              0                  0
-    2019-11-10T08:22:37            2                 0              0                 0              0                  0
-    2019-11-10T08:23:00            1             43163       40022882             43163       40365390                  0
-    2019-11-10T08:23:00            2             37007       37332787                 0              0                  0
-    2019-11-10T08:24:00            1             59966       55621703             59966       56097577                  0
-    2019-11-10T08:24:00            2             59943       60488690                 0              0                  0
-    2019-11-10T08:25:00            1             60258       55947759             60258       56425866                  0
-    2019-11-10T08:25:00            2             60117       60728670                 0              0                  0
-    2019-11-10T08:26:00            1             60027       55738691             60027       56214951                  0
-    2019-11-10T08:26:00            2             60003       60612850                 0              0                  0
+                             Event Hub #    IncomingMessages       IncomingBytes    OutgoingMessages       OutgoingBytes   ThrottledRequests
+                             -----------    ----------------       -------------    ----------------       -------------  ------------------
+    2023-08-15T08:01:57+0200 Event Hub 1                   0                   0                   0                   0                   0
+    2023-08-15T08:01:59+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:02:02+0200 Event Hub 1                   0                   0                   0                   0                   0
+    2023-08-15T08:02:03+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:03:02+0200 Event Hub 1                   0                   0                   0                   0                   0
+    2023-08-15T08:03:03+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:04:02+0200 Event Hub 1                   0                   0                   0                   0                   0
+    2023-08-15T08:04:04+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:05:09+0200 Event Hub 1                   0                   0                   0                   0                   0
+    2023-08-15T08:05:11+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:06:03+0200 Event Hub 1               23821            20565185                   0                   0                   0
+    2023-08-15T08:06:04+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:07:03+0200 Event Hub 1               60088            51900051                   0                   0                   0
+    2023-08-15T08:07:05+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:08:02+0200 Event Hub 1               60013            51874051                   0                   0                   0
+    2023-08-15T08:08:04+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:09:02+0200 Event Hub 1               60083            51952748                   0                   0                   0
+    2023-08-15T08:09:04+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:10:04+0200 Event Hub 1               60113            51976704                   0                   0                   0
+    2023-08-15T08:10:05+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:11:02+0200 Event Hub 1               60122            51991471                   0                   0                   0
+    2023-08-15T08:11:04+0200 Event Hub 2                   0                   0                   0                   0                   0
+    2023-08-15T08:12:02+0200 Event Hub 1               59964            51849376                   0                   0                   0
+    2023-08-15T08:12:04+0200 Event Hub 2                   0                   0                   0                   0                   0
+
 ```
 
 In column "Event Hub #", 1 refers to the Event Hub used as input to
@@ -166,13 +172,9 @@ around 60k events/min.
 
 The deployed Apache Flink solution doesn't do any analytics or projection, but only populates two fields in the JSON message: the time at which the event was received in Event Hubs, and the current timestamp.
 
-The Flink Job Manager UI shows information about the current running job. The IP address of the Job Manager UI is reported by the deployment script. Note that the solution deploys the Job Manager on a public IP address without any security. In a production deployment, you should disable public IP endpoints.
+The Flink Job Manager UI shows information about the current running job. The IP address of the Job Manager UI is reported by the deployment script.
 
 ![Flink Job Manager Web UI](../_doc/_images/flink-job-manager.png)
-
-### Flink deployment on HDInsight
-
-TODO
 
 ## Query Data
 
