@@ -152,6 +152,7 @@ echo
 echo "***** [P] Setting up PROCESSING"
 
     export HDINSIGHT_AKS_NAME=$PREFIX"hdi"
+    export HDINSIGHT_CLUSTER_NAME=$PREFIX"flinkcluster"
     export HDINSIGHT_AKS_RESOURCE_PREFIX=$PREFIX
 
     source ../components/azure-monitor/generate-workspace-name.sh

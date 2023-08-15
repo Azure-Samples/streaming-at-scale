@@ -21,7 +21,8 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
     --resource-group $RESOURCE_GROUP \
     --template-file "../components/apache-flink/hdinsight-aks/OneClickF.json" \
     --parameters \
-      clusterpoolName=$HDINSIGHT_AKS_NAME \
+      clusterPoolName=$HDINSIGHT_AKS_NAME \
+      clusterName=$HDINSIGHT_CLUSTER_NAME \
       resourcePrefix=$HDINSIGHT_AKS_RESOURCE_PREFIX \
       headNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
       workerNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
