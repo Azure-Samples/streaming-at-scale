@@ -8,6 +8,13 @@
                 "description": "The name of the Azure HDInsight on AKS cluster pool to create."
             }
         },
+        "subnetId": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Subnet resource id"
+            }
+        },
         "clusterPoolVersion": {
             "defaultValue": "1.0",
             "type": "string",
@@ -156,6 +163,9 @@
             "name": "[parameters('clusterPoolName')]",
             "location": "[resourceGroup().location]",
             "properties": {
+                "networkProfile": {
+                    "subnetId": "[parameters('subnetId')]"
+                },
                 "logAnalyticsProfile": {
                     "enabled": true,
                     "workspaceId": "[parameters('clusterPoolLogAnalyticsWorkspaceId')]"

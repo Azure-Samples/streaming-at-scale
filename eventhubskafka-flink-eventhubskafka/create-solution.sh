@@ -124,11 +124,13 @@ echo
 echo "***** [C] Setting up COMMON resources"
 
     export AZURE_STORAGE_ACCOUNT=$PREFIX"storage"
+    export VNET_NAME=$PREFIX"-vnet"
 
     RUN=`echo $STEPS | grep C -o || true`
     if [ ! -z "$RUN" ]; then
         source ../components/azure-common/create-resource-group.sh
         source ../components/azure-storage/create-storage-account.sh
+        source ../components/azure-common/create-virtual-network.sh
     fi
 echo
 
