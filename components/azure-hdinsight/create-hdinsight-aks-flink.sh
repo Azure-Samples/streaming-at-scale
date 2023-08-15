@@ -28,5 +28,7 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
       workerNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
       userObjectId=$userId \
       clusterPoolLogAnalyticsWorkspaceId=$analytics_ws_resourceId \
+      jobManagerCPU=2 \
+      jobManagerMemoryInMB=8000 \
     -o tsv >> log.txt
 fi
