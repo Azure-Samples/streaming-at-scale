@@ -141,13 +141,6 @@
             "metadata": {
                 "description": "Worker node count"
             }
-        },
-        "workerPodsCount": {
-            "type": "string",
-            "defaultValue": "2",
-            "metadata": {
-                "description": "Worker pods count"
-            }
         }
     },
     "variables": {
@@ -299,7 +292,6 @@
                         "metricsEnabled": true
                     },
                     "flinkProfile": {
-                        "numReplicas": "[int(parameters('workerPodsCount'))]",
                         "jobManager": {
                             "cpu": "[int(parameters('jobManagerCPU'))]",
                             "memory": "[int(parameters('jobManagerMemoryInMB'))]"

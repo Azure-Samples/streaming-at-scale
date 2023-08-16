@@ -26,6 +26,7 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
       resourcePrefix=$HDINSIGHT_AKS_RESOURCE_PREFIX \
       headNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
       workerNodeVMSize=$HDINSIGHT_AKS_WORKER_SIZE \
+      workerNodeCount=$FLINK_PARALLELISM \
       userObjectId=$userId \
       clusterPoolLogAnalyticsWorkspaceId=$analytics_ws_resourceId \
       subnetId=$subnet_id \

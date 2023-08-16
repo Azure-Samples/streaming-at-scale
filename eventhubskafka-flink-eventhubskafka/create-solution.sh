@@ -76,7 +76,7 @@ fi
 if [ "$TESTTYPE" == "1" ]; then
     export EVENTHUB_CAPACITY=2
     export EVENTHUB_PARTITIONS=1
-    export FLINK_PARALLELISM=1
+    export FLINK_PARALLELISM=3
     export SIMULATOR_INSTANCES=1
     export HDINSIGHT_AKS_WORKER_SIZE=Standard_D8ds_v5
 fi
