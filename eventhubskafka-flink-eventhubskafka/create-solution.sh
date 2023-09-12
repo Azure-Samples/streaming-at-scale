@@ -96,9 +96,8 @@ echo "Checking pre-requisites..."
 
 source ../assert/has-local-az.sh
 source ../assert/has-local-jq.sh
-source ../assert/has-local-helm.sh
-source ../assert/has-local-kubectl.sh
 source ../assert/has-local-mvn.sh
+source ../assert/has-local-unzip.sh
 
 echo
 echo "Streaming at Scale with Flink"

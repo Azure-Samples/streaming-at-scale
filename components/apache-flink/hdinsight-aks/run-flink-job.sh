@@ -3,11 +3,6 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-echo 'Determining Flink cluster UI'
-
-cluster_pool_id=$(az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type microsoft.hdinsight/clusterPools --query id --api-version 2021-09-15-preview -o tsv)
-cluster_fqdn=$(az resource show --ids $cluster_pool_id/clusters/$HDINSIGHT_CLUSTER_NAME --query properties.clusterProfile.connectivityProfile.web.fqdn -o tsv)
-
 echo 'Preparing Flink Job JAR'
 
 base_jar=flink-kafka-consumer-$FLINK_JOBTYPE.jar
@@ -17,8 +12,9 @@ jar_path=target/$jar_name
 
 cp "../components/apache-flink/flink-kafka-consumer/target/assembly/$base_jar" $jar_path
 
+main_class=$(unzip -p target/simple-relay.jar META-INF/MANIFEST.MF | grep ^Main-Class:  |awk '{print $2}' RS='\r\n')
+
 cat << EOF > params.properties
-parallelism=$FLINK_PARALLELISM
 kafka.in.topic=$KAFKA_TOPIC
 kafka.in.bootstrap.servers=$KAFKA_IN_LISTEN_BROKERS
 kafka.in.request.timeout.ms=60000
@@ -37,12 +33,32 @@ EOF
 zip -g $jar_path params.properties
 rm params.properties
 
-echo "********************************************************************************************"
-echo "The Job JAR must be manually submitted in the Flink UI."
-echo "- Access the Flink UI at"
-echo "  https://$cluster_fqdn"
-echo "- In the Submit New Jobs pane, click Add New and upload '$jar_name' from the directory"
-echo "  $PWD/target"
-echo "- Wait for the upload to complete."
-echo "- Click on '$jar_name' and click Submit."
-echo "********************************************************************************************"
+echo 'uploading Flink job jar'
+
+jobname=$(uuidgen | tr A-Z a-z)
+jarname="$jobname.jar"
+
+# if false; then
+az storage blob upload --account-name "$HDINSIGHT_AKS_RESOURCE_PREFIX"store -c container1 \
+    -n $jarname -f $jar_path \
+    --overwrite \
+    -o tsv >> log.txt
+#fi
+
+echo 'running Flink job'
+
+cluster_resource=$(az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type microsoft.hdinsight/clusterPools --api-version 2021-09-15-preview -o tsv --query id)
+az rest --method POST --url "https://management.azure.com$cluster_resource/clusters/$HDINSIGHT_CLUSTER_NAME/runJob?api-version=2023-06-01-preview" \
+--body '{
+    "properties": {
+        "jobType": "FlinkJob",
+        "jobName": "'$jobname'",
+        "action": "NEW",
+        "jobJarDirectory": "abfs://container1@'$HDINSIGHT_AKS_RESOURCE_PREFIX'store.dfs.core.windows.net/",
+        "jarName": "'$jarname'",
+        "entryClass": "'$main_class'",
+        "flinkConfiguration": {
+            "parallelism": "'$FLINK_PARALLELISM'"
+        }
+    }
+}'
