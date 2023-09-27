@@ -19,7 +19,7 @@ if ! az resource show -g $RESOURCE_GROUP -n $HDINSIGHT_AKS_NAME --resource-type 
   az deployment group create \
     --no-prompt \
     --resource-group $RESOURCE_GROUP \
-    --template-file "../components/apache-flink/hdinsight-aks/OneClickF.json" \
+    --template-file "../components/apache-flink/hdinsight-aks/OneClickFlink.json" \
     --parameters \
       clusterPoolName=$HDINSIGHT_AKS_NAME \
       clusterName=$HDINSIGHT_CLUSTER_NAME \

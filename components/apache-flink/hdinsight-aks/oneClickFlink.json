@@ -3,21 +3,14 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "clusterPoolName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Azure HDInsight on AKS cluster pool to create."
-            }
-        },
-        "subnetId": {
             "type": "String",
-            "defaultValue": "",
             "metadata": {
-                "description": "Subnet resource id"
+                "description": "The name of cluster pool."
             }
         },
         "clusterPoolVersion": {
             "defaultValue": "1.0",
-            "type": "string",
+            "type": "String",
             "metadata": {
                 "description": "HDInsight on AKS cluster pool version to be created."
             }
@@ -26,46 +19,46 @@
             "defaultValue": "Standard_F4s_v2",
             "allowedValues": [
                 "Standard_F4s_v2",
-                "Standard_D4av_v4",
+                "Standard_D4a_v4",
                 "Standard_D4as_v4",
-                "Standard_E4s_v3",
-                "Standard_E4_v3"
+                "Standard_E4s_v3"
             ],
-            "type": "string",
+            "type": "String",
             "metadata": {
-                "description": "VM SKU selected for the cluster pool"
+                "description": "VM SKU size for the cluster pool."
             }
         },
         "resourcePrefix": {
-            "type": "string",
+            "type": "String",
             "metadata": {
-                "description": "Provide a prefix for creating necessary resources required for cluster creation, your necessary resources will be named as [prefix + random string]."
+                "description": "Provide a prefix for creating necessary resources required for cluster creation, your necessary resources will be named as [prefix + predefined string]. For example, if you provide resource prefix as demo then, MSI is created with name as demoMSI and Storage is created with name as demostore."
             }
         },
         "clusterName": {
-            "type": "string",
+            "type": "String",
             "metadata": {
-                "description": "The name of the cluster"
+                "description": "The name of the cluster."
             }
         },
         "hdinsightOnAksClusterVersion": {
             "defaultValue": "1.0.6",
-            "type": "string",
+            "type": "String",
             "metadata": {
-                "description": "The version of the cluster to be created"
+                "description": "The HDInsight on AKS cluster version to be created."
             }
         },
         "clusterOssVersion": {
             "defaultValue": "1.16.0",
-            "type": "string",
+            "type": "String",
             "metadata": {
-                "description": "The OSS version of the cluster to be created"
+                "description": "The OSS version of the cluster to be created."
             }
         },
-        "userObjectId": {
-            "type": "string",
+        "subnetId": {
+            "type": "String",
+            "defaultValue": "",
             "metadata": {
-                "description": "The user alias object ID from Azure Active Directory"
+                "description": "Subnet resource id"
             }
         },
         "clusterPoolLogAnalyticsWorkspaceId": {
@@ -141,18 +134,24 @@
             "metadata": {
                 "description": "Worker node count"
             }
+        },
+        "userObjectId": {
+            "type": "String",
+            "metadata": {
+                "description": "The user alias object ID from Azure Active Directory. For example, myuserid@microsoft.com, search for this alias in AAD in the Azure portal and copy the Object ID."
+            }
         }
     },
     "variables": {
         "clusterName": "[concat(parameters('clusterPoolName'), '/', parameters('clusterName'))]",
         "msiName": "[concat(parameters('resourcePrefix'), 'MSI')]",
-        "roleAssignedGuid": "[guid(variables('msiName'), resourceGroup().id)]",
+        "roleAssignedGuid": "[guid(variables('msiName'), resourceGroup().id, deployment().name)]",
         "storageName": "[concat(parameters('resourcePrefix'), 'store')]"
     },
     "resources": [
         {
-            "type": "Microsoft.HDInsight/clusterpools",
-            "apiVersion": "2021-09-15-preview",
+            "type": "microsoft.hdinsight/clusterpools",
+            "apiVersion": "2023-06-01-preview",
             "name": "[parameters('clusterPoolName')]",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -224,7 +223,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'f1a07417-d97a-45cb-824c-7a7467783830')]",
-                "principalId": "[reference(resourceId('microsoft.hdinsight/clusterpools', parameters('clusterPoolName')), '2021-09-15-preview').aksClusterProfile.aksClusterAgentPoolIdentityProfile.msiObjectId]"
+                "principalId": "[reference(resourceId('microsoft.hdinsight/clusterpools', parameters('clusterPoolName')), '2023-06-01-preview').aksClusterProfile.aksClusterAgentPoolIdentityProfile.msiObjectId]"
             },
             "scope": "[concat('Microsoft.ManagedIdentity/userAssignedIdentities', '/', variables('msiName'))]"
         },
@@ -246,7 +245,7 @@
         },
         {
             "type": "microsoft.hdinsight/clusterpools/clusters",
-            "apiVersion": "2021-09-15-preview",
+            "apiVersion": "2023-06-01-preview",
             "name": "[variables('clusterName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
