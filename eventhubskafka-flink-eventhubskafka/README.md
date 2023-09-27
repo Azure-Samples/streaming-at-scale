@@ -172,7 +172,7 @@ around 60k events/min.
 
 The deployed Apache Flink solution doesn't do any analytics or projection, but only populates two fields in the JSON message: the time at which the event was received in Event Hubs, and the current timestamp.
 
-The Flink Job Manager UI shows information about the current running job. The IP address of the Job Manager UI is reported by the deployment script.
+The Flink Job Manager UI shows information about the current running job. The Job Manager UI is accessible from the Azure Portal.
 
 ![Flink Job Manager Web UI](../_doc/_images/flink-job-manager.png)
 
