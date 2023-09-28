@@ -38,6 +38,8 @@ The following tools/languages are also needed:
   - Install: `sudo apt install jq`
 - [Maven](https://maven.apache.org/install.html)
   - Install: `sudo apt install maven`
+- [Unzip](https://askubuntu.com/questions/660846/how-to-zip-and-unzip-a-directory-and-its-files-in-linux)
+  - Install: `sudo apt install unzip`
 
 ## Setup Solution
 
@@ -117,11 +119,9 @@ If you want to change some setting of the solution, like number of load test cli
 
     export EVENTHUB_CAPACITY=2
     export EVENTHUB_PARTITIONS=1
-    export FLINK_PARALLELISM=1
+    export FLINK_PARALLELISM=3
     export SIMULATOR_INSTANCES=1
-    # settings for AKS (-p aks)
-    export AKS_NODES=3
-    export AKS_VM_SIZE=Standard_D2s_v3
+    export HDINSIGHT_AKS_WORKER_SIZE=Standard_D8ds_v5
 
 The above settings have been chosen to sustain a 1,000 msg/s stream. The script also contains settings for 5,000 msg/s and 10,000 msg/s.
 
