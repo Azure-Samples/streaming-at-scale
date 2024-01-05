@@ -65,7 +65,7 @@ sudo apt install maven
   template](https://azure.microsoft.com/en-us/resources/templates/101-databricks-all-in-one-template-for-vnet-injection/),
   changing the tier to standard on the deployment screen.
 * Install a build agent (instructions below).
-* In Azure AD, create a service principal. Grant the service principal
+* In Microsoft Entra ID, create a service principal. Grant the service principal
   *Owner* permission on your subscription (we can't use the automatic
   service connection dialog in Azure DevOps, as that would only grant
   *Contributor* permissions. We need *Owner* in order to grant Azure Kubernetes

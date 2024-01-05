@@ -15,7 +15,7 @@ variable "resource_group" {
 
 variable "reader_principal_object_id" {
   type        = string
-  description = "Azure AD Object ID of the user to be assigned Reader role into the Time Series Insights instance."
+  description = "Entra Object ID of the user to be assigned Reader role into the Time Series Insights instance."
 }
 
 variable "id_properties" {
