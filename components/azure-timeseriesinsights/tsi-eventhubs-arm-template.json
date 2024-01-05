@@ -120,14 +120,14 @@
         "type": "array",
         "defaultValue": [],
         "metadata": {
-          "description": "A list of object ids of the users or applications in AAD that should have Reader access to the environment. The service principal objectId can be obtained by calling the Get-AzureRMADUser or the Get-AzureRMADServicePrincipal cmdlets. Creating an access policy for AAD groups is not yet supported."
+          "description": "A list of object ids of the users or applications in Entra ID that should have Reader access to the environment. The service principal objectId can be obtained by calling the Get-AzureRMADUser or the Get-AzureRMADServicePrincipal cmdlets. Creating an access policy for Entra ID groups is not yet supported."
         }
       },
       "accessPolicyContributorObjectIds": {
         "type": "array",
         "defaultValue": [],
         "metadata": {
-          "description": "A list of object ids of the users or applications in AAD that should have Contributor access to the environment. The service principal objectId can be obtained by calling the Get-AzureRMADUser or the Get-AzureRMADServicePrincipal cmdlets. Creating an access policy for AAD groups is not yet supported."
+          "description": "A list of object ids of the users or applications in Entra ID that should have Contributor access to the environment. The service principal objectId can be obtained by calling the Get-AzureRMADUser or the Get-AzureRMADServicePrincipal cmdlets. Creating an access policy for Entra ID groups is not yet supported."
         }
       },
       "location": {
