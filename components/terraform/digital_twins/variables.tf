@@ -25,7 +25,7 @@ variable "eventhub_secondary_connection_string" {
 
 variable "owner_principal_object_id" {
   type        = string
-  description = "Azure AD Object ID of the user to be assigned Azure Digital Twins Data Owner role to."
+  description = "Entra Object ID of the user to be assigned Azure Digital Twins Data Owner role to."
 }
 
 variable "event_hubs_route_filter" {
