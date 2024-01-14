@@ -32,8 +32,6 @@ public class ComplexEventProcessingLogic extends KeyedProcessFunction<String, Sa
             state = new SampleState();
         }
 
-        LOG.debug(String.format("DBG-3 %s, %d, %d", receivedRecord.deviceId, state.recordsSize(), state.tagsSize()));
-
         // add latest record to the state
         state.addRecord(receivedRecord);
 

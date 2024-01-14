@@ -31,8 +31,10 @@ databricks_metainfo=$(az resource show -g $RESOURCE_GROUP --resource-type Micros
 # Databricks CLI automatically picks up configuration from $DATABRICKS_HOST and $DATABRICKS_TOKEN.
 export DATABRICKS_HOST=$(jq -r '"https://" + .location + ".azuredatabricks.net"' <<<"$databricks_metainfo")
 
-echo 'creating Key Vault to store Databricks PAT token'
-az keyvault create -g $RESOURCE_GROUP -n $ADB_TOKEN_KEYVAULT -o tsv >>log.txt
+if ! az keyvault show -g $RESOURCE_GROUP -n $ADB_TOKEN_KEYVAULT -o none 2>/dev/null ; then
+  echo 'creating Key Vault to store Databricks PAT token'
+  az keyvault create -g $RESOURCE_GROUP -n $ADB_TOKEN_KEYVAULT -o tsv >>log.txt
+fi
 
 echo 'checking PAT token secret presence in Key Vault'
 databricks_token_secret_name="DATABRICKS-TOKEN"

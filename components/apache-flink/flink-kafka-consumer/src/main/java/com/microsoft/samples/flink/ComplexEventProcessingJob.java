@@ -11,25 +11,26 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.microsoft.samples.flink.StreamingJobCommon.getParams;
 
 public class ComplexEventProcessingJob {
     private static final int MAX_EVENT_DELAY = 60; // max delay for out of order events
     private static final Logger LOG = LoggerFactory.getLogger(ComplexEventProcessingJob.class);
 
     public static void main(String[] args) throws Exception {
-        ParameterTool params = ParameterTool.fromArgs(args);
+        ParameterTool params = getParams(args);
 
         StreamExecutionEnvironment env = StreamingJobCommon.createStreamExecutionEnvironment(params);
         JsonMapperSchema<SampleRecord> schema = new JsonMapperSchema(SampleRecord.class);
         FlinkKafkaConsumerBase<ConsumerRecord<byte[], SampleRecord>> consumer = StreamingJobCommon.createKafkaConsumer(params, schema);
         JsonMapperSchema<SampleTag> schema2 = new JsonMapperSchema(SampleTag.class);
-        FlinkKafkaProducer011<SampleTag> producer = StreamingJobCommon.createKafkaProducer(params, schema2);
+        FlinkKafkaProducer<SampleTag> producer = StreamingJobCommon.createKafkaProducer(params, schema2);
 
         // setup streaming execution environment
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -49,7 +50,6 @@ public class ComplexEventProcessingJob {
         env.execute("complex event processing");
 
     }
-
 
     static void buildStream(DataStream<ConsumerRecord<byte[], SampleRecord>> source, SinkFunction<SampleTag> producer, KeyedProcessFunction<String, SampleRecord, SampleTag> logic) {
         DataStream<SampleTag> stream = source
