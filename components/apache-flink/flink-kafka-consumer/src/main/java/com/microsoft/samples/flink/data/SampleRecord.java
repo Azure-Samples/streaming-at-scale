@@ -43,5 +43,6 @@ public class SampleRecord implements Serializable {
         public double moreData20;
         public double moreData21;
         public double moreData22;
+        public double moreData23;
     }
 }

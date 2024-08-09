@@ -15,11 +15,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.time.Instant;
 
+import static com.microsoft.samples.flink.StreamingJobCommon.getParams;
+
 public class SimpleRelayStreamingJob {
     private static final int MAX_EVENT_DELAY = 60; // max delay for out of order events
 
     public static void main(String[] args) throws Exception {
-        ParameterTool params = ParameterTool.fromArgs(args);
+        ParameterTool params = getParams(args);
 
         StreamExecutionEnvironment env = StreamingJobCommon.createStreamExecutionEnvironment(params);
         JsonMapperSchema<SampleRecord> schema = new JsonMapperSchema<>(SampleRecord.class);
