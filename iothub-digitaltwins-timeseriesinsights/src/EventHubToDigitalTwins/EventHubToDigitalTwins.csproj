@@ -6,7 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Azure.DigitalTwins.Core" Version="1.2.0" />
-        <PackageReference Include="Azure.Identity" Version="1.10.2" />
+        <PackageReference Include="Azure.Identity" Version="1.11.4" />
         <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventHubs" Version="4.2.0" />
         <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.7" />
         <PackageReference Include="System.Linq.Async" Version="5.0.0" />
