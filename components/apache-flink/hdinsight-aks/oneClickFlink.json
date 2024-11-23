@@ -1,0 +1,314 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterPoolName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of cluster pool."
+            }
+        },
+        "clusterPoolVersion": {
+            "defaultValue": "1.0",
+            "type": "String",
+            "metadata": {
+                "description": "HDInsight on AKS cluster pool version to be created."
+            }
+        },
+        "clusterPoolNodeVmSize": {
+            "defaultValue": "Standard_F4s_v2",
+            "allowedValues": [
+                "Standard_F4s_v2",
+                "Standard_D4a_v4",
+                "Standard_D4as_v4",
+                "Standard_E4s_v3"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "VM SKU size for the cluster pool."
+            }
+        },
+        "resourcePrefix": {
+            "type": "String",
+            "metadata": {
+                "description": "Provide a prefix for creating necessary resources required for cluster creation, your necessary resources will be named as [prefix + predefined string]. For example, if you provide resource prefix as demo then, MSI is created with name as demoMSI and Storage is created with name as demostore."
+            }
+        },
+        "clusterName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of the cluster."
+            }
+        },
+        "hdinsightOnAksClusterVersion": {
+            "defaultValue": "1.0.6",
+            "type": "String",
+            "metadata": {
+                "description": "The HDInsight on AKS cluster version to be created."
+            }
+        },
+        "clusterOssVersion": {
+            "defaultValue": "1.16.0",
+            "type": "String",
+            "metadata": {
+                "description": "The OSS version of the cluster to be created."
+            }
+        },
+        "subnetId": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Subnet resource id"
+            }
+        },
+        "clusterPoolLogAnalyticsWorkspaceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Id of the Log Analytics workspace when the logs to be stored"
+            }
+        },
+        "taskManagerCPU": {
+            "type": "string",
+            "defaultValue": "2",
+            "metadata": {
+                "description": "Task manager CPU count"
+            }
+        },
+        "taskManagerMemoryInMB": {
+            "type": "string",
+            "defaultValue": "2000",
+            "metadata": {
+                "description": "Task manager memory in MB"
+            }
+        },
+        "jobManagerCPU": {
+            "type": "string",
+            "defaultValue": "1",
+            "metadata": {
+                "description": "Job manager CPU count"
+            }
+        },
+        "jobManagerMemoryInMB": {
+            "type": "string",
+            "defaultValue": "2000",
+            "metadata": {
+                "description": "Job manager memory in MB"
+            }
+        },
+        "historyServerCPU": {
+            "type": "string",
+            "defaultValue": "1",
+            "metadata": {
+                "description": "History server CPU count"
+            }
+        },
+        "historyServerMemoryInMB": {
+            "type": "string",
+            "defaultValue": "2000",
+            "metadata": {
+                "description": "History server memory in MB"
+            }
+        },
+        "headNodeVMSize": {
+            "type": "string",
+            "metadata": {
+                "description": "VM SKU selected for the head node"
+            }
+        },
+        "headNodeCount": {
+            "type": "string",
+            "defaultValue": "2",
+            "metadata": {
+                "description": "Head node count"
+            }
+        },
+        "workerNodeVMSize": {
+            "type": "string",
+            "metadata": {
+                "description": "VM SKU selected for the worker node"
+            }
+        },
+        "workerNodeCount": {
+            "type": "string",
+            "defaultValue": "3",
+            "metadata": {
+                "description": "Worker node count"
+            }
+        },
+        "userObjectId": {
+            "type": "String",
+            "metadata": {
+                "description": "The user alias object ID from Azure Active Directory. For example, myuserid@microsoft.com, search for this alias in AAD in the Azure portal and copy the Object ID."
+            }
+        }
+    },
+    "variables": {
+        "clusterName": "[concat(parameters('clusterPoolName'), '/', parameters('clusterName'))]",
+        "msiName": "[concat(parameters('resourcePrefix'), 'MSI')]",
+        "roleAssignedGuid": "[guid(variables('msiName'), resourceGroup().id, deployment().name)]",
+        "storageName": "[concat(parameters('resourcePrefix'), 'store')]"
+    },
+    "resources": [
+        {
+            "type": "microsoft.hdinsight/clusterpools",
+            "apiVersion": "2023-06-01-preview",
+            "name": "[parameters('clusterPoolName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "networkProfile": {
+                    "subnetId": "[parameters('subnetId')]"
+                },
+                "logAnalyticsProfile": {
+                    "enabled": true,
+                    "workspaceId": "[parameters('clusterPoolLogAnalyticsWorkspaceId')]"
+                },
+                "clusterPoolProfile": {
+                    "clusterPoolVersion": "[parameters('clusterPoolVersion')]"
+                },
+                "computeProfile": {
+                    "vmSize": "[parameters('clusterPoolNodeVmSize')]",
+                    "count": 3
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2018-11-30",
+            "name": "[variables('msiName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('storageName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_RAGRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "allowSharedKeyAccess": true,
+                "isHnsEnabled": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('storageName'), '/default/', 'container1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-10-01-preview",
+            "name": "[variables('roleAssignedGuid')]",
+            "dependsOn": [
+                "[resourceId('microsoft.hdinsight/clusterpools',parameters('clusterPoolName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName'))]",
+                "[variables('msiName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'f1a07417-d97a-45cb-824c-7a7467783830')]",
+                "principalId": "[reference(resourceId('microsoft.hdinsight/clusterpools', parameters('clusterPoolName')), '2023-06-01-preview').aksClusterProfile.aksClusterAgentPoolIdentityProfile.msiObjectId]"
+            },
+            "scope": "[concat('Microsoft.ManagedIdentity/userAssignedIdentities', '/', variables('msiName'))]"
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[guid(variables('storageName'), resourceGroup().id)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName'))]",
+                "[resourceId('microsoft.hdinsight/clusterpools', parameters('clusterPoolName'))]",
+                "[variables('storageName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName')), '2018-11-30').principalId]"
+            },
+            "scope": "[concat('Microsoft.Storage/storageAccounts', '/', variables('storageName'))]"
+        },
+        {
+            "type": "microsoft.hdinsight/clusterpools/clusters",
+            "apiVersion": "2023-06-01-preview",
+            "name": "[variables('clusterName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('microsoft.hdinsight/clusterpools', parameters('clusterPoolName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName'))]"
+            ],
+            "properties": {
+                "clusterType": "Flink",
+                "computeProfile": {
+                    "nodes": [
+                        {
+                            "type": "Head",
+                            "vmSize": "[parameters('headNodeVMSize')]",
+                            "count": "[int(parameters('headNodeCount'))]"
+                        },
+                        {
+                            "type": "Worker",
+                            "vmSize": "[parameters('workerNodeVMSize')]",
+                            "count": "[int(parameters('workerNodeCount'))]"
+                        }
+                    ]
+                },
+                "clusterProfile": {
+                    "clusterVersion": "[parameters('hdinsightOnAksClusterVersion')]",
+                    "ossVersion": "[parameters('clusterOssVersion')]",
+                    "identityProfile": {
+                        "msiResourceId": "[string(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName')))]",
+                        "msiClientId": "[string(reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName'))).clientId)]",
+                        "msiObjectId": "[string(reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('msiName'))).principalId)]"
+                    },
+                    "authorizationProfile": {
+                        "userIds": [
+                            "[parameters('userObjectId')]"
+                        ]
+                    },
+                    "logAnalyticsProfile": {
+                        "enabled": true,
+                        "applicationLogs": {
+                            "stdErrorEnabled": true,
+                            "stdOutEnabled": true
+                        },
+                        "metricsEnabled": true
+                    },
+                    "flinkProfile": {
+                        "jobManager": {
+                            "cpu": "[int(parameters('jobManagerCPU'))]",
+                            "memory": "[int(parameters('jobManagerMemoryInMB'))]"
+                        },
+                        "taskManager": {
+                            "cpu": "[int(parameters('taskManagerCPU'))]",
+                            "memory": "[int(parameters('taskManagerMemoryInMB'))]"
+                        },
+                        "historyServer": {
+                            "cpu": "[int(parameters('historyServerCPU'))]",
+                            "memory": "[int(parameters('historyServerMemoryInMB'))]"
+                        },
+                        "storage": {
+                            "storageUri": "[concat('abfs://container1', '@', variables('storageName'), '.dfs.core.windows.net')]"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

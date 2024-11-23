@@ -211,7 +211,7 @@ Implement a stream processing architecture using:
 Implement a stream processing architecture using:
 
 - Event Hubs Kafka (Ingest / Immutable Log)
-- Flink on HDInsight or Azure Kubernetes Service (Stream Process)
+- Flink on HDInsight (Stream Process)
 - Event Hubs Kafka (Serve)
 
 ### [Event Hubs Kafka + Azure Functions + Cosmos DB](https://github.com/Azure-Samples/streaming-at-scale/tree/main/eventhubskafka-functions-cosmosdb)
